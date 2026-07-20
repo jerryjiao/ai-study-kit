@@ -2,19 +2,18 @@ import { useEffect, useState } from 'react';
 import { BookOpen } from 'lucide-react';
 
 /**
- * 课程页：用全屏 iframe 嵌入 teach 产出的 study/ba/ 静态小站。
+ * 课程页：用全屏 iframe 嵌入 examples/<theme>/ 静态小站（teach 产出）。
  *
  * 为什么用 iframe 而非 React 重写：teach 的课程是自包含的静态 HTML 小站
  *（lessons / reference 用 ../assets/styles.css 等相对路径互链），拆进 React 会
  * 破坏相对路径与 teach 的持续产出流程。iframe 原样嵌入，路径完整、可离线、零改 HTML。
  *
- * 课程内容由 sync:study 脚本从 study/ba/ 同步到 public/study/ba/，
- * 访问路径 /study/ba/index.html。dev/prod 都能跑（vite publicDir 自动托管）。
+ * 课程内容由 sync:study 脚本从 examples/<theme>/ 同步到 public/study/<theme>/，
+ * 访问路径 /study/<theme>/index.html。dev/prod 都能跑（vite publicDir 自动托管）。
  *
  * 顶栏只保留全局 TopNav（64px），iframe 占满剩余视口，最大化可阅读区域。
- *（曾有多课程切换条 + 新窗口打开，2026-07-12 精简：networking 不再学，单课程无需切换条。）
  */
-const COURSE_URL = '/study/ba/index.html';
+const COURSE_URL = '/study/dev-intro/index.html';
 
 export function Courses() {
   const [error, setError] = useState(false);
@@ -45,7 +44,7 @@ export function Courses() {
     <div className="h-[calc(100vh-4rem)]">
       <iframe
         src={COURSE_URL}
-        title="业务架构备考"
+        title="学习课程"
         className="w-full h-full border-0 bg-white"
       />
     </div>

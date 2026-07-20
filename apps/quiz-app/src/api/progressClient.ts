@@ -1,11 +1,11 @@
 import type { Progress } from '../types';
 import { emptyProgress, mergeProgress } from '../lib/progress';
 
-const LS_KEY = 'tp-pass-progress-v1';
+const LS_KEY = 'ask-progress-v1';
 /** 失败的进度快照队列：每次彻底失败（重试用尽）的 Progress 整体存一份。
  *  下次 loadProgress 启动时尝试 flush。设计成数组而非单值，避免多次连续失败互相覆盖。
  *  每个元素是一个完整 Progress 快照（不是增量），flush 时按 submittedAt merge 进服务器。 */
-const PENDING_KEY = 'tp-pass-progress-pending';
+const PENDING_KEY = 'ask-progress-pending';
 
 /** 同步状态回调：让 UI 层（useProgress）感知成功/失败，显示 banner */
 type SyncListener = (status: 'saved' | 'error') => void;

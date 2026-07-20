@@ -1,22 +1,25 @@
-// 把 study/<course>/ 课程小站同步到 quiz-app/public/study/<course>/，
+// 把 examples/<course>/ 课程小站同步到 quiz-app/public/study/<course>/，
 // 供答题站通过 /study/<course> 路径静态托管（vite 原样打入 dist，相对路径完整保留）。
-// teach skill 持续往 study/<course>/ 产出课程；每次 build 前跑此脚本即可同步。
+// teach skill 持续往 examples/<course>/ 产出课程；每次 build 前跑此脚本即可同步。
 //
-// 用法：node quiz-app/scripts/sync-study.mjs
+// 用法：node apps/quiz-app/scripts/sync-study.mjs
+//       EXAMPLE_THEME=my-topic node apps/quiz-app/scripts/sync-study.mjs
 import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(__dirname, '..', '..');
+const repoRoot = join(__dirname, '..', '..', '..');
 
-// 课程源目录清单：study/<name>/ → public/study/<name>/
-const COURSES = ['ba', 'networking'];
+// 课程源目录：examples/<theme>/ → public/study/<theme>/
+// 切换主题：改 EXAMPLE_THEME 环境变量。多个主题可放进数组（如 ['dev-intro', 'k8s-basics']）。
+const EXAMPLE_THEME = process.env.EXAMPLE_THEME || 'dev-intro';
+const COURSES = [EXAMPLE_THEME];
 
 mkdirSync(join(__dirname, '..', 'public', 'study'), { recursive: true });
 
 for (const name of COURSES) {
-  const src = join(repoRoot, 'study', name);
+  const src = join(repoRoot, 'examples', name);
   const dest = join(__dirname, '..', 'public', 'study', name);
 
   if (!existsSync(src)) {

@@ -1,16 +1,16 @@
 export type QType = 'single' | 'multi' | 'judge';
 
 export interface Question {
-  id: string;                 // "A-001" | "B-012" | "C-003" | "IMG-03-q1" | "NET-001"
-  source: string;             // "100道客观题" | "全量练习题" | "0417题库" | "应用架构课上习题" | "网络备考-*"
+  id: string;                 // "GIT-001" | "LNX-002" 等，全局唯一稳定
+  source: string;             // 题源标识，自定义（如 "dev-intro"）
   topic?: string;
-  subtopic?: string;          // 大类下的细分考点（BA/IA/指标/云原生 有，如"BA·价值流灯塔"）
-  day?: string;               // "D2".."D8" 备考日程标签（仅 BA官方题库 携带）
+  subtopic?: string;          // 大类下的细分考点（可选，用于主题内分组）
+  day?: string;               // 学习日程标签（可选，如 "D1".."D8"，对应主题课表）
   type: QType;                // single | multi | judge
   question: string;
   options: Record<string, string>;  // {"A":"..."} 可到 "L"
   answer: string[];           // ["C"] | ["A","B","D"]；图片题自评模式为 []
-  difficulty?: string;        // "易"|"中"|"难"（仅 0417 来源）
+  difficulty?: string;        // "易"|"中"|"难"（可选）
   analysis?: string;
   examPoint?: string;
   imageRef?: string;          // "image1.png" 等
@@ -94,7 +94,7 @@ export interface Progress {
   srsMeta?: SrsMeta;                       // 闪卡全局元数据（今日新卡计数等）
   /** UI 主题偏好（非学习进度）：'light' | 'dark' | 'system'。
    *  跨设备同步走 mergeProgress（按 themeUpdatedAt 取新，同 srs/newToday 模式）。
-   *  本地另有独立的 'tp-pass-theme' key 供内联脚本秒读（见 index.html）。 */
+   *  本地另有独立的 'ask-theme' key 供内联脚本秒读（见 index.html）。 */
   theme?: 'light' | 'dark' | 'system';
   themeUpdatedAt?: number;                // 主题最后变更时间戳（Date.now()），LWW 仲裁用
 }

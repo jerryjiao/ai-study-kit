@@ -4,7 +4,7 @@
  */
 
 function key(scope: string): string {
-  return `tp-pass-${scope}-pos-id`;
+  return `ask-${scope}-pos-id`;
 }
 
 /** 读取上次记忆的题 id，在当前列表中找到其索引；找不到回起点 0 */

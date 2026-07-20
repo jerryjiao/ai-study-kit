@@ -10,9 +10,9 @@ import { CountBadge } from '../components/CountBadge';
 import { useConfirm } from '../components/ConfirmDialog';
 
 const DAY_MS = 86_400_000;
-const STREAK_KEY = 'tp-pass-srs-streak';
-const STREAK_DATE_KEY = 'tp-pass-srs-last-complete-date';
-const NEW_PER_DAY_KEY = 'tp-pass-new-per-day';
+const STREAK_KEY = 'ask-srs-streak';
+const STREAK_DATE_KEY = 'ask-srs-last-complete-date';
+const NEW_PER_DAY_KEY = 'ask-new-per-day';
 const DEFAULT_NEW_PER_DAY = 5;
 
 /** 闪卡 dashboard：今日概览 + 开始复习入口 + 每日新卡设置（对应答题页的 Home） */

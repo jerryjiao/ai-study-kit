@@ -2,11 +2,11 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { useProgress } from '../hooks/useProgress';
 
 /** 主题偏好三态：浅色 / 深色 / 跟随系统（prefers-color-scheme）。
- *  存储双 key：本地 'tp-pass-theme'（秒读，内联脚本也读它）+ progress.theme/themeUpdatedAt（跨设备同步）。 */
+ *  存储双 key：本地 'ask-theme'（秒读，内联脚本也读它）+ progress.theme/themeUpdatedAt（跨设备同步）。 */
 export type ThemeMode = 'light' | 'dark' | 'system';
 
-const LS_KEY = 'tp-pass-theme';
-const LS_UPDATED_KEY = 'tp-pass-theme-updated-at';
+const LS_KEY = 'ask-theme';
+const LS_UPDATED_KEY = 'ask-theme-updated-at';
 const DEFAULT_MODE: ThemeMode = 'system';
 
 interface ThemeCtxValue {
@@ -55,7 +55,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 
   // progress 加载后：若服务器端 theme 更新（跨设备同步），用远端值同步本地。
-  // 仲裁依据：progress.themeUpdatedAt > 本地缓存的 tp-pass-theme-updated-at。
+  // 仲裁依据：progress.themeUpdatedAt > 本地缓存的 ask-theme-updated-at。
   useEffect(() => {
     if (!loaded) return;
     const remoteTheme = progress.theme;
@@ -84,7 +84,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => { applyDarkClass(resolvedDark); }, [resolvedDark]);
 
   /** 切换主题：写本地 + 经 useProgress.setTheme 写 progress 同步服务器。
-   *  本地写入 tp-pass-theme-updated-at 防止 progress load 时把本地刚改的值又被远端旧值覆盖。 */
+   *  本地写入 ask-theme-updated-at 防止 progress load 时把本地刚改的值又被远端旧值覆盖。 */
   const setMode = useCallback((m: ThemeMode) => {
     const now = Date.now();
     writeLocalMode(m);

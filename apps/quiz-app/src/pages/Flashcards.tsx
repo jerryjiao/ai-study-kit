@@ -13,9 +13,9 @@ import { RatingButtons } from '../components/RatingButtons';
 import type { Flashcard, SrsGrade, SrsState } from '../types';
 
 const DAY_MS = 86_400_000;
-const STREAK_KEY = 'tp-pass-srs-streak';
-const STREAK_DATE_KEY = 'tp-pass-srs-last-complete-date';
-const NEW_PER_DAY_KEY = 'tp-pass-new-per-day';
+const STREAK_KEY = 'ask-srs-streak';
+const STREAK_DATE_KEY = 'ask-srs-last-complete-date';
+const NEW_PER_DAY_KEY = 'ask-new-per-day';
 const DEFAULT_NEW_PER_DAY = 5;
 
 /** localStorage 安全读 */

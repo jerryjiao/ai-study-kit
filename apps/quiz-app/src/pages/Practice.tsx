@@ -19,7 +19,7 @@ export function Practice() {
   const [params, setParams] = useSearchParams();
   const topic = params.get('topic') || '';   // ?topic=业务架构
   const subtopic = params.get('subtopic') || ''; // ?subtopic=BA·价值流灯塔（大类细分）
-  const day = params.get('day') || '';        // ?day=D2 按备考日程
+  const day = params.get('day') || '';        // ?day=D2 按学习日程
   // 看题模式：URL ?view=read 携带，便于首页/外部直链（如"按 D 看题"）。默认答题。
   const [viewMode, setViewMode] = useState<ViewMode>(params.get('view') === 'read' ? 'read' : 'practice');
   const { progress, loaded, submitAnswer, markRead, resetAnswersByIds, resetReadByIds, dismissWrong } = useProgress();

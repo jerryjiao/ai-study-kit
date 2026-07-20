@@ -178,9 +178,9 @@ export function Home() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-7">
       <header className="text-center">
-        <h1 className="text-3xl font-bold text-text-primary tracking-tight">T 序列笔试练习</h1>
+        <h1 className="text-3xl font-bold text-text-primary tracking-tight">AI Study Kit</h1>
         <p className="text-text-muted text-sm mt-2">
-          业务架构（主攻 T5）· 软件质量管理（保底 T3）· 共 {stats.total} 题 · 进度自动跨设备同步
+          学习练习站 · 共 {stats.total} 题 · 进度自动跨设备同步
         </p>
       </header>
 

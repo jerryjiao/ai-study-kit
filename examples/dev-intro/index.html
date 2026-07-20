@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dev-intro · 示例学习包</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<main>
+<h1>dev-intro 示例学习包</h1>
+<p class="meta">ai-study-kit 演示主题　·　<a href="MISSION.md">mission</a>　·　<a href="RESOURCES.md">resources</a></p>
+
+<p class="lead">这是 ai-study-kit 的虚构示例主题——<strong>git + Linux 基础入门</strong>。让 fork 仓库的人 5 分钟内看懂「课程讲解 + 闪卡 + 刷题 + 错题精讲」四对齐闭环长什么样。</p>
+
+<h2>📚 课程列表</h2>
+
+<a class="layer-card" href="lessons/git-basics.html" style="display:block;border:1px solid var(--rule);border-radius:10px;padding:1rem 1.2rem;margin:.8rem 0;text-decoration:none;color:inherit;">
+  <strong style="color:var(--accent);">第 1 课 · git 三区与基础命令</strong>
+  <p style="font-size:.85rem;color:var(--ink-faint);margin:.3rem 0 0;">工作区/暂存区/版本区三区模型，add/commit/log/status 四条基础命令，reset vs revert 撤销。</p>
+</a>
+
+<a class="layer-card" href="lessons/linux-basics.html" style="display:block;border:1px solid var(--rule);border-radius:10px;padding:1rem 1.2rem;margin:.8rem 0;text-decoration:none;color:inherit;">
+  <strong style="color:var(--accent);">第 2 课 · Linux 目录与权限</strong>
+  <p style="font-size:.85rem;color:var(--ink-faint);margin:.3rem 0 0;">Linux 目录树、绝对/相对路径、权限字段三组、chmod 三位数字。</p>
+</a>
+
+<h2>🔥 错题精讲</h2>
+
+<a class="layer-card" href="wrong-questions/index.html" style="display:block;border:1px solid var(--rule);border-radius:10px;padding:1rem 1.2rem;margin:.8rem 0;text-decoration:none;color:inherit;">
+  <strong style="color:var(--accent);">→ 错题学习中心</strong>
+  <p style="font-size:.85rem;color:var(--ink-faint);margin:.3rem 0 0;">高频错点聚类精讲（如 git reset vs git revert）。</p>
+</a>
+
+<h2>关于本示例</h2>
+<p>这个示例主题与任何特定测评或职业领域<strong>无关</strong>——它纯粹是工具能力的演示。换成自己的主题（K8s、React、英文单词、某学科复习等）只需：</p>
+<ol>
+<li>把 <code>questions.json</code> / <code>flashcards.json</code> 换成你自己的内容。</li>
+<li>用 <code>teach</code> skill 产出自己的 <code>lessons/*.html</code>。</li>
+<li>用 <code>grill-wrong-questions</code> skill 产出错题精讲。</li>
+</ol>
+<p>详细工作流见仓库根 <code>docs/methodology.md</code> 和 <code>docs/four-alignment.md</code>。</p>
+
+<footer>
+<p style="font-size:.85rem;color:var(--ink-faint);margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--rule);">💡 这是 ai-study-kit 的示例。如果哪里不清楚，可以问 AI 助手进一步讲解。</p>
+</footer>
+</main>
+</body>
+</html>

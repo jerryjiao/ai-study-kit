@@ -4,14 +4,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "sync:examples": "node scripts/sync-examples.mjs",
     "sync:study": "node scripts/sync-study.mjs",
-    "dev": "npm run sync:study && vite",
-    "build": "npm run sync:study && tsc -b && vite build",
+    "dev": "npm run sync:examples && npm run sync:study && vite",
+    "build": "npm run sync:examples && npm run sync:study && tsc -b && vite build",
     "preview": "vite preview",
     "server": "tsx server/index.ts",
     "start": "npm run build && npm run server",
-    "test": "vitest run",
+    "test": "npm run sync:examples && vitest run",
     "test:watch": "vitest",
+    "qa": "node scripts/qa_questions.mjs",
     "pm2:restart": "pm2 delete quiz-app || true; pm2 start ecosystem.config.cjs"
   },
   "dependencies": {
