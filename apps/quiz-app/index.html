@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>T 序列笔试练习</title>
+    <!-- 防白闪：在任何 CSS 渲染前读 localStorage 主题偏好，给 <html> 加 .dark 类。
+         必须同步阻塞执行——放在 stylesheet 之前，避免 React 挂载前的 50-200ms 白闪。
+         主题值 'light'/'dark'/'system'，缺省 = system。 -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('tp-pass-theme') || 'system';
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = t === 'dark' || (t === 'system' && prefersDark);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) { /* localStorage 不可用时退回浅色 */ }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
