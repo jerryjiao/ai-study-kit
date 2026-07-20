@@ -33,6 +33,11 @@ apps/quiz-app/.quizbuild/
 apps/quiz-app/scripts/_*.json
 apps/quiz-app/scripts/_*.txt
 
+# Synced data (regenerated from examples/<theme>/ by sync-examples.mjs at build/dev/test time)
+apps/quiz-app/src/data/questions.json
+apps/quiz-app/src/data/flashcards.json
+apps/quiz-app/src/data/competency.json
+
 # Synced study output (regenerated at build time)
 apps/quiz-app/public/study/
 
