@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Runtime data
+.env
+.env.local
+progress.json
+online_progress*.json
+
+# Logs
+*.log
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+.playwright-mcp/
+.zcode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Local media / podcast output
+podcast-out/
+
+# Quiz app intermediate build artifacts
+apps/quiz-app/.quizbuild/
+apps/quiz-app/scripts/_*.json
+apps/quiz-app/scripts/_*.txt
+
+# Synced study output (regenerated at build time)
+apps/quiz-app/public/study/
+
+# Temporary debug scripts
+tmp_*.py
+_oneline_progress_check.json
+_online_progress_check.json
+
+# Local large media reference dirs (not needed by the repo)
+业务架构师课件/
+云原生资料/
