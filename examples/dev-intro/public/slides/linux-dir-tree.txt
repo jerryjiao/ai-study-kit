@@ -1,0 +1,21 @@
+              Linux 目录树速查
+              ================
+
+/                       ← 根目录（唯一，没有父目录）
+├── bin/                ← 基础命令（ls/cat/cp，所有人可用）
+├── etc/                ← 系统配置文件（nginx.conf、sshd_config）
+├── home/               ← 普通用户家目录
+│   ├── alice/
+│   └── bob/
+├── root/               ← root 用户家目录（注意：不在 /home 下）
+├── tmp/                ← 临时文件，重启可能清空
+├── var/                ← 运行期可变数据（日志、缓存、数据库）
+│   └── log/            ← /var/log/nginx/access.log 等
+├── usr/                ← 用户程序与库（只读，包管理器维护）
+│   ├── bin/            ← 更多可执行（git、python）
+│   └── local/          ← 手动编译安装的软件
+└── opt/                ← 第三方大型软件（如 Docker、IDE）
+
+绝对路径 vs 相对路径：
+  绝对：/home/alice/notes.md   （从 / 开始）
+  相对：./notes.md 或 ../bob/share.md  （从当前目录算）

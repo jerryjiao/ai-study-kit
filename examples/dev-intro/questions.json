@@ -1,0 +1,158 @@
+[
+  {
+    "id": "GIT-001",
+    "type": "single",
+    "typeLabel": "单选",
+    "module": "git-basics",
+    "source": "dev-intro",
+    "question": "把一个普通目录变成 git 仓库（初始化 .git 子目录），用哪条命令？",
+    "options": [
+      "git start",
+      "git init",
+      "git new",
+      "git create"
+    ],
+    "answer": [1],
+    "explanation": "`git init` 在当前目录创建 .git/ 子目录，把它变成一个空的 git 仓库。后续才能 add/commit。"
+  },
+  {
+    "id": "GIT-002",
+    "type": "multiple",
+    "typeLabel": "多选",
+    "module": "git-basics",
+    "source": "dev-intro",
+    "question": "下面哪些命令会把改动写入暂存区（staging area）？（多选）",
+    "options": [
+      "git add README.md",
+      "git add .",
+      "git commit -m 'msg'",
+      "git add src/*.ts"
+    ],
+    "answer": [0, 1, 3],
+    "explanation": "`git add` 系列把工作区改动写入暂存区。`git commit` 是把暂存区的快照写入版本库（下一阶段），不是写入暂存区。`git add .` 加所有改动，`git add src/*.ts` 加匹配的文件。"
+  },
+  {
+    "id": "GIT-003",
+    "type": "single",
+    "typeLabel": "单选",
+    "module": "git-basics",
+    "source": "dev-intro",
+    "question": "提交暂存区到版本库并附带说明，正确的命令是？",
+    "options": [
+      "git push -m \"说明\"",
+      "git commit -m \"说明\"",
+      "git save -m \"说明\"",
+      "git store \"说明\""
+    ],
+    "answer": [1],
+    "explanation": "`git commit -m \"说明\"` 把暂存区的快照提交到版本库并附带一行说明。`-m` 是 message 缩写，省略会打开编辑器让你写多行说明。push 是推到远端，不是提交。"
+  },
+  {
+    "id": "GIT-004",
+    "type": "single",
+    "typeLabel": "单选",
+    "module": "git-basics",
+    "source": "dev-intro",
+    "question": "想看最近 5 条提交的简短列表（每条一行），用哪条命令？",
+    "options": [
+      "git log -5 --oneline",
+      "git history -5",
+      "git show --recent 5",
+      "git list -5"
+    ],
+    "answer": [0],
+    "explanation": "`git log --oneline` 每条提交显示一行（短 hash + 说明），加 `-5` 只看最近 5 条。日常查提交历史最常用的形式。"
+  },
+  {
+    "id": "GIT-005",
+    "type": "judge",
+    "typeLabel": "判断",
+    "module": "git-basics",
+    "source": "dev-intro",
+    "question": "`git status` 显示工作区和暂存区的当前状态，包括哪些改动已暂存、哪些未暂存、哪些文件未被 git 跟踪。",
+    "options": [
+      "正确",
+      "错误"
+    ],
+    "answer": [0],
+    "explanation": "正确。`git status` 是日常最常用来「看清当前在哪里」的命令：显示当前分支、暂存区有什么、工作区有什么改动、有哪些未跟踪文件。不会修改任何东西，可以随时跑。"
+  },
+  {
+    "id": "GIT-006",
+    "type": "single",
+    "typeLabel": "单选",
+    "module": "git-basics",
+    "source": "dev-intro",
+    "question": "git 的三个核心区域，按改动流向排序（从你编辑文件到形成历史）是？",
+    "options": [
+      "版本库 → 暂存区 → 工作区",
+      "工作区 → 版本库 → 暂存区",
+      "工作区 → 暂存区 → 版本库",
+      "暂存区 → 工作区 → 版本库"
+    ],
+    "answer": [2],
+    "explanation": "正确流向：工作区（Working Directory，你编辑的文件）→ 暂存区（Staging，`git add` 写入）→ 版本库（Repository，`git commit` 写入）。这是 git 三区流转模型，几乎所有命令都在搬数据在这三区之间走。"
+  },
+  {
+    "id": "GIT-007",
+    "type": "multiple",
+    "typeLabel": "多选",
+    "module": "git-basics",
+    "source": "dev-intro",
+    "question": "关于 `git reset` 与 `git revert`，下列说法正确的是？（多选）",
+    "options": [
+      "reset 通过移动分支指针「抹掉」提交，历史里看不到被撤的提交",
+      "revert 通过新建一个反向提交来撤销改动，历史里能看到原提交和撤销提交",
+      "两者效果完全相同，可以互换使用",
+      "已推送到团队共享分支的提交，更推荐用 revert 而非 reset"
+    ],
+    "answer": [0, 1, 3],
+    "explanation": "reset 是「回到过去」式抹除——分支指针后退，被越过的提交从历史消失（仅本地安全）。revert 是「反向新提交」——保留原历史，追加一个抵消它的提交，团队协作更安全。效果不一样，不能互换。"
+  },
+  {
+    "id": "LNX-001",
+    "type": "single",
+    "typeLabel": "单选",
+    "module": "linux-commands",
+    "source": "dev-intro",
+    "question": "`ls -l` 输出里的权限字段 `-rwxr-xr--`，从左到右三组 `rwx` 分别属于谁？",
+    "options": [
+      "其他人 / 所属组 / 所有者",
+      "所有者 / 所属组 / 其他人",
+      "所属组 / 所有者 / 其他人",
+      "所有者 / 其他人 / 所属组"
+    ],
+    "answer": [1],
+    "explanation": "权限字段共 10 位：第 1 位是文件类型（`-` 普通文件，`d` 目录），后 9 位三组从左到右依次是 **所有者（owner）/ 所属组（group）/ 其他人（others）**，每组 `rwx` 顺序固定。"
+  },
+  {
+    "id": "LNX-002",
+    "type": "single",
+    "typeLabel": "单选",
+    "module": "linux-commands",
+    "source": "dev-intro",
+    "question": "你想让一个 shell 脚本 `deploy.sh` 可以直接 `./deploy.sh` 执行，应该用哪条命令给所有者加执行权限？",
+    "options": [
+      "chmod 644 deploy.sh",
+      "chmod 700 deploy.sh",
+      "chmod 755 deploy.sh",
+      "chmod 400 deploy.sh"
+    ],
+    "answer": [2],
+    "explanation": "755 = 所有者 rwx（读+写+执行）+ 所属组 r-x（读+执行）+ 其他人 r-x（读+执行）。脚本要让所有者执行，必须有 x；常见 deploy 脚本也允许其他人执行（如 CI 拉取后跑）。700 是只所有者全权（更私密），644 是「不可执行」缺 x，400 是只读。"
+  },
+  {
+    "id": "LNX-003",
+    "type": "judge",
+    "typeLabel": "判断",
+    "module": "linux-commands",
+    "source": "dev-intro",
+    "question": "在 `/home/alice/projects` 目录下，路径 `../bob/notes.md` 表示 `/home/bob/notes.md`。",
+    "options": [
+      "正确",
+      "错误"
+    ],
+    "answer": [0],
+    "explanation": "正确。`..` 代表上一级目录。从 `/home/alice/projects` 出发，`..` 跳到 `/home/alice`，再 `/../bob/notes.md` 跳到 `/home/bob/notes.md`。这是相对路径的核心——`..` 上、`.` 当前、其余往下。"
+  }
+]

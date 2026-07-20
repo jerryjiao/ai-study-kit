@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 课 · Linux 目录与权限</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>第 2 课 · Linux 目录与权限</h1>
+<p class="meta">ai-study-kit 示例课　·　<a href="../MISSION.md">← mission</a>　·　上一课：<a href="git-basics.html">git 三区与基础命令</a></p>
+
+<p class="lead">在 Linux 服务器上做任何事，先得搞懂两件事：<strong>文件在哪</strong>（目录树）和<strong>谁能做什么</strong>（权限）。这课把这两块串起来讲。</p>
+
+<h2>一、目录树：你所在的坐标</h2>
+<p>Linux 文件系统是一棵<strong>以 <code>/</code> 为根</strong>的树，没有 Windows 那种 <code>C:</code> / <code>D:</code> 盘符。所有路径都从 <code>/</code> 开始往下走。</p>
+
+<img src="../public/slides/linux-dir-tree.png" alt="Linux 目录树速查" />
+
+<p>常用目录：</p>
+<table>
+<thead><tr><th>目录</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><code>/bin</code></td><td>基础命令（ls/cat/cp），所有人可用</td></tr>
+<tr><td><code>/etc</code></td><td>系统配置文件（nginx.conf、sshd_config）</td></tr>
+<tr><td><code>/home</code></td><td>普通用户家目录（<code>/home/alice</code>）</td></tr>
+<tr><td><code>/root</code></td><td>root 用户家目录（注意：不在 /home 下）</td></tr>
+<tr><td><code>/var/log</code></td><td>运行期日志</td></tr>
+<tr><td><code>/tmp</code></td><td>临时文件，重启可能清空</td></tr>
+<tr><td><code>/opt</code></td><td>第三方软件（Docker、IDE）</td></tr>
+</tbody>
+</table>
+
+<h2>二、绝对路径 vs 相对路径</h2>
+<p>表达一个文件位置有两种写法：</p>
+<div class="compare">
+<div>
+<h4>绝对路径</h4>
+<p>从 <code>/</code> 开始，唯一无歧义。</p>
+<p>例：<code>/home/alice/notes.md</code></p>
+</div>
+<div>
+<h4>相对路径</h4>
+<p>从<strong>当前目录</strong>算起。</p>
+<p>例：当前在 <code>/home/alice/projects</code>，<code>../bob/notes.md</code> 表示 <code>/home/bob/notes.md</code></p>
+</div>
+</div>
+
+<p>相对路径的两个特殊符号：</p>
+<ul>
+<li><code>.</code> 当前目录</li>
+<li><code>..</code> 上一级目录</li>
+</ul>
+
+<div class="callout callout-tip">
+<p><strong>计算示例</strong>：从 <code>/home/alice/projects</code> 出发，<code>../bob/notes.md</code> 的解析过程：<code>..</code> 上跳到 <code>/home/alice</code>，再 <code>../bob</code> 上跳到 <code>/home</code> 再下到 <code>bob</code>，最后 <code>notes.md</code>。结果：<code>/home/bob/notes.md</code>。</p>
+</div>
+
+<h2>三、权限字段：谁能做什么</h2>
+<p><code>ls -l</code> 输出每行开头有 10 位权限字段：</p>
+<pre><code>-rwxr-xr--
+│├─┤├─┤├─┤
+│ ↑  ↑  ↑
+│ ow gr ot
+│
+└── 文件类型（- 普通文件、d 目录）</code></pre>
+
+<p>后 9 位<strong>三组从左到右</strong>：</p>
+<ul>
+<li><strong>owner（所有者）</strong>——文件属于谁</li>
+<li><strong>group（所属组）</strong>——同一团队的成员</li>
+<li><strong>others（其他人）</strong>——系统上所有其他用户</li>
+</ul>
+
+<p>每组三位<strong>顺序固定</strong>：<code>r w x</code> = 读 / 写 / 执行。</p>
+
+<img src="../public/slides/chmod-permissions.png" alt="chmod 权限三位数对照表" />
+
+<h2>四、chmod：用数字改权限</h2>
+<p>每组权限可以转成一个数字——把那组里的 <code>rwx</code> 当成三位二进制：</p>
+<pre><code>r = 4  w = 2  x = 1
+
+7 = 4+2+1 = rwx    读+写+执行
+6 = 4+2   = rw-    读+写
+5 = 4+1   = r-x    读+执行
+4 = 4     = r--    只读
+0 = 0     = ---    无权限</code></pre>
+
+<p>三个数字连写，分别是 owner / group / others 的权限：</p>
+<table>
+<thead><tr><th>命令</th><th>结果</th><th>典型用途</th></tr></thead>
+<tbody>
+<tr><td><code>chmod 755 file</code></td><td>rwxr-xr-x</td><td>所有者全权、其他人读+执行（脚本、公开目录）</td></tr>
+<tr><td><code>chmod 644 file</code></td><td>rw-r--r--</td><td>所有者读写、其他人只读（普通文档）</td></tr>
+<tr><td><code>chmod 600 file</code></td><td>rw-------</td><td>仅所有者读写（密钥、私密配置）</td></tr>
+<tr><td><code>chmod 700 file</code></td><td>rwx------</td><td>仅所有者全权（私人文档、个人脚本）</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-warn">
+<p><strong>易错点</strong>：要让一个脚本能 <code>./deploy.sh</code> 直接跑，<strong>必须给执行权限 (x)</strong>。只给读 (r) 不够——能 <code>cat</code> 看内容但不能执行。SSH 私钥（如 <code>~/.ssh/id_rsa</code>）必须 <code>chmod 600</code>，否则 ssh 会拒绝使用（权限太松）。</p>
+</div>
+
+<h2>五、常用命令补遗</h2>
+<table>
+<thead><tr><th>命令</th><th>作用</th></tr></thead>
+<tbody>
+<tr><td><code>cd &lt;dir&gt;</code></td><td>切换当前目录（change directory）</td></tr>
+<tr><td><code>mkdir -p a/b/c</code></td><td>建嵌套目录（<code>-p</code> 自动建父目录）</td></tr>
+<tr><td><code>rm file</code></td><td>删文件（注意：无回收站）</td></tr>
+<tr><td><code>rm -rf dir</code></td><td>递归强制删目录（危险！<code>-r</code> 递归 <code>-f</code> 不询问）</td></tr>
+<tr><td><code>ls -l</code></td><td>看权限、属主、大小、修改时间</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-warn">
+<p><strong>死刑命令</strong>：<code>rm -rf /</code> 会<strong>从根开始递归删整个文件系统</strong>，没有任何确认。永远不要在脚本里这么写，更不要在 root 用户下试。Linux 没有回收站——删了就是删了。</p>
+</div>
+
+<div class="quiz-anchor">
+LNX-001（权限字段三组）、LNX-002（chmod 755）、LNX-003（相对路径 ..）
+</div>
+
+<h2>六、下一步</h2>
+<ul>
+<li>读完这课，去答题页刷 LNX-001 到 LNX-003 三道题。</li>
+<li>回去复习 <a href="git-basics.html">git 三区</a>，因为日常工作 git + Linux 总是一起用。</li>
+</ul>
+
+<footer>
+<p>💡 这是 ai-study-kit 的示例课。如果哪里不清楚，可以问 AI 助手进一步讲解。</p>
+</footer>
+</main>
+</body>
+</html>
