@@ -61,6 +61,14 @@ PERSONAL_PATTERNS = [
     "主攻岗", "保底岗",  # original UI labels
     "T·P", "TP-Pass", "tp-pass",  # original brand
     "业务架构师",  # the original learning domain
+    # BA-exam topic taxonomy (used as topicStyles keys in original code)
+    "业务架构", "信息架构", "指标架构", "应用架构",
+    # BA-specific subtopic prefixes
+    "BA·", "IA·", "CN·",
+    # Private server endpoint (would leak in default config)
+    "101.35.249.209",
+    # Private tools
+    "Coze", "coze",
 ]
 
 # Files we care about scanning. Everything else (binary, lockfile, etc.) is skipped.

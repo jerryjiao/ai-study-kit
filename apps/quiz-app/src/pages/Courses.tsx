@@ -33,8 +33,8 @@ export function Courses() {
         <BookOpen className="mx-auto h-14 w-14 text-text-faint" strokeWidth={1.5} />
         <h2 className="text-xl font-bold text-text-primary">课程未就绪</h2>
         <p className="text-text-muted text-sm leading-relaxed">
-          课程内容来自 <code className="px-1 py-0.5 rounded bg-bg-subtle text-text-secondary">study/ba/</code>，
-          需先运行 <code className="px-1 py-0.5 rounded bg-bg-subtle text-text-secondary">pnpm run build</code>（含 sync:study）同步。
+          课程内容来自 <code className="px-1 py-0.5 rounded bg-bg-subtle text-text-secondary">examples/&lt;theme&gt;/</code>，
+          需先运行 <code className="px-1 py-0.5 rounded bg-bg-subtle text-text-secondary">pnpm run build</code>（含 sync:study）同步到 public/study/。
         </p>
       </div>
     );

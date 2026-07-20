@@ -3,12 +3,11 @@
  * 清理"幽灵错题"：在 progress.answers 里被标记为答错(streak 被维护 / correct:false)，
  * 但对应题目已不在当前 questions.json 里的记录。
  *
- * 这些记录来自旧版题库（1008 题 coze 题库 → 精简为 662 题），题被删了但答题记录还在，
- * 用户无法重做、无法移出，是死数据。
+ * 这些记录来自旧版题库（题被删了但答题记录还在），用户无法重做、无法移出，是死数据。
  *
  * 清理方式：通过 POST /api/progress 提交墓碑（deletedAt = 真实 Date.now()）。
- * 服务器 writeProgress 是 read-merge-write（progressStore.ts:36），墓碑的 recTs(deletedAt)
- * > 旧记录的 recTs(submittedAt)，merge 时墓碑胜出（progress.ts:274），读端 isAnswerDeleted
+ * 服务器 writeProgress 是 read-merge-write（progressStore.ts），墓碑的 recTs(deletedAt)
+ * > 旧记录的 recTs(submittedAt)，merge 时墓碑胜出（progress.ts），读端 isAnswerDeleted
  * 视为"未答"，错题集/统计自动排除。incoming 不含其他 id → merge 保留磁盘其余记录，不误伤。
  *
  * ⚠️ 时间戳必须用真实 Date.now()（AGENTS.md 红线：未来时间戳会永久压制真实写入）。
@@ -17,9 +16,12 @@
  * 加 --include-correct 才连答对的孤儿一起清（那是独立决定，默认不动）。
  *
  * 用法：
- *   node quiz-app/scripts/clean-ghost-wrong.mjs                        # dry-run，列出所有孤儿（错+对）
- *   node quiz-app/scripts/clean-ghost-wrong.mjs --apply                # 实际清理：只清答错的孤儿
- *   node quiz-app/scripts/clean-ghost-wrong.mjs --apply --include-correct  # 错+对孤儿全清
+ *   node apps/quiz-app/scripts/clean-ghost-wrong.mjs                        # dry-run，列出所有孤儿（错+对）
+ *   node apps/quiz-app/scripts/clean-ghost-wrong.mjs --apply                # 实际清理：只清答错的孤儿
+ *   node apps/quiz-app/scripts/clean-ghost-wrong.mjs --apply --include-correct  # 错+对孤儿全清
+ *
+ * 环境变量：
+ *   SERVER  —— 后端 URL（默认 http://localhost:8787，部署时改为你的服务器）
  */
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -27,7 +29,7 @@ import { dirname, join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
-const SERVER = process.env.SERVER || 'http://101.35.249.209:8787';
+const SERVER = process.env.SERVER || 'http://localhost:8787';
 const APPLY = process.argv.includes('--apply');
 const INCLUDE_CORRECT = process.argv.includes('--include-correct');
 

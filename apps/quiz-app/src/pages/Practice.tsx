@@ -17,8 +17,8 @@ type ViewMode = 'practice' | 'read';
 export function Practice() {
   const { mode = 'all' } = useParams();
   const [params, setParams] = useSearchParams();
-  const topic = params.get('topic') || '';   // ?topic=业务架构
-  const subtopic = params.get('subtopic') || ''; // ?subtopic=BA·价值流灯塔（大类细分）
+  const topic = params.get('topic') || '';   // ?topic=git-basics（主题标识）
+  const subtopic = params.get('subtopic') || ''; // ?subtopic=工作流（主题内细分，可选）
   const day = params.get('day') || '';        // ?day=D2 按学习日程
   // 看题模式：URL ?view=read 携带，便于首页/外部直链（如"按 D 看题"）。默认答题。
   const [viewMode, setViewMode] = useState<ViewMode>(params.get('view') === 'read' ? 'read' : 'practice');

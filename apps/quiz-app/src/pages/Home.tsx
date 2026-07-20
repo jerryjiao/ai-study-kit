@@ -34,53 +34,23 @@ export function Home() {
   const readNum = useMemo(() => readCount(progress, questions), [progress]);
   const pct = (n: number) => (stats.total === 0 ? 0 : Math.round((n / stats.total) * 100));
 
-  // BA 方向主题体系：固定顺序 + 各自配色 + 图标
-  // childCls = 子主题用的浅一档同色系样式（仅三大类有子主题）
+  // 主题体系：按 TOPIC_ORDER 顺序 + 各自配色 + 图标。
+  // topicStyles 用主题名作 key——你换主题时同步替换这里的 key 即可。
+  // childCls = 子主题用的浅一档同色系样式（主题支持 subtopic 分块时用）。
   const topicStyles: Record<string, { cls: string; childCls: string; icon: typeof Boxes }> = {
-    业务架构: {
+    'git-basics': {
       cls: 'bg-indigo-50 border-indigo-200 text-indigo-800 hover:bg-indigo-100',
       childCls: 'bg-indigo-50/40 border-indigo-100 text-indigo-700 hover:bg-indigo-100/70',
       icon: Boxes,
     },
-    信息架构: {
+    'linux-commands': {
       cls: 'bg-sky-50 border-sky-200 text-sky-800 hover:bg-sky-100',
       childCls: 'bg-sky-50/40 border-sky-100 text-sky-700 hover:bg-sky-100/70',
       icon: Layers,
     },
-    指标架构: {
-      cls: 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100',
-      childCls: 'bg-emerald-50/40 border-emerald-100 text-emerald-700 hover:bg-emerald-100/70',
-      icon: Gauge,
-    },
-    应用架构: {
-      cls: 'bg-violet-50 border-violet-200 text-violet-800 hover:bg-violet-100',
-      childCls: 'bg-violet-50/40 border-violet-100 text-violet-700 hover:bg-violet-100/70',
-      icon: Boxes,
-    },
-    云原生: {
-      cls: 'bg-blue-50 border-blue-200 text-blue-800 hover:bg-blue-100',
-      childCls: 'bg-blue-50/40 border-blue-100 text-blue-700 hover:bg-blue-100/70',
-      icon: Cloud,
-    },
-    人工智能: {
-      cls: 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100',
-      childCls: 'bg-amber-50/40 border-amber-100 text-amber-700 hover:bg-amber-100/70',
-      icon: Sparkles,
-    },
-    测试: {
-      cls: 'bg-rose-50 border-rose-200 text-rose-800 hover:bg-rose-100',
-      childCls: 'bg-rose-50/40 border-rose-100 text-rose-700 hover:bg-rose-100/70',
-      icon: FlaskConical,
-    },
-    网络安全: {
-      cls: 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200',
-      childCls: 'bg-slate-100/60 border-slate-200 text-slate-700 hover:bg-slate-200/70',
-      icon: Lock,
-    },
   };
-  // 由浅入深：按课表学习顺序排（D2业务架构 → D4信息架构 → D7指标 → D8测试 → D9云原生/AI）
+  // 由浅入深：按 TOPIC_ORDER 学习顺序排。
   // 顺序定义与 Practice 的"下一题集"跳转共享，见 src/lib/topicOrder.ts。
-  // 三大类子主题的学习深度序也定义在那（BA 总论→能力→流程→组件→价值流灯塔；IA 总论→概念→标准→治理；等）。
   // topicChildren：从 questions 数据派生各 topic 下实际存在的 subtopic（含分块后缀"一/二/三"按序归位）。
   const topicChildren = useMemo(() => {
     const result: Record<string, string[]> = {};
@@ -291,7 +261,7 @@ export function Home() {
                   <div className="grid grid-cols-2 gap-1.5 pl-3">
                     {children.map((sub) => {
                       const subCount = subtopicCounts.get(sub) ?? 0;
-                      // 子主题显示名：去掉 "BA·" / "IA·" / "指标·" / "CN·" 前缀（大类已显示）
+                      // 子主题显示名：去掉 "TOPIC·" 前缀（大类已显示，前缀冗余）
                       const shortName = sub.replace(/^(BA|IA|指标|CN)·/, '');
                       return (
                         <Link
