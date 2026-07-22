@@ -1,7 +1,7 @@
 {
   "name": "ai-study-kit",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI-assisted study toolkit scaffold — turn any quiz set into a learning loop with courses, flashcards, wrong-question deep-dives, and spaced repetition.",
   "license": "MIT",
   "scripts": {
@@ -9,7 +9,10 @@
     "build": "pnpm -C apps/quiz-app run build",
     "server": "pnpm -C apps/quiz-app run server",
     "start": "pnpm -C apps/quiz-app run start",
-    "test": "pnpm -C apps/quiz-app run test",
-    "scan": "python3 scripts/brand-scan.py"
+    "test": "pnpm -C apps/quiz-app run test && node --test apps/quiz-app/scripts/lib/*.test.mjs",
+    "scan": "python3 scripts/brand-scan.py",
+    "ai:teach": "node apps/quiz-app/scripts/teach-generate.mjs",
+    "ai:grill": "node apps/quiz-app/scripts/grill-wrong.mjs",
+    "ai:podcast": "node apps/quiz-app/scripts/podcast-generate.mjs"
   }
 }

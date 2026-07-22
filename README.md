@@ -121,26 +121,55 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 
 到这里你已经有一个能刷题的 app 了。但 ai-study-kit 真正的价值在于 **AI 辅助的完整学习闭环**——你不用手写课程和错题精讲，AI 帮你产。
 
-> ⚠️ 下面三个 skill 是**用户级工具，不在本仓库内**。它们基于 [Matt Pocock 的 skill 体系](https://github.com/mattpocock)，用 ZCode / Claude Code / Cursor 等 AI 客户端可以装。如果没有，参考 [`docs/skills-guide.md`](docs/skills-guide.md) 里的"如何自己实现"小节，用任何 AI 工具手动产出对应格式即可。
+仓库内置三个 AI 命令行工具：
 
-| Skill | 干什么 | 输入 | 输出 |
-|-------|-------|------|------|
-| **`teach`** | 把主题 + 资源清单结构化成多节 HTML 课程 | `MISSION.md` + `RESOURCES.md` | `lessons/0001-*.html` 等 |
-| **`grill-wrong-questions`** | 刷完题后，把错题按考点聚类深度展开 | 错题列表 + 课程 | `wrong-questions/cluster-*.html` |
-| **`podcast-generation`** | 把课程 / 题 / 错题合成男女双播音频 | 任一学习素材 | `.wav` + 对话脚本 |
+| CLI | 干什么 | 输入 | 输出 |
+|-----|-------|------|------|
+| **`teach-generate.mjs`** | 把主题规格结构化成多节 HTML 课程 | `examples/<theme>/course-spec.json` | `lessons/0001-*.html` 等 |
+| **`grill-wrong.mjs`** | 刷完题后，把错题按考点聚类深度展开 | `/api/progress` 拉错题 | `wrong-questions/cluster-*.html` |
+| **`podcast-generate.mjs`** | 把课程 / 题 / 错题合成男女双播音频 | 任一学习素材（HTML/MD/JSON） | `.wav` + 脚本 JSON + 逐字稿 MD |
+
+**支持任何 OpenAI 兼容协议的 LLM**：智谱 GLM（国内推荐）/ OpenAI / DeepSeek / Kimi / 通义 / 豆包。TTS 当前支持 GLM-TTS。
+
+### 配置
+
+```bash
+cp .env.example .env
+# 编辑 .env，至少配 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL 三项
+# 详见 docs/configuration.md
+```
+
+### 跑三个 CLI
+
+```bash
+# 启 quiz-app 后端（grill-wrong 需要）
+pnpm run server
+
+# 1. 生成课程
+node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics
+
+# 2. 刷完题后，生成错题精讲
+node apps/quiz-app/scripts/grill-wrong.mjs --theme react-basics
+
+# 3. 把课程做成播客
+node apps/quiz-app/scripts/podcast-generate.mjs \
+  --input examples/react-basics/lessons/0001-hooks.html
+```
 
 **典型工作流**：
 
 ```
 1. 你定主题 + 找权威资源（书 / 文档 / 视频）
-2. teach skill → 产出 lessons/*.html（系统讲解）
+2. 写 course-spec.json → teach-generate 产 lessons/*.html（系统讲解）
 3. 你手动出题 → questions.json（练习验证）
 4. 刷题 → 错题进错题本
-5. grill-wrong-questions skill → 产出错题精讲 HTML
-6. podcast-generation skill → 通勤时听播客复习
+5. grill-wrong → 产出错题精讲 HTML
+6. podcast-generate → 通勤时听播客复习
 ```
 
-完整说明见 [`docs/skills-guide.md`](docs/skills-guide.md)。
+完整 CLI 用法、参数说明、FAQ 见 [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md)。配置细节见 [`docs/configuration.md`](docs/configuration.md)。
+
+> 💡 **不用 AI 也能用**：三个 CLI 是增量能力。如果你只想要答题站 + 闪卡工具，完全可以不配 LLM、不跑 CLI——`pnpm dev` 就够用。
 
 ---
 
@@ -165,7 +194,8 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 | [`docs/methodology.md`](docs/methodology.md) | 学习方法论：大纲 → 材料 → 做题 |
 | [`docs/four-alignment.md`](docs/four-alignment.md) | 四对齐原则：课程 / 题 / 闪卡 / 错题怎么协同 |
 | [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | 自动化校验脚本（题 ↔ 课 ↔ 闪卡 互查） |
-| [`docs/skills-guide.md`](docs/skills-guide.md) | teach / grill / podcast skill 用法 |
+| [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | 三个 AI CLI（teach/grill/podcast）完整用法 |
+| [`docs/configuration.md`](docs/configuration.md) | `.env` 配置：LLM provider + TTS provider |
 | [`AGENTS.md`](AGENTS.md) | AI 协作约定（项目结构 / 命令 / 红线） |
 | [`examples/dev-intro/`](examples/dev-intro/) | git+Linux 完整示例：题 + 闪卡 + 课程 + 错题精讲 |
 

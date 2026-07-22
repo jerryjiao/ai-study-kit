@@ -95,5 +95,5 @@
 
 - [`four-alignment.md`](./four-alignment.md) —— 四对齐原则详细规则
 - [`bidirectional-check.md`](./bidirectional-check.md) —— 自动化双向校验脚本
-- [`skills-guide.md`](./skills-guide.md) —— teach / grill / podcast-generation skill 用法
+- [`ai-cli-guide.md`](./ai-cli-guide.md) —— teach / grill / podcast CLI 用法
 - `examples/dev-intro/` —— git + Linux 主题的完整示例，看四对齐闭环长什么样

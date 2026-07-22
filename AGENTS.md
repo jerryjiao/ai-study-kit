@@ -45,7 +45,8 @@ ai-study-kit/
 │   ├── methodology.md         # 学习方法论
 │   ├── four-alignment.md      # 四对齐原则
 │   ├── bidirectional-check.md # 自动化校验脚本
-│   └── skills-guide.md        # teach/grill/podcast skill 用法
+│   ├── ai-cli-guide.md        # teach/grill/podcast 三个 AI CLI 用法
+│   └── configuration.md       # .env 配置（LLM/TTS provider）
 ├── scripts/
 │   ├── brand-scan.py          # 零泄露扫描（品牌 + 个人语境）
 │   └── render_ascii_slide.py  # ASCII → PNG 渲染（给示例画图用）
@@ -125,13 +126,18 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **题 id 全局唯一且稳定**：如 `GIT-001`、`LNX-002`、`FC-DEV-01` 等。进度按 id 存，改题源时尽量保留旧 id 以免进度错位。
 - **闪卡 SRS = Anki 兼容算法**：`apps/quiz-app/src/lib/srs.ts` 实现 SM-2 + Anki 学习步（新卡 `[1m,10m]` 两步毕业，重学步 `[10m]`，lapse 后 interval×0.5）。会话调度见 `reviewQueue.ts`（again/学习步未毕业 → 卡排队尾循环）。改算法要同时更新 `srs.test.ts`。
 - **进度重置能力**（`progress.ts`）：`resetWrong`（清错题）、`resetRead`（清看题）、`resetAnswersByIds`（按题 id 集合清，用于练习页"重做本题集"）、`resetSrs`（清闪卡）。UI 入口在各页面顶部。重置会同步写服务器。
-- **播客制作**：用 `podcast-generation` skill（用户级，不在本仓库）把课程/题/错题内容做成男女双播复习播客。详见 [`docs/skills-guide.md`](./docs/skills-guide.md)。
+- **AI CLI（三个）**：内置在仓库的 `apps/quiz-app/scripts/` 下：
+  - `teach-generate.mjs`：从 `examples/<theme>/course-spec.json` 产课程 HTML
+  - `grill-wrong.mjs`：从 `/api/progress` 拉错题 + LLM 聚类 + 产错题精讲 HTML
+  - `podcast-generate.mjs`：从任一学习素材产男女双播播客（脚本 + 逐字稿 + WAV）
+  - 全部需要 `.env` 配 LLM/TTS provider。详见 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md) + [`docs/configuration.md`](./docs/configuration.md)。
 
 ## zcode / AI agent 访问资料的方式
 
 - **被问学习方法论时**：读 [`docs/methodology.md`](./docs/methodology.md)。
 - **被问四对齐时**：读 [`docs/four-alignment.md`](./docs/four-alignment.md)。
-- **被问 teach/grill/podcast skill 用法时**：读 [`docs/skills-guide.md`](./docs/skills-guide.md)。
+- **被问 AI CLI 用法时**：读 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md)。
+- **被问 .env 配置时**：读 [`docs/configuration.md`](./docs/configuration.md)。
 - **被问代码结构时**：读 `apps/quiz-app/src/`（components/pages/lib/hooks/api）+ `server/`（Hono 后端）。
 - **被问题目/闪卡 schema 时**：读 `apps/quiz-app/src/types.ts`（Question/Flashcard/Progress 等接口）。
 - **做题遇不会的概念**：来 `examples/<theme>/lessons/*.html` 查对应课程。
@@ -141,7 +147,8 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - 方法论：[`docs/methodology.md`](./docs/methodology.md)
 - 四对齐：[`docs/four-alignment.md`](./docs/four-alignment.md)
 - 双向校验：[`docs/bidirectional-check.md`](./docs/bidirectional-check.md)
-- Skills 指南：[`docs/skills-guide.md`](./docs/skills-guide.md)
+- AI CLI 指南：[`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md)
+- 配置指南：[`docs/configuration.md`](./docs/configuration.md)
 - 部署与跨设备同步原理：[`README.md`](./README.md)
 - 示例主题：`examples/dev-intro/`（git + Linux 基础入门）
 

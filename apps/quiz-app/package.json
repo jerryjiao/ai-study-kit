@@ -1,7 +1,7 @@
 {
   "name": "@ai-study-kit/quiz-app",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "sync:examples": "node scripts/sync-examples.mjs",

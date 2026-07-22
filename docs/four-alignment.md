@@ -98,4 +98,4 @@
 
 - [`bidirectional-check.md`](./bidirectional-check.md) —— 自动化校验脚本，把上面三个方向写成 Python 代码
 - [`methodology.md`](./methodology.md) —— 完整方法论框架
-- [`skills-guide.md`](./skills-guide.md) —— 如何用 teach / grill skill 产出对齐内容
+- [`ai-cli-guide.md`](./ai-cli-guide.md) —— 如何用 teach / grill CLI 产出对齐内容
