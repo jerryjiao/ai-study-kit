@@ -17,11 +17,11 @@
 
 const DEFAULT_PROVIDER = 'glm-tts';
 
-// GLM-TTS 默认音色（如不匹配你的账号权限，请在 .env 覆盖）
-// 这两个是公开文档里常见的通用音色；具体可用音色列表见
-// https://open.bigmodel.cn/dev/api/audio/tts
-const GLM_DEFAULT_MALE = 'taojiannan';
-const GLM_DEFAULT_FEMALE = 'byella';
+// GLM-TTS 默认音色（API 文档：https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts）
+// 用 generic 'male' / 'female' 兜底（API 支持），具体音色 ID 在 .env 覆盖
+// 可选音色名：彤彤（默认）/ 小陈 / 锤锤 / jam / kazi / douji / luodo
+const GLM_DEFAULT_MALE = 'male';
+const GLM_DEFAULT_FEMALE = 'female';
 
 /**
  * 校验 TTS 配置完整。缺失时打印清晰提示并退出。
@@ -85,24 +85,28 @@ async function synthGLM({ text, gender, speed, apiKey }) {
     maxRetries: 3,
   });
 
-  // GLM TTS 使用 OpenAI 兼容的 audio.speech.create 接口
+  // GLM-TTS API（OpenAI 兼容 audio.speech 接口）
+  // 文档：https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts
   const response = await client.audio.speech.create({
-    model: 'cogtts',
+    model: 'glm-tts',
     voice,
     input: text,
-    // GLM 不支持 speed 参数时会被忽略，不影响
-    response_format: 'mp3',
+    speed: speed ?? 1.0,
+    response_format: 'wav',
   });
 
   const audio = Buffer.from(await response.arrayBuffer());
-  return { audio, format: 'mp3' };
+  return { audio, format: 'wav' };
 }
 
 /**
  * 把多段对话脚本合成一个连续音频文件。
  *
+ * 注意：WAV 简单拼接在多数播放器能播（每个 WAV 自带 header，播放器会按顺序读），
+ * 但不是无缝——段间会有微小间断。要做无缝可引入 ffmpeg 拼接。
+ *
  * @param {Array<{speaker: 'male'|'female', text: string}>} segments
- * @returns {Promise<{audio: Buffer, format: 'mp3'}>}
+ * @returns {Promise<{audio: Buffer, format: 'wav'}>}
  */
 export async function synthesizeDialog(segments) {
   const parts = [];
@@ -113,7 +117,6 @@ export async function synthesizeDialog(segments) {
     });
     parts.push(audio);
   }
-  // 简单拼接（mp3 帧拼接，多数播放器能播；要做无缝可引入 ffmpeg）
   const combined = Buffer.concat(parts);
-  return { audio: combined, format: 'mp3' };
+  return { audio: combined, format: 'wav' };
 }
