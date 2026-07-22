@@ -49,11 +49,11 @@ test('extractWrongAnswers: wrongCount=3 时 threshold=3', () => {
   assert.equal(r[0].id, 'Q1');
 });
 
-test('extractWrongAnswers: 墓碑标记的不算', () => {
+test('extractWrongAnswers: 墓碑标记的不算（与 src/lib/progress.ts isAnswerDeleted 一致）', () => {
   const progress = {
     answers: {
-      'Q1': { streak: 0, submittedAt: 100, deletedAt: 200 },  // 已删
-      'Q2': { streak: 0, submittedAt: 300, deletedAt: 200 },  // 复活后再错，算错题
+      'Q1': { streak: 0, submittedAt: 100, deletedAt: 200 },  // deletedAt 存在 → 已删
+      'Q2': { streak: 0, submittedAt: 300 },                   // 无 deletedAt → 正常
     },
   };
   const r = extractWrongAnswers(progress);

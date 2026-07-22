@@ -63,7 +63,7 @@ pnpm install               # 安装依赖（首次或 lockfile 变化）
 pnpm run dev               # 前端开发服务器 :5173（/api 代理到 :8787）
 pnpm run server            # 后端 + 托管 dist :8787
 pnpm run build             # sync:examples && sync:study && tsc -b && vite build → apps/quiz-app/dist/
-pnpm test                  # vitest（grade/progress/progressStore/srs/reviewQueue）
+pnpm test                  # vitest（grade/progress/progressStore/srs/reviewQueue）+ node:test（scripts/lib/*.test.mjs）
 pnpm run scan              # brand-scan.py（零泄露校验）
 pnpm start                 # build && server（本地一键）
 

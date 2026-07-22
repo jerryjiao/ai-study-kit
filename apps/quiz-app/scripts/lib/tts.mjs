@@ -34,8 +34,8 @@ export function requireTtsConfig() {
       console.error('❌ TTS 配置不完整。请在 .env 配：');
       console.error('   TTS_PROVIDER=glm-tts  (默认，可省略)');
       console.error('   GLM_TTS_API_KEY=your-key');
-      console.error('   TTS_MALE_VOICE=taojiannan        (可选，默认值已给)');
-      console.error('   TTS_FEMALE_VOICE=byella          (可选，默认值已给)');
+      console.error('   TTS_MALE_VOICE=male                (可选，默认值已给)');
+      console.error('   TTS_FEMALE_VOICE=female            (可选，默认值已给)');
       process.exit(1);
     }
     return { provider, apiKey };
@@ -71,19 +71,25 @@ export async function synthesize({ text, gender = 'male', speed = 1.0 }) {
  *
  * 单独抽出方便测试时 mock。
  */
-async function synthGLM({ text, gender, speed, apiKey }) {
-  // 动态 import OpenAI（避免顶层 import 让纯逻辑测试更快）
+/** 单例 GLM client（与 llm.mjs 同模式——避免每段对话 new 一个 client）。 */
+let _glmClient = null;
+async function getGLMClient(apiKey) {
+  if (_glmClient) return _glmClient;
   const OpenAI = (await import('openai')).default;
-
-  const voice = gender === 'female'
-    ? (process.env.TTS_FEMALE_VOICE || GLM_DEFAULT_FEMALE)
-    : (process.env.TTS_MALE_VOICE || GLM_DEFAULT_MALE);
-
-  const client = new OpenAI({
+  _glmClient = new OpenAI({
     baseURL: 'https://open.bigmodel.cn/api/paas/v4',
     apiKey,
     maxRetries: 3,
   });
+  return _glmClient;
+}
+
+async function synthGLM({ text, gender, speed, apiKey }) {
+  const voice = gender === 'female'
+    ? (process.env.TTS_FEMALE_VOICE || GLM_DEFAULT_FEMALE)
+    : (process.env.TTS_MALE_VOICE || GLM_DEFAULT_MALE);
+
+  const client = await getGLMClient(apiKey);
 
   // GLM-TTS API（OpenAI 兼容 audio.speech 接口）
   // 文档：https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts

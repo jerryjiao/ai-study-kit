@@ -30,12 +30,12 @@ export function extractWrongAnswers(progress) {
     .map(([id, record]) => ({ id, record }));
 }
 
-/** 判断记录是否被墓碑标记删除（与 progress.ts isDeleted 一致）。 */
+/** 判断记录是否被墓碑标记删除（与 src/lib/progress.ts isAnswerDeleted 一致：
+ *  任何 deletedAt 字段存在 = 已删，不比较时间戳——时间戳比较由 mergeProgress 在
+ *  写入端处理，读端只需要看 deletedAt 是否存在）。
+ */
 function isDeleted(r) {
-  if (!r) return true;
-  if (r.deletedAt === undefined) return false;
-  // 墓碑新于记录的 submittedAt → 已删
-  return r.deletedAt >= (r.submittedAt || 0);
+  return !!r && r.deletedAt !== undefined;
 }
 
 /** 判断记录是否仍是错题（streak 未达阈值）。 */

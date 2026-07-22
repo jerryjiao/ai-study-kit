@@ -15,7 +15,7 @@
  *   node apps/quiz-app/scripts/grill-wrong.mjs --theme X --max-clusters 5
  *   SERVER=http://my-server:8787 node apps/quiz-app/scripts/grill-wrong.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, unlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chat, chatJson, requireLlmConfig } from './lib/llm.mjs';
@@ -87,13 +87,19 @@ async function main() {
   });
   console.log('');
 
-  // 5. 准备输出目录（清掉旧 cluster-*.html，避免新旧混淆）
+  // 5. 准备输出目录（备份旧 cluster-*.html 到 .archive/，避免用户手写内容被无声覆盖）
   const outDir = join(REPO_ROOT, 'examples', THEME, 'wrong-questions');
   mkdirSync(outDir, { recursive: true });
-  for (const old of readdirSync(outDir)) {
-    if (old.startsWith('cluster-') && old.endsWith('.html')) {
-      unlinkSync(join(outDir, old));
+  const oldClusters = readdirSync(outDir).filter((f) => f.startsWith('cluster-') && f.endsWith('.html'));
+  if (oldClusters.length > 0) {
+    const backupDir = join(outDir, '.archive', new Date().toISOString().replace(/[:.]/g, '-'));
+    mkdirSync(backupDir, { recursive: true });
+    for (const old of oldClusters) {
+      const src = join(outDir, old);
+      const dst = join(backupDir, old);
+      renameSync(src, dst);
     }
+    console.log(`📦 备份了 ${oldClusters.length} 个旧 cluster HTML 到 wrong-questions/.archive/`);
   }
 
   // 6. 逐簇生成精讲
