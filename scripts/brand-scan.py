@@ -106,9 +106,23 @@ def scan_file(path: Path, brand_re: re.Pattern, personal_re: re.Pattern) -> list
 
     hits = []
     for lineno, line in enumerate(text.splitlines(), start=1):
+        # Allowlist: GitHub clone URLs `git clone https://github.com/<owner>/<repo>`
+        # contain the repo owner's username, which is intentionally public (the
+        # repo's owner). Skip personal-context matches inside such URLs.
+        clone_url_match = re.search(r"https?://github\.com/[^/\s]+/[^/\s]+", line)
+        clone_url_span = clone_url_match.span() if clone_url_match else None
+
+        def in_clone_url(m):
+            if not clone_url_span:
+                return False
+            s, e = clone_url_span
+            return s <= m.start() < e
+
         for m in brand_re.finditer(line):
             hits.append({"line": lineno, "kind": "brand", "word": m.group(0)})
         for m in personal_re.finditer(line):
+            if in_clone_url(m):
+                continue  # github.com/<owner>/<repo> URL — owner is intentionally public
             hits.append({"line": lineno, "kind": "personal", "word": m.group(0)})
     return hits
 

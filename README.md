@@ -1,53 +1,199 @@
 # ai-study-kit
 
-> **EN** · A scaffold for building AI-assisted study apps. Turn any quiz set into a complete learning loop with courses, flashcards, wrong-question deep-dives, spaced repetition, and cross-device progress sync. Built on a methodology distilled from real practice: an official syllabus defines scope, reference materials build concepts, quizzes validate mastery. AI assists at every layer.
+> **EN** · An AI-assisted study toolkit scaffold. Turn any quiz set into a complete learning loop: answers + courses + flashcards + wrong-question deep-dives + spaced repetition, with cross-device progress sync. Distilled from real practice: syllabus defines scope, materials build concepts, quizzes validate mastery.
 >
-> **中文** · 一个 AI 辅助学习工具脚手架。把任意主题的题库变成一个完整学习闭环：课程讲解、闪卡、错题精讲、间隔重复（SRS）、跨设备进度同步。沉淀自真实学习实践的方法论——以能力大纲为纲、以参考材料建概念、以做题验效果，AI 在每一层都参与。
+> **中文** · 把任意主题的题库变成一个完整学习闭环——答题 + 课程 + 闪卡 + 错题精讲 + 间隔重复，进度跨设备同步。5 分钟跑起来看 demo，30 分钟改成你自己的主题。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## ✨ Features · 功能特性
+## 👋 这是给谁用的
 
-- **答题站（Quiz App）** — 单选/多选/判断自动判分，看题模式，错题本，按主题/日程练习，随机抽题。
-- **课程讲解（Courses）** — 自包含 HTML 小站，用 [`teach` skill](docs/skills-guide.md) 产出，遵守 Tufte 式版式。
-- **闪卡（Flashcards）** — Anki 兼容的 SM-2 + Anki 学习步间隔重复算法。
-- **错题精讲（Wrong-Question Deep-Dive）** — 高频错点聚类展开，用 [`grill-wrong-questions` skill](docs/skills-guide.md) 产出。
-- **跨设备同步** — 手机答题、电脑接着做，服务器存一份进度，无账号无同步码。
-- **夜间模式** — 三态（light/dark/system）+ 防白闪 + 跨设备同步主题偏好。
-- **零泄露校验** — `scripts/brand-scan.py` 自动扫所有内容文件，确保不泄露品牌名/个人语境。
+| 你是 | 适不适合 |
+|------|---------|
+| 🧑‍💻 **开发者学新技术**（React / K8s / Rust） | ✅ 把官方文档要点抽成题，刷题 + 闪卡巩固 |
+| 📚 **学生复习**（学科 / 考研 / 资格证） | ✅ 真题库 + AI 错题精讲，比单纯刷题深 |
+| 🎯 **面试备战**（八股文 / 系统设计） | ✅ 自己出题 + AI 产课，配套 SRS 间隔重复 |
+| 🗂️ **学任何有"考点"的东西**（合规 / 流程 / 术语） | ✅ 只要能拆成"问题 + 答案"就能学 |
+| ❌ 想要现成题库（如"500 道 Java 题"） | ❌ 本工具是**脚手架**，不含任何真题——你得自己提供题或用 AI 生成 |
+
+**一句话定位**：这是个**脚手架**，不是题库。你带题来，工具帮你把它变成一个有课程、有闪卡、有错题分析的学习 app。
 
 ---
 
-## 🚀 Quick Start · 快速开始
+## 🚀 5 分钟跑起来看 demo
 
 ```bash
-# 克隆仓库
-git clone <your-fork-url>
+git clone https://github.com/jerryjiao/ai-study-kit
 cd ai-study-kit
-
-# 安装依赖
 pnpm install
-
-# 启动开发服务器（前端 :5173 + 后端 :8787）
-pnpm run dev
-
-# 另开一个终端运行后端（如果上面没自动起）
-pnpm run server
-
+pnpm dev
 # 浏览器打开 http://localhost:5173
 ```
 
-首次启动会看到 **dev-intro 示例主题**（git + Linux 基础入门，10 道题 + 4 张闪卡 + 2 节课程 + 1 篇错题精讲）。这是工具能力的演示——fork 后你换成自己的主题即可。
+**启动后你能看到**（dev-intro 示例主题，git + Linux 基础）：
 
-### 生产部署 · Production Deploy
+| 顶栏 tab | 你能看到什么 |
+|---------|-------------|
+| **答题** | 10 道 git/Linux 题（单选/多选/判断），点选项即判分，答错进错题本，答对显示解析 |
+| **闪卡** | 4 张 SM-2 间隔重复卡，按 again / hard / good / easy 评分，算法与 Anki 兼容 |
+| **课程** | 2 节自包含 HTML 课程（git 三区、Linux 目录与权限），带 ASCII 示意图、callout 提示框 |
+
+> 这只是个 demo。**dev-intro 主题的内容你全都不会用**——你要换成的，是你自己在学的主题。
+
+---
+
+## 🔧 30 分钟改成你自己的主题
+
+以学 **React 基础** 为例。全程只动 `examples/` 下的文件，**不动 apps/quiz-app/ 代码**。
+
+### Step 1 · 复制主题目录（1 分钟）
 
 ```bash
-# 在 apps/quiz-app/ 目录下（pm2 必须从这里启动）
+cp -r examples/dev-intro examples/react-basics
+```
+
+### Step 2 · 改题库（10 分钟）
+
+编辑 `examples/react-basics/questions.json`——把 git/Linux 题换成你的 React 题。Schema 很简单：
+
+```json
+{
+  "id": "R-001",                      // 全局唯一稳定 id（进度按它存）
+  "type": "single",                    // single | multi | judge
+  "source": "react-basics",            // 题源标识
+  "topic": "react-basics",             // 主题分类（首页按它分组）
+  "question": "React 中 useState 返回什么？",
+  "options": {
+    "A": "当前 state 的值",
+    "B": "更新 state 的函数",
+    "C": "一个数组 [state, setState]",
+    "D": "一个对象 { state, setState }"
+  },
+  "answer": ["C"],
+  "analysis": "useState 返回一个二元数组：当前状态值 + 更新函数。通常用数组解构：const [count, setCount] = useState(0)。"
+}
+```
+
+完整字段见 [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts) 的 `Question` 接口。
+
+### Step 3 · 改闪卡（5 分钟）
+
+编辑 `examples/react-basics/flashcards.json`：
+
+```json
+{
+  "id": "FC-R-01",
+  "front": "useState 的返回值结构？",
+  "back": "返回 [state, setState] 二元数组。\n\n用法：const [count, setCount] = useState(0)。",
+  "source": "react-basics",
+  "topic": "react-basics"
+}
+```
+
+### Step 4 · 切换主题（1 分钟）
+
+```bash
+EXAMPLE_THEME=react-basics pnpm dev
+# 浏览器刷新——你的 React 题已经进答题站了
+```
+
+### Step 5 · （可选）配课程和首页分组（10 分钟）
+
+- **课程**：把 `examples/react-basics/lessons/*.html` 改成你的（可以用 AI 帮你产，见下文进阶）。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
+- **首页分组**：改 `apps/quiz-app/src/lib/topicOrder.ts` 的 `TOPIC_ORDER`，把 `'git-basics', 'linux-commands'` 换成你的主题列表。
+
+### Step 6 · 校验（2 分钟）
+
+```bash
+pnpm run scan       # 品牌扫描（0 hits 才算干净）
+pnpm test           # 5 个测试必须全过
+pnpm run build      # 构建必须成功
+python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
+```
+
+**搞定**。整个改造过程**不需要碰任何 React 代码**——只是改 JSON 和 HTML。
+
+---
+
+## 🤖 进阶：让 AI 帮你产课程 / 错题精讲 / 播客
+
+到这里你已经有一个能刷题的 app 了。但 ai-study-kit 真正的价值在于 **AI 辅助的完整学习闭环**——你不用手写课程和错题精讲，AI 帮你产。
+
+> ⚠️ 下面三个 skill 是**用户级工具，不在本仓库内**。它们基于 [Matt Pocock 的 skill 体系](https://github.com/mattpocock)，用 ZCode / Claude Code / Cursor 等 AI 客户端可以装。如果没有，参考 [`docs/skills-guide.md`](docs/skills-guide.md) 里的"如何自己实现"小节，用任何 AI 工具手动产出对应格式即可。
+
+| Skill | 干什么 | 输入 | 输出 |
+|-------|-------|------|------|
+| **`teach`** | 把主题 + 资源清单结构化成多节 HTML 课程 | `MISSION.md` + `RESOURCES.md` | `lessons/0001-*.html` 等 |
+| **`grill-wrong-questions`** | 刷完题后，把错题按考点聚类深度展开 | 错题列表 + 课程 | `wrong-questions/cluster-*.html` |
+| **`podcast-generation`** | 把课程 / 题 / 错题合成男女双播音频 | 任一学习素材 | `.wav` + 对话脚本 |
+
+**典型工作流**：
+
+```
+1. 你定主题 + 找权威资源（书 / 文档 / 视频）
+2. teach skill → 产出 lessons/*.html（系统讲解）
+3. 你手动出题 → questions.json（练习验证）
+4. 刷题 → 错题进错题本
+5. grill-wrong-questions skill → 产出错题精讲 HTML
+6. podcast-generation skill → 通勤时听播客复习
+```
+
+完整说明见 [`docs/skills-guide.md`](docs/skills-guide.md)。
+
+---
+
+## 🎯 为什么用这个
+
+| 不用 ai-study-kit | 用 ai-study-kit |
+|-------------------|-----------------|
+| **Anki**：闪卡强，但没有答题站、没有错题精讲、没有课程 | 一个 app 里集齐 5 个学习产物，围绕同一套考点对齐 |
+| **Quizlet**：有题有卡，但是闭源 SaaS，数据不在你手里 | 开源 MIT，数据本地 + 你的服务器，跨设备同步无需账号 |
+| **Notion 笔记**：能记但不刷题，没有间隔重复算法 | 内置 Anki 兼容 SM-2 + Anki 学习步算法 |
+| **纯刷题 PDF / Word**：只能看，不能判分、不能统计正确率 | 自动判分、错题本、正确率统计、SRS 调度 |
+| **AI 直接问 ChatGPT**：知识零散，没有学习路径 | AI 把零散知识结构化成系统课程 + 题库 + 闪卡 |
+
+**核心差异化**：**四对齐闭环**——课程讲的考点、题考的考点、闪卡记的考点、错题精讲的考点，全部围绕同一套知识点对齐（详见 [`docs/four-alignment.md`](docs/four-alignment.md)）。这一致性让你学完课立刻有题刷、做错立刻有深度展开。
+
+---
+
+## 📚 文档导航
+
+| 文档 | 看它学什么 |
+|------|-----------|
+| [`docs/methodology.md`](docs/methodology.md) | 学习方法论：大纲 → 材料 → 做题 |
+| [`docs/four-alignment.md`](docs/four-alignment.md) | 四对齐原则：课程 / 题 / 闪卡 / 错题怎么协同 |
+| [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | 自动化校验脚本（题 ↔ 课 ↔ 闪卡 互查） |
+| [`docs/skills-guide.md`](docs/skills-guide.md) | teach / grill / podcast skill 用法 |
+| [`AGENTS.md`](AGENTS.md) | AI 协作约定（项目结构 / 命令 / 红线） |
+| [`examples/dev-intro/`](examples/dev-intro/) | git+Linux 完整示例：题 + 闪卡 + 课程 + 错题精讲 |
+
+---
+
+## 🛠️ 开发命令
+
+```bash
+# 仓库根目录
+pnpm install          # 装依赖
+pnpm run dev          # 启动（前端 :5173 + 后端 :8787）
+pnpm run build        # 构建（sync:examples + sync:study + tsc + vite）
+pnpm test             # 跑 5 个测试文件（130 个用例）
+pnpm run scan         # 零泄露扫描
+pnpm run server       # 单独起后端
+pnpm start            # build + server
+
+# 在 apps/quiz-app/ 下
+npm run qa            # 题库质量校验（最长即答案 / 答案分布）
+npm run sync:examples # 手动同步 examples → src/data
+npm run sync:study    # 手动同步 examples → public/study
+```
+
+### 生产部署
+
+```bash
 cd apps/quiz-app
-pnpm install
-pnpm run build
+pnpm install && pnpm run build
 pnpm exec pm2 start ecosystem.config.cjs
 pnpm exec pm2 save
 
@@ -55,98 +201,18 @@ pnpm exec pm2 save
 PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 ```
 
-详见 [`AGENTS.md`](AGENTS.md#部署)。
+部署细节（pm2 cwd 锁定、跨设备同步原理等）见 [`AGENTS.md`](AGENTS.md)。
 
 ---
 
-## 📚 Project Structure · 项目结构
+## 🤝 贡献
 
-```
-ai-study-kit/
-├── apps/quiz-app/         # 答题站 web app (React + Vite + TS + Tailwind + Hono)
-├── examples/dev-intro/    # 默认示例主题 (git + Linux 基础)
-├── docs/                  # 方法论文档
-│   ├── methodology.md         # 学习方法论
-│   ├── four-alignment.md      # 四对齐原则
-│   ├── bidirectional-check.md # 自动化校验脚本
-│   └── skills-guide.md        # teach/grill/podcast skill 用法
-├── scripts/               # brand-scan.py + render_ascii_slide.py
-├── README.md
-├── AGENTS.md              # AI 协作约定
-└── LICENSE                # MIT
-```
+欢迎 PR 和 issue。请：
 
----
-
-## 🎯 Methodology · 学习方法论
-
-本工具沉淀的核心模式：
-
-**大纲 → 材料 → 做题**（[详细文档](docs/methodology.md)）
-
-- **能力大纲**（唯一权威）— 定学什么、学到什么程度
-- **参考材料** — 建概念体系（教材、文档、AI 讲解）
-- **练习题** — 验掌握程度
-
-四个产物围绕同一套考点对齐（[四对齐](docs/four-alignment.md)）：
-
-| 产物 | 干什么 |
-|------|--------|
-| 课程 | 系统讲概念 |
-| 题目 | 练习验证 |
-| 闪卡 | 记忆锚点 |
-| 错题精讲 | 错点深挖 |
-
----
-
-## 🔧 Customizing · 换成你自己的主题
-
-fork 后，把 dev-intro 换成你自己的主题（K8s、React、英文单词、某学科复习等）：
-
-1. **新建主题目录**：`examples/<your-theme>/`
-2. **写题库**：`examples/<your-theme>/questions.json`（schema 见 `apps/quiz-app/src/types.ts` 的 `Question` 接口）
-3. **写闪卡**：`examples/<your-theme>/flashcards.json`（schema 见 `Flashcard` 接口）
-4. **产课程**：用 `teach` skill 或手写 `examples/<your-theme>/lessons/*.html`（参考 `examples/dev-intro/lessons/`）
-5. **改主题配置**：
-   - `EXAMPLE_THEME=your-theme` 环境变量（控制 sync-examples.mjs）
-   - `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 改成 `/study/your-theme/index.html`
-   - `apps/quiz-app/src/lib/topicOrder.ts` 里的 `TOPIC_ORDER` 改成你的主题分类
-6. **校验**：
-   ```bash
-   pnpm run scan                 # 品牌扫描必须为 0
-   python3 scripts/bidirectional-check.py examples/your-theme/  # 四对齐校验
-   pnpm test                     # 5 个测试必须全过
-   pnpm run build                # 构建必须成功
-   ```
-
----
-
-## 🛠️ Development Commands · 开发命令
-
-```bash
-pnpm run dev       # 开发服务器
-pnpm run build     # 构建
-pnpm test          # 测试（5 个文件，130 个用例）
-pnpm run scan      # 零泄露扫描
-pnpm run server    # 后端
-pnpm start         # build + server
-
-# 在 apps/quiz-app/ 下：
-npm run qa         # 题库质量校验
-npm run sync:examples  # 手动同步 examples 到 src/data
-npm run sync:study     # 手动同步 examples 到 public/study
-```
-
----
-
-## 🤝 Contributing · 贡献
-
-欢迎 PR 和 issue。请遵守：
-
-1. 跑 `pnpm run scan` 确保零泄露。
-2. 跑 `pnpm test` 确保测试全过。
-3. 改任何产物（课程/题/闪卡/错题），必跑 [`bidirectional-check`](docs/bidirectional-check.md) 四对齐校验。
-4. commit 信息遵循 [Conventional Commits](https://www.conventionalcommits.org/)。
+1. 跑 `pnpm run scan` 确保零泄露
+2. 跑 `pnpm test` 确保测试全过
+3. 改任何产物（课程 / 题 / 闪卡 / 错题），必跑 [`bidirectional-check`](docs/bidirectional-check.md) 校验
+4. commit 信息遵循 [Conventional Commits](https://www.conventionalcommits.org/)
 
 ---
 
@@ -156,8 +222,8 @@ npm run sync:study     # 手动同步 examples 到 public/study
 
 ---
 
-## 🙏 Acknowledgments · 致谢
+## 🙏 致谢
 
-- 学习方法论基于 [Matt Pocock 的 skill 体系](https://github.com/mattpocock) 启发。
-- 间隔重复算法参考 [Anki 的 SM-2 实现](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)。
-- 示例主题（dev-intro）的 git 知识参考 [Pro Git Book](https://git-scm.com/book/zh/v2)（官方，免费）。
+- 学习方法论基于 [Matt Pocock 的 skill 体系](https://github.com/mattpocock) 启发
+- 间隔重复算法参考 [Anki 的 SM-2 实现](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
+- 示例主题（dev-intro）的 git 知识参考 [Pro Git Book](https://git-scm.com/book/zh/v2)（官方，免费）
