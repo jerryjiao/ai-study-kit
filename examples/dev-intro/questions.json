@@ -6,12 +6,12 @@
     "topic": "git-basics",
     "question": "把一个普通目录变成 git 仓库（初始化 .git 子目录），用哪条命令？",
     "options": {
-      "A": "git start",
-      "B": "git init",
-      "C": "git new",
-      "D": "git create"
+      "A": "git new",
+      "B": "git start",
+      "C": "git create",
+      "D": "git init"
     },
-    "answer": ["B"],
+    "answer": ["D"],
     "analysis": "`git init` 在当前目录创建 .git/ 子目录，把它变成一个空的 git 仓库。后续才能 add/commit。"
   },
   {
@@ -38,8 +38,8 @@
     "options": {
       "A": "git push -m \"说明\"",
       "B": "git commit -m \"说明\"",
-      "C": "git save -m \"说明\"",
-      "D": "git store \"说明\""
+      "C": "git snapshot -m \"说明\"",
+      "D": "git save \"说明\""
     },
     "answer": ["B"],
     "analysis": "`git commit -m \"说明\"` 把暂存区的快照提交到版本库并附带一行说明。`-m` 是 message 缩写，省略会打开编辑器让你写多行说明。push 是推到远端，不是提交。"
@@ -52,7 +52,7 @@
     "question": "想看最近 5 条提交的简短列表（每条一行），用哪条命令？",
     "options": {
       "A": "git log -5 --oneline",
-      "B": "git history -5",
+      "B": "git history -5 --oneline",
       "C": "git show --recent 5",
       "D": "git list -5"
     },
@@ -96,7 +96,7 @@
     "options": {
       "A": "reset 通过移动分支指针「抹掉」提交，历史里看不到被撤的提交",
       "B": "revert 通过新建一个反向提交来撤销改动，历史里能看到原提交和撤销提交",
-      "C": "两者效果完全相同，可以互换使用",
+      "C": "两者的最终效果完全相同，任何场景下都可以互换使用",
       "D": "已推送到团队共享分支的提交，更推荐用 revert 而非 reset"
     },
     "answer": ["A", "B", "D"],

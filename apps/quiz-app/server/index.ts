@@ -19,8 +19,9 @@ const app = new Hono();
 app.get('/api/progress', (c) => c.json(readProgress(PROGRESS_FILE)));
 
 app.post('/api/progress', async (c) => {
-  const body = await c.req.json<Progress>();
   try {
+    // json() 解析非法 JSON 也会抛错，必须在 try 内，统一落进 400 分支
+    const body = await c.req.json<Progress>();
     writeProgress(PROGRESS_FILE, body);
     return c.json({ ok: true });
   } catch {

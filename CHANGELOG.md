@@ -2,6 +2,13 @@
 
 本仓库的版本日志。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### Fixed
+
+- **server**：`POST /api/progress` 收到非法 JSON 时返回 400——原先 `c.req.json()` 在 try 块外，解析错误会以 500 泄出。已实测验证（非法体 500→400，合法写入不受影响）。
+- **examples(dev-intro)**：题库首次通过 `npm run qa` 全部硬约束——GIT-001 选项重排使答案键分布均衡（B 42%→33%，单项阈值 ≤40%）；GIT-003/GIT-004 加长干扰项，消除「正确答案即最长选项」的应试线索（最长即答案 40%→0%）；GIT-007 缩短正确项与干扰项的长度差。题 id 均不变，不影响已有进度。
+
 ## [0.3.0] — 2026-08-16
 
 主题：**`/study-coach` 学习教练——一句话入口，不用记工具链。**
