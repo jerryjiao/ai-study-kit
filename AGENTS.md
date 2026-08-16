@@ -44,13 +44,21 @@ ai-study-kit/
 ├── docs/                      # 方法论文档
 │   ├── methodology.md         # 学习方法论
 │   ├── four-alignment.md      # 四对齐原则
-│   ├── bidirectional-check.md # 自动化校验脚本
+│   ├── bidirectional-check.md # 自动化校验脚本说明
 │   ├── ai-cli-guide.md        # teach/grill/podcast 三个 AI CLI 用法
+│   ├── study-coach.md         # /study-coach 学习教练指令
 │   └── configuration.md       # .env 配置（LLM/TTS provider）
+├── skills/
+│   └── study-coach/           # 学习教练 skill（探测状态 → 推荐 → 带执行）
+│       ├── SKILL.md           # 路由指令本体
+│       └── references/        # state.md 探测协议 + flows.md 九流程 playbook
 ├── scripts/
 │   ├── brand-scan.py          # 零泄露扫描（品牌 + 个人语境）
+│   ├── bidirectional-check.py # 四对齐校验（题→课、闪卡覆盖）
+│   ├── install-skill.sh       # /study-coach 安装器（→ ~/.agents/skills/）
 │   └── render_ascii_slide.py  # ASCII → PNG 渲染（给示例画图用）
 ├── README.md                  # 项目主页（双语）
+├── CHANGELOG.md               # 版本日志
 ├── LICENSE                    # MIT
 └── AGENTS.md                  # 本文件
 ```
@@ -65,6 +73,8 @@ pnpm run server            # 后端 + 托管 dist :8787
 pnpm run build             # sync:examples && sync:study && tsc -b && vite build → apps/quiz-app/dist/
 pnpm test                  # vitest（grade/progress/progressStore/srs/reviewQueue）+ node:test（scripts/lib/*.test.mjs）
 pnpm run scan              # brand-scan.py（零泄露校验）
+pnpm run check:alignment   # bidirectional-check.py 四对齐校验（默认 dev-intro，可传主题目录）
+pnpm run skill:install     # 把 /study-coach skill 装进 ~/.agents/skills/
 pnpm start                 # build && server（本地一键）
 
 # 直接在 apps/quiz-app/ 执行：
@@ -131,11 +141,13 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - `grill-wrong.mjs`：从 `/api/progress` 拉错题 + LLM 聚类 + 产错题精讲 HTML
   - `podcast-generate.mjs`：从任一学习素材产男女双播播客（脚本 + 逐字稿 + WAV）
   - 全部需要 `.env` 配 LLM/TTS provider。详见 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md) + [`docs/configuration.md`](./docs/configuration.md)。
+- **学习教练 skill（`/study-coach`）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后输入 `/study-coach` 触发。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/study-coach/references/flows.md` 的 playbook 带执行（初始化/新主题/每日学习/错题串讲/播客/产课/改内容/校验/部署）。源文件在 `skills/study-coach/`，安装用 `pnpm run skill:install`。
 
 ## zcode / AI agent 访问资料的方式
 
 - **被问学习方法论时**：读 [`docs/methodology.md`](./docs/methodology.md)。
 - **被问四对齐时**：读 [`docs/four-alignment.md`](./docs/four-alignment.md)。
+- **被问「接下来学什么 / 怎么开始 / 装 skill」时**：读 [`skills/study-coach/SKILL.md`](./skills/study-coach/SKILL.md)，按它的三步协议执行（探测→推荐→带执行）。
 - **被问 AI CLI 用法时**：读 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md)。
 - **被问 .env 配置时**：读 [`docs/configuration.md`](./docs/configuration.md)。
 - **被问代码结构时**：读 `apps/quiz-app/src/`（components/pages/lib/hooks/api）+ `server/`（Hono 后端）。
@@ -147,6 +159,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - 方法论：[`docs/methodology.md`](./docs/methodology.md)
 - 四对齐：[`docs/four-alignment.md`](./docs/four-alignment.md)
 - 双向校验：[`docs/bidirectional-check.md`](./docs/bidirectional-check.md)
+- 学习教练指令：[`docs/study-coach.md`](./docs/study-coach.md)
 - AI CLI 指南：[`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md)
 - 配置指南：[`docs/configuration.md`](./docs/configuration.md)
 - 部署与跨设备同步原理：[`README.md`](./README.md)

@@ -44,6 +44,21 @@ pnpm dev
 
 ---
 
+## 🧭 不知道下一步学什么？装 `/study-coach`
+
+上面这些（改主题、产课、刷题、错题串讲、播客、部署……）不用记。仓库内置一个**学习教练指令**，每次学习从它开始：
+
+```bash
+pnpm run skill:install     # 装进 ~/.agents/skills/study-coach
+# 重启 AI CLI（或开新会话），输入 /study-coach
+```
+
+它会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、AI 配置），然后**推荐你现在最该做的一件事**——是开新主题、复习到期闪卡、刷题、还是把攒下的错题做成串讲——选定后**带着你一步步执行**。从初始化整个项目到部署上线，九个流程全覆盖。
+
+详见 [`docs/study-coach.md`](docs/study-coach.md)。
+
+---
+
 ## 🔧 30 分钟改成你自己的主题
 
 以学 **React 基础** 为例。全程只动 `examples/` 下的文件，**不动 apps/quiz-app/ 代码**。
@@ -195,6 +210,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 | [`docs/four-alignment.md`](docs/four-alignment.md) | 四对齐原则：课程 / 题 / 闪卡 / 错题怎么协同 |
 | [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | 自动化校验脚本（题 ↔ 课 ↔ 闪卡 互查） |
 | [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | 三个 AI CLI（teach/grill/podcast）完整用法 |
+| [`docs/study-coach.md`](docs/study-coach.md) | `/study-coach` 学习教练：安装、路由、扩展 |
 | [`docs/configuration.md`](docs/configuration.md) | `.env` 配置：LLM provider + TTS provider |
 | [`AGENTS.md`](AGENTS.md) | AI 协作约定（项目结构 / 命令 / 红线） |
 | [`examples/dev-intro/`](examples/dev-intro/) | git+Linux 完整示例：题 + 闪卡 + 课程 + 错题精讲 |
@@ -212,6 +228,8 @@ pnpm test             # 跑 5 个测试文件（130 个用例）
 pnpm run scan         # 零泄露扫描
 pnpm run server       # 单独起后端
 pnpm start            # build + server
+pnpm run skill:install    # 安装 /study-coach 学习教练指令
+pnpm run check:alignment  # 四对齐校验（默认扫 dev-intro，可传主题目录）
 
 # 在 apps/quiz-app/ 下
 npm run qa            # 题库质量校验（最长即答案 / 答案分布）
