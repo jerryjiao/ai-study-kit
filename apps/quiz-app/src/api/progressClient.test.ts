@@ -88,4 +88,31 @@ describe('progressClient 本地模式', () => {
     const posts = fetchMock.mock.calls.filter((c) => c[1]?.method === 'POST');
     expect(posts).toHaveLength(1);
   });
+
+  it('本地模式不是终身监禁：冷却期后保存会懒重探，后端恢复即回到同步模式', async () => {
+    vi.useFakeTimers();
+    try {
+      stubLocalStorage();
+      const fetchMock = vi.fn().mockRejectedValueOnce(new TypeError('Failed to fetch'));
+      vi.stubGlobal('fetch', fetchMock);
+      const { loadProgress, saveProgress, isLocalMode } = await freshClient();
+
+      await loadProgress(); // 探测失败 → 本地模式
+      expect(isLocalMode()).toBe(true);
+
+      // 冷却期内保存：不重探（fetch 仅剩最初那一次调用）
+      await saveProgress(makeProgress('GIT-001'));
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      // 冷却期过后保存：懒重探，这次后端活着 → 退出本地模式
+      vi.advanceTimersByTime(61_000);
+      fetchMock.mockResolvedValue(new Response(JSON.stringify(makeProgress('LNX-009')), { status: 200 }));
+      await saveProgress(makeProgress('GIT-002'));
+      // 重探是 fire-and-forget，等微任务排空
+      await vi.advanceTimersByTimeAsync(0);
+      expect(isLocalMode()).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

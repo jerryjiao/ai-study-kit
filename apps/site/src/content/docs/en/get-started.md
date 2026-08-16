@@ -15,7 +15,7 @@ description: Get the demo running in five minutes and see the quizzes, flashcard
 
 **In one sentence**: this is a scaffold, not a question bank. You bring the questions; the tool turns them into a learning app with courses, flashcards and wrong-answer analytics.
 
-Don't want to clone? [Try the online demo](/demo/) — full features, progress saved in your browser only.
+Don't want to clone? [Try the online demo](/ai-study-kit/demo/) — full features, progress saved in your browser only.
 
 ## Run the demo in 5 minutes
 
@@ -35,7 +35,7 @@ pnpm dev
 | **Flashcards** | 4 SM-2 spaced-repetition cards, rated again / hard / good / easy, Anki-compatible |
 | **Courses** | 2 self-contained HTML lessons (git's three areas, Linux dirs & permissions) with ASCII diagrams and callouts |
 
-> It's just a demo. **You won't use any of the dev-intro content** — you'll swap in the topic you're actually learning. See [Make It Yours](/en/your-theme/).
+> It's just a demo. **You won't use any of the dev-intro content** — you'll swap in the topic you're actually learning. See [Make It Yours](/ai-study-kit/en/your-theme/).
 
 ## Works without AI
 
@@ -43,6 +43,6 @@ The three AI CLIs are incremental capabilities. If you just want the quiz app + 
 
 Go further:
 
-- [Make It Yours](/en/your-theme/) — turn the demo into your own topic in 30 minutes
-- [Methodology](/en/method/methodology/) — why it's "syllabus → materials → quizzes"
-- [AI CLI Guide](/en/ai/ai-cli/) — let AI generate courses, deep-dives and podcasts
+- [Make It Yours](/ai-study-kit/en/your-theme/) — turn the demo into your own topic in 30 minutes
+- [Methodology](/ai-study-kit/en/method/methodology/) — why it's "syllabus → materials → quizzes"
+- [AI CLI Guide](/ai-study-kit/en/ai/ai-cli/) — let AI generate courses, deep-dives and podcasts

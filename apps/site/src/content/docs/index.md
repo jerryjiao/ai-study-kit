@@ -6,11 +6,11 @@ header:
   tagline: 把任意题库，变成完整的学习闭环
   actions:
     - text: ⚡ 在线试玩
-      link: /demo/
+      link: /ai-study-kit/demo/
       variant: primary
       icon: rocket
     - text: 5 分钟上手
-      link: /get-started/
+      link: /ai-study-kit/get-started/
       variant: secondary
       icon: right-arrow
 ---
@@ -24,8 +24,8 @@ header:
       这是个脚手架，不是题库：任何能拆成「问题 + 答案」的主题都能学。
     </p>
     <div class="ask-cta-row">
-      <a class="ask-cta-primary" href="/demo/">⚡ 在线试玩</a>
-      <a class="ask-cta-ghost" href="/get-started/">5 分钟上手 →</a>
+      <a class="ask-cta-primary" href="/ai-study-kit/demo/">⚡ 在线试玩</a>
+      <a class="ask-cta-ghost" href="/ai-study-kit/get-started/">5 分钟上手 →</a>
     </div>
   </div>
   <div class="ask-shot">
@@ -53,9 +53,26 @@ header:
   <div class="ask-feats">
     <div class="ask-feat"><div class="ico">✅</div><b>答题</b><span>单选/多选/判断，即答即判，多选全对才算对</span></div>
     <div class="ask-feat"><div class="ico">📖</div><b>课程</b><span>自包含 HTML 讲义，ASCII 示意图 + callout</span></div>
-    <div class="ask-feat"><div class="ico">🎴</div><b>闪卡</b><span>Anki 兼容 SM-2 + 学习步调度</span></div>
+    <div class="ask-feat"><div class="ico">🎴</div><b>闪卡</b><span>核心概念做记忆锚点，正面提示 + 背面展开</span></div>
     <div class="ask-feat"><div class="ico">🔍</div><b>错题精讲</b><span>AI 按考点聚类，逐个深度展开</span></div>
-    <div class="ask-feat"><div class="ico">🔄</div><b>进度同步</b><span>无账号跨设备同步，数据在你手里</span></div>
+    <div class="ask-feat"><div class="ico">⏱️</div><b>间隔重复 SRS</b><span>Anki 兼容 SM-2 + 学习步调度，到期自动排队</span></div>
+  </div>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
+    <h2>这是给谁用的</h2>
+    <p>脚手架不是题库：你带题来，工具把它变成学习 app</p>
+  </div>
+  <div class="ask-compare-wrap">
+    <table class="ask-compare">
+      <tr><th>你是</th><th>适不适合</th></tr>
+      <tr><td>🧑‍💻 开发者学新技术（React / K8s / Rust）</td><td class="y">✅ 文档要点抽成题，刷题 + 闪卡巩固</td></tr>
+      <tr><td>📚 学生复习（考研 / 资格证）</td><td class="y">✅ 真题库 + AI 错题精讲</td></tr>
+      <tr><td>🎯 面试备战（八股 / 系统设计）</td><td class="y">✅ 自出题 + AI 产课 + SRS</td></tr>
+      <tr><td>🗂️ 学任何有「考点」的东西</td><td class="y">✅ 能拆成问答就能学</td></tr>
+      <tr><td>想要现成题库（如「500 道 Java 题」）</td><td>❌ 不含真题，自己提供或 AI 生成</td></tr>
+    </table>
   </div>
 </section>
 
@@ -97,4 +114,7 @@ header:
     <span class="node">材料讲概念</span><span class="arr">→</span>
     <span class="node">做题验效果</span>
   </div>
+  <p style="text-align: center; margin-top: 1.4rem;">
+    <a href="/ai-study-kit/method/methodology/">详见学习方法论 →</a>
+  </p>
 </section>

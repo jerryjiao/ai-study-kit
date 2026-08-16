@@ -77,7 +77,7 @@ The tool aligns five artifacts around the same knowledge points:
    Wrong answers → grill clustering → reinforce → redo
 ```
 
-See [Four-Alignment](/en/method/four-alignment/) for the alignment rules and [Bidirectional Check](/en/maintain/bidirectional-check/) for the automated checker.
+See [Four-Alignment](/ai-study-kit/en/method/four-alignment/) for the alignment rules and [Bidirectional Check](/ai-study-kit/en/maintain/bidirectional-check/) for the automated checker.
 
 ---
 
@@ -95,7 +95,7 @@ To apply this methodology to your own topic (K8s, React, vocabulary, any subject
 
 ## Further reading
 
-- [Four-Alignment](/en/method/four-alignment/) — the detailed alignment rules
-- [Bidirectional Check](/en/maintain/bidirectional-check/) — automated verification script
-- [AI CLI Guide](/en/ai/ai-cli/) — teach / grill / podcast CLI usage
+- [Four-Alignment](/ai-study-kit/en/method/four-alignment/) — the detailed alignment rules
+- [Bidirectional Check](/ai-study-kit/en/maintain/bidirectional-check/) — automated verification script
+- [AI CLI Guide](/ai-study-kit/en/ai/ai-cli/) — teach / grill / podcast CLI usage
 - `examples/dev-intro/` — a complete git + Linux example showing the full aligned loop

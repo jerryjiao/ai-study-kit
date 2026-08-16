@@ -6,11 +6,11 @@ header:
   tagline: Turn any quiz set into a complete learning loop
   actions:
     - text: ⚡ Try the demo
-      link: /demo/
+      link: /ai-study-kit/demo/
       variant: primary
       icon: rocket
     - text: Quick start
-      link: /en/get-started/
+      link: /ai-study-kit/en/get-started/
       variant: secondary
       icon: right-arrow
 ---
@@ -25,8 +25,8 @@ header:
       scaffold, not a question bank: anything that can be broken into Q&amp;A can be learned.
     </p>
     <div class="ask-cta-row">
-      <a class="ask-cta-primary" href="/demo/">⚡ Try the demo</a>
-      <a class="ask-cta-ghost" href="/en/get-started/">Quick start →</a>
+      <a class="ask-cta-primary" href="/ai-study-kit/demo/">⚡ Try the demo</a>
+      <a class="ask-cta-ghost" href="/ai-study-kit/en/get-started/">Quick start →</a>
     </div>
   </div>
   <div class="ask-shot">
@@ -54,9 +54,26 @@ header:
   <div class="ask-feats">
     <div class="ask-feat"><div class="ico">✅</div><b>Quizzes</b><span>Single/multi/true-false, graded instantly; multi-choice must be fully correct</span></div>
     <div class="ask-feat"><div class="ico">📖</div><b>Courses</b><span>Self-contained HTML lessons with ASCII diagrams and callouts</span></div>
-    <div class="ask-feat"><div class="ico">🎴</div><b>Flashcards</b><span>Anki-compatible SM-2 with learning steps</span></div>
+    <div class="ask-feat"><div class="ico">🎴</div><b>Flashcards</b><span>Memory anchors for core concepts — front prompt, back details</span></div>
     <div class="ask-feat"><div class="ico">🔍</div><b>Deep-dives</b><span>AI clusters your wrong answers by exam point and expands each</span></div>
-    <div class="ask-feat"><div class="ico">🔄</div><b>Sync</b><span>Cross-device progress sync, no account, your data</span></div>
+    <div class="ask-feat"><div class="ico">⏱️</div><b>Spaced repetition</b><span>Anki-compatible SM-2 with learning steps, due cards queued automatically</span></div>
+  </div>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
+    <h2>Who is this for</h2>
+    <p>A scaffold, not a bank: bring your own questions, get a learning app</p>
+  </div>
+  <div class="ask-compare-wrap">
+    <table class="ask-compare">
+      <tr><th>You are</th><th>Does it fit</th></tr>
+      <tr><td>🧑‍💻 A developer learning a new stack</td><td class="y">✅ Distill docs into quizzes, drill with cards</td></tr>
+      <tr><td>📚 A student revising for exams</td><td class="y">✅ Real question banks + AI deep-dives</td></tr>
+      <tr><td>🎯 Preparing for interviews</td><td class="y">✅ Your own questions + AI courses + SRS</td></tr>
+      <tr><td>🗂️ Learning anything with exam points</td><td class="y">✅ If it can be Q&amp;A, it can be learned</td></tr>
+      <tr><td>Wanting a ready-made question bank</td><td>❌ No stock questions — bring your own</td></tr>
+    </table>
   </div>
 </section>
 
@@ -98,4 +115,7 @@ header:
     <span class="node">Materials build concepts</span><span class="arr">→</span>
     <span class="node">Quizzes validate mastery</span>
   </div>
+  <p style="text-align: center; margin-top: 1.4rem;">
+    <a href="/ai-study-kit/en/method/methodology/">Read the methodology →</a>
+  </p>
 </section>

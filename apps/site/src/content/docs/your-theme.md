@@ -58,7 +58,7 @@ EXAMPLE_THEME=react-basics pnpm dev
 
 ## Step 5 · （可选）配课程和首页分组（10 分钟）
 
-- **课程**：把 `examples/react-basics/lessons/*.html` 改成你的（可以用 AI 帮你产，见 [AI CLI 指南](/ai/ai-cli/)）。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
+- **课程**：把 `examples/react-basics/lessons/*.html` 改成你的（可以用 AI 帮你产，见 [AI CLI 指南](/ai-study-kit/ai/ai-cli/)）。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
 - **首页分组**：改 `apps/quiz-app/src/lib/topicOrder.ts` 的 `TOPIC_ORDER`，把 `'git-basics', 'linux-commands'` 换成你的主题列表。
 
 ## Step 6 · 校验（2 分钟）
@@ -72,4 +72,4 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 
 **搞定**。整个改造过程**不需要碰任何 React 代码**——只是改 JSON 和 HTML。
 
-改完内容别忘了[四对齐校验](/maintain/bidirectional-check/)：课程、题目、闪卡、错题精讲要围绕同一套考点对齐。
+改完内容别忘了[四对齐校验](/ai-study-kit/maintain/bidirectional-check/)：课程、题目、闪卡、错题精讲要围绕同一套考点对齐。

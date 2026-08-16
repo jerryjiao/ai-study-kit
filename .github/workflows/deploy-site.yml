@@ -11,6 +11,7 @@ on:
       - 'apps/quiz-app/**'
       - 'docs/**'
       - 'examples/**'
+      - 'scripts/**'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 

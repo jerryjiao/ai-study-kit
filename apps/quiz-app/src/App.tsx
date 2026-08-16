@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Practice } from './pages/Practice';
 import { FlashcardsHome } from './pages/FlashcardsHome';
@@ -11,6 +12,23 @@ import { ThemeProvider } from './lib/theme';
 import { I18nProvider, useI18n } from './i18n';
 import { ConfirmProvider } from './components/ConfirmDialog';
 
+/** GitHub Pages 下 demo 深链刷新会被站根 404.html 兜底：它把目标路由存进
+ *  sessionStorage 后重定向到 demo 首页，这里在 app 启动时恢复深链。
+ *  （apps/site/scripts/patch-404.mjs 注入的脚本与本组件是同一机制的两端。） */
+function DeepLinkRestore() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    try {
+      const target = sessionStorage.getItem('ask-demo-route');
+      if (target) {
+        sessionStorage.removeItem('ask-demo-route');
+        navigate(target, { replace: true });
+      }
+    } catch { /* sessionStorage 不可用（隐私模式等）则放弃恢复 */ }
+  }, [navigate]);
+  return null;
+}
+
 function Shell() {
   const { loaded } = useProgress();
   const { t } = useI18n();
@@ -18,6 +36,7 @@ function Shell() {
   return (
     // basename 跟随 vite base：demo 子路径部署（/ai-study-kit/demo/）下路由不白屏
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <DeepLinkRestore />
       <TopNav />
       <SyncStatusBanner />
       <Routes>

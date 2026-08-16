@@ -1,21 +1,23 @@
 // build-demo.mjs — 构建「可玩 demo」（wayfinder #11/#12）：
-// 1) 以 QUIZ_BASE=/ai-study-kit/demo/ 构建 quiz-app 静态产物（vite base + BrowserRouter basename 跟随）
+// 1) 以 QUIZ_BASE（见 site.config.mjs DEMO_BASE）构建 quiz-app 静态产物（vite base + BrowserRouter basename 跟随）
 // 2) 拷进 apps/site/public/demo/（Starlight 原样托管）
-// 3) index.html 复制为 404.html——GitHub Pages 对未命中路径回退到它，SPA 深链刷新不 404
+// 注意：GitHub Pages 只认站点根的 404.html，demo 深链兜底由 scripts/patch-404.mjs
+// 在 astro build 后注入根 404 页实现（本脚本不再复制 demo/404.html）。
 // 运行：pnpm run build:demo（apps/site），CI 部署前必跑。
 import { execSync } from 'node:child_process';
-import { copyFileSync, cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEMO_BASE } from '../site.config.mjs';
 
 const siteRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const quizRoot = resolvePath(siteRoot, '../quiz-app');
-const DEMO_BASE = '/ai-study-kit/demo/';
+const QUIZ_BASE = `${DEMO_BASE}/`;
 
-console.log(`[build-demo] 构建 quiz-app（QUIZ_BASE=${DEMO_BASE}）…`);
+console.log(`[build-demo] 构建 quiz-app（QUIZ_BASE=${QUIZ_BASE}）…`);
 execSync('pnpm run build', {
   cwd: quizRoot,
-  env: { ...process.env, QUIZ_BASE: DEMO_BASE },
+  env: { ...process.env, QUIZ_BASE: QUIZ_BASE },
   stdio: 'inherit',
 });
 
@@ -27,7 +29,4 @@ console.log('[build-demo] 拷贝到 apps/site/public/demo/ …');
 rmSync(dest, { recursive: true, force: true });
 mkdirSync(dest, { recursive: true });
 cpSync(src, dest, { recursive: true });
-
-// GitHub Pages SPA 回退：深链刷新（如 /demo/flashcards）由 404.html 兜底启动应用
-copyFileSync(resolvePath(dest, 'index.html'), resolvePath(dest, '404.html'));
-console.log('[build-demo] 完成（含 404.html SPA 回退）');
+console.log('[build-demo] 完成（深链兜底见 patch-404.mjs）');

@@ -15,7 +15,7 @@ description: 五分钟把 demo 跑起来，看到答题/闪卡/课程长什么�
 
 **一句话定位**：这是个脚手架，不是题库。你带题来，工具帮你把它变成一个有课程、有闪卡、有错题分析的学习 app。
 
-不想 clone？[在线试玩 demo](/demo/)——完整功能，进度仅存你的浏览器。
+不想 clone？[在线试玩 demo](/ai-study-kit/demo/)——完整功能，进度仅存你的浏览器。
 
 ## 5 分钟跑起来看 demo
 
@@ -35,7 +35,7 @@ pnpm dev
 | **闪卡** | 4 张 SM-2 间隔重复卡，按 again / hard / good / easy 评分，算法与 Anki 兼容 |
 | **课程** | 2 节自包含 HTML 课程（git 三区、Linux 目录与权限），带 ASCII 示意图、callout 提示框 |
 
-> 这只是个 demo。**dev-intro 主题的内容你全都不会用**——你要换成的，是你自己在学的主题。见[换成你的主题](/your-theme/)。
+> 这只是个 demo。**dev-intro 主题的内容你全都不会用**——你要换成的，是你自己在学的主题。见[换成你的主题](/ai-study-kit/your-theme/)。
 
 ## 不用 AI 也能用
 
@@ -43,6 +43,6 @@ pnpm dev
 
 想进一步：
 
-- [换成你的主题](/your-theme/)——30 分钟把 demo 变成你在学的东西
-- [学习方法论](/method/methodology/)——为什么是「大纲 → 材料 → 做题」
-- [AI CLI 指南](/ai/ai-cli/)——让 AI 帮你产课程 / 错题精讲 / 播客
+- [换成你的主题](/ai-study-kit/your-theme/)——30 分钟把 demo 变成你在学的东西
+- [学习方法论](/ai-study-kit/method/methodology/)——为什么是「大纲 → 材料 → 做题」
+- [AI CLI 指南](/ai-study-kit/ai/ai-cli/)——让 AI 帮你产课程 / 错题精讲 / 播客

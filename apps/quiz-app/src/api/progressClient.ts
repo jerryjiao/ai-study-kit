@@ -26,6 +26,25 @@ export function isLocalMode(): boolean {
   return localMode;
 }
 
+/** 本地模式懒重探冷却期：期间保存不重探，避免每次答题都发注定失败的请求。
+ *  超过冷却期的下一次保存会 fire-and-forget 重探一次——后端恢复（如自托管重启完成）
+ *  即自动回到同步模式并 flush 积压，无需用户刷新页面。 */
+const REPROBE_MS = 60_000;
+let lastProbeAt = 0;
+
+async function revalidateLocalMode(): Promise<void> {
+  try {
+    const res = await fetch('/api/progress', { cache: 'no-store' });
+    if (res.ok) {
+      localMode = false;
+      notify('saved');
+      void flushPending(); // 后端回来了，把积压的进度补写
+    }
+  } catch {
+    /* 仍不可达：保持本地模式，等下个冷却期 */
+  }
+}
+
 function readLocal(): Progress {
   try {
     const raw = localStorage.getItem(LS_KEY);
@@ -69,6 +88,7 @@ export async function loadProgress(): Promise<Progress> {
     if (!res.ok) {
       // 探测失败（404/5xx 均视为无后端）→ 锁定本地模式并告知 UI
       localMode = true;
+      lastProbeAt = Date.now();
       notify('local');
       return local;
     }
@@ -79,6 +99,7 @@ export async function loadProgress(): Promise<Progress> {
   } catch {
     // 网络不可达 → 同样锁定本地模式
     localMode = true;
+    lastProbeAt = Date.now();
     notify('local');
     return local;
   }
@@ -150,8 +171,15 @@ export async function flushPending(): Promise<boolean> {
 let saveChain: Promise<void> = Promise.resolve();
 export function saveProgress(p: Progress): Promise<void> {
   writeLocal(p); // 乐观：立即写本地
-  // 本地模式：不发 POST、不入 pending、不报错——localStorage 就是唯一存储
-  if (localMode) return Promise.resolve();
+  // 本地模式：不发 POST、不入 pending、不报错——localStorage 就是唯一存储。
+  // 超过冷却期则懒重探一次，后端恢复自动回到同步模式（见 revalidateLocalMode）。
+  if (localMode) {
+    if (Date.now() - lastProbeAt > REPROBE_MS) {
+      lastProbeAt = Date.now();
+      void revalidateLocalMode();
+    }
+    return Promise.resolve();
+  }
   saveChain = saveChain
     .then(() => postWithRetry(p))
     .then(() => notify('saved'))

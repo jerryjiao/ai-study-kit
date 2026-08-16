@@ -97,6 +97,6 @@ Note: not every point needs all four artifacts. But <strong>high-frequency mista
 
 ## Further reading
 
-- [Bidirectional Check](/en/maintain/bidirectional-check/) — the three directions as runnable Python
-- [Methodology](/en/method/methodology/) — the full framework
-- [AI CLI Guide](/en/ai/ai-cli/) — producing aligned content with teach / grill CLIs
+- [Bidirectional Check](/ai-study-kit/en/maintain/bidirectional-check/) — the three directions as runnable Python
+- [Methodology](/ai-study-kit/en/method/methodology/) — the full framework
+- [AI CLI Guide](/ai-study-kit/en/ai/ai-cli/) — producing aligned content with teach / grill CLIs

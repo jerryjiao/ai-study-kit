@@ -4,13 +4,17 @@
 // demo（#12）：构建时把 quiz-app 静态产物拷进 public/demo/（见 scripts/build-demo + CI）。
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
+import { SITE_BASE } from './site.config.mjs';
 
 export default defineConfig({
   site: 'https://jerryjiao.github.io',
-  base: '/ai-study-kit',
+  base: SITE_BASE,
   integrations: [
     starlight({
       title: 'ai-study-kit',
+      // 头部 logo（assets/logo.png 定稿，quiz-app 顶栏/favicon 同源）。
+      // 放 src/assets 让 Astro 优化；不透明深底图浅/深主题通用，无需 dark 反色版。
+      logo: { src: './src/assets/logo.png', alt: 'ai-study-kit logo' },
       description: '把任意主题的题库变成完整学习闭环的开源脚手架',
       defaultLocale: 'root',
       locales: {
@@ -20,6 +24,12 @@ export default defineConfig({
         en: { label: 'English', lang: 'en' },
       },
       customCss: ['./src/styles/custom.css'],
+      // OG 分享图（#14：C 风基准，scripts/gen-og.py 生成 public/og.png 后提交入库）
+      head: [
+        { tag: 'meta', attrs: { property: 'og:image', content: `https://jerryjiao.github.io${SITE_BASE}/og.png` } },
+        { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
+        { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+      ],
       // 单一 sidebar（Starlight 多语言模型）：组/条目标签用 translations 按 BCP-47 覆盖，
       // slug 不含语言前缀、自动取各语言页面的 frontmatter 标题（#13：旅程四组）
       sidebar: [
