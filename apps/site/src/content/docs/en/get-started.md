@@ -1,0 +1,48 @@
+---
+title: Quick Start
+description: Get the demo running in five minutes and see the quizzes, flashcards and courses
+---
+
+## Who is this for
+
+| You are | Does it fit |
+|---------|-------------|
+| 🧑‍💻 **A developer learning a new stack** (React / K8s / Rust) | ✅ Distill official docs into quizzes, drill with flashcards |
+| 📚 **A student revising** (exams / certifications) | ✅ Real question banks + AI wrong-question deep-dives |
+| 🎯 **Preparing for interviews** | ✅ Write your own questions + AI-generated courses, with SRS |
+| 🗂️ **Learning anything with "exam points"** (compliance, processes, terminology) | ✅ If it can be broken into Q&A, you can learn it |
+| ❌ Wanting a ready-made question bank | ❌ This is a **scaffold**, not a bank — bring your own questions or generate them with AI |
+
+**In one sentence**: this is a scaffold, not a question bank. You bring the questions; the tool turns them into a learning app with courses, flashcards and wrong-answer analytics.
+
+Don't want to clone? [Try the online demo](/demo/) — full features, progress saved in your browser only.
+
+## Run the demo in 5 minutes
+
+```bash
+git clone https://github.com/jerryjiao/ai-study-kit
+cd ai-study-kit
+pnpm install
+pnpm dev
+# Open http://localhost:5173
+```
+
+**What you'll see** (the dev-intro example theme: git + Linux basics):
+
+| Tab | What it shows |
+|-----|---------------|
+| **Quiz** | 10 git/Linux questions (single/multi/true-false), graded on click; wrong answers go to the wrong-question book |
+| **Flashcards** | 4 SM-2 spaced-repetition cards, rated again / hard / good / easy, Anki-compatible |
+| **Courses** | 2 self-contained HTML lessons (git's three areas, Linux dirs & permissions) with ASCII diagrams and callouts |
+
+> It's just a demo. **You won't use any of the dev-intro content** — you'll swap in the topic you're actually learning. See [Make It Yours](/en/your-theme/).
+
+## Works without AI
+
+The three AI CLIs are incremental capabilities. If you just want the quiz app + flashcards, skip the LLM setup entirely — `pnpm dev` is enough.
+
+Go further:
+
+- [Make It Yours](/en/your-theme/) — turn the demo into your own topic in 30 minutes
+- [Methodology](/en/method/methodology/) — why it's "syllabus → materials → quizzes"
+- [AI CLI Guide](/en/ai/ai-cli/) — let AI generate courses, deep-dives and podcasts

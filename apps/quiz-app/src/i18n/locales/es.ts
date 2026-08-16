@@ -168,6 +168,7 @@ export const es: Record<TKey, string> = {
   'courses.frameTitle': 'Sitio del curso',
 
   // Aviso de sincronización
+  'sync.local': 'Modo demo: el progreso se guarda solo en este navegador, sin sincronización',
   'sync.retrying': 'Reintentando sincronización…',
   'sync.error': 'Falló la sincronización: guardado localmente. Toca para reintentar.',
   'sync.retry': 'Reintentar',

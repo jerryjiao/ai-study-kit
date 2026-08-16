@@ -35,6 +35,11 @@ ai-study-kit/
 │       │   └── lib/langs.mjs  # AI CLI 输出语言注册表（--lang）
 │       ├── public/study/      # 课程 HTML 同步产物（gitignored，build 时重建）
 │       └── ecosystem.config.cjs  # pm2 部署配置
+│   └── site/                  # 官网（Astro Starlight，双语，GitHub Pages）
+│       ├── astro.config.mjs   # zh 在 /、en 在 /en/，旅程四组侧栏
+│       ├── scripts/sync-docs.mjs   # docs/*.md → 站内页（生成物，勿手编）
+│       ├── scripts/build-demo.mjs  # QUIZ_BASE 构建 quiz-app → public/demo/ + 404.html
+│       └── src/content/docs/  # 站内页（method/ai/maintain 为 sync 产物；en/ 为英译）
 ├── examples/
 │   └── dev-intro/             # 默认示例主题（git + Linux 基础入门）
 │       ├── questions.json     # 题库（schema 见 types.ts）
@@ -85,6 +90,12 @@ npm run sync:examples      # 把 examples/<theme>/*.json 同步到 src/data/
 npm run sync:study         # 把 examples/<theme>/ 同步到 public/study/<theme>/
 npm run qa                 # 题库质量校验（最长即答案/答案分布/选项长度）
 EXAMPLE_THEME=dev-intro npm run sync:examples  # 切换示例主题
+
+# 官网（apps/site，Astro Starlight，发布到 GitHub Pages）：
+cd apps/site
+pnpm run dev               # 本地预览 :4321（predev 自动 sync:docs）
+pnpm run build:demo        # QUIZ_BASE 构建 quiz-app → public/demo/ + 404.html
+pnpm run build             # sync:docs && astro build（含 Pagefind 索引 + sitemap）
 ```
 
 ## 部署
@@ -112,6 +123,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **`apps/quiz-app/progress.json` 是运行期数据，禁止提交、禁止手编**（已在 .gitignore）。已写坏会被 server 当作空进度重置。
   - ⭐ **写 progress.json 的 `submittedAt`/`updatedAt` 必须用真实 `Date.now()`，绝不能用任意固定值或未来时间戳**。`mergeProgress`（progress.ts）按时间戳取新来合并多端写入——未来时间戳会永久压制所有真实时间的写入。
 - **`apps/quiz-app/public/study/` 是 sync 产物**（gitignored），由 `scripts/sync-study.mjs` 从 `examples/<theme>/` 同步，build 时自动重建。改课程请走 `examples/<theme>/lessons/*.html`，别手编 `public/study/`。
+- **官网 sync 产物禁止手编**：`apps/site/src/content/docs/{method,ai,maintain}/` 由 `sync-docs.mjs` 从根 `docs/` 生成；`apps/site/public/demo/` 由 `build-demo.mjs` 生成。改文档走根 `docs/`，改 demo 走 quiz-app。官网部署走 GitHub Actions（`.github/workflows/deploy-site.yml`，push main 自动发布 Pages），不占 pm2。
 - **⭐ 切换示例主题必须改两处**：`EXAMPLE_THEME` 环境变量（默认 `dev-intro`）+ `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 路径。只改一处会脱节。
 - **⭐ 任何发布内容禁止出现真实品牌/企业名**（课程 HTML、闪卡、公开 md 等所有同步到 `apps/quiz-app/public/study/` 的文件）。这是开源协议 MIT 之外的<strong>额外中性化要求</strong>——避免把任何具体企业的商标/品牌带入开源工具。校验用 `pnpm run scan`，命中数必须为 0 才能发布。
   - 必须中性化的词列表见 `scripts/brand-scan.py` 的 `BRAND_PATTERNS` 常量（持续补充）。常见类别：车企、互联网大厂、能源/电信央企、EV 新势力。技术专名（如 Spring Cloud Alibaba 等开源技术栈）作为技术术语保留，扫描时人工确认即可。

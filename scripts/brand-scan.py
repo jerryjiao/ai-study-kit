@@ -81,7 +81,7 @@ SCAN_EXTENSIONS = {
 # Directories we never scan into.
 SKIP_DIRS = {
     ".git", "node_modules", "dist", ".zcode", ".playwright-mcp",
-    "__pycache__", "podcast-out", ".quizbuild",
+    "__pycache__", "podcast-out", ".quizbuild", ".astro",
 }
 
 # Files we never scan (by exact name).
@@ -107,9 +107,13 @@ def scan_file(path: Path, brand_re: re.Pattern, personal_re: re.Pattern) -> list
     hits = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         # Allowlist: GitHub clone URLs `git clone https://github.com/<owner>/<repo>`
-        # contain the repo owner's username, which is intentionally public (the
-        # repo's owner). Skip personal-context matches inside such URLs.
-        clone_url_match = re.search(r"https?://github\.com/[^/\s]+/[^/\s]+", line)
+        # and GitHub Pages URLs `https://<owner>.github.io/<repo>` contain the repo
+        # owner's username, which is intentionally public (the repo's owner).
+        # Skip personal-context matches inside such URLs.
+        clone_url_match = re.search(
+            r"https?://(?:github\.com/[^/\s]+/[^/\s]+|[a-z0-9-]+\.github\.io(?:/[^/\s]+)?)",
+            line,
+        )
         clone_url_span = clone_url_match.span() if clone_url_match else None
 
         def in_clone_url(m):

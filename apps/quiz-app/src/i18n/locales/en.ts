@@ -168,6 +168,7 @@ export const en: Record<TKey, string> = {
   'courses.frameTitle': 'Course site',
 
   // Sync banner
+  'sync.local': 'Demo mode: progress is saved in this browser only — no server sync',
   'sync.retrying': 'Retrying sync…',
   'sync.error': 'Progress sync failed — saved locally. Tap to retry.',
   'sync.retry': 'Retry',

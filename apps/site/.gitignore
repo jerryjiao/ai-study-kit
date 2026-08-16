@@ -1,0 +1,14 @@
+# 构建产物
+dist/
+.astro/
+
+# demo：CI/本地构建时从 apps/quiz-app 拷入的静态产物（wayfinder #12）
+public/demo/
+
+# docs 同步产物：由 scripts/sync-docs.mjs 从仓库根 docs/ 生成（真源在 docs/）
+src/content/docs/method/
+src/content/docs/ai/
+src/content/docs/maintain/
+
+# 依赖
+node_modules/

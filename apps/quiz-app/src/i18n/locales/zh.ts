@@ -164,6 +164,7 @@ export const zh = {
   'courses.frameTitle': '学习课程',
 
   // 同步横幅
+  'sync.local': '在线演示模式：进度仅保存在此浏览器，不联网同步',
   'sync.retrying': '正在重试同步…',
   'sync.error': '进度同步失败，已暂存本地。点击重试',
   'sync.retry': '重试',

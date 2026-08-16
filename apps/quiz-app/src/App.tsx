@@ -16,7 +16,8 @@ function Shell() {
   const { t } = useI18n();
   if (!loaded) return <div className="p-8 text-center text-text-muted">{t('app.loading')}</div>;
   return (
-    <BrowserRouter>
+    // basename 跟随 vite base：demo 子路径部署（/ai-study-kit/demo/）下路由不白屏
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <TopNav />
       <SyncStatusBanner />
       <Routes>

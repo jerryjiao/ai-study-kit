@@ -14,7 +14,8 @@ import { useI18n } from '../i18n';
  *
  * 顶栏只保留全局 TopNav（64px），iframe 占满剩余视口，最大化可阅读区域。
  */
-const COURSE_URL = '/study/dev-intro/index.html';
+// BASE_URL 前缀：demo 子路径部署下课程静态站也能定位（自托管/开发时 BASE_URL='/' 不影响）
+const COURSE_URL = `${import.meta.env.BASE_URL}study/dev-intro/index.html`;
 
 export function Courses() {
   const { t } = useI18n();

@@ -7,14 +7,23 @@ const LS_KEY = 'ask-progress-v1';
  *  每个元素是一个完整 Progress 快照（不是增量），flush 时按 submittedAt merge 进服务器。 */
 const PENDING_KEY = 'ask-progress-pending';
 
-/** 同步状态回调：让 UI 层（useProgress）感知成功/失败，显示 banner */
-type SyncListener = (status: 'saved' | 'error') => void;
+/** 同步状态回调：让 UI 层（useProgress）感知成功/失败/本地模式，显示 banner */
+type SyncListener = (status: 'saved' | 'error' | 'local') => void;
 let syncListener: SyncListener | null = null;
 export function setSyncListener(fn: SyncListener | null): void {
   syncListener = fn;
 }
-function notify(status: 'saved' | 'error'): void {
+function notify(status: 'saved' | 'error' | 'local'): void {
   try { syncListener?.(status); } catch { /* 监听器异常不影响主流程 */ }
+}
+
+/** 本地模式（CONTEXT.md 术语）：进度 API 不可达时 app 自动进入的形态。
+ *  启动探测一次（loadProgress 的 GET），失败即整个会话锁定：进度只存本浏览器、
+ *  绝不发 POST。典型场景是官网上托管的静态 demo（GitHub Pages 无后端）。
+ *  自部署连着后端时探测成功，走默认同步模式，行为与从前完全一致。 */
+let localMode = false;
+export function isLocalMode(): boolean {
+  return localMode;
 }
 
 function readLocal(): Progress {
@@ -51,17 +60,27 @@ function writePending(queue: Progress[]) {
  *  这正是修复"D4 静默丢失"的核心：上次失败的数据，下次打开页面会被自动重发。 */
 export async function loadProgress(): Promise<Progress> {
   const local = readLocal();
+  // 本地模式已锁定：不发任何请求（含 pending flush），纯本地读写
+  if (localMode) return local;
   try {
     // 先 flush pending（如果有）
     await flushPending();
     const res = await fetch('/api/progress', { cache: 'no-store' });
-    if (!res.ok) return local;
+    if (!res.ok) {
+      // 探测失败（404/5xx 均视为无后端）→ 锁定本地模式并告知 UI
+      localMode = true;
+      notify('local');
+      return local;
+    }
     const remote = (await res.json()) as Progress;
     const merged = mergeProgress(local, remote);
     writeLocal(merged);
     return merged;
   } catch {
-    return local; // 离线时退回本地
+    // 网络不可达 → 同样锁定本地模式
+    localMode = true;
+    notify('local');
+    return local;
   }
 }
 
@@ -101,6 +120,8 @@ function enqueuePending(p: Progress): void {
  *  服务器已是 merge 模式（progressStore.ts writeProgress），即便 queue 里多个快照
  *  之间有重叠，最终结果按 submittedAt 取新，一致。 */
 export async function flushPending(): Promise<boolean> {
+  // 本地模式：无服务器可发，pending 队列原地保留（等将来连上真后端再 flush）
+  if (localMode) return true;
   const queue = readPending();
   if (queue.length === 0) return true;
   try {
@@ -129,6 +150,8 @@ export async function flushPending(): Promise<boolean> {
 let saveChain: Promise<void> = Promise.resolve();
 export function saveProgress(p: Progress): Promise<void> {
   writeLocal(p); // 乐观：立即写本地
+  // 本地模式：不发 POST、不入 pending、不报错——localStorage 就是唯一存储
+  if (localMode) return Promise.resolve();
   saveChain = saveChain
     .then(() => postWithRetry(p))
     .then(() => notify('saved'))

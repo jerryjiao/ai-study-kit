@@ -1,0 +1,19 @@
+{
+  "name": "site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/sync-docs.mjs",
+    "dev": "astro dev",
+    "prebuild": "node scripts/sync-docs.mjs",
+    "build": "astro build",
+    "build:demo": "node scripts/build-demo.mjs",
+    "preview": "astro preview",
+    "sync:docs": "node scripts/sync-docs.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.41.7",
+    "astro": "7.2.2"
+  }
+}

@@ -116,5 +116,6 @@ export interface Stats {
 /** 进度同步状态（纯 UI，不入 Progress 持久化）。
  *  - saved：已同步（或未开始）
  *  - error：POST 失败、已重试 3 次、入队待 flush
+ *  - local：本地模式（CONTEXT.md）——启动探测发现无后端，进度仅存本浏览器
  *  由 progressClient 通知，useProgress 维护，SyncStatusBanner 消费。 */
-export type SyncStatus = 'saved' | 'error';
+export type SyncStatus = 'saved' | 'error' | 'local';

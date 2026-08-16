@@ -1,0 +1,58 @@
+# 官网部署：GitHub Pages（wayfinder map #9）。
+# push main（站点/文档/题库相关路径变化）→ 构建 demo + Starlight 站 → 发布 Pages。
+# 首次启用：仓库 Settings → Pages → Source 选 GitHub Actions（或 gh api，见 map #9 完成评论）。
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/site/**'
+      - 'apps/quiz-app/**'
+      - 'docs/**'
+      - 'examples/**'
+      - '.github/workflows/deploy-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build demo (quiz-app static, QUIZ_BASE=/ai-study-kit/demo/) + site
+        run: |
+          pnpm --filter site run build:demo
+          pnpm --filter site run build
+      - name: Brand scan (零品牌泄露红线)
+        run: python3 scripts/brand-scan.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
