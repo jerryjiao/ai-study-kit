@@ -13,6 +13,8 @@ export default defineConfig({
     starlight({
       title: 'ai-study-kit',
       // 放 src/assets 让 Astro 优化；不透明深底图浅/深主题通用，无需 dark 反色版。
+      // 头部 logo（assets/logo.png 定稿，quiz-app 顶栏/favicon 同源）。
+      logo: { src: './src/assets/logo.png', alt: 'ai-study-kit logo' },
       description: '把任意主题的题库变成完整学习闭环的开源脚手架',
       defaultLocale: 'root',
       locales: {
