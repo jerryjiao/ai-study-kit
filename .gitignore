@@ -33,6 +33,9 @@ apps/quiz-app/.quizbuild/
 apps/quiz-app/scripts/_*.json
 apps/quiz-app/scripts/_*.txt
 
+# Logo 源稿候选（scripts/generate-logo.mjs 产，选中定稿拷去 assets/ + public/）
+apps/quiz-app/assets-src/
+
 # Synced data (regenerated from examples/<theme>/ by sync-examples.mjs at build/dev/test time)
 apps/quiz-app/src/data/questions.json
 apps/quiz-app/src/data/flashcards.json

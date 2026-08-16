@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" width="128" alt="ai-study-kit logo" />
+</p>
+
 # ai-study-kit
 
 > **EN** · An AI-assisted study toolkit scaffold. Turn any quiz set into a complete learning loop: answers + courses + flashcards + wrong-question deep-dives + spaced repetition, with cross-device progress sync. Distilled from real practice: syllabus defines scope, materials build concepts, quizzes validate mastery.

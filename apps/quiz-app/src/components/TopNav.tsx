@@ -22,7 +22,8 @@ export function TopNav() {
   return (
     <header className="sticky top-0 z-20 h-16 bg-bg-surface/85 backdrop-blur-md border-b border-border">
       <div className="max-w-4xl mx-auto w-full h-full px-3 sm:px-4 flex items-center justify-between gap-2">
-        <Link to="/" aria-label={t('nav.backHome')} className="text-base font-bold text-text-primary tracking-tight select-none transition-colors hover:text-text-accent shrink-0">
+        <Link to="/" aria-label={t('nav.backHome')} className="flex items-center gap-2 text-base font-bold text-text-primary tracking-tight select-none transition-colors hover:text-text-accent shrink-0">
+          <img src="/logo.png" alt="" className="h-7 w-7 rounded-[7px]" />
           <span className="sm:hidden">ASK</span>
           <span className="hidden sm:inline">ai-study-kit</span>
         </Link>
