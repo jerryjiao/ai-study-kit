@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, RotateCcw, CheckCircle2 } from 'lucide-react';
 import type { Stats } from '../types';
+import { useI18n } from '../i18n';
 
 interface Props {
   /** 本列表统计（来自 computeStats(progress, list)）：accuracy/answered/correct/wrong/total。
@@ -30,6 +31,7 @@ const DURATION = 900;
 export function SessionSummary({
   stats, title, onReset,
 }: Props) {
+  const { t } = useI18n();
   const { accuracy, answered, correct, wrong, total } = stats;
   const selfRated = answered - (correct + wrong);  // answered 含自评，graded=correct+wrong
   // 数字滚动：从 0 缓动到目标百分比。reduced-motion 直接置终值。
@@ -62,16 +64,16 @@ export function SessionSummary({
 
   // 正确率档位文案 + 配色：给成绩一个轻反馈，不喧宾夺主。
   const tier = accuracy >= 0.8
-    ? { text: '掌握得不错', ring: 'text-green-500', num: 'text-green-600' }
+    ? { text: t('summary.tierGood'), ring: 'text-green-500', num: 'text-green-600' }
     : accuracy >= 0.6
-      ? { text: '继续巩固', ring: 'text-indigo-500', num: 'text-indigo-600' }
-      : { text: '多练几轮', ring: 'text-amber-500', num: 'text-amber-600' };
+      ? { text: t('summary.tierOk'), ring: 'text-indigo-500', num: 'text-indigo-600' }
+      : { text: t('summary.tierLow'), ring: 'text-amber-500', num: 'text-amber-600' };
 
   return (
     <div className="animate-scale-in flex flex-col items-center gap-6 py-6">
       <div className="flex items-center gap-2 text-text-muted">
         <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={2} />
-        <span className="font-medium">答题完成 · {title}</span>
+        <span className="font-medium">{t('summary.title', { title })}</span>
       </div>
 
       {/* 进度环 + 中心数字：SVG 环填充与数字滚动同步。 */}
@@ -95,23 +97,23 @@ export function SessionSummary({
       <div className="flex items-center gap-6 text-sm">
         <div className="text-center">
           <div className="text-xl font-bold text-text-primary tabular-nums">{answered}</div>
-          <div className="text-xs text-text-faint">已答</div>
+          <div className="text-xs text-text-faint">{t('summary.answered')}</div>
         </div>
         <div className="text-center">
           <div className="text-xl font-bold text-green-600 tabular-nums">{correct}</div>
-          <div className="text-xs text-text-faint">答对</div>
+          <div className="text-xs text-text-faint">{t('summary.correctCount')}</div>
         </div>
         <div className="text-center">
           <div className="text-xl font-bold text-red-500 tabular-nums">{wrong}</div>
-          <div className="text-xs text-text-faint">答错</div>
+          <div className="text-xs text-text-faint">{t('summary.wrongCount')}</div>
         </div>
       </div>
       {selfRated > 0 && (
         <p className="text-xs text-text-faint -mt-3">
-          含 {selfRated} 道自评题（不计入正确率）
+          {t('summary.selfRated', { n: selfRated })}
         </p>
       )}
-      <p className="text-xs text-text-faint -mt-2">共 {total} 题 · 该主题累计正确率</p>
+      <p className="text-xs text-text-faint -mt-2">{t('summary.totalNote', { n: total })}</p>
 
       {/* 动作按钮：返回首页（默认）+ 重做本题集（二次确认由 onReset 内部处理）。 */}
       <div className="flex items-center gap-3 w-full max-w-xs">
@@ -120,14 +122,14 @@ export function SessionSummary({
           className="flex-1 flex items-center justify-center gap-1.5 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors"
         >
           <Home className="h-4 w-4" strokeWidth={2} />
-          返回首页
+          {t('summary.backHome')}
         </Link>
         <button
           onClick={onReset}
           className="flex-1 flex items-center justify-center gap-1.5 px-5 py-2.5 border border-border-strong rounded-xl text-text-secondary font-medium hover:bg-bg-hover transition-colors"
         >
           <RotateCcw className="h-4 w-4" strokeWidth={2} />
-          重做本题集
+          {t('summary.redo')}
         </button>
       </div>
     </div>

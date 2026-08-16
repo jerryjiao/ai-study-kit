@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useI18n } from '../i18n';
 
 /**
  * 原生 window.confirm 的 UI 替代品。
@@ -34,10 +35,13 @@ type PendingState = {
   resolve: (ok: boolean) => void;
 };
 
-// 危险操作启发式：文案含「清空 / 不可恢复 / 归零」视为破坏性，确认键变红。
-const DANGER_RE = /清空|不可恢复|归零|删除/;
+// 危险操作启发式：文案含各语言的「清空 / 不可恢复 / 归零」类词视为破坏性，确认键变红。
+// （danger 检测在渲染时做，不在这里做——渲染时才能拿到当前语言的词典。）
+const DANGER_RE =
+  /清空|不可恢复|归零|删除|\bclear\b|\bclearing\b|\breset\b|irreversible|cannot be undone|vaciar|borrar|restablecer|rehacer|deshacer|очист|сброс|необратим|обнул/i;
 
 export function ConfirmProvider({ children }: { children: React.ReactNode }) {
+  const { t } = useI18n();
   const [pending, setPending] = useState<PendingState | null>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -86,7 +90,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             onClick={() => close(false)}
             role="dialog"
             aria-modal="true"
-            aria-label="确认操作"
+            aria-label={t('confirm.aria')}
           >
             <div
               className="w-full max-w-sm bg-bg-surface rounded-2xl shadow-pop p-5 animate-scale-in"
@@ -100,7 +104,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   onClick={() => close(false)}
                   className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary border border-border rounded-lg transition-colors"
                 >
-                  {pending.options.cancelText ?? '取消'}
+                  {pending.options.cancelText ?? t('confirm.cancel')}
                 </button>
                 <button
                   ref={confirmBtnRef}
@@ -111,7 +115,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                       : 'px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors'
                   }
                 >
-                  {pending.options.confirmText ?? '确定'}
+                  {pending.options.confirmText ?? t('confirm.ok')}
                 </button>
               </div>
             </div>

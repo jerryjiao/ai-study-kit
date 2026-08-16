@@ -15,6 +15,7 @@
  *   node apps/quiz-app/scripts/podcast-generate.mjs --input examples/dev-intro/lessons/git-basics.html
  *   node apps/quiz-app/scripts/podcast-generate.mjs --input examples/dev-intro/questions.json --segments 15
  *   node apps/quiz-app/scripts/podcast-generate.mjs --input X.html --style interview
+ *   node apps/quiz-app/scripts/podcast-generate.mjs --input X.html --lang en        # 对白用英语产
  *   node apps/quiz-app/scripts/podcast-generate.mjs --input X.html --no-tts  # 只产脚本不合成
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -26,6 +27,7 @@ import {
   parseInputSource, validateDialogScript, renderTranscript,
   podcastSlug, buildPodcastPrompt,
 } from './lib/podcast-utils.mjs';
+import { resolveLang, langConf } from './lib/langs.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -39,6 +41,16 @@ const TARGET_SEGMENTS = segmentsIdx >= 0 ? parseInt(args[segmentsIdx + 1], 10) :
 const styleIdx = args.indexOf('--style');
 const STYLE = styleIdx >= 0 ? args[styleIdx + 1] : 'conversational';
 const NO_TTS = args.includes('--no-tts');
+const langIdx = args.indexOf('--lang');
+// 输出语言：--lang 优先，其次 STUDY_LANG 环境变量，默认 zh。只影响生成内容，CLI 日志仍中文。
+// ⚠️ TTS 当前只配了 GLM-TTS：非中文对白能否合成取决于 provider 的多语支持，建议先 --no-tts 验证脚本。
+let LANG = 'zh';
+try {
+  LANG = resolveLang(langIdx >= 0 ? args[langIdx + 1] : undefined, process.env.STUDY_LANG);
+} catch (err) {
+  console.error(`❌ ${err.message}`);
+  process.exit(1);
+}
 
 if (!INPUT) {
   console.error('❌ 缺少 --input 参数。');
@@ -47,6 +59,7 @@ if (!INPUT) {
   console.error('  --input     学习素材文件（HTML / MD / questions.json / txt）');
   console.error('  --segments  目标对话段数（默认 12）');
   console.error('  --style     风格：conversational / lecture / interview（默认 conversational）');
+  console.error('  --lang      对白输出语言：zh / en / es / ru（默认 zh，也可用 STUDY_LANG 环境变量）');
   console.error('  --no-tts    只产脚本+逐字稿，不调 TTS（省 TTS 成本）');
   process.exit(1);
 }
@@ -66,6 +79,7 @@ async function main() {
   console.log(`   输入：${inputPath}`);
   console.log(`   段数：${TARGET_SEGMENTS}`);
   console.log(`   风格：${STYLE}`);
+  console.log(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
   console.log(`   TTS：${NO_TTS ? '跳过（--no-tts）' : '启用'}`);
   console.log('');
 
@@ -83,6 +97,7 @@ async function main() {
   const prompt = buildPodcastPrompt(sourceText, sourceTitle, {
     targetSegments: TARGET_SEGMENTS,
     style: STYLE,
+    lang: LANG,
   });
   const parsed = await chatJson(
     [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.user }],
@@ -120,7 +135,7 @@ async function main() {
   console.log(`💾 ${scriptPath}`);
 
   // 6. 写逐字稿 Markdown
-  writeFileSync(transcriptPath, renderTranscript(script, parsed.title), 'utf-8');
+  writeFileSync(transcriptPath, renderTranscript(script, parsed.title, LANG), 'utf-8');
   console.log(`💾 ${transcriptPath}`);
 
   // 7. TTS 合成（除非 --no-tts）

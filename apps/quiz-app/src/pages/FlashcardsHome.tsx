@@ -8,6 +8,7 @@ import { newCardsToday, isCardDeleted } from '../lib/progress';
 import { lsGet, lsSet } from './Flashcards';
 import { CountBadge } from '../components/CountBadge';
 import { useConfirm } from '../components/ConfirmDialog';
+import { useI18n } from '../i18n';
 
 const DAY_MS = 86_400_000;
 const STREAK_KEY = 'ask-srs-streak';
@@ -19,6 +20,7 @@ const DEFAULT_NEW_PER_DAY = 5;
 export function FlashcardsHome() {
   const { progress, resetSrs } = useProgress();
   const confirm = useConfirm();
+  const { t } = useI18n();
   const srs = progress.srs ?? {};
   const now = Date.now();
 
@@ -79,7 +81,7 @@ export function FlashcardsHome() {
   /** 重置全部闪卡进度：清服务器 srs 字段 + 本地 streak/last-complete-date。
    *  所有卡回到新卡状态。不影响答题/看题进度。 */
   const resetAllSrs = async () => {
-    if (await confirm('清空所有闪卡进度？所有卡将回到新卡状态，连续天数归零，不可恢复。（不影响答题/看题进度）')) {
+    if (await confirm(t('fch.confirmResetSrs'))) {
       resetSrs();
       lsSet(STREAK_KEY, '0');
       lsSet(STREAK_DATE_KEY, '');
@@ -92,30 +94,30 @@ export function FlashcardsHome() {
       <header className="text-center">
         <h1 className="flex items-center justify-center gap-2 text-3xl font-bold text-text-primary tracking-tight">
           <Layers className="h-7 w-7 text-indigo-600" strokeWidth={2} />
-          闪卡复习
+          {t('fch.title')}
         </h1>
-        <p className="text-text-muted text-sm mt-2">间隔重复 · 科学抗遗忘 · 共 {flashcards.length} 张</p>
+        <p className="text-text-muted text-sm mt-2">{t('fch.tagline', { n: flashcards.length })}</p>
       </header>
 
       {/* 今日概览：三色计数 */}
       {totalToday > 0 ? (
         <div className="flex gap-2.5">
-          <CountBadge label="新卡" value={counts.fresh} color="blue" />
-          <CountBadge label="学习中" value={counts.learning} color="red" />
-          <CountBadge label="待复习" value={counts.review} color="green" />
+          <CountBadge label={t('fc.new')} value={counts.fresh} color="blue" />
+          <CountBadge label={t('fc.learning')} value={counts.learning} color="red" />
+          <CountBadge label={t('fc.review')} value={counts.review} color="green" />
         </div>
       ) : (
         <div className="text-center py-10 space-y-3">
           <CircleCheck className="mx-auto h-14 w-14 text-green-500" strokeWidth={1.5} />
-          <p className="text-text-secondary font-medium">今日复习已完成</p>
-          {nextDue && <p className="text-text-faint text-sm">下一张卡约 {nextDue}后到期</p>}
+          <p className="text-text-secondary font-medium">{t('fch.todayDone')}</p>
+          {nextDue && <p className="text-text-faint text-sm">{t('fc.nextDue', { interval: nextDue })}</p>}
         </div>
       )}
 
       {/* 连续天数 */}
       <p className="flex items-center justify-center gap-1.5 text-sm text-text-muted">
         <Flame className="h-4 w-4 text-orange-500" strokeWidth={2} />
-        连续坚持 <span className="font-semibold text-text-primary tabular-nums">{streak}</span> 天
+        {t('fc.streak', { n: streak })}
       </p>
 
       {/* 开始复习入口 + 始终可用的"再练全部" */}
@@ -127,14 +129,14 @@ export function FlashcardsHome() {
           >
             <span className="flex items-center gap-3">
               <Layers className="h-5 w-5 opacity-90" strokeWidth={2} />
-              开始今日复习
-              <span className="text-indigo-100 text-sm">（{totalToday} 张）</span>
+              {t('fch.start')}
+              <span className="text-indigo-100 text-sm">{t('fch.count', { n: totalToday })}</span>
             </span>
             <ChevronRight className="h-5 w-5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         ) : (
           <div className="flex items-center justify-center text-text-faint rounded-2xl px-5 py-4 font-medium text-lg bg-bg-subtle">
-            今日无可复习的卡
+            {t('fch.nothingToday')}
           </div>
         )}
 
@@ -145,8 +147,8 @@ export function FlashcardsHome() {
         >
           <span className="flex items-center gap-3">
             <RefreshCw className="h-5 w-5 opacity-70" strokeWidth={2} />
-            <span className="text-base">再练全部 {flashcards.length} 张</span>
-            <span className="text-text-faint text-xs">额外练习 · 不更新连续天数 · 评分仍记录</span>
+            <span className="text-base">{t('fch.rerunAll', { n: flashcards.length })}</span>
+            <span className="text-text-faint text-xs">{t('fch.rerunNote')}</span>
           </span>
           <ChevronRight className="h-5 w-5 opacity-50 group-hover:translate-x-0.5 transition-transform" />
         </Link>
@@ -155,7 +157,7 @@ export function FlashcardsHome() {
       {/* 设置：每日新卡数 */}
       {showSettings ? (
         <div className="bg-bg-subtle border border-border rounded-xl p-4 space-y-3 animate-fade-in">
-          <label className="block text-sm font-medium text-text-primary">每日新卡数</label>
+          <label className="block text-sm font-medium text-text-primary">{t('fch.newPerDay')}</label>
           <input
             type="number"
             min={0}
@@ -169,13 +171,13 @@ export function FlashcardsHome() {
               onClick={saveNewPerDay}
               className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
             >
-              保存
+              {t('fch.save')}
             </button>
             <button
               onClick={() => setShowSettings(false)}
               className="flex-1 border border-border-strong text-text-secondary py-2.5 rounded-lg font-medium hover:bg-bg-hover transition-colors"
             >
-              取消
+              {t('fch.cancel')}
             </button>
           </div>
         </div>
@@ -186,7 +188,7 @@ export function FlashcardsHome() {
             className="inline-flex items-center gap-1.5 text-sm text-text-faint hover:text-indigo-600 transition-colors"
           >
             <Settings className="h-4 w-4" strokeWidth={2} />
-            每日新卡数：<span className="font-medium text-text-secondary tabular-nums">{appliedNewPerDay}</span>
+            {t('fch.newPerDay')}：<span className="font-medium text-text-secondary tabular-nums">{appliedNewPerDay}</span>
           </button>
         </div>
       )}
@@ -199,7 +201,7 @@ export function FlashcardsHome() {
             className="inline-flex items-center gap-1.5 text-xs text-text-faint hover:text-red-600 transition-colors"
           >
             <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-            重置全部闪卡进度（{Object.keys(srs).length} 张卡回到新卡）
+            {t('fch.resetAllSrs', { n: Object.keys(srs).length })}
           </button>
         </div>
       )}

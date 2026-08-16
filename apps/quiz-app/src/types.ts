@@ -1,5 +1,8 @@
 export type QType = 'single' | 'multi' | 'judge';
 
+/** UI 界面语言（顶栏可切换）。词典在 src/i18n/locales/。 */
+export type UiLang = 'zh' | 'en' | 'es' | 'ru';
+
 export interface Question {
   id: string;                 // "GIT-001" | "LNX-002" 等，全局唯一稳定
   source: string;             // 题源标识，自定义（如 "dev-intro"）
@@ -97,6 +100,9 @@ export interface Progress {
    *  本地另有独立的 'ask-theme' key 供内联脚本秒读（见 index.html）。 */
   theme?: 'light' | 'dark' | 'system';
   themeUpdatedAt?: number;                // 主题最后变更时间戳（Date.now()），LWW 仲裁用
+  /** UI 语言偏好（非学习进度），跨设备同步同 theme 的 LWW 模式（langUpdatedAt 仲裁）。 */
+  lang?: UiLang;
+  langUpdatedAt?: number;                 // 语言最后变更时间戳（Date.now()），LWW 仲裁用
 }
 
 export interface Stats {

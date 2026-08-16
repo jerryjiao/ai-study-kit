@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BookOpen } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 /**
  * 课程页：用全屏 iframe 嵌入 examples/<theme>/ 静态小站（teach 产出）。
@@ -16,6 +17,7 @@ import { BookOpen } from 'lucide-react';
 const COURSE_URL = '/study/dev-intro/index.html';
 
 export function Courses() {
+  const { t } = useI18n();
   const [error, setError] = useState(false);
 
   // iframe 加载失败时给个降级提示（课程未同步时）
@@ -31,11 +33,8 @@ export function Courses() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-4">
         <BookOpen className="mx-auto h-14 w-14 text-text-faint" strokeWidth={1.5} />
-        <h2 className="text-xl font-bold text-text-primary">课程未就绪</h2>
-        <p className="text-text-muted text-sm leading-relaxed">
-          课程内容来自 <code className="px-1 py-0.5 rounded bg-bg-subtle text-text-secondary">examples/&lt;theme&gt;/</code>，
-          需先运行 <code className="px-1 py-0.5 rounded bg-bg-subtle text-text-secondary">pnpm run build</code>（含 sync:study）同步到 public/study/。
-        </p>
+        <h2 className="text-xl font-bold text-text-primary">{t('courses.notReady')}</h2>
+        <p className="text-text-muted text-sm leading-relaxed">{t('courses.notReadyHint')}</p>
       </div>
     );
   }
@@ -44,7 +43,7 @@ export function Courses() {
     <div className="h-[calc(100vh-4rem)]">
       <iframe
         src={COURSE_URL}
-        title="学习课程"
+        title={t('courses.frameTitle')}
         className="w-full h-full border-0 bg-white"
       />
     </div>

@@ -3,6 +3,7 @@
  *
  * 处理：错题筛选、聚类准备、HTML 包装、prompt 构建。
  */
+import { langConf } from './langs.mjs';
 
 /** HTML 转义（与 teach-utils 一致，但保持模块独立避免循环依赖）。 */
 export function escapeHTML(s) {
@@ -71,9 +72,11 @@ export function joinWrongQuestions(wrongList, questions) {
  *
  * @param {Array} wrongWithQ  joinWrongQuestions 的输出
  * @param {number} maxClusters  最多分多少簇（默认 5）
+ * @param {string} [lang='zh']  聚类 topic（考点名）的输出语言
  * @returns {Array<{ topic: string, ids: string[] }>}  聚类结果
  */
-export function buildClusterPrompt(wrongWithQ, maxClusters = 5) {
+export function buildClusterPrompt(wrongWithQ, maxClusters = 5, lang = 'zh') {
+  const conf = langConf(lang);
   const wrongBlock = wrongWithQ
     .map((w, i) => {
       const q = w.question;
@@ -92,6 +95,9 @@ ${opts}`;
 
   return {
     system: `你是一位学习诊断专家。任务：把用户的错题按考点聚类分组。
+
+## 输出语言
+${conf.directive}（题干/选项保持原样，只翻译你的输出——clusters 的 topic 字段）
 
 ## 输出格式
 严格 JSON，不要 markdown 代码块，不要任何解释：
@@ -121,8 +127,10 @@ ${wrongBlock}
  * @param {object} cluster  { topic, ids }
  * @param {Array} wrongWithQ  完整错题列表
  * @param {Array} lessons  课程 HTML 内容列表（提供考点参照）
+ * @param {string} [lang='zh']  精讲正文的输出语言
  */
-export function buildClusterGrillPrompt(cluster, wrongWithQ, lessons = []) {
+export function buildClusterGrillPrompt(cluster, wrongWithQ, lessons = [], lang = 'zh') {
+  const conf = langConf(lang);
   const clusterQs = cluster.ids
     .map((id) => wrongWithQ.find((w) => w.id === id))
     .filter(Boolean);
@@ -151,6 +159,9 @@ ${lessons.map((l) => `- ${l.file}：${l.snippet}`).join('\n')}`
   return {
     system: `你是一位学习教练。任务：把一组错题深度展开成一份精讲 HTML。
 
+## 输出语言
+${conf.directive}（题干引用保持原样）
+
 ## 输出格式
 **只返回 HTML 片段**（从 <h2> 开始），不要 <main>/<h1>/<!DOCTYPE>/<html>/<head>/<body>。
 
@@ -160,7 +171,7 @@ ${lessons.map((l) => `- ${l.file}：${l.snippet}`).join('\n')}`
 - **易错警示**：用 <div class="callout callout-warn"> 列每个错根
 - **变体训练**：用 <div class="callout"> 列 2-3 道变体题（同考点换个问法）
 - **四对齐**：开头加 <div class="quiz-anchor"> 列本簇题 id 和对应考点
-- 风格：具体、有例子、避免空洞术语。800-1500 字。
+- 风格：具体、有例子、避免空洞术语。800-1500 字（非中文按同等信息量折算）。
 
 直接从 <h2> 开始写，不要前后解释。`,
     user: `考点：${cluster.topic}
@@ -174,29 +185,32 @@ ${courseContext}
 
 /**
  * 把 LLM 产的精讲片段包成完整 HTML 文档。
+ * @param {object} params
+ * @param {string} [params.lang='zh']  页面固定文案语言 + <html lang>
  */
-export function wrapClusterHTML({ mainContent, topic, ids, lessonLinks = [] }) {
+export function wrapClusterHTML({ mainContent, topic, ids, lessonLinks = [], lang = 'zh' }) {
+  const conf = langConf(lang);
   const idList = ids.join('、');
   const lessonBlock = lessonLinks.length
-    ? '　·　相关课程：' + lessonLinks.map((l) => `<a href="../lessons/${l.file}">${escapeHTML(l.title)}</a>`).join('、')
+    ? `　·　${conf.ui.relatedLessons}` + lessonLinks.map((l) => `<a href="../lessons/${l.file}">${escapeHTML(l.title)}</a>`).join('、')
     : '';
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="${conf.htmlLang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>错题精讲 · ${escapeHTML(topic)}</title>
+<title>${conf.ui.wrongTitle} · ${escapeHTML(topic)}</title>
 <link rel="stylesheet" href="../assets/styles.css">
 </head>
 <body>
 <main>
-<h1>错题精讲 · ${escapeHTML(topic)}</h1>
-<p class="meta">对应题目：${escapeHTML(idList)}　·　<a href="index.html">← 返回错题中心</a>${lessonBlock}</p>
+<h1>${conf.ui.wrongTitle} · ${escapeHTML(topic)}</h1>
+<p class="meta">${conf.ui.wrongMetaIds}${escapeHTML(idList)}　·　<a href="index.html">${conf.ui.backToWrongIndex}</a>${lessonBlock}</p>
 
 ${mainContent.trim()}
 
 <footer>
-<p>💡 本精讲由 ai-study-kit 的 <code>grill-wrong.mjs</code> 自动生成。如有不清楚，可以让 AI 助手进一步讲解。</p>
+<p>${conf.ui.wrongFooter}</p>
 </footer>
 </main>
 </body>
@@ -208,23 +222,25 @@ ${mainContent.trim()}
  * 生成错题中心 index.html。
  * @param {Array<{ topic: string, file: string, count: number }>} clusters
  * @param {string} themeName
+ * @param {string} [lang='zh']  页面固定文案语言 + <html lang>
  */
-export function wrapIndexHTML(clusters, themeName) {
+export function wrapIndexHTML(clusters, themeName, lang = 'zh') {
+  const conf = langConf(lang);
   const cards = clusters
     .map((c) => `      <a class="layer-card" href="${c.file}">
         <div class="row">
           <h3>→ ${escapeHTML(c.topic)}</h3>
-          <span class="badge">${c.count} 题</span>
+          <span class="badge">${conf.ui.indexCount.replace('{n}', c.count)}</span>
         </div>
       </a>`)
     .join('\n');
 
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="${conf.htmlLang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>错题学习中心 · ${escapeHTML(themeName)}</title>
+<title>${conf.ui.indexTitle} · ${escapeHTML(themeName)}</title>
 <link rel="stylesheet" href="../assets/styles.css">
 <style>
   .layer-card {
@@ -241,16 +257,16 @@ export function wrapIndexHTML(clusters, themeName) {
 </head>
 <body>
 <main>
-<h1>错题学习中心 · ${escapeHTML(themeName)}</h1>
-<p class="meta">ai-study-kit 自动生成　·　<a href="../index.html">← 返回课程主页</a></p>
+<h1>${conf.ui.indexTitle} · ${escapeHTML(themeName)}</h1>
+<p class="meta">${conf.ui.indexAuto}　·　<a href="../index.html">${conf.ui.backToCourseHome}</a></p>
 
-<p class="lead">由 <code>grill-wrong.mjs</code> 从你的答题进度自动聚类生成。每个簇是一个高频错点的深度展开。</p>
+<p class="lead">${conf.ui.indexLead}</p>
 
-<h2>🔥 易错点精讲</h2>
-${cards || '      <p>（暂无错题——多刷几道题后再来跑 grill-wrong.mjs）</p>'}
+<h2>${conf.ui.indexH2}</h2>
+${cards || `      <p>${conf.ui.indexEmpty}</p>`}
 
 <footer>
-<p>💡 本页由 ai-study-kit 的 <code>grill-wrong.mjs</code> 自动生成。</p>
+<p>${conf.ui.indexFooter}</p>
 </footer>
 </main>
 </body>

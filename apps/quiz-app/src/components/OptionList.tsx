@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import type { QType } from '../types';
+import { useI18n } from '../i18n';
 
 interface Props {
   options: Record<string, string>;
@@ -13,6 +14,7 @@ interface Props {
 
 /** 选项列表：字母前缀做成圆角徽章，触控区放大（p-3→px-4 py-3.5），选中/正误层次强化 */
 export function OptionList({ options, type, selected, revealed, answer, onToggle, disabled }: Props) {
+  const { t } = useI18n();
   const multi = type === 'multi';
   const answerSet = new Set(answer);
   return (
@@ -50,7 +52,7 @@ export function OptionList({ options, type, selected, revealed, answer, onToggle
             </span>
             <span className="text-text-primary flex-1 leading-snug">{text}</span>
             {revealed && isCorrect && (
-              <span className="text-green-600 shrink-0" aria-label="正确答案">
+              <span className="text-green-600 shrink-0" aria-label={t('opt.correctAnswer')}>
                 <Check className="h-5 w-5" strokeWidth={2.5} />
               </span>
             )}

@@ -3,6 +3,7 @@
  *
  * 处理：输入源解析、对话脚本 schema 校验、逐字稿渲染、文件名生成、prompt 构建。
  */
+import { langConf } from './langs.mjs';
 
 /** HTML 转义。 */
 export function escapeHTML(s) {
@@ -105,12 +106,14 @@ export function validateDialogScript(script) {
  *
  * @param {Array<{speaker: string, text: string}>} script
  * @param {string} title
+ * @param {string} [lang='zh']  主播称呼的显示语言
  * @returns {string}
  */
-export function renderTranscript(script, title) {
+export function renderTranscript(script, title, lang = 'zh') {
+  const conf = langConf(lang);
   const lines = [`# ${title}`, '', ''];
   for (const seg of script) {
-    const name = seg.speaker === 'female' ? '👩 女主播' : '👨 男主播';
+    const name = seg.speaker === 'female' ? conf.ui.femaleHost : conf.ui.maleHost;
     lines.push(`**${name}**：${seg.text}`, '');
   }
   return lines.join('\n');
@@ -136,9 +139,11 @@ export function podcastSlug(s) {
  * @param {object} [opts]
  * @param {number} [opts.targetSegments=12]   目标对话段数
  * @param {string} [opts.style='conversational']  风格：conversational / lecture / interview
+ * @param {string} [opts.lang='zh']  对白与标题的输出语言
  */
 export function buildPodcastPrompt(sourceText, sourceTitle, opts = {}) {
-  const { targetSegments = 12, style = 'conversational' } = opts;
+  const { targetSegments = 12, style = 'conversational', lang = 'zh' } = opts;
+  const conf = langConf(lang);
   const styleHint = {
     conversational: '两人轻松对话，互相补充、提问、举例，像朋友聊天',
     lecture: '一位主播主讲，另一位补充提问和总结',
@@ -147,6 +152,9 @@ export function buildPodcastPrompt(sourceText, sourceTitle, opts = {}) {
 
   return {
     system: `你是一位资深的播客编剧。任务：把学习素材改编成男女双主播的对话脚本。
+
+## 输出语言
+${conf.directive}（title 和所有 text 都用目标语言；素材里的技术名词可保留）
 
 ## 输出格式
 严格 JSON，不要 markdown 代码块，不要解释：
@@ -162,7 +170,7 @@ export function buildPodcastPrompt(sourceText, sourceTitle, opts = {}) {
 ## 规则
 - 共 ${targetSegments} 段左右（可以 ±3）
 - speaker 严格交替 female / male
-- 每段 30-150 字（一句话或一小段话）
+- 每段一小段自然口语（中文约 30-150 字，其他语言按同等信息量折算）
 - 风格：${styleHint}
 - 开头要有"欢迎来到 XX 播客"之类的引入
 - 中间要覆盖素材的核心知识点（用口语化方式讲，不要照念原文）

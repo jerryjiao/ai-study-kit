@@ -19,12 +19,14 @@
  *   node apps/quiz-app/scripts/teach-generate.mjs                       # 默认 dev-intro
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics --lessons 5
+ *   node apps/quiz-app/scripts/teach-generate.mjs --lang en            # 课程用英语产（zh/en/es/ru）
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chat, requireLlmConfig } from './lib/llm.mjs';
 import { slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline } from './lib/teach-utils.mjs';
+import { resolveLang, langConf } from './lib/langs.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -35,6 +37,15 @@ const themeIdx = args.indexOf('--theme');
 const THEME = themeIdx >= 0 ? args[themeIdx + 1] : (process.env.EXAMPLE_THEME || 'dev-intro');
 const lessonsIdx = args.indexOf('--lessons');
 const LESSONS_OVERRIDE = lessonsIdx >= 0 ? parseInt(args[lessonsIdx + 1], 10) : null;
+const langIdx = args.indexOf('--lang');
+// 输出语言：--lang 优先，其次 STUDY_LANG 环境变量，默认 zh。只影响生成内容，CLI 日志仍中文。
+let LANG = 'zh';
+try {
+  LANG = resolveLang(langIdx >= 0 ? args[langIdx + 1] : undefined, process.env.STUDY_LANG);
+} catch (err) {
+  console.error(`❌ ${err.message}`);
+  process.exit(1);
+}
 
 // ── 主流程 ────────────────────────────────────────────────
 async function main() {
@@ -62,6 +73,7 @@ async function main() {
   console.log(`   深度：${spec.depth}`);
   console.log(`   课程数：${lessonsCount}`);
   console.log(`   资源数：${spec.resources?.length || 0}`);
+  console.log(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
   console.log('');
 
   // 触发配置校验（缺配置会清晰退出）
@@ -71,7 +83,7 @@ async function main() {
   let outline = spec.outline;
   if (!outline || outline.length !== lessonsCount) {
     console.log('🤖 生成课程大纲...');
-    outline = await generateOutline(spec, lessonsCount);
+    outline = await generateOutline(spec, lessonsCount, LANG);
     console.log(`   大纲：${outline.join(' / ')}`);
     console.log('');
   }
@@ -94,7 +106,7 @@ async function main() {
     const next = i < outline.length - 1 ? fileMeta[i + 1] : null;
     console.log(`📝 [${meta.num}/${outline.length}] 生成「${meta.topic}」...`);
 
-    const mainContent = await generateLessonMain({ spec, topic: meta.topic, lessonNum: meta.num, total: outline.length, outline });
+    const mainContent = await generateLessonMain({ spec, topic: meta.topic, lessonNum: meta.num, total: outline.length, outline, lang: LANG });
     const html = wrapLessonHTML({
       mainContent,
       title: `第 ${meta.num} 课 · ${meta.topic}`,
@@ -103,6 +115,7 @@ async function main() {
       prevFile: prev?.file,
       nextFile: next?.file,
       nextTitle: next?.topic,
+      lang: LANG,
     });
     writeFileSync(join(lessonsDir, meta.file), html, 'utf-8');
     console.log(`   ✓ ${meta.file}`);
@@ -121,8 +134,8 @@ async function main() {
 // LLM 调用函数（不可单测，但依赖 chat() 的稳定性）
 // ═══════════════════════════════════════════════════════════
 
-async function generateOutline(spec, lessonsCount) {
-  const p = buildOutlinePrompt(spec, lessonsCount);
+async function generateOutline(spec, lessonsCount, lang) {
+  const p = buildOutlinePrompt(spec, lessonsCount, lang);
   const r = await chat(
     [{ role: 'system', content: p.system }, { role: 'user', content: p.user }],
     { jsonMode: true, temperature: 0.7 }
@@ -139,7 +152,8 @@ async function generateOutline(spec, lessonsCount) {
   return normalizeOutline(parsed.outline, lessonsCount);
 }
 
-async function generateLessonMain({ spec, topic, lessonNum, total, outline }) {
+async function generateLessonMain({ spec, topic, lessonNum, total, outline, lang = 'zh' }) {
+  const conf = langConf(lang);
   const resourcesBlock = (spec.resources || [])
     .map((r) => `- ${r.title}${r.url ? ` (${r.url})` : ''}`)
     .join('\n') || '(无指定资源)';
@@ -149,6 +163,9 @@ async function generateLessonMain({ spec, topic, lessonNum, total, outline }) {
     {
       role: 'system',
       content: `你是一位优秀的讲师，擅长把复杂概念讲清楚。任务：写一节 HTML 课程内容。
+
+## 输出语言
+${conf.directive}
 
 ## 输出格式
 **只返回 HTML 片段，不要 <main> 标签**（我会用模板包 <main>）。
@@ -165,7 +182,7 @@ async function generateLessonMain({ spec, topic, lessonNum, total, outline }) {
 - 对照/比较用 <div class="compare"><div><h4>A</h4><p>...</p></div><div><h4>B</h4><p>...</p></div></div>
 - 表格用标准 <table><thead><tbody>
 - 末尾加 <div class="quiz-anchor">对应考点关键词列表</div> 标注本课对应的核心考点（用于四对齐校验）
-- 长度：800-1500 字之间
+- 长度：800-1500 字之间（非中文按同等信息量折算）
 - 风格：口语化、有具体例子、避免空洞术语堆砌
 
 ## 风格参考

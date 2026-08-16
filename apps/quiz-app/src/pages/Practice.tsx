@@ -11,6 +11,7 @@ import { ProgressBar } from '../components/ProgressBar';
 import { SessionSummary } from '../components/SessionSummary';
 import { buildAtomicOrder, atomicLabel } from '../lib/topicOrder';
 import { useConfirm } from '../components/ConfirmDialog';
+import { useI18n } from '../i18n';
 
 type ViewMode = 'practice' | 'read';
 
@@ -24,6 +25,7 @@ export function Practice() {
   const [viewMode, setViewMode] = useState<ViewMode>(params.get('view') === 'read' ? 'read' : 'practice');
   const { progress, loaded, submitAnswer, markRead, resetAnswersByIds, resetReadByIds, dismissWrong } = useProgress();
   const confirm = useConfirm();
+  const { t } = useI18n();
 
   // 会话级答题缓存：记录本次会话内用户提交过的题目（选中项 + 揭晓态）。
   // 用途：(1) 错题模式翻页再翻回时还原本次会话的作答（而非清空，修 Bug 2）；
@@ -290,14 +292,21 @@ export function Practice() {
     if (fresh[0]) savePosId(scope, fresh[0].id);
   };
 
+  /** 当前列表的显示名（带引号，供 confirm 文案用）：day > subtopic > topic > 模式兜底。 */
+  const scopeLabel = () =>
+    t('practice.labelQuoted', {
+      name:
+        day || subtopic || topic ||
+        (mode === 'wrong' ? t('practice.labelWrong') : t('practice.labelSequential')),
+    });
+
   /** 重置本题集：仅清除当前列表题目的答题记录（含错题进度），不动其他主题、不动看题/闪卡进度。
    *  random 模式下"本题集"是动态的，禁用此按钮（语义不明确）。
    *  从总结态触发时退出总结页，回到第一题重新作答。 */
   const resetThisSet = async () => {
     const ids = list.map((q) => q.id);
     if (mode === 'random') return;
-    const label = day ? `「${day}」` : (subtopic ? `「${subtopic}」` : (topic ? `「${topic}」` : (mode === 'wrong' ? '错题集' : '顺序练习')));
-    if (await confirm(`重置${label}的答题记录？(${ids.length} 题，含对错与错题进度，不可恢复。不影响其他主题与闪卡。)`)) {
+    if (await confirm(t('practice.confirmRedo', { label: scopeLabel(), n: ids.length }))) {
       resetAnswersByIds(ids);
       gotoAndSave(0);
       setShowSummary(false);
@@ -310,8 +319,7 @@ export function Practice() {
   const resetReadOfThisSet = async () => {
     const ids = list.map((q) => q.id);
     if (mode === 'random') return;
-    const label = day ? `「${day}」` : (subtopic ? `「${subtopic}」` : (topic ? `「${topic}」` : '顺序练习'));
-    if (await confirm(`重看${label}？(${ids.length} 题，清除本题集看题进度，不可恢复。不影响其他主题与答题记录。)`)) {
+    if (await confirm(t('practice.confirmReread', { label: scopeLabel(), n: ids.length }))) {
       resetReadByIds(ids);
       gotoAndSave(0);
     }
@@ -338,10 +346,15 @@ export function Practice() {
   const canToggleView = mode !== 'wrong' && mode !== 'random';
 
   if (!cur) {
+    const emptyMsg = mode === 'wrong'
+      ? t('practice.noWrong')
+      : (day || subtopic || topic
+        ? t('practice.noQuestionsScope', { name: day || subtopic || topic })
+        : t('practice.noQuestions'));
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
-        <p className="text-text-secondary">{mode === 'wrong' ? '暂无错题，去做几道题吧！' : (day ? `「${day}」暂无题目。` : (subtopic ? `「${subtopic}」暂无题目。` : (topic ? `「${topic}」暂无题目。` : '没有题目。')))}</p>
-        <Link to="/" className="inline-block bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors">返回首页</Link>
+        <p className="text-text-secondary">{emptyMsg}</p>
+        <Link to="/" className="inline-block bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors">{t('practice.backHome')}</Link>
       </div>
     );
   }
@@ -351,7 +364,7 @@ export function Practice() {
       {/* 顶部信息行：左面包屑（day/topic/subtopic/看题模式），右题号。单独一行避免与操作按钮挤。
           H5 宽度有限时面包屑 truncate 不挤压题号。 */}
       <div className="flex items-center justify-between gap-3 text-sm text-text-muted">
-        <span className="truncate min-w-0">{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topic} · </span>}{subtopic && <span className="text-text-faint">{subtopic} · </span>}{isReadMode && <span className="text-sky-500">看题模式</span>}</span>
+        <span className="truncate min-w-0">{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topic} · </span>}{subtopic && <span className="text-text-faint">{subtopic} · </span>}{isReadMode && <span className="text-sky-500">{t('practice.readMode')}</span>}</span>
         <span className="font-medium tabular-nums shrink-0">{Math.min(pos + 1, list.length)} / {list.length}</span>
       </div>
       {/* 操作按钮行：重做本题集 / 跳到未答 / 重看本题集。独立一行，靠右排列，H5 不再拥挤。
@@ -366,10 +379,10 @@ export function Practice() {
             <button
               onClick={resetThisSet}
               className="inline-flex items-center gap-1 text-text-muted hover:text-red-600 transition-colors"
-              title="清空本题集答题记录，重新作答"
+              title={t('practice.redoSetTitle')}
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-              重做本题集
+              {t('practice.redoSet')}
             </button>
           )}
           {/* 跳到未答：补 day 后新题进入列表，点这里一键定位到第一道未答题。
@@ -379,10 +392,10 @@ export function Practice() {
             <button
               onClick={gotoFirstUnanswered}
               className="inline-flex items-center gap-1 text-text-muted hover:text-indigo-600 transition-colors"
-              title="跳到本题集第一道未答题"
+              title={t('practice.jumpUnansweredTitle')}
             >
               <SkipForward className="h-3.5 w-3.5" strokeWidth={2} />
-              跳到未答
+              {t('practice.jumpUnanswered')}
             </button>
           )}
           {/* 重看本题集：看过的主题想重看时点这里，仅清当前列表的看题记录（read），
@@ -392,10 +405,10 @@ export function Practice() {
             <button
               onClick={resetReadOfThisSet}
               className="inline-flex items-center gap-1 text-text-muted hover:text-sky-600 transition-colors"
-              title="清空本题集看题进度，重新看题"
+              title={t('practice.rereadSetTitle')}
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-              重看本题集
+              {t('practice.rereadSet')}
             </button>
           )}
         </div>
@@ -411,14 +424,14 @@ export function Practice() {
               className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-medium transition-colors ${!isReadMode ? 'bg-bg-surface text-indigo-600 shadow-sm' : 'text-text-muted hover:text-text-secondary'}`}
             >
               <PenLine className="h-3.5 w-3.5" strokeWidth={2} />
-              答题
+              {t('practice.viewPractice')}
             </button>
             <button
               onClick={() => switchView('read')}
               className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-medium transition-colors ${isReadMode ? 'bg-bg-surface text-sky-600 shadow-sm' : 'text-text-muted hover:text-text-secondary'}`}
             >
               <BookOpen className="h-3.5 w-3.5" strokeWidth={2} />
-              看题
+              {t('practice.viewRead')}
             </button>
           </div>
         </div>
@@ -430,7 +443,11 @@ export function Practice() {
       <div className="space-y-1">
         <div className="flex justify-between text-[11px] tabular-nums">
           <span className={isReadMode ? 'text-sky-600' : 'text-indigo-600'}>
-            {isWrongMode ? `已掌握 ${masteredInList}` : (isReadMode ? `已看 ${readInList}` : `已答 ${answeredInList}`)} / {list.length}
+            {isWrongMode
+              ? `${t('practice.mastered', { n: masteredInList })} / ${list.length}`
+              : isReadMode
+                ? `${t('practice.readCount', { n: readInList })} / ${list.length}`
+                : `${t('practice.answeredCount', { n: answeredInList })} / ${list.length}`}
           </span>
           <span className="text-text-faint">{list.length === 0 ? 0 : Math.round((progressNum / list.length) * 100)}%</span>
         </div>
@@ -470,12 +487,12 @@ export function Practice() {
           标题文案与 resetThisSet 对齐（day>subtopic>topic 优先级）。 */}
       {showSummary && canFinish && (
         <div className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
-             onClick={() => setShowSummary(false)} role="dialog" aria-modal="true" aria-label="答题总结">
+             onClick={() => setShowSummary(false)} role="dialog" aria-modal="true" aria-label={t('practice.summaryAria')}>
           <div className="w-full max-w-md bg-bg-surface rounded-2xl shadow-pop p-6 max-h-[90vh] overflow-y-auto"
                onClick={(e) => e.stopPropagation()}>
             <SessionSummary
               stats={listStats}
-              title={day || subtopic || topic || '顺序练习'}
+              title={day || subtopic || topic || t('practice.labelSequential')}
               onReset={resetThisSet}
             />
             {nextAtomic ? (
@@ -512,7 +529,7 @@ export function Practice() {
                 }}
                 className="w-full mt-3 flex items-center justify-center gap-1.5 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors"
               >
-                下一题集：{atomicLabel(nextAtomic.topic, nextAtomic.subtopic)}
+                {t('practice.nextSet', { label: atomicLabel(nextAtomic.topic, nextAtomic.subtopic) })}
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
               </button>
             ) : null}
@@ -520,7 +537,7 @@ export function Practice() {
               onClick={() => setShowSummary(false)}
               className="w-full mt-2 py-2 text-sm text-text-faint hover:text-text-muted transition-colors"
             >
-              {nextAtomic ? '留在这里（关闭）' : '继续看题（关闭）'}
+              {nextAtomic ? t('practice.stayHere') : t('practice.keepReading')}
             </button>
           </div>
         </div>
@@ -528,7 +545,7 @@ export function Practice() {
       <div className="flex justify-between gap-3">
         <button onClick={() => gotoAndSave(pos - 1)} className="flex items-center gap-1 px-5 py-2.5 border border-border-strong rounded-xl text-text-secondary font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-bg-hover transition-colors" disabled={pos === 0}>
           <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-          上一题
+          {t('practice.prev')}
         </button>
         {/* 推进按钮（仅普通 all+答题 模式启用完成答题）：
             · 全答完(canFinish) → 任何位置恒为「完成答题」，点击直接进总结态。
@@ -544,9 +561,9 @@ export function Practice() {
           // 这是 canFinish 的自然延伸：既然全部答对/答过，就该让用户随时看到结果。
           const finishReady = useFinishFlow && canFinish;
           // 非完成流：错题/顺序末题=「回到第一题」循环，翻页=「下一题」
-          const loopLabel = isLast ? '回到第一题' : '下一题';
+          const loopLabel = isLast ? t('practice.backToFirst') : t('practice.next');
           // 完成流：全答完 或 已到末题 →「完成答题」；否则「下一题」
-          const finishLabel = (finishReady || isLast) ? '完成答题' : '下一题';
+          const finishLabel = (finishReady || isLast) ? t('practice.finish') : t('practice.next');
           const label = useFinishFlow ? finishLabel : loopLabel;
           return (
             <button

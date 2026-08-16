@@ -8,11 +8,13 @@ import { TopNav } from './components/TopNav';
 import { SyncStatusBanner } from './components/SyncStatusBanner';
 import { ProgressProvider, useProgress } from './hooks/useProgress';
 import { ThemeProvider } from './lib/theme';
+import { I18nProvider, useI18n } from './i18n';
 import { ConfirmProvider } from './components/ConfirmDialog';
 
 function Shell() {
   const { loaded } = useProgress();
-  if (!loaded) return <div className="p-8 text-center text-text-muted">加载进度中…</div>;
+  const { t } = useI18n();
+  if (!loaded) return <div className="p-8 text-center text-text-muted">{t('app.loading')}</div>;
   return (
     <BrowserRouter>
       <TopNav />
@@ -33,11 +35,13 @@ function Shell() {
 export default function App() {
   return (
     <ProgressProvider>
-      <ThemeProvider>
-        <ConfirmProvider>
-          <Shell />
-        </ConfirmProvider>
-      </ThemeProvider>
+      <I18nProvider>
+        <ThemeProvider>
+          <ConfirmProvider>
+            <Shell />
+          </ConfirmProvider>
+        </ThemeProvider>
+      </I18nProvider>
     </ProgressProvider>
   );
 }

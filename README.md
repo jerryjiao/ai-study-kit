@@ -188,6 +188,29 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 
 ---
 
+## 🌍 多语言 / Multi-language
+
+**UI 界面**：顶栏一键切换 **中文 / English / Español / Русский**。
+
+- 首次访问按浏览器语言自动选择；切换后偏好跨设备同步（与主题偏好同一套 LWW 机制）；
+- `<html lang>` 和页面标题跟随语言切换（读屏/翻译工具友好）；
+- 词典在 [`apps/quiz-app/src/i18n/locales/`](apps/quiz-app/src/i18n/locales/)，en/es/ru 以 zh 的 key 集合做类型锚定——漏翻译直接编译报错，另有 key 完整性 + 占位符一致性测试兜底。加新语言 = 加一个词典文件 + 注册，改 UI 文案必须四处同步。
+
+**AI 生成内容**：三个 CLI 都支持指定输出语言，给非中文学习者产课/精讲/播客：
+
+```bash
+node apps/quiz-app/scripts/teach-generate.mjs   --theme X --lang en  # 英语课程
+node apps/quiz-app/scripts/grill-wrong.mjs      --theme X --lang es  # 西语错题精讲
+node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播客对白
+# 或 .env 里配 STUDY_LANG=en 统一默认（支持 zh/en/es/ru）
+```
+
+`--lang` 只影响生成内容和生成 HTML 的固定文案（导航、页脚、`<html lang>`）；CLI 日志仍是中文；题库原文不会被翻译。详见 [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) 的「输出语言」章节。
+
+> **题库/闪卡内容语言**由你的数据决定（`examples/<theme>/*.json` 里写什么就显示什么）——想让整站变成英语学习站，就用英语出题 + `--lang en` 产课，工具本身不锁语言。
+
+---
+
 ## 🎯 为什么用这个
 
 | 不用 ai-study-kit | 用 ai-study-kit |

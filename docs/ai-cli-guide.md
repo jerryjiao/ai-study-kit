@@ -76,6 +76,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 node apps/quiz-app/scripts/teach-generate.mjs                       # 默认 dev-intro
 node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics
 node apps/quiz-app/scripts/teach-generate.mjs --theme X --lessons 5  # 覆盖 lessonsCount
+node apps/quiz-app/scripts/teach-generate.mjs --theme X --lang en    # 课程用英语产
 ```
 
 参考：[`examples/dev-intro/course-spec.json`](../examples/dev-intro/course-spec.json)。
@@ -104,6 +105,7 @@ pnpm run server  # 另一个终端
 node apps/quiz-app/scripts/grill-wrong.mjs                          # 默认 dev-intro
 node apps/quiz-app/scripts/grill-wrong.mjs --theme react-basics
 node apps/quiz-app/scripts/grill-wrong.mjs --max-clusters 5         # 最多分 5 簇
+node apps/quiz-app/scripts/grill-wrong.mjs --lang es                # 精讲用西语产
 SERVER=http://my-server:8787 node apps/quiz-app/scripts/grill-wrong.mjs  # 拉远端错题
 ```
 
@@ -157,6 +159,11 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 node apps/quiz-app/scripts/podcast-generate.mjs \
   --input examples/dev-intro/wrong-questions/cluster-01-*.html \
   --no-tts
+
+# 对白用其他语言产（先 --no-tts 验证脚本，见下方「输出语言」）
+node apps/quiz-app/scripts/podcast-generate.mjs \
+  --input examples/dev-intro/questions.json \
+  --lang ru --no-tts
 ```
 
 ### 风格选项（`--style`）
@@ -172,6 +179,32 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 合成音频需要 TTS provider 配置（默认 GLM-TTS）。详见 [`docs/configuration.md`](./configuration.md)。
 
 `--no-tts` 模式只产对话脚本 + 逐字稿，不调 TTS——可以省成本，或后续用其他 TTS 工具（NotebookLM 等）合成。
+
+---
+
+## 🌍 输出语言（`--lang` / `STUDY_LANG`）
+
+三个 CLI 都支持指定**生成内容**的输出语言：
+
+```bash
+node apps/quiz-app/scripts/teach-generate.mjs  --theme X --lang en   # 英语课程
+node apps/quiz-app/scripts/grill-wrong.mjs     --theme X --lang es   # 西语错题精讲
+node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播客对白
+
+# 或统一走环境变量（.env 可配）
+STUDY_LANG=en node apps/quiz-app/scripts/teach-generate.mjs --theme X
+```
+
+支持的语言：`zh`（默认）/ `en` / `es` / `ru`。语言注册表在 [`scripts/lib/langs.mjs`](../apps/quiz-app/scripts/lib/langs.mjs)，加新语言 = 注册表加一项。
+
+行为约定：
+
+- `--lang` 只影响**生成内容**（课程正文、大纲、精讲正文、播客对白/标题）和生成 HTML 的固定文案（上一课/下一课导航、页脚说明、`<html lang>` 属性、逐字稿主播称呼）；
+- CLI 自身的日志/报错仍是中文（操作者是维护者）；
+- 题库原文（题干/选项）不会被翻译——精讲里的引用保持原样，这是刻意的：题目和解析必须与你刷的题一致；
+- **podcast 注意**：TTS 当前只接了 GLM-TTS，非中文对白能否合成取决于 provider 的多语支持。建议先 `--lang X --no-tts` 看脚本，确认 TTS 支持后再合成音频。
+
+前端答题站 UI 的多语言（顶栏切换中/EN/ES/RU）是另一套机制，见 README 的「多语言」章节。
 
 ---
 

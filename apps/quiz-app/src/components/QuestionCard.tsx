@@ -4,6 +4,7 @@ import type { Question } from '../types';
 import { gradeQuestion } from '../lib/grade';
 import { OptionList } from './OptionList';
 import { useConfirm } from './ConfirmDialog';
+import { useI18n } from '../i18n';
 
 interface Props {
   q: Question;
@@ -20,6 +21,7 @@ interface Props {
 
 export function QuestionCard({ q, index, initialSelected = [], initialRevealed = false, onSubmit, readOnly = false, wrongCount, streak, streakNeeded, onDismiss }: Props) {
   const confirm = useConfirm();
+  const { t } = useI18n();
   // 看题模式：selected 取正确答案，强制 revealed，不可交互
   const initSel = readOnly ? q.answer : initialSelected;
   const initRev = readOnly ? true : initialRevealed;
@@ -51,14 +53,14 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
         <span className={`px-2 py-0.5 rounded-md font-medium ${
           multi ? 'bg-violet-100 text-violet-700 ring-1 ring-violet-300' : 'bg-bg-subtle text-text-muted'
         }`}>
-          {multi ? '多选题' : q.type === 'judge' ? '判断题' : '单选题'}
+          {multi ? t('q.multi') : q.type === 'judge' ? t('q.judge') : t('q.single')}
         </span>
         <span className="bg-bg-subtle px-2 py-0.5 rounded-md font-medium text-text-secondary">{q.source}</span>
         {q.topic && <span className="text-text-faint">· {q.topic}</span>}
         {q.difficulty && (
-          <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-medium">难度 {q.difficulty}</span>
+          <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-medium">{t('q.difficulty', { level: q.difficulty })}</span>
         )}
-        <span className="ml-auto text-text-faint tabular-nums">第 {index + 1} 题</span>
+        <span className="ml-auto text-text-faint tabular-nums">{t('q.index', { n: index + 1 })}</span>
       </div>
       <p className="text-lg font-medium text-text-primary mb-5 whitespace-pre-wrap leading-relaxed">{q.question}</p>
 
@@ -71,7 +73,7 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
           disabled={selected.length === 0}
           className="mt-5 bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-soft"
         >
-          {selfEval ? '提交（自评）' : '提交答案'}
+          {selfEval ? t('q.submitSelfEval') : t('q.submit')}
         </button>
       ) : (
         <div className="mt-5 space-y-2.5 animate-fade-in">
@@ -84,12 +86,14 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
               ) : (
                 <X className="h-5 w-5" strokeWidth={2.5} />
               )}
-              {correct ? '回答正确' : `回答错误，正确答案：${q.answer.join('')}`}
+              {correct ? t('q.correct') : t('q.wrong', { answer: q.answer.join('') })}
               {/* 累计错次提示：本次答错时展示"累计错 N"（含本次）；本次答对但历史错过展示"历史错 N"。
                   wrongCount 由 submitAnswer 维护，只增不减，用于识别"反复出错的难题"。 */}
               {wrongCount && wrongCount > 0 && (
                 <span className={`ml-1 text-xs font-medium px-1.5 py-0.5 rounded-md ${correct ? 'bg-amber-50 text-amber-600' : 'bg-red-50'}`}>
-                  · {correct ? '历史' : '累计'}错 {wrongCount} 次
+                  {correct
+                    ? t('q.wrongCountHistory', { n: wrongCount })
+                    : t('q.wrongCountTotal', { n: wrongCount })}
                 </span>
               )}
             </p>
@@ -102,35 +106,34 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
             <div className="flex items-center justify-between gap-3 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-2.5">
               {streak < streakNeeded ? (
                 <span className="text-sm text-emerald-700">
-                  连对 <span className="font-semibold tabular-nums">{streak}</span>/{streakNeeded}
-                  ，再答对 <span className="font-semibold tabular-nums">{streakNeeded - streak}</span> 次自动移出错题集
+                  {t('q.streakProgress', { streak, needed: streakNeeded, left: streakNeeded - streak })}
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 text-sm text-emerald-700 font-medium">
                   <Check className="h-4 w-4" strokeWidth={2.5} />
-                  已掌握，移出错题集
+                  {t('q.mastered')}
                 </span>
               )}
               <button
-                onClick={async () => { if (await confirm('把这题移出错题集？')) onDismiss(); }}
+                onClick={async () => { if (await confirm(t('q.confirmDismiss'))) onDismiss(); }}
                 className="inline-flex items-center gap-1 text-sm text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100 px-2.5 py-1 rounded-lg font-medium transition-colors"
-                title="手动移出错题集（不再循环出现）"
+                title={t('q.dismissTitle')}
               >
                 <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
-                移出
+                {t('q.dismiss')}
               </button>
             </div>
           )}
           {selfEval && (
             <p className="flex items-center gap-1.5 text-text-secondary text-sm">
               <Sparkles className="h-4 w-4 text-amber-500" />
-              自评题（原图无标准答案）
+              {t('q.selfEvalNote')}
             </p>
           )}
           {q.analysis && (
             <div className="rounded-xl bg-bg-subtle border border-border px-4 py-3">
               <p className="text-sm text-text-secondary leading-relaxed">
-                <span className="font-semibold text-text-primary">解析：</span>
+                <span className="font-semibold text-text-primary">{t('q.analysis')}</span>
                 {q.analysis}
               </p>
             </div>

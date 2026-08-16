@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { Progress, AnswerRecord, SrsState, SyncStatus } from '../types';
+import type { Progress, AnswerRecord, SrsState, SyncStatus, UiLang } from '../types';
 import { emptyProgress, applyAnswer, applySrs, markRead as markReadFn, nextStreak, nextWrongCount, streakToPass, resetWrong as resetWrongFn, resetRead as resetReadFn, resetAnswersByIds as resetAnswersByIdsFn, resetReadByIds as resetReadByIdsFn, resetSrs as resetSrsFn, noteNewCard } from '../lib/progress';
 import type { ThemeMode } from '../lib/theme';
 import { isNew } from '../lib/srs';
@@ -28,6 +28,8 @@ interface ProgressCtxValue {
   dismissWrong: (id: string) => void;
   /** 设置 UI 主题偏好（light/dark/system），同步到服务器跨设备跟随。 */
   setTheme: (mode: ThemeMode) => void;
+  /** 设置 UI 语言偏好（zh/en/es/ru），同步到服务器跨设备跟随。 */
+  setLang: (l: UiLang) => void;
 }
 
 const ProgressCtx = createContext<ProgressCtxValue | null>(null);
@@ -167,9 +169,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     dirtyRef.current = true;
   }, []);
 
+  /** 设置 UI 语言偏好：写入 progress.lang + langUpdatedAt（同 setTheme 的 LWW 同步模式）。 */
+  const setLang = useCallback((l: UiLang) => {
+    setProgress((prev) => ({ ...prev, lang: l, langUpdatedAt: Date.now() }));
+    dirtyRef.current = true;
+  }, []);
+
   const value = useMemo<ProgressCtxValue>(
-    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme }),
-    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme]
+    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang }),
+    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang]
   );
 
   return <ProgressCtx.Provider value={value}>{children}</ProgressCtx.Provider>;

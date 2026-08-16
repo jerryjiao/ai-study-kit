@@ -1,4 +1,5 @@
 import type { SrsGrade } from '../types';
+import { useI18n } from '../i18n';
 
 interface Props {
   /** 4 档各自的间隔预览字符串（由 srs.previewInterval 算出） */
@@ -9,19 +10,20 @@ interface Props {
 /** Anki 4 档评分按钮：重学/困难/良好(默认高亮)/简单，带快捷键 + 间隔预览
  *  放大触控区（py-3→py-4），快捷键做成键帽样式，四档层次更清晰 */
 export function RatingButtons({ previews, onGrade }: Props) {
+  const { t } = useI18n();
   const buttons: { grade: SrsGrade; label: string; key: string; cls: string }[] = [
-    { grade: 'again', label: '重学', key: '1', cls: 'bg-red-50 text-red-700 border-red-200 active:bg-red-100' },
-    { grade: 'hard', label: '困难', key: '2', cls: 'bg-orange-50 text-orange-700 border-orange-200 active:bg-orange-100' },
+    { grade: 'again', label: t('srs.again'), key: '1', cls: 'bg-red-50 text-red-700 border-red-200 active:bg-red-100' },
+    { grade: 'hard', label: t('srs.hard'), key: '2', cls: 'bg-orange-50 text-orange-700 border-orange-200 active:bg-orange-100' },
     {
       grade: 'good',
-      label: '良好',
+      label: t('srs.good'),
       key: '3',
       cls: 'bg-green-600 text-white border-green-600 active:bg-green-700 ring-2 ring-green-300 ring-offset-1',
     },
-    { grade: 'easy', label: '简单', key: '4', cls: 'bg-blue-50 text-blue-700 border-blue-200 active:bg-blue-100' },
+    { grade: 'easy', label: t('srs.easy'), key: '4', cls: 'bg-blue-50 text-blue-700 border-blue-200 active:bg-blue-100' },
   ];
   return (
-    <div className="grid grid-cols-4 gap-2" role="group" aria-label="评分">
+    <div className="grid grid-cols-4 gap-2" role="group" aria-label={t('srs.aria')}>
       {buttons.map((b) => (
         <button
           key={b.grade}

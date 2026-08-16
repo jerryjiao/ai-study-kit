@@ -13,6 +13,7 @@
  *   node apps/quiz-app/scripts/grill-wrong.mjs                       # 默认 dev-intro
  *   node apps/quiz-app/scripts/grill-wrong.mjs --theme react-basics
  *   node apps/quiz-app/scripts/grill-wrong.mjs --theme X --max-clusters 5
+ *   node apps/quiz-app/scripts/grill-wrong.mjs --lang en             # 精讲用英语产（zh/en/es/ru）
  *   SERVER=http://my-server:8787 node apps/quiz-app/scripts/grill-wrong.mjs
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync } from 'node:fs';
@@ -23,6 +24,7 @@ import {
   extractWrongAnswers, joinWrongQuestions, buildClusterPrompt,
   buildClusterGrillPrompt, wrapClusterHTML, wrapIndexHTML, clusterFileName,
 } from './lib/grill-utils.mjs';
+import { resolveLang, langConf } from './lib/langs.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -34,6 +36,15 @@ const THEME = themeIdx >= 0 ? args[themeIdx + 1] : (process.env.EXAMPLE_THEME ||
 const maxClustersIdx = args.indexOf('--max-clusters');
 const MAX_CLUSTERS = maxClustersIdx >= 0 ? parseInt(args[maxClustersIdx + 1], 10) : 5;
 const SERVER = process.env.SERVER || 'http://localhost:8787';
+const langIdx = args.indexOf('--lang');
+// 输出语言：--lang 优先，其次 STUDY_LANG 环境变量，默认 zh。只影响生成内容，CLI 日志仍中文。
+let LANG = 'zh';
+try {
+  LANG = resolveLang(langIdx >= 0 ? args[langIdx + 1] : undefined, process.env.STUDY_LANG);
+} catch (err) {
+  console.error(`❌ ${err.message}`);
+  process.exit(1);
+}
 
 // ── 主流程 ────────────────────────────────────────────────
 async function main() {
@@ -43,6 +54,7 @@ async function main() {
   console.log(`   主题：${THEME}`);
   console.log(`   后端：${SERVER}`);
   console.log(`   最多分 ${MAX_CLUSTERS} 簇`);
+  console.log(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
   console.log('');
 
   // 1. 拉进度
@@ -80,7 +92,7 @@ async function main() {
 
   // 4. LLM 聚类
   console.log('🤖 LLM 聚类错题...');
-  const clusters = await clusterWrong(wrongWithQ, MAX_CLUSTERS);
+  const clusters = await clusterWrong(wrongWithQ, MAX_CLUSTERS, LANG);
   console.log(`   分成 ${clusters.length} 簇：`);
   clusters.forEach((c, i) => {
     console.log(`     ${i + 1}. ${c.topic}（${c.ids.length} 题）`);
@@ -108,12 +120,13 @@ async function main() {
     const c = clusters[i];
     const file = clusterFileName(i + 1, c.topic);
     console.log(`📝 [${i + 1}/${clusters.length}] 生成「${c.topic}」精讲...`);
-    const mainHTML = await generateClusterContent(c, wrongWithQ, lessons);
+    const mainHTML = await generateClusterContent(c, wrongWithQ, lessons, LANG);
     const html = wrapClusterHTML({
       mainContent: mainHTML,
       topic: c.topic,
       ids: c.ids,
       lessonLinks: findRelevantLessons(c.topic, lessons),
+      lang: LANG,
     });
     writeFileSync(join(outDir, file), html, 'utf-8');
     console.log(`   ✓ ${file}`);
@@ -122,7 +135,7 @@ async function main() {
 
   // 7. 写 index.html
   const indexPath = join(outDir, 'index.html');
-  writeFileSync(indexPath, wrapIndexHTML(indexEntries, THEME), 'utf-8');
+  writeFileSync(indexPath, wrapIndexHTML(indexEntries, THEME, LANG), 'utf-8');
   console.log(`   ✓ index.html`);
 
   console.log('');
@@ -180,8 +193,8 @@ function findRelevantLessons(topic, lessons) {
 }
 
 /** LLM 聚类。 */
-async function clusterWrong(wrongWithQ, maxClusters) {
-  const p = buildClusterPrompt(wrongWithQ, maxClusters);
+async function clusterWrong(wrongWithQ, maxClusters, lang) {
+  const p = buildClusterPrompt(wrongWithQ, maxClusters, lang);
   const parsed = await chatJson(
     [{ role: 'system', content: p.system }, { role: 'user', content: p.user }],
     { temperature: 0.3 }
@@ -201,8 +214,8 @@ async function clusterWrong(wrongWithQ, maxClusters) {
 }
 
 /** LLM 生成单簇精讲。 */
-async function generateClusterContent(cluster, wrongWithQ, lessons) {
-  const p = buildClusterGrillPrompt(cluster, wrongWithQ, lessons);
+async function generateClusterContent(cluster, wrongWithQ, lessons, lang) {
+  const p = buildClusterGrillPrompt(cluster, wrongWithQ, lessons, lang);
   let raw = await chat(
     [{ role: 'system', content: p.system }, { role: 'user', content: p.user }],
     { temperature: 0.7 }

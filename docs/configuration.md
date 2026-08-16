@@ -51,6 +51,18 @@ cp .env.example .env
 
 ---
 
+## 输出语言（STUDY_LANG，可选）
+
+三个 AI CLI 的**生成内容**语言，支持 `zh`（默认）/ `en` / `es` / `ru`：
+
+```bash
+STUDY_LANG=en   # .env 里配，或跑 CLI 时临时 STUDY_LANG=es node ...
+```
+
+命令行 `--lang` 参数优先于本环境变量。只影响生成的课程/精讲/播客内容与 HTML 固定文案，CLI 日志仍是中文；podcast 的 TTS 多语支持取决于 provider（建议先 `--no-tts`）。详见 [`docs/ai-cli-guide.md`](./ai-cli-guide.md) 的「输出语言」章节。
+
+---
+
 ## TTS Provider 配置（仅 podcast-generate 需要）
 
 当前只支持 **GLM-TTS**（智谱）。后续会加 OpenAI TTS / ElevenLabs。

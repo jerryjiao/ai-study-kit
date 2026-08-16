@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- **多语言支持（中文 / English / Español / Русский）**：
+  - **前端 UI 多语言**：`apps/quiz-app/src/i18n/`——`I18nProvider` + `useI18n()` + 四份词典（自建轻量实现，零新依赖）。顶栏新增 `LangToggle`（选项用语言自称名显示，不随界面语言翻译）；首次访问按浏览器语言探测；偏好存 `ask-lang` 并经 `progress.lang/langUpdatedAt` 跨设备同步（与 theme 同一套 LWW 仲裁）。`<html lang>` 与 `document.title` 跟随切换。`i18n.test.ts` 校验四语 key 完整性 + 占位符一致性（en/es/ru 另有 `Record<TKey, string>` 编译期锚定）。
+  - **AI CLI 输出语言**：teach / grill / podcast 三个 CLI 新增 `--lang zh|en|es|ru`（或 `STUDY_LANG` 环境变量）。`scripts/lib/langs.mjs` 语言注册表统一承载 `<html lang>`、LLM prompt 语言指令、wrap 模板固定文案（上一课/下一课、页脚、错题中心、逐字稿主播称呼）。只影响生成内容与生成 HTML 的固定文案；CLI 日志仍中文；题库原文不翻译。`langs.test.mjs` 15 用例覆盖注册表/解析优先级/四语模板/prompt 指令。
+  - `README.md` 新增「🌍 多语言」章节；`docs/ai-cli-guide.md` 新增「输出语言」章节；`docs/configuration.md` 与 `.env.example` 补 `STUDY_LANG`。
+- **i18n 相关重构**：Home 的「其他/未分类」桶从字符串比较改为 `isOther` flag + 空串 topic——多语言下排序不再随语言漂移；ConfirmDialog 危险操作启发式 regex 扩到四语。
+
+### Changed
+
+- `Progress` 接口新增可选 `lang` / `langUpdatedAt`（向后兼容老 progress.json）；`useProgress` 新增 `setLang`（写 progress 走 dirty effect 同步服务器）。
+- 三个 CLI 的用法注释/参数帮助补 `--lang`。
+
 ### Fixed
 
 - **server**：`POST /api/progress` 收到非法 JSON 时返回 400——原先 `c.req.json()` 在 try 块外，解析错误会以 500 泄出。已实测验证（非法体 500→400，合法写入不受影响）。

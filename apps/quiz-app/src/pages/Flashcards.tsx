@@ -10,6 +10,7 @@ import { newCardsToday, isCardDeleted } from '../lib/progress';
 import { initSession, currentCard, isComplete, applyGrade } from '../lib/reviewQueue';
 import type { ReviewSession } from '../lib/reviewQueue';
 import { RatingButtons } from '../components/RatingButtons';
+import { useI18n } from '../i18n';
 import type { Flashcard, SrsGrade, SrsState } from '../types';
 
 const DAY_MS = 86_400_000;
@@ -29,6 +30,7 @@ const todayStr = () => new Date().toDateString();
  *  ?extra=1 → 再练一轮：忽略到期，全部卡打乱再过一遍（评分照常记，但不更新连续天数）。 */
 export function Flashcards() {
   const { progress, reviewCard } = useProgress();
+  const { t } = useI18n();
   const srs = progress.srs ?? {};
   const now = Date.now();
   const [params] = useSearchParams();
@@ -195,15 +197,13 @@ export function Flashcards() {
         <div className="max-w-4xl mx-auto px-4 py-10">
           <div className="text-center space-y-4 animate-fade-in">
             <RefreshCw className="mx-auto h-16 w-16 text-indigo-500" strokeWidth={1.5} />
-            <h2 className="text-2xl font-bold text-text-primary">额外练习完成!</h2>
-            <p className="text-text-secondary">
-              本轮又过了 <span className="font-semibold tabular-nums">{doneCount}</span> 张，评分已记录
-            </p>
+            <h2 className="text-2xl font-bold text-text-primary">{t('fc.extraDone')}</h2>
+            <p className="text-text-secondary">{t('fc.extraDoneNote', { n: doneCount })}</p>
             <Link
               to="/flashcards"
               className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium mt-3 shadow-soft hover:bg-indigo-700 transition-colors"
             >
-              返回闪卡
+              {t('fc.back')}
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
             </Link>
           </div>
@@ -215,19 +215,15 @@ export function Flashcards() {
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="text-center space-y-4 animate-fade-in">
           <PartyPopper className="mx-auto h-16 w-16 text-indigo-500" strokeWidth={1.5} />
-          <h2 className="text-2xl font-bold text-text-primary">今日复习完成!</h2>
-          <p className="text-text-secondary">
-            今天复习了 <span className="font-semibold tabular-nums">{doneCount}</span> 张
-          </p>
+          <h2 className="text-2xl font-bold text-text-primary">{t('fc.todayDone')}</h2>
+          <p className="text-text-secondary">{t('fc.todayDoneNote', { n: doneCount })}</p>
           <p className="flex items-center justify-center gap-1.5 text-text-muted text-sm">
             <Flame className="h-4 w-4 text-orange-500" strokeWidth={2} />
-            连续坚持 <span className="font-semibold text-text-primary tabular-nums">{streak}</span> 天
+            {t('fc.streak', { n: streak })}
           </p>
-          {nextDueText && <p className="text-text-faint text-sm">下一张卡约 {nextDueText}后到期</p>}
+          {nextDueText && <p className="text-text-faint text-sm">{t('fc.nextDue', { interval: nextDueText })}</p>}
           {learningDueLaterToday > 0 && (
-            <p className="text-amber-500 text-sm">
-              还有 {learningDueLaterToday} 张学习卡今天晚些时候到期，到时可继续刷
-            </p>
+            <p className="text-amber-500 text-sm">{t('fc.learningLaterToday', { n: learningDueLaterToday })}</p>
           )}
           <div className="flex flex-col items-center gap-3 mt-4">
             {/* 再练一轮：诚实告知违背 SRS 排程，评分照常记 */}
@@ -236,13 +232,13 @@ export function Flashcards() {
               className="inline-flex items-center gap-1.5 text-text-muted hover:text-indigo-600 text-sm border border-border hover:border-indigo-300 rounded-xl px-5 py-2.5 transition-colors"
             >
               <RefreshCw className="h-4 w-4" strokeWidth={2} />
-              再练一轮（额外复习，不更新连续天数）
+              {t('fc.extraRound')}
             </Link>
             <Link
               to="/flashcards"
               className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors"
             >
-              返回闪卡
+              {t('fc.back')}
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
             </Link>
           </div>
@@ -257,16 +253,19 @@ export function Flashcards() {
   const cardIsNew = isNew(curState);
   // 卡片阶段标记：学习步 / 重学步 / 新卡 / 复习
   const phaseLabel = (() => {
-    if (!curState) return { text: '新卡', cls: 'bg-blue-100 text-blue-700' };
+    if (!curState) return { text: t('fc.phaseNew'), cls: 'bg-blue-100 text-blue-700' };
     if (curState.phase === 'learning') {
       const step = LEARNING_STEPS_MIN[curState.stepIdx] ?? LEARNING_STEPS_MIN[0];
-      return { text: `学习步 ${curState.stepIdx + 1}/${LEARNING_STEPS_MIN.length}·${step}m`, cls: 'bg-amber-100 text-amber-700' };
+      return {
+        text: t('fc.phaseLearning', { cur: curState.stepIdx + 1, total: LEARNING_STEPS_MIN.length, step }),
+        cls: 'bg-amber-100 text-amber-700',
+      };
     }
     if (curState.phase === 'relearning') {
       const step = RELEARNING_STEPS_MIN[curState.stepIdx] ?? RELEARNING_STEPS_MIN[0];
-      return { text: `重学·${step}m`, cls: 'bg-red-100 text-red-700' };
+      return { text: t('fc.phaseRelearning', { step }), cls: 'bg-red-100 text-red-700' };
     }
-    return { text: '复习', cls: 'bg-green-100 text-green-700' };
+    return { text: t('fc.phaseReview'), cls: 'bg-green-100 text-green-700' };
   })();
 
   return (
@@ -284,9 +283,9 @@ export function Flashcards() {
               <span className="text-green-600">{counts.review}</span>
             </div>
             <div className="flex gap-2.5 justify-center text-[10px] text-text-faint">
-              <span>新卡</span>
-              <span>学习中</span>
-              <span>待复习</span>
+              <span>{t('fc.new')}</span>
+              <span>{t('fc.learning')}</span>
+              <span>{t('fc.review')}</span>
             </div>
           </>
         )}
@@ -298,8 +297,8 @@ export function Flashcards() {
         </div>
         <div className="text-center text-xs text-text-faint tabular-nums">
           {progressNum} / {denom}
-          {relearnExtra > 0 && <span className="ml-1 text-amber-500">· 含 {relearnExtra} 张重学</span>}
-          {isExtra && <span className="ml-1 text-indigo-500">· 额外练习</span>}
+          {relearnExtra > 0 && <span className="ml-1 text-amber-500">{t('fc.includesRelearn', { n: relearnExtra })}</span>}
+          {isExtra && <span className="ml-1 text-indigo-500">{t('fc.extraTag')}</span>}
         </div>
       </div>
 
@@ -328,7 +327,7 @@ export function Flashcards() {
             </div>
           </>
         )}
-        <div className="mt-4 text-sm text-text-faint">{flipped ? '选下方评分（或按 1-4）' : '点击卡片或空格翻面'}</div>
+        <div className="mt-4 text-sm text-text-faint">{flipped ? t('fc.hintRate') : t('fc.hintFlip')}</div>
       </button>
 
       {/* 操作栏 */}
@@ -337,7 +336,7 @@ export function Flashcards() {
           onClick={() => setFlipped(true)}
           className="w-full bg-slate-800 text-white py-3.5 rounded-xl font-medium text-lg hover:bg-slate-700 transition-colors shadow-soft dark:bg-slate-700 dark:hover:bg-slate-600"
         >
-          显示答案 <kbd className="inline-block ml-1 rounded bg-white/20 px-1.5 py-0.5 text-xs font-mono">Space</kbd>
+          {t('fc.showAnswer')} <kbd className="inline-block ml-1 rounded bg-white/20 px-1.5 py-0.5 text-xs font-mono">Space</kbd>
         </button>
       ) : (
         <RatingButtons previews={previews} onGrade={grade} />

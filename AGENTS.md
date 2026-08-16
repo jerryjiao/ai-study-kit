@@ -29,8 +29,10 @@ ai-study-kit/
 ├── apps/
 │   └── quiz-app/              # 答题站 web app（React + Vite + TS + Tailwind 前端 + Hono 后端）
 │       ├── src/               # React 前端源码
+│       │   └── i18n/          # UI 多语言（中/EN/ES/RU 词典 + I18nProvider）
 │       ├── server/            # Hono 后端（进度 API + 静态托管）
 │       ├── scripts/           # 数据同步、QA 校验脚本
+│       │   └── lib/langs.mjs  # AI CLI 输出语言注册表（--lang）
 │       ├── public/study/      # 课程 HTML 同步产物（gitignored，build 时重建）
 │       └── ecosystem.config.cjs  # pm2 部署配置
 ├── examples/
@@ -140,7 +142,9 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - `teach-generate.mjs`：从 `examples/<theme>/course-spec.json` 产课程 HTML
   - `grill-wrong.mjs`：从 `/api/progress` 拉错题 + LLM 聚类 + 产错题精讲 HTML
   - `podcast-generate.mjs`：从任一学习素材产男女双播播客（脚本 + 逐字稿 + WAV）
+  - 全部支持 `--lang zh|en|es|ru`（或 `STUDY_LANG` 环境变量）指定**生成内容**语言；注册表在 `scripts/lib/langs.mjs`，CLI 日志始终中文。
   - 全部需要 `.env` 配 LLM/TTS provider。详见 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md) + [`docs/configuration.md`](./docs/configuration.md)。
+- **⭐ UI 多语言（中/EN/ES/RU）**：词典在 `apps/quiz-app/src/i18n/locales/`（zh 是基准，en/es/ru 以 `Record<TKey, string>` 锚定 key 集）。改/加 UI 文案必须四份词典同步改，`i18n.test.ts` 会校验 key 完整性 + 占位符一致性。**禁止在组件里写死用户可见文案**（题库/闪卡内容除外——那是数据）。语言偏好持久化与 theme 同构：localStorage `ask-lang` + `progress.lang/langUpdatedAt`（LWW）。逻辑里不要用展示文案做比较（如"其他"桶用 `isOther` flag，别比字符串）。
 - **学习教练 skill（`/study-coach`）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后输入 `/study-coach` 触发。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/study-coach/references/flows.md` 的 playbook 带执行（初始化/新主题/每日学习/错题串讲/播客/产课/改内容/校验/部署）。源文件在 `skills/study-coach/`，安装用 `pnpm run skill:install`。
 
 ## zcode / AI agent 访问资料的方式
@@ -148,6 +152,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **被问学习方法论时**：读 [`docs/methodology.md`](./docs/methodology.md)。
 - **被问四对齐时**：读 [`docs/four-alignment.md`](./docs/four-alignment.md)。
 - **被问「接下来学什么 / 怎么开始 / 装 skill」时**：读 [`skills/study-coach/SKILL.md`](./skills/study-coach/SKILL.md)，按它的三步协议执行（探测→推荐→带执行）。
+- **被问多语言/i18n 时**：UI 看 `apps/quiz-app/src/i18n/`（词典 + Provider），AI CLI 输出语言看 `scripts/lib/langs.mjs` + `docs/ai-cli-guide.md` 的「输出语言」章节。
 - **被问 AI CLI 用法时**：读 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md)。
 - **被问 .env 配置时**：读 [`docs/configuration.md`](./docs/configuration.md)。
 - **被问代码结构时**：读 `apps/quiz-app/src/`（components/pages/lib/hooks/api）+ `server/`（Hono 后端）。
