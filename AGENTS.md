@@ -169,12 +169,12 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 
 ### Issue tracker
 
-Issues live as local markdown files under `.scratch/<feature>/`（单仓库无远端，不走 GitHub）。
+Issues 走 GitHub Issues（`gh` CLI，repo 由 git remote 推断）。见 [`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md)。
 
 ### Triage labels
 
-Five default triage roles（needs-triage / needs-info / ready-for-agent / ready-for-human / wontfix）记录为 issue 文件的 `Status:` 行。
+五个默认 triage 角色标签（needs-triage / needs-info / ready-for-agent / ready-for-human / wontfix）。见 [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md)。
 
 ### Domain docs
 
-Single-context layout（仓库根 `CONTEXT.md` + `docs/adr/`；两者目前均不存在，按需创建）。
+Single-context：仓库根 `CONTEXT.md` + `docs/adr/`（按需懒创建，现均不存在）。见 [`docs/agents/domain.md`](./docs/agents/domain.md)。
