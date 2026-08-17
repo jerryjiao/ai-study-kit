@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jerryjiao/ai-study-kit/main/assets/logo.png" width="128" alt="ai-study-kit logo" />
+  <img src="https://cdn.jsdelivr.net/gh/jerryjiao/ai-study-kit@main/assets/logo.png" width="128" alt="ai-study-kit logo" />
 </p>
 
 # ai-study-kit
@@ -17,7 +17,7 @@
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
 </p>
 
-🌐 [Сайт](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Живое демо](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Быстрый старт](https://jerryjiao.github.io/ai-study-kit/get-started/)
+🌐 [Сайт](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Живое демо](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Быстрый старт](https://jerryjiao.github.io/ai-study-kit/ru/get-started/)
 
 ---
 
@@ -234,7 +234,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # диал�
 | **PDF / Word с вопросами**: только чтение — без проверки и статистики | автопроверка, тетрадь ошибок, статистика точности, планировщик SRS |
 | **Просто спрашивать ChatGPT**: знания разрозненны, маршрута нет | ИИ структурирует разрозненное в системные курсы + вопросы + карточки |
 
-**Главная отличительная черта**: **цикл согласованности четвёрки** — пункты экзамена, которые объясняют курсы, проверяют вопросы, закрепляют карточки и раскрывают разборы ошибок, — один и тот же набор (см. [docs/four-alignment.md](docs/four-alignment.md), [английская версия на сайте](https://jerryjiao.github.io/ai-study-kit/en/method/four-alignment/)). Закончили урок — соответствующие вопросы уже рядом; ошиблись — разбор в одной команде от вас.
+**Главная отличительная черта**: **цикл согласованности четвёрки** — пункты экзамена, которые объясняют курсы, проверяют вопросы, закрепляют карточки и раскрывают разборы ошибок, — один и тот же набор (см. [docs/four-alignment.md](docs/four-alignment.md), [русская версия на сайте](https://jerryjiao.github.io/ai-study-kit/ru/method/four-alignment/)). Закончили урок — соответствующие вопросы уже рядом; ошиблись — разбор в одной команде от вас.
 
 ---
 

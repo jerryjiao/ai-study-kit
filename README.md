@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jerryjiao/ai-study-kit/main/assets/logo.png" width="128" alt="ai-study-kit logo" />
+  <img src="https://cdn.jsdelivr.net/gh/jerryjiao/ai-study-kit@main/assets/logo.png" width="128" alt="ai-study-kit logo" />
 </p>
 
 # ai-study-kit

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jerryjiao/ai-study-kit/main/assets/logo.png" width="128" alt="ai-study-kit logo" />
+  <img src="https://cdn.jsdelivr.net/gh/jerryjiao/ai-study-kit@main/assets/logo.png" width="128" alt="ai-study-kit logo" />
 </p>
 
 # ai-study-kit
@@ -240,7 +240,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # Russian p
 
 ## 📚 Documentation
 
-> The repo docs are written in Chinese. The [website](https://jerryjiao.github.io/ai-study-kit/) has English translations for the core method pages; other pages fall back to Chinese with a notice bar. Browser translation handles the rest well enough.
+> The repo docs are written in Chinese. The [website](https://jerryjiao.github.io/ai-study-kit/) is available in four languages — Chinese, English, Spanish and Russian; the core pages are translated, the rest fall back to Chinese with a notice bar. Browser translation handles the rest well enough.
 
 | Doc | What you'll learn |
 |------|-----------|
