@@ -38,13 +38,10 @@ hero:
 ---
 
 <section class="ask-lead">
-  <p>
-    这个项目把一条学习路径做成了可以自己部署的 web app：大纲定考什么，参考材料讲概念，做题验效果。
-    题库是一份 JSON，课程是自包含的 HTML，闪卡走 Anki 兼容的 SM-2 算法。
-  </p>
-  <p>
-    不想装任何东西，先去 <a href="/ai-study-kit/demo/">在线 demo</a> 里答几道题；
-    觉得有用，clone 仓库改掉示例主题，就是你在学的东西。
+  <p class="ask-lead-strip">
+    <span>题库是一份 JSON</span>
+    <span>课程是自包含 HTML</span>
+    <span>闪卡走 Anki 兼容的 SM-2</span>
   </p>
 </section>
 

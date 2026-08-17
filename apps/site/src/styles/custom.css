@@ -64,22 +64,29 @@ header.header::before {
   z-index: -1;
 }
 
-/* hero 下面的引导段（居中单栏，接住原 ask-intro 的两段文字） */
+/* hero 下面的规格条：一行三个事实，中点分隔（替代原来两段小字文本墙） */
 .ask-lead {
-  max-width: 44rem;
+  max-width: 48rem;
   margin: 0 auto 0.5rem;
   padding: 0 1.5rem;
-  text-align: center;
 }
-.ask-lead p {
-  font-size: 1rem;
-  line-height: 1.85;
-  color: var(--sl-color-gray-2);
-  margin-bottom: 1.05rem;
+.ask-lead-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--sl-color-gray-3);
 }
-.ask-lead a {
-  color: var(--sl-accent);
-  font-weight: 600;
+.ask-lead-strip span {
+  white-space: nowrap;
+}
+.ask-lead-strip span + span::before {
+  content: '·';
+  margin: 0 0.8rem;
+  color: var(--sl-color-gray-5);
+  font-weight: 700;
 }
 
 /* hero 右侧：CSS 画的 app 窗口（经 hero.image.html 注入，见 #14） */

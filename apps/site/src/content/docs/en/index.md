@@ -38,16 +38,10 @@ hero:
 ---
 
 <section class="ask-lead">
-  <p>
-    This project turns one study path into a web app you can deploy yourself: a syllabus
-    defines what to learn, reference materials explain the concepts, and quizzes tell you
-    whether they stuck. The question bank is a JSON file, lessons are self-contained HTML,
-    and flashcards run an Anki-compatible SM-2 scheduler.
-  </p>
-  <p>
-    Not ready to install anything? Answer a few questions in the
-    <a href="/ai-study-kit/demo/">online demo</a> first. If it works for you, clone the repo,
-    swap in your own topic, and it becomes the thing you are studying.
+  <p class="ask-lead-strip">
+    <span>Questions live in one JSON file</span>
+    <span>Lessons are self-contained HTML</span>
+    <span>Flashcards run Anki-compatible SM-2</span>
   </p>
 </section>
 
