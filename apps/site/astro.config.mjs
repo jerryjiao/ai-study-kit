@@ -1,6 +1,7 @@
 // ai-study-kit 官网（wayfinder map #9 / #10 选型：Astro Starlight）。
 // 部署形态：GitHub Pages 项目页 → https://jerryjiao.github.io/ai-study-kit/
-// 双语（#13）：zh-cn 为默认语言挂在根路径，en 挂 /en/，未翻译页 fallback 到中文 + 提示条。
+// 四语（与项目 UI/CLI/README 的 zh/en/es/ru 对齐，#13 分层策略）：zh-cn 为默认语言挂在根路径，
+// en/es/ru 各挂 /<lang>/，未翻译页 fallback 到中文 + 提示条。
 // demo（#12）：构建时把 quiz-app 静态产物拷进 public/demo/（见 scripts/build-demo + CI）。
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
@@ -40,9 +41,11 @@ export default defineConfig({
       defaultLocale: 'root',
       locales: {
         // root = 中文（内容在 src/content/docs/ 根，URL 不带前缀）；
-        // en 挂 /en/，未翻译页 fallback 到中文原文 + 提示条（#13 分层策略）
+        // en/es/ru 各挂 /<lang>/，未翻译页 fallback 到中文原文 + 提示条（#13 分层策略）
         root: { label: '简体中文', lang: 'zh-CN' },
         en: { label: 'English', lang: 'en' },
+        es: { label: 'Español', lang: 'es' },
+        ru: { label: 'Русский', lang: 'ru' },
       },
       customCss: ['./src/styles/custom.css'],
       // 页头覆盖：Starlight 默认 Header + 右上角「文档 / 在线试玩」常驻入口（src/components/Header.astro）
@@ -63,56 +66,56 @@ export default defineConfig({
       sidebar: [
         {
           label: '开始',
-          translations: { en: 'Get started' },
+          translations: { en: 'Get started', es: 'Primeros pasos', ru: 'Начало работы' },
           items: [
             {
               label: '快速上手',
-              translations: { en: 'Quick Start' },
+              translations: { en: 'Quick Start', es: 'Inicio rápido', ru: 'Быстрый старт' },
               slug: 'get-started',
             },
             {
               label: '换成你的主题',
-              translations: { en: 'Make It Yours' },
+              translations: { en: 'Make It Yours', es: 'Hazlo tuyo', ru: 'Сделайте его своим' },
               slug: 'your-theme',
             },
           ],
         },
         {
           label: '方法',
-          translations: { en: 'Method' },
+          translations: { en: 'Method', es: 'Método', ru: 'Метод' },
           items: [{ autogenerate: { directory: 'method' } }],
         },
         {
           label: 'AI 工具',
-          translations: { en: 'AI tools' },
-          // 显式条目而非 autogenerate：EN 站这几页是 Starlight 的中文 fallback，
-          // 侧栏标题取不到 EN 页 frontmatter，需在 translations 显式给。
+          translations: { en: 'AI tools', es: 'Herramientas de IA', ru: 'ИИ-инструменты' },
+          // 显式条目而非 autogenerate：非中文站这几页是 Starlight 的中文 fallback，
+          // 侧栏标题取不到各语言页 frontmatter，需在 translations 显式给。
           // slug 与 scripts/sync-docs.mjs 的 SYNC 清单耦合，新增文档需同步改这里。
           items: [
             {
               label: 'AI CLI Guide · 三个 AI 命令行工具',
-              translations: { en: 'AI CLI Guide' },
+              translations: { en: 'AI CLI Guide', es: 'Guía de los CLI de IA', ru: 'Руководство по ИИ-CLI' },
               slug: 'ai/ai-cli',
             },
             {
               label: 'Study Coach · `/study-coach` 学习教练指令',
-              translations: { en: 'Study Coach' },
+              translations: { en: 'Study Coach', es: 'Study Coach', ru: 'Study Coach' },
               slug: 'ai/study-coach',
             },
             {
               label: 'Configuration · 配置指南',
-              translations: { en: 'Configuration' },
+              translations: { en: 'Configuration', es: 'Configuración', ru: 'Конфигурация' },
               slug: 'ai/configuration',
             },
           ],
         },
         {
           label: '维护',
-          translations: { en: 'Maintaining' },
+          translations: { en: 'Maintaining', es: 'Mantenimiento', ru: 'Поддержка' },
           items: [
             {
               label: 'Bidirectional Check · 双向校验脚本',
-              translations: { en: 'Bidirectional Check' },
+              translations: { en: 'Bidirectional Check', es: 'Verificación bidireccional', ru: 'Двусторонняя проверка' },
               slug: 'maintain/bidirectional-check',
             },
           ],

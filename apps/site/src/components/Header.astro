@@ -19,11 +19,17 @@ import { SITE_BASE } from '../../site.config.mjs';
 const shouldRenderSearch =
 	config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
 
-// 页头入口文案跟随页面语言（root=中文 / en），措辞与首页 hero actions 对齐：
-// 在线试玩 = Try the demo；「文档」指向快速上手（文档体系的第一页）。
-const isEn = Astro.locals.starlightRoute.lang === 'en';
+// 页头入口文案跟随页面语言（root=中文 / en / es / ru），措辞与各语言首页 hero actions 对齐：
+// 在线试玩 = Try the demo / Prueba la demo / Демо；「文档」指向快速上手（文档体系的第一页）。
+const lang = Astro.locals.starlightRoute.lang;
+const HEADER_LABELS: Record<string, { site: string; docs: string; demo: string }> = {
+	en: { site: 'Site', docs: 'Docs', demo: 'Demo' },
+	es: { site: 'Sitio', docs: 'Docs', demo: 'Demo' },
+	ru: { site: 'Сайт', docs: 'Документация', demo: 'Демо' },
+};
+const labels = HEADER_LABELS[lang] ?? { site: '站内入口', docs: '文档', demo: '在线试玩' };
 const demoHref = `${SITE_BASE}/demo/`;
-const docsHref = `${SITE_BASE}${isEn ? '/en' : ''}/get-started/`;
+const docsHref = `${SITE_BASE}${lang === 'zh-CN' ? '' : `/${lang}`}/get-started/`;
 ---
 
 <div class="header">
@@ -34,12 +40,12 @@ const docsHref = `${SITE_BASE}${isEn ? '/en' : ''}/get-started/`;
 		{shouldRenderSearch && <Search />}
 	</div>
 	<div class="sl-flex print:hidden right-group">
-		<nav class="header-nav sl-flex" aria-label={isEn ? 'Site' : '站内入口'}>
+		<nav class="header-nav sl-flex" aria-label={labels.site}>
 			<a class="header-link sl-hidden md:sl-flex" href={docsHref}>
-				{isEn ? 'Docs' : '文档'}
+				{labels.docs}
 			</a>
 			<a class="header-demo" href={demoHref}>
-				{isEn ? 'Demo' : '在线试玩'}
+				{labels.demo}
 			</a>
 		</nav>
 		<div class="sl-hidden md:sl-flex sl-flex header-util">

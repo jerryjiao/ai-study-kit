@@ -35,13 +35,13 @@ ai-study-kit/
 │       │   └── lib/langs.mjs  # AI CLI 输出语言注册表（--lang）
 │       ├── public/study/      # 课程 HTML 同步产物（gitignored，build 时重建）
 │       └── ecosystem.config.cjs  # pm2 部署配置
-│   └── site/                  # 官网（Astro Starlight，双语，GitHub Pages）
-│       ├── astro.config.mjs   # zh 在 /、en 在 /en/，旅程四组侧栏
+│   └── site/                  # 官网（Astro Starlight，四语 zh/en/es/ru，GitHub Pages）
+│       ├── astro.config.mjs   # zh 在 /、en/es/ru 各挂 /<lang>/，旅程四组侧栏
 │       ├── scripts/sync-docs.mjs   # docs/*.md → 站内页（生成物，勿手编）
 │       ├── scripts/build-demo.mjs  # QUIZ_BASE 构建 quiz-app → public/demo/
 │       ├── scripts/patch-404.mjs   # 根 404.html 注入 demo 深链 SPA 兜底（build 后跑）
 │       ├── scripts/gen-og.py       # OG 分享图（产物 og.png 入库，改视觉时本地重跑）
-│       └── src/content/docs/  # 站内页（method/ai/maintain 为 sync 产物；en/ 为英译）
+│       └── src/content/docs/  # 站内页（method/ai/maintain 为 sync 产物；en/es/ru/ 为手工翻译层）
 ├── examples/
 │   └── dev-intro/             # 默认示例主题（git + Linux 基础入门）
 │       ├── questions.json     # 题库（schema 见 types.ts）

@@ -17,7 +17,7 @@
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
 </p>
 
-🌐 [Sitio web](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Demo en vivo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/get-started/)
+🌐 [Sitio web](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Demo en vivo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/es/get-started/)
 
 ---
 
@@ -234,18 +234,19 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # diálogos
 | **PDF / Word con preguntas**: solo lectura — sin corrección ni estadísticas | corrección automática, cuaderno de erróneas, estadísticas de precisión, planificación SRS |
 | **Preguntar directo a ChatGPT**: conocimiento disperso, sin ruta de aprendizaje | la IA estructura el conocimiento disperso en cursos + preguntas + tarjetas |
 
-**El diferenciador central**: el **ciclo de alineación cuádruple** — los puntos de examen que enseñan los cursos, que evalúan las preguntas, que fijan las tarjetas y que desarrollan los análisis de erróneas son el mismo conjunto (ver [docs/four-alignment.md](docs/four-alignment.md), [versión en inglés en la web](https://jerryjiao.github.io/ai-study-kit/en/method/four-alignment/)). Terminas una lección y las preguntas correspondientes ya están ahí; fallas una y el análisis está a un comando de distancia.
+**El diferenciador central**: el **ciclo de alineación cuádruple** — los puntos de examen que enseñan los cursos, que evalúan las preguntas, que fijan las tarjetas y que desarrollan los análisis de erróneas son el mismo conjunto (ver [docs/four-alignment.md](docs/four-alignment.md), [versión en español en la web](https://jerryjiao.github.io/ai-study-kit/es/method/four-alignment/)). Terminas una lección y las preguntas correspondientes ya están ahí; fallas una y el análisis está a un comando de distancia.
 
 ---
 
 ## 📚 Documentación
 
-> La documentación del repositorio está escrita en chino. La [web](https://jerryjiao.github.io/ai-study-kit/) tiene traducción al inglés de las páginas centrales del método; el resto cae al chino con un aviso. La traducción automática del navegador funciona bastante bien con estos documentos.
+> La documentación del repositorio está escrita en chino. La [web](https://jerryjiao.github.io/ai-study-kit/) está disponible en cuatro idiomas —chino, inglés, español y ruso—; las páginas centrales están traducidas y el resto cae al chino con un aviso. La traducción automática del navegador funciona bastante bien con estos documentos.
 
 | Documento | Qué aprenderás |
 |------|-----------|
-| [Methodology](https://jerryjiao.github.io/ai-study-kit/en/method/methodology/) | temario → materiales → preguntas (en inglés) |
-| [Four alignment](https://jerryjiao.github.io/ai-study-kit/en/method/four-alignment/) | cómo se mantienen sincronizados cursos / preguntas / tarjetas / análisis (en inglés) |
+| [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/es/get-started/) | demo en 5 minutos + hazlo tuyo |
+| [Methodology](https://jerryjiao.github.io/ai-study-kit/es/method/methodology/) | temario → materiales → preguntas |
+| [Four alignment](https://jerryjiao.github.io/ai-study-kit/es/method/four-alignment/) | cómo se mantienen sincronizados cursos / preguntas / tarjetas / análisis |
 | [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | uso completo de los tres CLI de IA (en chino) |
 | [`docs/study-coach.md`](docs/study-coach.md) | `/study-coach`: instalación, enrutado, extensión (en chino) |
 | [`docs/configuration.md`](docs/configuration.md) | `.env`: proveedores de LLM + TTS (en chino) |
