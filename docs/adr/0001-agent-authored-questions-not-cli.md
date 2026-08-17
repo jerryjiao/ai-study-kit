@@ -9,7 +9,7 @@ date: 2026-08-17
 
 ## Considered Options
 
-- **spec + CLI 分层**（agent 调研出 quiz-spec.json，新 CLI 照 spec 批量产题 + 内置 qa 自动修循环，复刻 teach-generate 模式）——暂缓：调研智能天然在 agent 侧，CLI 只省批量生成那段；等 map #1 认证考试内容包（issue #5）验证百题级 agent 直产确有规模痛点后再启用。届时 MISSION 排布表格式即为该 CLI 的输入契约，升级不返工。
+- **spec + CLI 分层**（agent 调研出 quiz-spec.json，新 CLI 照 spec 批量产题 + 内置 qa 自动修循环，复刻 teach-generate 模式）——暂缓：调研智能天然在 agent 侧，CLI 只省批量生成那段；等 map #1 认证内容包（issue #5）验证百题级 agent 直产确有规模痛点后再启用。届时 MISSION 排布表格式即为该 CLI 的输入契约，升级不返工。
 - **app 内 UI 生成**（浏览器填主题、后端调 LLM）——否决：server 零 LLM 集成，且 app 为构建期单主题，隐含运行时多主题大改。
 
 ## Consequences
