@@ -15,6 +15,9 @@ export default defineConfig({
       // 放 src/assets 让 Astro 优化；不透明深底图浅/深主题通用，无需 dark 反色版。
       // 头部 logo（assets/logo.png 定稿，quiz-app 顶栏/favicon 同源）。
       logo: { src: './src/assets/logo.png', alt: 'ai-study-kit logo' },
+      // 标签页图标用真 logo 的 PNG（quiz-app favicon.png 同源拷贝），不用手绘 SVG 近似版；
+      // 换 .png 文件名也顺带绕开浏览器对旧 favicon.svg 的强缓存。
+      favicon: '/favicon.png',
       description: '把任意主题的题库变成完整学习闭环的开源脚手架',
       // 仓库入口：开源项目官网页头页脚的 GitHub 图标（hero 另有按钮，见 index.md）
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/jerryjiao/ai-study-kit' }],
@@ -33,6 +36,9 @@ export default defineConfig({
         { tag: 'meta', attrs: { property: 'og:image', content: `https://jerryjiao.github.io${SITE_BASE}/og.png` } },
         { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+        // iOS 主屏图标（demo 页同款，quiz-app favicon.png 同源）；自定义 head 项不走
+        // Starlight 的 base 拼接，SITE_BASE 要手动带。
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: `${SITE_BASE}/favicon.png` } },
         // GSC property 级验证 token（UI「HTML 标记」方式下发；github.io 子路径 sites.add 不自动验证，须 UI 点验证）
         { tag: 'meta', attrs: { name: 'google-site-verification', content: 'tVmBrSoTawi7t3gzbBm54K5YZKcG5xUQmxwka8I7lpI' } },
       ],
