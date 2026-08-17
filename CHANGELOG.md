@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-08-17
+
+主题：**多语言四语 + 一轮真实用户走查（浏览器全流程实测）修复三处体验/数据 bug。**
+
 ### Added
 
 - **多语言支持（中文 / English / Español / Русский）**：
@@ -12,6 +16,7 @@
   - `README.md` 新增「🌍 多语言」章节；`docs/ai-cli-guide.md` 新增「输出语言」章节；`docs/configuration.md` 与 `.env.example` 补 `STUDY_LANG`。
 - **README 四语化**：`README.md` 顶部语言切换栏 + 新增 `README.en.md` / `README.es.md` / `README.ru.md` 三份完整译本（结构与中文版同构；es/ru 术语对齐 UI 词典——tab 名/功能名与 locale 文件一致）；README 顶部补官网 / 在线 demo / 快速上手三个在线入口（en 版文档导航直链官网已英译页）；`AGENTS.md` 补「README 四份同步改」约定。
 - **i18n 相关重构**：Home 的「其他/未分类」桶从字符串比较改为 `isOther` flag + 空串 topic——多语言下排序不再随语言漂移；ConfirmDialog 危险操作启发式 regex 扩到四语。
+- **site**：官网首页新增 `/study-coach` 小节（特色功能此前无首页入口）；`robots.txt` 声明 sitemap、head 注入 GSC 验证 token（发布前置）。
 
 ### Changed
 
@@ -20,6 +25,9 @@
 
 ### Fixed
 
+- **quiz-app**：完成流死点击——Practice 头部「已答 n/n」把随机沙盒（fromRandom）记录算已答，而 `canFinish` 用的 `computeStats` 排除它们：题集里混有沙盒答错记录时头部显示全答完、「完成答题」却点不出总结（`gotoFirstUnanswered` 也找不到"未答"）。新增 `computeListStats`（列表口径：非墓碑记录全计，含 fromRandom），Practice 的 `canFinish`/完成总结/头部分子统一走它；首页主进度仍用 `computeStats`（沙盒不污染，原口径不变）。附 2 个单测（列表口径计入沙盒、墓碑仍视为未答）。浏览器实测：同一进度从"点了没反应"变为正常弹出 71% 总结。
+- **quiz-app**：「随机 20 题」按钮题数动态化——按 `min(20, 全库题数)` 显示（四语词典改 `{n}` 占位符，i18n 完整性校验同步过）。小题库下不再"承诺 20 只给 10"。
+- **quiz-app**：看题模式启动竞态丢已看标记——mount 时 `markRead` 赶在 `loadProgress()` 的 GET 返回前触发，其乐观写入会被稍后 `writeLocal(merge(旧快照, remote))` 清掉，出现「UI 显示已看、本地/服务器却没记」。双保险修复：① markRead effect 门控 `loaded`（权威进度没加载完不写）；② `loadProgress` 在 merge 时**重读**本地快照（GET 期间的乐观写入不再被旧快照回写覆盖，整类竞态一并堵住）。
 - **server**：`POST /api/progress` 收到非法 JSON 时返回 400——原先 `c.req.json()` 在 try 块外，解析错误会以 500 泄出。已实测验证（非法体 500→400，合法写入不受影响）。
 - **examples(dev-intro)**：题库首次通过 `npm run qa` 全部硬约束——GIT-001 选项重排使答案键分布均衡（B 42%→33%，单项阈值 ≤40%）；GIT-003/GIT-004 加长干扰项，消除「正确答案即最长选项」的应试线索（最长即答案 40%→0%）；GIT-007 缩短正确项与干扰项的长度差。题 id 均不变，不影响已有进度。
 

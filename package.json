@@ -1,7 +1,7 @@
 {
   "name": "ai-study-kit",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "AI-assisted study toolkit scaffold — turn any quiz set into a learning loop with courses, flashcards, wrong-question deep-dives, and spaced repetition.",
   "license": "MIT",
   "scripts": {
