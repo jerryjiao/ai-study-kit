@@ -3,7 +3,7 @@ title: 换成你的主题
 description: 30 分钟把 dev-intro demo 改成你在学的主题，全程只动 examples/
 ---
 
-以学 **React 基础** 为例。全程只动 `examples/` 下的文件，**不动 apps/quiz-app/ 代码**。
+以学 **React 基础** 为例。全程只动 `examples/` 下的文件，不需要改 apps/quiz-app 里的代码。
 
 ## Step 1 · 复制主题目录（1 分钟）
 
@@ -13,7 +13,7 @@ cp -r examples/dev-intro examples/react-basics
 
 ## Step 2 · 改题库（10 分钟）
 
-编辑 `examples/react-basics/questions.json`——把 git/Linux 题换成你的 React 题。Schema 很简单：
+编辑 `examples/react-basics/questions.json`，把 git/Linux 题换成你的 React 题。一道题的结构如下。
 
 ```json
 {
@@ -29,7 +29,7 @@ cp -r examples/dev-intro examples/react-basics
     "D": "一个对象 { state, setState }"
   },
   "answer": ["C"],
-  "analysis": "useState 返回一个二元数组：当前状态值 + 更新函数。通常用数组解构：const [count, setCount] = useState(0)。"
+  "analysis": "useState 返回一个二元数组，当前状态值加更新函数，通常用数组解构 const [count, setCount] = useState(0)。"
 }
 ```
 
@@ -37,7 +37,7 @@ cp -r examples/dev-intro examples/react-basics
 
 ## Step 3 · 改闪卡（5 分钟）
 
-编辑 `examples/react-basics/flashcards.json`：
+编辑 `examples/react-basics/flashcards.json`，一张卡的结构如下。
 
 ```json
 {
@@ -53,13 +53,13 @@ cp -r examples/dev-intro examples/react-basics
 
 ```bash
 EXAMPLE_THEME=react-basics pnpm dev
-# 浏览器刷新——你的 React 题已经进答题站了
+# 浏览器刷新，你的 React 题已经进答题站了
 ```
 
-## Step 5 · （可选）配课程和首页分组（10 分钟）
+## Step 5 · 配课程和首页分组（可选，10 分钟）
 
-- **课程**：把 `examples/react-basics/lessons/*.html` 改成你的（可以用 AI 帮你产，见 [AI CLI 指南](/ai-study-kit/ai/ai-cli/)）。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
-- **首页分组**：改 `apps/quiz-app/src/lib/topicOrder.ts` 的 `TOPIC_ORDER`，把 `'git-basics', 'linux-commands'` 换成你的主题列表。
+- **课程**。把 `examples/react-basics/lessons/*.html` 改成你的，可以用 AI 帮你产，见 [AI CLI 指南](/ai-study-kit/ai/ai-cli/)。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
+- **首页分组**。改 `apps/quiz-app/src/lib/topicOrder.ts` 的 `TOPIC_ORDER`，把 `'git-basics', 'linux-commands'` 换成你的主题列表。
 
 ## Step 6 · 校验（2 分钟）
 
@@ -70,6 +70,6 @@ pnpm run build      # 构建必须成功
 python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 ```
 
-**搞定**。整个改造过程**不需要碰任何 React 代码**——只是改 JSON 和 HTML。
+到这里就完成了。整个过程不需要碰任何 React 代码，改的只是 JSON 和 HTML。
 
-改完内容别忘了[四对齐校验](/ai-study-kit/maintain/bidirectional-check/)：课程、题目、闪卡、错题精讲要围绕同一套考点对齐。
+改完内容记得跑[四对齐校验](/ai-study-kit/maintain/bidirectional-check/)，课程、题目、闪卡、错题精讲要围绕同一套考点对齐。

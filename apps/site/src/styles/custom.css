@@ -1,6 +1,5 @@
 /* ai-study-kit 官网自定义样式（视觉基准：wayfinder #14 变体 C — 产品官网风）
-   亮色底 + indigo→cyan 渐变 accent；首页由 src/components/ 下的组件全权负责，
-   这里主要品牌化 Starlight 文档区 + 提供渐变工具类。 */
+   亮色底 + indigo→cyan 渐变 accent；首页区块用 .ask-* 命名空间隔离，不影响文档页。 */
 
 :root {
   --sl-accent: oklch(51.1% 0.547 276.5);   /* indigo-600 #4f46e5 */
@@ -13,84 +12,31 @@
   color: var(--sl-accent);
 }
 
-/* —— 首页（splash 模板）布局微调 —— */
-/* splash 头部的 Starlight 默认 hero 样式与我们的首页组件叠加时收敛边距 */
-.hero-sl {
-  padding-block: 3rem;
-}
-
-/* 渐变文字工具类（首页 h1 的强调词） */
-.ask-gradient-text {
-  background: var(--ask-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* —— 首页组件（.ask-* 命名空间，全部作用域隔离，不影响文档页）—— */
-.ask-hero {
+/* —— 首页组件（.ask-* 命名空间）——
+   splash 头部即 hero（大标题 + CTA 按钮由 Starlight splash 模板渲染，一行顶栏之下直接展开），
+   内容区第一屏 = 左介绍 / 右 app 窗口双栏。 */
+.ask-intro {
   display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: 3.5rem;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 3rem;
   align-items: center;
-  margin: 1rem auto 3rem;
+  margin: 0 auto 0.5rem;
   max-width: 72rem;
   padding: 0 1.5rem;
 }
 @media (max-width: 60rem) {
-  .ask-hero { grid-template-columns: 1fr; gap: 2rem; }
+  .ask-intro { grid-template-columns: 1fr; gap: 2rem; padding: 0 1.25rem; }
 }
-.ask-hero-badge {
-  display: inline-block;
-  font-size: 0.8rem;
+.ask-intro-text p {
+  font-size: 1.02rem;
+  line-height: 1.85;
+  color: var(--sl-color-gray-2);
+  margin-bottom: 1.1rem;
+}
+.ask-intro-text a {
+  color: var(--sl-accent);
   font-weight: 600;
-  color: #4f46e5;
-  background: #eef2ff;
-  border: 1px solid #e0e7ff;
-  border-radius: 999px;
-  padding: 0.3rem 0.9rem;
-  margin-bottom: 1.4rem;
 }
-:root[data-theme='dark'] .ask-hero-badge {
-  color: #a5b4fc;
-  background: color-mix(in oklab, #4f46e5 18%, transparent);
-  border-color: color-mix(in oklab, #4f46e5 45%, transparent);
-}
-.ask-hero h1 {
-  font-size: clamp(2.2rem, 5vw, 3rem);
-  line-height: 1.22;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 1.2rem;
-}
-.ask-hero .ask-sub {
-  font-size: 1.05rem;
-  line-height: 1.8;
-  color: var(--sl-color-gray-3);
-  margin-bottom: 2rem;
-  max-width: 34rem;
-}
-.ask-cta-row { display: flex; gap: 0.9rem; flex-wrap: wrap; }
-.ask-cta-primary {
-  background: var(--ask-gradient);
-  color: #fff !important;
-  padding: 0.85rem 1.7rem;
-  border-radius: 0.65rem;
-  font-weight: 700;
-  font-size: 0.95rem;
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-  border: none;
-}
-.ask-cta-primary:hover { filter: brightness(1.08); }
-.ask-cta-ghost {
-  border: 1px solid var(--sl-color-gray-6);
-  color: var(--sl-color-gray-2) !important;
-  padding: 0.85rem 1.7rem;
-  border-radius: 0.65rem;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-.ask-cta-ghost:hover { background: var(--sl-color-gray-7); }
 
 /* 首页右侧：CSS 画的 app 窗口（v1 无真截图时的占位，见 #14） */
 .ask-shot {
@@ -99,7 +45,6 @@
   box-shadow: 0 30px 60px -20px rgba(15, 23, 42, 0.25);
   overflow: hidden;
   background: var(--sl-color-gray-7);
-  transform: rotate(0.6deg);
 }
 .ask-shot-bar {
   display: flex;
@@ -126,7 +71,7 @@
   border-radius: 0.55rem;
   padding: 0.6rem 0.8rem;
   margin-bottom: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.85rem; line-height: 1.5;
   color: var(--sl-color-gray-2);
 }
 .ask-shot-opt i {
@@ -146,38 +91,49 @@
   border-radius: 0.5rem; padding: 0.65rem 0.8rem;
 }
 
-/* 首页区块通用 */
-.ask-section { max-width: 72rem; margin: 0 auto; padding: 3.2rem 1.5rem; }
-.ask-section-head { text-align: center; margin-bottom: 2.4rem; }
-.ask-section-head h2 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0.6rem; }
-.ask-section-head p { color: var(--sl-color-gray-3); font-size: 0.98rem; }
+/* 首页区块通用：统一最大宽度与节奏 */
+.ask-section { max-width: 72rem; margin: 0 auto; padding: 2.8rem 1.5rem; }
+.ask-section-head { text-align: center; margin-bottom: 2.2rem; }
+.ask-section-head h2 { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0.5rem; }
+.ask-section-head p { color: var(--sl-color-gray-3); font-size: 0.98rem; max-width: 44rem; margin: 0 auto; }
 
-/* 功能五件套卡片 */
-.ask-feats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
+/* 功能五件套卡片：等高、图标尺寸统一 */
+.ask-feats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; align-items: stretch; }
 @media (max-width: 60rem) { .ask-feats { grid-template-columns: repeat(2, 1fr); } }
 .ask-feat {
   border: 1px solid var(--sl-color-gray-6);
   border-radius: 0.9rem;
-  padding: 1.4rem 1.1rem;
+  padding: 1.3rem 1.1rem;
   background: var(--sl-color-gray-7);
+  display: flex; flex-direction: column; align-items: flex-start;
 }
-.ask-feat .ico { font-size: 1.4rem; margin-bottom: 0.7rem; }
-.ask-feat b { display: block; font-size: 0.92rem; margin-bottom: 0.4rem; }
-.ask-feat span { font-size: 0.8rem; color: var(--sl-color-gray-3); line-height: 1.7; display: block; }
+.ask-feat .ico {
+  font-size: 1.35rem; line-height: 1;
+  width: 2.4rem; height: 2.4rem;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 0.8rem;
+}
+.ask-feat b { display: block; font-size: 0.95rem; margin-bottom: 0.45rem; }
+.ask-feat span { font-size: 0.82rem; color: var(--sl-color-gray-3); line-height: 1.65; display: block; }
 
-/* 对比表 */
+/* 对比表：垂直居中、行距统一 */
 .ask-compare-wrap {
-  max-width: 56rem; margin: 0 auto;
+  max-width: 58rem; margin: 0 auto;
   border: 1px solid var(--sl-color-gray-6); border-radius: 1rem; overflow: auto;
 }
 .ask-compare { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .ask-compare th {
-  text-align: left; padding: 0.9rem 1.2rem; font-size: 0.82rem;
+  text-align: left; vertical-align: middle;
+  padding: 0.85rem 1.2rem; font-size: 0.82rem; font-weight: 600;
   color: var(--sl-color-gray-3);
   border-bottom: 1px solid var(--sl-color-gray-6);
   white-space: nowrap;
 }
-.ask-compare td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--sl-color-gray-7); color: var(--sl-color-gray-3); }
+.ask-compare td {
+  vertical-align: middle;
+  padding: 0.85rem 1.2rem; line-height: 1.6;
+  border-bottom: 1px solid var(--sl-color-gray-7); color: var(--sl-color-gray-3);
+}
 .ask-compare tr:last-child td { border-bottom: none; }
 .ask-compare td.tool { font-weight: 700; color: var(--sl-color-gray-2); }
 .ask-compare tr.us td { color: #4f46e5; font-weight: 700; background: #eef2ff; }
@@ -185,27 +141,30 @@
 .ask-compare .y { color: #10b981; }
 :root[data-theme='dark'] .ask-compare .y { color: #6ee7b7; }
 
-/* quick start 三步 */
-.ask-steps { max-width: 56rem; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+/* quick start 三步：等高、代码块底对齐 */
+.ask-steps { max-width: 58rem; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; align-items: stretch; }
 @media (max-width: 60rem) { .ask-steps { grid-template-columns: 1fr; } }
 .ask-step {
   border: 1px dashed var(--sl-color-gray-5);
   border-radius: 0.9rem; padding: 1.5rem 1.2rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center;
 }
 .ask-step .n {
   width: 2.1rem; height: 2.1rem; border-radius: 50%;
-  background: var(--ask-gradient); color: #fff; font-weight: 800;
+  background: var(--ask-gradient); color: #fff; font-weight: 800; font-size: 0.95rem;
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 0.9rem;
+  margin-bottom: 0.9rem;
 }
 .ask-step code {
-  display: block; font-size: 0.78rem;
+  display: block; width: 100%; box-sizing: border-box;
+  font-size: 0.78rem; line-height: 1.6;
   background: var(--sl-color-gray-7); border-radius: 0.45rem;
-  padding: 0.55rem 0.6rem; margin-top: 0.7rem; overflow: auto;
+  padding: 0.55rem 0.6rem; margin-top: auto; overflow: auto;
 }
+.ask-step > span:not(.n) { margin-top: 0.7rem; }
 
-/* 方法论三节点 */
-.ask-flow { display: flex; justify-content: center; align-items: center; gap: 0.9rem; flex-wrap: wrap; margin-top: 1.6rem; }
+/* 方法论三节点 + 延伸链接 */
+.ask-flow { display: flex; justify-content: center; align-items: center; gap: 0.9rem; flex-wrap: wrap; margin-top: 0.6rem; }
 .ask-flow .node {
   border: 1px solid #e0e7ff; background: #eef2ff; color: #4f46e5;
   font-weight: 700; border-radius: 0.65rem; padding: 0.75rem 1.3rem; font-size: 0.9rem;
@@ -215,3 +174,5 @@
   color: #c7d2fe; border-color: color-mix(in oklab, #4f46e5 45%, transparent);
 }
 .ask-flow .arr { color: var(--sl-color-gray-4); font-size: 1.1rem; }
+.ask-more { text-align: center; margin-top: 1.6rem; }
+.ask-more a { color: var(--sl-accent); font-weight: 600; font-size: 0.95rem; }
