@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- **site 官网四语**：Starlight locales 加 `es` / `ru`（挂 `/es/`、`/ru/`，未翻页走中文 fallback + 提示条，与 en 同分层策略）；新增 8 页翻译（es/ru 各 index / get-started / methodology / four-alignment，术语对齐 quiz-app UI 词典）；页头 `Header.astro` 的双语布尔判断改四语 label 表，「文档」链接按语言取路径前缀；README en/es/ru 的官网语言描述与文档导航链接同步（es/ru 读者直达本语言页，顶部快速上手链接此前指向中文根路径）。
+- **site 语言自适应**：首访根路径按浏览器语言（`navigator.languages` 按序取首个命中 en/es/ru）跳对应语言站；`localStorage ask-site-lang` 记用户最后浏览的语言，语言切换器的手动选择自然被记住（与 quiz-app 的 `ask-lang` 同思路）；仅根路径跳转、深链不劫持。GitHub Pages 纯静态托管做不了服务端跳转，脚本内联在 `Header.astro` 同步执行。
+
 ## [0.4.0] — 2026-08-17
 
 主题：**多语言四语 + 一轮真实用户走查（浏览器全流程实测）修复三处体验/数据 bug。**

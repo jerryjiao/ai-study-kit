@@ -3,6 +3,8 @@
 // 结构复刻 @astrojs/starlight/components/Header.astro，右上角改为两组——
 // 站内入口（文档 + 在线试玩胶囊）在左、竖线分隔、工具组（GitHub/主题/语言）在右。
 // 注意：Starlight utility 只有 sl-flex/sl-block，没有 sl-inline-flex（写过一次，文档入口因此永久 display:none）。
+// 页尾另挂语言自适应脚本（is:inline 同步执行）：首访根路径按浏览器语言跳 /en|es|ru/，
+// localStorage ask-site-lang 记用户最后浏览的语言，深链不劫持。GitHub Pages 纯静态，只能客户端做。
 import config from 'virtual:starlight/user-config';
 
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
@@ -31,6 +33,52 @@ const labels = HEADER_LABELS[lang] ?? { site: '站内入口', docs: '文档', de
 const demoHref = `${SITE_BASE}/demo/`;
 const docsHref = `${SITE_BASE}${lang === 'zh-CN' ? '' : `/${lang}`}/get-started/`;
 ---
+
+<script is:inline define:vars={{ siteBase: SITE_BASE }}>
+	// 语言自适应：仅根路径（语言中立的入口）跳转，深链不劫持。
+	// 优先级：localStorage 里用户最后浏览的语言 > 浏览器语言（navigator.languages 按序取首个命中）；
+	// zh 命中或无命中留在根路径。任何页面加载都会把当前页语言写回 localStorage，
+	// 所以语言切换器的手动选择自然被记住。
+	(function () {
+		try {
+			var KEY = 'ask-site-lang';
+			var root = siteBase.replace(/\/+$/, '');
+			var here = location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
+			var pageLang = (document.documentElement.lang || 'zh').split('-')[0].toLowerCase();
+			if (['zh', 'en', 'es', 'ru'].indexOf(pageLang) < 0) pageLang = 'zh';
+
+			if (here === root) {
+				var pref = null;
+				try {
+					pref = localStorage.getItem(KEY);
+				} catch (e) {}
+				if (!pref) {
+					var langs =
+						navigator.languages && navigator.languages.length
+							? navigator.languages
+							: [navigator.language || ''];
+					for (var i = 0; i < langs.length; i++) {
+						var b = String(langs[i] || '').split('-')[0].toLowerCase();
+						if (b === 'en' || b === 'es' || b === 'ru') {
+							pref = b;
+							break;
+						}
+					}
+				}
+				if (pref === 'en' || pref === 'es' || pref === 'ru') {
+					try {
+						localStorage.setItem(KEY, pref);
+					} catch (e) {}
+					location.replace(root + '/' + pref + '/');
+					return;
+				}
+			}
+			try {
+				localStorage.setItem(KEY, pageLang);
+			} catch (e) {}
+		} catch (e) {}
+	})();
+</script>
 
 <div class="header">
 	<div class="title-wrapper sl-flex">

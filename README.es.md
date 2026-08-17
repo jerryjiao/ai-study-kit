@@ -240,7 +240,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # diálogos
 
 ## 📚 Documentación
 
-> La documentación del repositorio está escrita en chino. La [web](https://jerryjiao.github.io/ai-study-kit/) está disponible en cuatro idiomas —chino, inglés, español y ruso—; las páginas centrales están traducidas y el resto cae al chino con un aviso. La traducción automática del navegador funciona bastante bien con estos documentos.
+> La documentación del repositorio está escrita en chino. La [web](https://jerryjiao.github.io/ai-study-kit/) está disponible en cuatro idiomas —chino, inglés, español y ruso— y su portada abre automáticamente la versión que coincide con el idioma de tu navegador; las páginas centrales están traducidas y el resto cae al chino con un aviso. La traducción automática del navegador funciona bastante bien con estos documentos.
 
 | Documento | Qué aprenderás |
 |------|-----------|

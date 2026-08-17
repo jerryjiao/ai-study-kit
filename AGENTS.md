@@ -35,7 +35,7 @@ ai-study-kit/
 │       │   └── lib/langs.mjs  # AI CLI 输出语言注册表（--lang）
 │       ├── public/study/      # 课程 HTML 同步产物（gitignored，build 时重建）
 │       └── ecosystem.config.cjs  # pm2 部署配置
-│   └── site/                  # 官网（Astro Starlight，四语 zh/en/es/ru，GitHub Pages）
+│   └── site/                  # 官网（Astro Starlight，四语 zh/en/es/ru + 根路径按浏览器语言自适应，GitHub Pages）
 │       ├── astro.config.mjs   # zh 在 /、en/es/ru 各挂 /<lang>/，旅程四组侧栏
 │       ├── scripts/sync-docs.mjs   # docs/*.md → 站内页（生成物，勿手编）
 │       ├── scripts/build-demo.mjs  # QUIZ_BASE 构建 quiz-app → public/demo/
