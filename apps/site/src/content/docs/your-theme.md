@@ -1,9 +1,9 @@
 ---
 title: 换成你的主题
-description: 30 分钟把 dev-intro demo 改成你在学的主题，全程只动 examples/
+description: 30 分钟把 dev-intro demo 改成你在学的主题，核心只动 examples/
 ---
 
-以学 **React 基础** 为例。全程只动 `examples/` 下的文件，不需要改 apps/quiz-app 里的代码。
+以学 **React 基础** 为例。核心流程（Step 1–4）只动 `examples/` 下的文件加一个环境变量；可选的 Step 5 要改 `apps/quiz-app` 里的两个常量（课程入口和首页分组），但都不用写组件逻辑。
 
 ## Step 1 · 复制主题目录（1 分钟）
 
@@ -70,6 +70,6 @@ pnpm run build      # 构建必须成功
 python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 ```
 
-到这里就完成了。整个过程不需要碰任何 React 代码，改的只是 JSON 和 HTML。
+到这里就完成了。整个过程不用写 React 组件代码：改的是 JSON、HTML，加上 Step 5 里两个常量文件。
 
 改完内容记得跑[四对齐校验](/ai-study-kit/maintain/bidirectional-check/)，课程、题目、闪卡、错题精讲要围绕同一套考点对齐。

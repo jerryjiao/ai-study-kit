@@ -23,7 +23,9 @@ export function TopNav() {
     <header className="sticky top-0 z-20 h-16 bg-bg-surface/85 backdrop-blur-md border-b border-border">
       <div className="max-w-4xl mx-auto w-full h-full px-3 sm:px-4 flex items-center justify-between gap-2">
         <Link to="/" aria-label={t('nav.backHome')} className="flex items-center gap-2 text-base font-bold text-text-primary tracking-tight select-none transition-colors hover:text-text-accent shrink-0">
-          <img src="/logo.png" alt="" className="h-7 w-7 rounded-[7px]" />
+          {/* BASE_URL 前缀：public 资源在 JS 里写死 "/logo.png" 不会随 vite base 重写，
+              子路径部署（官网 /demo/）下会裂图；拼接后本地根路径与子路径都正确 */}
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="h-7 w-7 rounded-[7px]" />
           <span className="sm:hidden">ASK</span>
           <span className="hidden sm:inline">ai-study-kit</span>
         </Link>

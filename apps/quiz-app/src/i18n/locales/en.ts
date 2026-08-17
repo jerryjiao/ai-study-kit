@@ -17,6 +17,7 @@ export const en: Record<TKey, string> = {
 
   // Home
   'home.tagline': 'Practice site · {total} questions · progress syncs across devices',
+  'home.taglineLocal': 'Practice site · {total} questions · progress is saved in this browser',
   'home.statAnswered': 'Answered',
   'home.statAccuracy': 'Accuracy',
   'home.statWrong': 'Wrong',

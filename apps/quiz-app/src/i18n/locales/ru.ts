@@ -17,6 +17,7 @@ export const ru: Record<TKey, string> = {
 
   // Главная
   'home.tagline': 'Тренажёр · {total} вопросов · прогресс синхронизируется между устройствами',
+  'home.taglineLocal': 'Тренажёр · {total} вопросов · прогресс хранится в этом браузере',
   'home.statAnswered': 'Отвечено',
   'home.statAccuracy': 'Точность',
   'home.statWrong': 'Ошибки',

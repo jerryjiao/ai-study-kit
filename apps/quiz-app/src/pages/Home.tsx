@@ -28,7 +28,7 @@ import { useConfirm } from '../components/ConfirmDialog';
 import { useI18n } from '../i18n';
 
 export function Home() {
-  const { progress, reset, resetWrong, resetRead } = useProgress();
+  const { progress, reset, resetWrong, resetRead, syncStatus } = useProgress();
   const confirm = useConfirm();
   const { t } = useI18n();
   const stats = useMemo(() => computeStats(progress, questions), [progress]);
@@ -152,7 +152,7 @@ export function Home() {
       <header className="text-center">
         <h1 className="text-3xl font-bold text-text-primary tracking-tight">AI Study Kit</h1>
         <p className="text-text-muted text-sm mt-2">
-          {t('home.tagline', { total: stats.total })}
+          {t(syncStatus === 'local' ? 'home.taglineLocal' : 'home.tagline', { total: stats.total })}
         </p>
       </header>
 

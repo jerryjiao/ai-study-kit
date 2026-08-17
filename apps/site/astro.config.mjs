@@ -16,6 +16,8 @@ export default defineConfig({
       // 头部 logo（assets/logo.png 定稿，quiz-app 顶栏/favicon 同源）。
       logo: { src: './src/assets/logo.png', alt: 'ai-study-kit logo' },
       description: '把任意主题的题库变成完整学习闭环的开源脚手架',
+      // 仓库入口：开源项目官网页头页脚的 GitHub 图标（hero 另有按钮，见 index.md）
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/jerryjiao/ai-study-kit' }],
       defaultLocale: 'root',
       locales: {
         // root = 中文（内容在 src/content/docs/ 根，URL 不带前缀）；
@@ -57,12 +59,37 @@ export default defineConfig({
         {
           label: 'AI 工具',
           translations: { en: 'AI tools' },
-          items: [{ autogenerate: { directory: 'ai' } }],
+          // 显式条目而非 autogenerate：EN 站这几页是 Starlight 的中文 fallback，
+          // 侧栏标题取不到 EN 页 frontmatter，需在 translations 显式给。
+          // slug 与 scripts/sync-docs.mjs 的 SYNC 清单耦合，新增文档需同步改这里。
+          items: [
+            {
+              label: 'AI CLI Guide · 三个 AI 命令行工具',
+              translations: { en: 'AI CLI Guide' },
+              slug: 'ai/ai-cli',
+            },
+            {
+              label: 'Study Coach · `/study-coach` 学习教练指令',
+              translations: { en: 'Study Coach' },
+              slug: 'ai/study-coach',
+            },
+            {
+              label: 'Configuration · 配置指南',
+              translations: { en: 'Configuration' },
+              slug: 'ai/configuration',
+            },
+          ],
         },
         {
           label: '维护',
           translations: { en: 'Maintaining' },
-          items: [{ autogenerate: { directory: 'maintain' } }],
+          items: [
+            {
+              label: 'Bidirectional Check · 双向校验脚本',
+              translations: { en: 'Bidirectional Check' },
+              slug: 'maintain/bidirectional-check',
+            },
+          ],
         },
       ],
     }),

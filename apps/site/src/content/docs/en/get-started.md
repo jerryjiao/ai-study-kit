@@ -31,7 +31,7 @@ pnpm dev
 
 | Tab | What it shows |
 |-----|---------------|
-| **Quiz** | 10 git/Linux questions (single/multi/true-false), graded on click; wrong answers go to the wrong-question book |
+| **Quiz** | 10 git/Linux questions (single/multi/true-false), graded on submit, multi must be all-correct; wrong answers go to the wrong-question book |
 | **Flashcards** | 4 SM-2 spaced-repetition cards, rated again / hard / good / easy, Anki-compatible |
 | **Courses** | 2 self-contained HTML lessons (git's three areas, Linux dirs & permissions) with ASCII diagrams and callouts |
 

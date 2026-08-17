@@ -20,6 +20,8 @@ export const zh = {
 
   // 首页
   'home.tagline': '学习练习站 · 共 {total} 题 · 进度自动跨设备同步',
+  // 本地模式（无后端，如官网 demo）下的 tagline：与 sync.local 横幅一致，不宣称同步
+  'home.taglineLocal': '学习练习站 · 共 {total} 题 · 进度保存在此浏览器',
   'home.statAnswered': '已答',
   'home.statAccuracy': '正确率',
   'home.statWrong': '错题',

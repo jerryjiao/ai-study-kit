@@ -13,6 +13,10 @@ hero:
       link: /ai-study-kit/get-started/
       variant: secondary
       icon: right-arrow
+    - text: GitHub
+      link: https://github.com/jerryjiao/ai-study-kit
+      variant: secondary
+      icon: github
 ---
 
 <div class="ask-intro">
