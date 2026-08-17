@@ -1,7 +1,8 @@
 ---
 // 覆盖 Starlight 默认页头（astro.config.mjs components.Header 注册）：
-// 结构复刻 @astrojs/starlight/components/Header.astro，右上角加「文档 + 在线试玩」常驻入口。
-// 视觉（毛玻璃底、渐变描边、demo 胶囊按钮）在 src/styles/custom.css 的 header 段。
+// 结构复刻 @astrojs/starlight/components/Header.astro，右上角改为两组——
+// 站内入口（文档 + 在线试玩胶囊）在左、竖线分隔、工具组（GitHub/主题/语言）在右。
+// 注意：Starlight utility 只有 sl-flex/sl-block，没有 sl-inline-flex（写过一次，文档入口因此永久 display:none）。
 import config from 'virtual:starlight/user-config';
 
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
@@ -33,6 +34,14 @@ const docsHref = `${SITE_BASE}${isEn ? '/en' : ''}/get-started/`;
 		{shouldRenderSearch && <Search />}
 	</div>
 	<div class="sl-flex print:hidden right-group">
+		<nav class="header-nav sl-flex" aria-label={isEn ? 'Site' : '站内入口'}>
+			<a class="header-link sl-hidden md:sl-flex" href={docsHref}>
+				{isEn ? 'Docs' : '文档'}
+			</a>
+			<a class="header-demo" href={demoHref}>
+				{isEn ? 'Demo' : '在线试玩'}
+			</a>
+		</nav>
 		<div class="sl-hidden md:sl-flex sl-flex header-util">
 			<div class="sl-flex social-icons">
 				<SocialIcons />
@@ -40,14 +49,6 @@ const docsHref = `${SITE_BASE}${isEn ? '/en' : ''}/get-started/`;
 			<ThemeSelect />
 			<LanguageSelect />
 		</div>
-		<nav class="header-nav sl-flex" aria-label={isEn ? 'Site' : '站内入口'}>
-			<a class="header-link sl-hidden md:sl-inline-flex" href={docsHref}>
-				{isEn ? 'Docs' : '文档'}
-			</a>
-			<a class="header-demo" href={demoHref}>
-				{isEn ? 'Demo' : '在线试玩'}
-			</a>
-		</nav>
 	</div>
 </div>
 
@@ -77,14 +78,18 @@ const docsHref = `${SITE_BASE}${isEn ? '/en' : ''}/get-started/`;
 			gap: 1rem;
 			align-items: center;
 		}
-		.social-icons::after {
+		/* 分组分隔线：站内入口（文档/试玩）与工具（GitHub/主题/语言）之间 */
+		.header-nav::after {
 			content: '';
 			height: 2rem;
 			border-inline-end: 1px solid var(--sl-color-gray-5);
 		}
 
-		/* 文档：次级文字链接，hover 跟 accent */
+		/* 文档：次级导航链接，hover 跟 accent（注意只能用 sl-flex/sl-block——
+		   Starlight 没有 sl-inline-flex 这个 utility，写错会永远 display:none） */
 		.header-link {
+			align-items: center;
+			padding: 0.45rem 0.6rem;
 			font-size: 0.875rem;
 			font-weight: 500;
 			color: var(--sl-color-gray-2);
@@ -93,6 +98,15 @@ const docsHref = `${SITE_BASE}${isEn ? '/en' : ''}/get-started/`;
 		}
 		.header-link:hover {
 			color: var(--sl-accent);
+			background: color-mix(in oklab, var(--sl-accent) 8%, transparent);
+		}
+
+		/* GitHub 图标：Starlight 默认给 accent 蓝色，这里压回中性灰与工具组一致 */
+		.social-icons :global(a) {
+			color: var(--sl-color-gray-2);
+		}
+		.social-icons :global(a):hover {
+			color: var(--sl-color-text-accent);
 		}
 
 		/* 在线试玩：品牌渐变胶囊按钮，全尺寸常驻（移动端页头也保留这一个入口） */
