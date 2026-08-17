@@ -51,6 +51,18 @@ cp .env.example .env
 
 ---
 
+## 错题拉取服务器（SERVER，可选）
+
+`grill-wrong.mjs` 从 quiz-app 后端的 `/api/progress` 拉错题，默认连本地 `http://localhost:8787`。想把本地 CLI 指向线上自部署的服务器时改这里：
+
+```bash
+SERVER=https://your-server.example.com node apps/quiz-app/scripts/grill-wrong.mjs --theme your-theme
+```
+
+其他 CLI（teach / podcast）不联网拉数据，用不到这个变量。
+
+---
+
 ## 输出语言（STUDY_LANG，可选）
 
 三个 AI CLI 的**生成内容**语言，支持 `zh`（默认）/ `en` / `es` / `ru`：
@@ -95,7 +107,7 @@ GLM-TTS 支持的 voice 值（详见 [官方文档](https://docs.bigmodel.cn/cn/
 
 ## 完整 .env 模板
 
-见 [`.env.example`](../.env.example)。复制并填值：
+见 [`.env.example`](https://github.com/jerryjiao/ai-study-kit/blob/main/.env.example)。复制并填值：
 
 ```bash
 cp .env.example .env

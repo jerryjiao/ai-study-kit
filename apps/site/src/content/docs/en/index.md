@@ -37,7 +37,7 @@ hero:
     <div class="ask-shot-bar"><i></i><i></i><i></i></div>
     <div class="ask-shot-body">
       <div class="ask-shot-tabs">
-        <span class="on">Quiz</span><span>Cards</span><span>Lessons</span><span>Wrong</span>
+        <span class="on">Quiz</span><span>Cards</span><span>Lessons</span>
       </div>
       <div class="ask-shot-q">In git, what is the first step to get a working-directory change into the repository?</div>
       <div class="ask-shot-opt"><i></i>A. git push</div>

@@ -34,7 +34,7 @@ hero:
     <div class="ask-shot-bar"><i></i><i></i><i></i></div>
     <div class="ask-shot-body">
       <div class="ask-shot-tabs">
-        <span class="on">答题</span><span>闪卡</span><span>课程</span><span>错题本</span>
+        <span class="on">答题</span><span>闪卡</span><span>课程</span>
       </div>
       <div class="ask-shot-q">git 中，工作区的修改要进入版本库，第一步是？</div>
       <div class="ask-shot-opt"><i></i>A. git push</div>

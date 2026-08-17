@@ -8,7 +8,7 @@
 
 ## 脚本
 
-把下面这段保存为 `scripts/bidirectional-check.py`（或直接在 `examples/<theme>/` 里跑）：
+脚本已内置在仓库 [`scripts/bidirectional-check.py`](https://github.com/jerryjiao/ai-study-kit/blob/main/scripts/bidirectional-check.py)，直接跑（无需自己保存）；下面是完整源码，改校验规则时参考：
 
 ```python
 #!/usr/bin/env python3

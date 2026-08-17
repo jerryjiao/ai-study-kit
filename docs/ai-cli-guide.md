@@ -79,7 +79,7 @@ node apps/quiz-app/scripts/teach-generate.mjs --theme X --lessons 5  # 覆盖 le
 node apps/quiz-app/scripts/teach-generate.mjs --theme X --lang en    # 课程用英语产
 ```
 
-参考：[`examples/dev-intro/course-spec.json`](../examples/dev-intro/course-spec.json)。
+参考：[`examples/dev-intro/course-spec.json`](https://github.com/jerryjiao/ai-study-kit/blob/main/examples/dev-intro/course-spec.json)。
 
 ---
 
@@ -195,7 +195,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播
 STUDY_LANG=en node apps/quiz-app/scripts/teach-generate.mjs --theme X
 ```
 
-支持的语言：`zh`（默认）/ `en` / `es` / `ru`。语言注册表在 [`scripts/lib/langs.mjs`](../apps/quiz-app/scripts/lib/langs.mjs)，加新语言 = 注册表加一项。
+支持的语言：`zh`（默认）/ `en` / `es` / `ru`。语言注册表在 [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs)，加新语言 = 注册表加一项。
 
 行为约定：
 
