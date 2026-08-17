@@ -8,7 +8,14 @@
 
 > Превратите любой банк вопросов в полный цикл обучения — тренажёр + курсы + карточки + подробный разбор ошибок + интервальное повторение, с синхронизацией прогресса между устройствами. Демо запускается за 5 минут, адаптация под вашу тему — за 30.
 
-[![Website](https://img.shields.io/badge/site-online-blue)](https://jerryjiao.github.io/ai-study-kit/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<p align="center">
+  <a href="https://jerryjiao.github.io/ai-study-kit/"><img src="https://img.shields.io/badge/site-online-blue" alt="Сайт" /></a>
+  <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Статус деплоя" /></a>
+  <img src="https://img.shields.io/badge/i18n-4%20%D1%8F%D0%B7%D1%8B%D0%BA%D0%B0-blue" alt="Интерфейс на 4 языках" />
+  <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
+</p>
 
 🌐 [Сайт](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Живое демо](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Быстрый старт](https://jerryjiao.github.io/ai-study-kit/get-started/)
 

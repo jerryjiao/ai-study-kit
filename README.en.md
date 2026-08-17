@@ -8,7 +8,14 @@
 
 > Turn any question set into a complete learning loop — practice + courses + flashcards + wrong-answer deep-dives + spaced repetition, with progress synced across devices. See the demo in 5 minutes, make it yours in 30.
 
-[![Website](https://img.shields.io/badge/website-online-blue)](https://jerryjiao.github.io/ai-study-kit/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<p align="center">
+  <a href="https://jerryjiao.github.io/ai-study-kit/"><img src="https://img.shields.io/badge/website-online-blue" alt="Website" /></a>
+  <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Deploy status" /></a>
+  <img src="https://img.shields.io/badge/i18n-4%20languages-blue" alt="UI in 4 languages" />
+  <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
+</p>
 
 🌐 [Website](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Live demo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Quick start](https://jerryjiao.github.io/ai-study-kit/en/get-started/)
 

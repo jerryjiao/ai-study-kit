@@ -106,15 +106,16 @@ def scan_file(path: Path, brand_re: re.Pattern, personal_re: re.Pattern) -> list
 
     hits = []
     for lineno, line in enumerate(text.splitlines(), start=1):
-        # Allowlist: GitHub clone URLs `git clone https://github.com/<owner>/<repo>`
-        # and GitHub Pages URLs `https://<owner>.github.io/<repo>` contain the repo
-        # owner's username, which is intentionally public (the repo's owner).
+        # Allowlist: GitHub clone URLs `git clone https://github.com/<owner>/<repo>`,
+        # GitHub Pages URLs `https://<owner>.github.io/<repo>`, and dynamic shields
+        # badges `https://img.shields.io/github/<metric>/<owner>/<repo>` contain the
+        # repo owner's username, which is intentionally public (the repo's owner).
         # Skip personal-context matches inside such URLs — all of them per line,
         # not just the first (a single line may carry several Pages links).
         clone_url_spans = [
             m.span()
             for m in re.finditer(
-                r"https?://(?:github\.com/[^/\s]+/[^/\s]+|[a-z0-9-]+\.github\.io(?:/[^/\s]+)?)",
+                r"https?://(?:github\.com/[^/\s]+/[^/\s]+|img\.shields\.io/github/[^/\s]+(?:/[^/\s]+)*|[a-z0-9-]+\.github\.io(?:/[^/\s]+)?)",
                 line,
             )
         ]
