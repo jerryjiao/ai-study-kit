@@ -29,7 +29,7 @@ export const zh = {
   'home.resume': '上次答到',
   'home.resumeGo': '继续 →',
   'home.wrongRetry': '错题重练（{n}）',
-  'home.random20': '随机 20 题',
+  'home.random20': '随机 {n} 题',
   'home.byTopic': '按主题练习（点大类展开子主题）',
   'home.progressManage': '进度管理',
   'home.coverDetail': '已答覆盖明细（逐考点）',

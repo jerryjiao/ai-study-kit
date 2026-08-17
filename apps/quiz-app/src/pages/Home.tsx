@@ -212,7 +212,9 @@ export function Home() {
             className="flex items-center justify-center gap-2 bg-bg-surface border border-border-strong rounded-xl px-4 py-3 font-medium hover:bg-bg-hover transition-colors"
           >
             <Shuffle className="h-4 w-4 text-text-muted" strokeWidth={2} />
-            {t('home.random20')}
+            {/* 题数按 min(20, 全库) 动态显示——Practice 的 random 列表就是 slice(0, min(20, len))，
+                小题库写死 20 会"承诺 20 只给 10"（2026-08-17 踩过）。 */}
+            {t('home.random20', { n: Math.min(20, questions.length) })}
           </Link>
         </div>
       </div>

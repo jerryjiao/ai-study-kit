@@ -25,7 +25,7 @@ export const es: Record<TKey, string> = {
   'home.resume': 'Último tema',
   'home.resumeGo': 'Continuar →',
   'home.wrongRetry': 'Repetir erróneas ({n})',
-  'home.random20': '20 al azar',
+  'home.random20': '{n} al azar',
   'home.byTopic': 'Practicar por tema (clic en un tema para ver subtemas)',
   'home.progressManage': 'Gestión del progreso',
   'home.coverDetail': 'Cobertura respondida (por punto de examen)',

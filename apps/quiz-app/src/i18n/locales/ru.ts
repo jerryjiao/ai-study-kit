@@ -25,7 +25,7 @@ export const ru: Record<TKey, string> = {
   'home.resume': 'Последняя тема',
   'home.resumeGo': 'Продолжить →',
   'home.wrongRetry': 'Повторить ошибки ({n})',
-  'home.random20': 'Случайные 20',
+  'home.random20': 'Случайные {n}',
   'home.byTopic': 'Тренировка по темам (нажмите тему, чтобы раскрыть подтемы)',
   'home.progressManage': 'Управление прогрессом',
   'home.coverDetail': 'Покрытие ответами (по пунктам экзамена)',

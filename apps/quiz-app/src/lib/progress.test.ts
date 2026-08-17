@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { emptyProgress, applyAnswer, applySrs, computeStats, wrongIds, mergeProgress, markRead, readIds, readCount, nextStreak, nextWrongCount, streakToPass, resetWrong, resetRead, resetSrs, resetAnswersByIds, resetReadByIds, noteNewCard, newCardsToday, dayKey, isAnswerDeleted, isCardDeleted, isRead, isFromRandom } from './progress';
+import { emptyProgress, applyAnswer, applySrs, computeStats, computeListStats, wrongIds, mergeProgress, markRead, readIds, readCount, nextStreak, nextWrongCount, streakToPass, resetWrong, resetRead, resetSrs, resetAnswersByIds, resetReadByIds, noteNewCard, newCardsToday, dayKey, isAnswerDeleted, isCardDeleted, isRead, isFromRandom } from './progress';
 import type { Question, Progress, SrsState } from '../types';
 
 const qs: Question[] = [
@@ -126,6 +126,29 @@ describe('progress', () => {
     expect(s.answered).toBe(0);   // fromRandom 不计入已答
     expect(s.wrong).toBe(0);      // 不计入 wrong 计数
     expect(s.accuracy).toBe(0);
+  });
+
+  // —— computeListStats：列表口径（Practice 页头部分子 / canFinish / 完成总结共用）——
+  // 与 computeStats 的唯一区别：fromRandom 记录计入 answered/对错。保证"头部 n/n 全答
+  // → 完成按钮必出总结"两端同口径，不再出现死点击（2026-08-17 踩过）。
+  it('computeListStats: fromRandom 记录计入列表已答与对错（与头部 answeredInList 同口径）', () => {
+    // q1 普通答对 + q2 随机沙盒答错（fromRandom）
+    const p = applyAnswer(applyAnswer(emptyProgress(), 'q1', { selected: ['A'], correct: true, submittedAt: 1 }),
+      'q2', { selected: ['A'], correct: false, submittedAt: 2, streak: 0, fromRandom: true });
+    const s = computeListStats(p, qs);
+    expect(s.answered).toBe(2);              // 沙盒记录也算"已答"（列表里它就是已作答态）
+    expect(s.correct).toBe(1);
+    expect(s.wrong).toBe(1);
+    expect(s.accuracy).toBe(0.5);
+    // 主进度口径不变：仍是 1 已答 0 错（沙盒不污染首页统计）
+    expect(computeStats(p, qs).answered).toBe(1);
+    expect(computeStats(p, qs).wrong).toBe(0);
+  });
+
+  it('computeListStats: 墓碑记录仍视为未答（与 computeStats 一致）', () => {
+    const p = applyAnswer(applyAnswer(emptyProgress(), 'q1', { selected: ['A'], correct: true, submittedAt: 1 }),
+      'q1', { selected: ['A'], correct: true, submittedAt: 2, deletedAt: 3 });
+    expect(computeListStats(p, qs).answered).toBe(0);
   });
 
   it('wrongIds: fromRandom 错题【保留】在错题集（进错题本）', () => {

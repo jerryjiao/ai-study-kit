@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, RotateCcw, BookOpen, PenLine, RefreshCw, Ski
 import { questions } from '../data/questions';
 import type { Question } from '../types';
 import { useProgress } from '../hooks/useProgress';
-import { wrongIds, streakToPass, isAnswerDeleted, isRead, computeStats } from '../lib/progress';
+import { wrongIds, streakToPass, isAnswerDeleted, isRead, computeListStats } from '../lib/progress';
 import { loadPosIndex, savePosId } from '../lib/posMemory';
 import { QuestionCard } from '../components/QuestionCard';
 import { ProgressBar } from '../components/ProgressBar';
@@ -205,13 +205,15 @@ export function Practice() {
     () => list.reduce((n, q) => (isRead(progress, q.id) ? n + 1 : n), 0),
     [list, progress.read, progress.readTombstones]
   );
-  /** 总结态统计：复用 computeStats 传入子集 list（而非全库），得到该 topic 累计正确率。
+  /** 总结态统计：用列表口径 computeListStats（fromRandom 沙盒记录也计入），得到该列表累计正确率。
    *  口径与 grill 共识一致：自评题(correct===null)计入 answered 但不进 accuracy 分母。
+   *  ⭐ 必须与头部 answeredInList 同口径（都把沙盒记录算"已答"）：canFinish 读同一份
+   *  listStats，否则出现"头部 7/7 但完成按钮点不出总结"的死点击（2026-08-17 踩过）。
    *  自评题数（selfRated = answered - graded）由 SessionSummary 组件内自算并标注，
    *  避免调用方拆解、字段漂移。整个 Stats 对象直接传给组件。 */
-  const listStats = useMemo(() => computeStats(progress, list), [progress, list]);
-  /** 「完成答题」仅普通模式(all)+答题视图生效：答完本列表全部题目（listStats.answered === list.length）
-   *  才可点；未答完时末题按钮禁用并提示"还有 X 题未答"。wrong/random/read 模式保持原循环逻辑。
+  const listStats = useMemo(() => computeListStats(progress, list), [progress, list]);
+  /** 「完成答题」仅普通模式(all)+答题视图生效：答完本列表全部题目（listStats.answered === list.length）。
+   *  wrong/random/read 模式不参与完成流。
    *  看题模式不写 answers（只写 read），故 listStats.answered 恒为 0，canFinish 自然为 false——
    *  这里仍显式排除 viewMode==='read' 以让语义自解释，不依赖上述副作用。 */
   const canFinish = mode === 'all' && viewMode !== 'read' && listStats.answered === list.length && list.length > 0;
@@ -327,11 +329,16 @@ export function Practice() {
 
   // 看题模式：进入一道题即标记已看（进度条与视线同步）。
   // 旧实现只在"下一题"按钮里 markRead，导致"正在看的题不计入进度"——体感像进度不动。
-  // 依赖仅 cur?.id + isReadMode：切题触发一次，markRead 幂等（刷新时间戳），不致重复写坏。
+  // 依赖 cur?.id + isReadMode + loaded：切题触发一次，markRead 幂等（刷新时间戳），不致重复写坏。
+  // ⭐ 必须门控 loaded：mount 时 markRead 会赶在 loadProgress() 的 GET 返回前触发，
+  //    其乐观写入（writeLocal + POST）会与稍后 setProgress(merged) 竞态——loadProgress 开头
+  //    捕获的本地快照是旧的，回写 writeLocal(merged) 会把 GET 期间的乐观 read 清掉，
+  //    出现"UI 显示已看、本地/服务器却没记"的口径漂移（2026-08-17 踩过）。
+  //    loaded 后 state 已是权威合并结果，再标 read 不会与其竞态。
   useEffect(() => {
-    if (isReadMode && cur) markRead(cur.id);
+    if (loaded && isReadMode && cur) markRead(cur.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cur?.id, isReadMode]);
+  }, [cur?.id, isReadMode, loaded]);
   /** 当前模式的进度分子：错题→已掌握、看题→已看、答题→已答。
    *  抽成一个变量避免 JSX 里 answered/标注/百分比分三处重复算。 */
   const progressNum = isWrongMode ? masteredInList : (isReadMode ? readInList : answeredInList);

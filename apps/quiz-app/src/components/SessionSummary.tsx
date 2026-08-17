@@ -5,7 +5,7 @@ import type { Stats } from '../types';
 import { useI18n } from '../i18n';
 
 interface Props {
-  /** 本列表统计（来自 computeStats(progress, list)）：accuracy/answered/correct/wrong/total。
+  /** 本列表统计（来自 computeListStats(progress, list)）：accuracy/answered/correct/wrong/total。
    *  收窄为传整个 Stats 对象而非散列数字，避免调用方拆解与字段漂移。 */
   stats: Stats;
   /** 列表标题（topic/subtopic/day 文案，用于按钮上下文） */
@@ -25,7 +25,8 @@ const DURATION = 900;
  *  保证环与数字严格同步、节奏一致。
  *  reduced-motion 下数字与环直接显示终值（不滚动），卡片渐入由 index.css 全局降级。
  *
- *  正确率口径：该 topic 累计正确率（computeStats(progress, list)），非本轮 session。
+ *  正确率口径：该列表累计正确率（computeListStats(progress, list)，含随机沙盒答错记录），
+ *  非本轮 session。与 Practice 头部"已答 n/n"同口径（详见 listStats 注释）。
  *  自评题(correct===null)计入"已答"但不进正确率分母——与 computeStats 一致，
  *  组件内自算 selfRated = answered - graded，单独标注避免"已答≠对+错"困惑。 */
 export function SessionSummary({

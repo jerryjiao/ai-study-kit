@@ -111,6 +111,23 @@ export function computeStats(p: Progress, questions: Question[]): Stats {
   return { total, answered, correct, wrong, accuracy: graded === 0 ? 0 : correct / graded };
 }
 
+/** 列表口径统计：与 computeStats 的唯一区别是 fromRandom 记录【计入】answered/对错。
+ *  供 Practice 页用——那里"已答"指行为意义上的答过（沙盒答错的题在列表里同样被锁、
+ *  显示已作答态，头部进度也计入）。canFinish / 完成总结 / 头部分子必须同口径，
+ *  否则出现"头部 7/7 但完成按钮点不出总结"的死点击（2026-08-17 踩过）。 */
+export function computeListStats(p: Progress, questions: Question[]): Stats {
+  const total = questions.length;
+  let answered = 0, correct = 0, wrong = 0, graded = 0;
+  for (const q of questions) {
+    const rec = p.answers[q.id];
+    if (!rec || isDeleted(rec)) continue;
+    answered++;
+    if (rec.correct === true) { correct++; graded++; }
+    else if (rec.correct === false) { wrong++; graded++; }
+  }
+  return { total, answered, correct, wrong, accuracy: graded === 0 ? 0 : correct / graded };
+}
+
 /** 错题集：曾经答错过(streak 被维护)且连续答对未达阈值的题。掌握后自动移出。
  *  阈值按 wrongCount 自适应（streakToPass）：错过越多需越多连对。
  *  旧记录可能没 wrongCount 字段 → 按 1 兜底（视同只错过 1 次，连对 1 次即移出），

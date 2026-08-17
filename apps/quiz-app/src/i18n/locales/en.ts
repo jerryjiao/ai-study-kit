@@ -25,7 +25,7 @@ export const en: Record<TKey, string> = {
   'home.resume': 'Last studied',
   'home.resumeGo': 'Resume →',
   'home.wrongRetry': 'Retry wrong ({n})',
-  'home.random20': 'Random 20',
+  'home.random20': 'Random {n}',
   'home.byTopic': 'Practice by topic (click a topic to expand subtopics)',
   'home.progressManage': 'Progress management',
   'home.coverDetail': 'Answered coverage (per exam point)',

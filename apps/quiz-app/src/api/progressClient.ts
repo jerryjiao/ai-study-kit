@@ -78,9 +78,8 @@ function writePending(queue: Progress[]) {
  *  启动时若发现 pending 队列（之前失败的快照），先尝试 flush 再走正常流程——
  *  这正是修复"D4 静默丢失"的核心：上次失败的数据，下次打开页面会被自动重发。 */
 export async function loadProgress(): Promise<Progress> {
-  const local = readLocal();
   // 本地模式已锁定：不发任何请求（含 pending flush），纯本地读写
-  if (localMode) return local;
+  if (localMode) return readLocal();
   try {
     // 先 flush pending（如果有）
     await flushPending();
@@ -90,10 +89,14 @@ export async function loadProgress(): Promise<Progress> {
       localMode = true;
       lastProbeAt = Date.now();
       notify('local');
-      return local;
+      return readLocal();
     }
     const remote = (await res.json()) as Progress;
-    const merged = mergeProgress(local, remote);
+    // ⭐ 合并时【重读】本地快照，而非函数开头捕获的旧值：
+    //    GET 期间可能已有乐观写入落盘（markRead/submitAnswer 的 writeLocal 先行、POST 在途），
+    //    用旧快照 merge 后回写会把它们清掉，造成"UI 有、存储无"的口径漂移（2026-08-17 踩过）。
+    //    重读后的 local 含乐观数据，按 submittedAt/时间戳 merge 语义不变。
+    const merged = mergeProgress(readLocal(), remote);
     writeLocal(merged);
     return merged;
   } catch {
@@ -101,7 +104,7 @@ export async function loadProgress(): Promise<Progress> {
     localMode = true;
     lastProbeAt = Date.now();
     notify('local');
-    return local;
+    return readLocal();
   }
 }
 
