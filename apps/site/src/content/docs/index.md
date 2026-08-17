@@ -2,7 +2,7 @@
 title: 把任意题库变成完整的学习闭环
 description: 开源学习脚手架，答题、课程、闪卡、错题精讲、间隔重复围绕同一套考点对齐
 template: splash
-header:
+hero:
   tagline: 开源脚手架，MIT 协议。题目可以是收集的真题，也可以让 AI 出；课程、闪卡、错题精讲和间隔重复由工具负责，进度跨设备同步。
   actions:
     - text: 在线试玩
