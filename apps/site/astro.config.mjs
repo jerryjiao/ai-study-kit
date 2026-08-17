@@ -33,8 +33,8 @@ export default defineConfig({
         { tag: 'meta', attrs: { property: 'og:image', content: `https://jerryjiao.github.io${SITE_BASE}/og.png` } },
         { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
-        // GSC 账号级验证 token（workspace 四站共用），线上存在后 sites.add 即自动验证
-        { tag: 'meta', attrs: { name: 'google-site-verification', content: 'VI929AyBENbxgIGo9gJ8NDm7gEURZCn9B76mbILdKcs' } },
+        // GSC property 级验证 token（UI「HTML 标记」方式下发；github.io 子路径 sites.add 不自动验证，须 UI 点验证）
+        { tag: 'meta', attrs: { name: 'google-site-verification', content: 'tVmBrSoTawi7t3gzbBm54K5YZKcG5xUQmxwka8I7lpI' } },
       ],
       // 单一 sidebar（Starlight 多语言模型）：组/条目标签用 translations 按 BCP-47 覆盖，
       // slug 不含语言前缀、自动取各语言页面的 frontmatter 标题（#13：旅程四组）
