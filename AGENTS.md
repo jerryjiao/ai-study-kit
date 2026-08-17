@@ -158,7 +158,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - `podcast-generate.mjs`：从任一学习素材产男女双播播客（脚本 + 逐字稿 + WAV）
   - 全部支持 `--lang zh|en|es|ru`（或 `STUDY_LANG` 环境变量）指定**生成内容**语言；注册表在 `scripts/lib/langs.mjs`，CLI 日志始终中文。
   - 全部需要 `.env` 配 LLM/TTS provider。详见 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md) + [`docs/configuration.md`](./docs/configuration.md)。
-- **⭐ UI 多语言（中/EN/ES/RU）**：词典在 `apps/quiz-app/src/i18n/locales/`（zh 是基准，en/es/ru 以 `Record<TKey, string>` 锚定 key 集）。改/加 UI 文案必须四份词典同步改，`i18n.test.ts` 会校验 key 完整性 + 占位符一致性。**禁止在组件里写死用户可见文案**（题库/闪卡内容除外——那是数据）。语言偏好持久化与 theme 同构：localStorage `ask-lang` + `progress.lang/langUpdatedAt`（LWW）。逻辑里不要用展示文案做比较（如"其他"桶用 `isOther` flag，别比字符串）。**README 同为四语**（README.md 中文基准 + README.en/es/ru.md 完整译本，顶部切换栏互链），改 README 内容必须四份同步改，es/ru 术语以 UI 词典为准（tab 名、功能名与 locale 文件一致）。
+- **⭐ UI 多语言（中/EN/ES/RU）**：词典在 `apps/quiz-app/src/i18n/locales/`（zh 是基准，en/es/ru 以 `Record<TKey, string>` 锚定 key 集）。改/加 UI 文案必须四份词典同步改，`i18n.test.ts` 会校验 key 完整性 + 占位符一致性。**禁止在组件里写死用户可见文案**（题库/闪卡内容除外——那是数据）。语言偏好持久化与 theme 同构：localStorage `ask-lang` + `progress.lang/langUpdatedAt`（LWW）。逻辑里不要用展示文案做比较（如"其他"桶用 `isOther` flag，别比字符串）。**README 同为四语**（README.md 中文基准 + README.en/es/ru.md 完整译本，顶部切换栏互链），改 README 内容必须四份同步改，es/ru 术语以 UI 词典为准（tab 名、功能名与 locale 文件一致）。唯一例外：README.md 中文基准的 tagline blockquote 里带一行英文一句话简介（给国际读者的可发现性），这是有意的不对称，不要同步到 en/es/ru。
 - **学习教练 skill（`/study-coach`）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后输入 `/study-coach` 触发。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/study-coach/references/flows.md` 的 playbook 带执行（初始化/新主题/每日学习/错题串讲/播客/产课/改内容/校验/部署）。源文件在 `skills/study-coach/`，安装用 `pnpm run skill:install`。
 
 ## zcode / AI agent 访问资料的方式

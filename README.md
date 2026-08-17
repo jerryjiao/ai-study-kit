@@ -7,6 +7,8 @@
 **简体中文** · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md)
 
 > 把任意主题的题库变成一个完整学习闭环——答题 + 课程 + 闪卡 + 错题精讲 + 间隔重复，进度跨设备同步。5 分钟跑起来看 demo，30 分钟改成你自己的主题。
+>
+> *Turn any question set into a complete learning loop — practice + courses + flashcards + wrong-answer deep-dives + spaced repetition, with progress synced across devices.*
 
 [![Website](https://img.shields.io/badge/官网-online-blue)](https://jerryjiao.github.io/ai-study-kit/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
