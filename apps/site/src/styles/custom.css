@@ -13,32 +13,48 @@
 }
 
 /* —— 首页组件（.ask-* 命名空间）——
-   splash 头部即 hero（大标题 + CTA 按钮由 Starlight splash 模板渲染，一行顶栏之下直接展开），
-   内容区第一屏 = 左介绍 / 右 app 窗口双栏。 */
-.ask-intro {
-  display: grid;
-  grid-template-columns: 1fr 1.05fr;
-  gap: 3rem;
-  align-items: center;
+   splash hero 本体就是双栏（Starlight Hero ≥50rem 时 7fr/4fr）：
+   左 = 大标题 + 标语 + CTA，右 = hero.image.html 里的 CSS app 窗口。
+   Starlight 的 hero 样式在 @layer starlight.core 里，这里的无 layer 规则直接覆盖。 */
+@media (min-width: 50rem) {
+  .hero {
+    grid-template-columns: 1.15fr 1fr;
+    gap: 2.5rem;
+    padding-block: clamp(2.5rem, calc(1rem + 4vmin), 4rem);
+  }
+}
+.hero > .hero-html {
+  position: relative;
+  z-index: 0;
+  width: min(100%, 26rem);
+}
+.hero > .hero-html::before {
+  content: '';
+  position: absolute;
+  inset: -14%;
+  background: radial-gradient(closest-side, rgba(79, 70, 229, 0.16), transparent 70%);
+  z-index: -1;
+}
+
+/* hero 下面的引导段（居中单栏，接住原 ask-intro 的两段文字） */
+.ask-lead {
+  max-width: 44rem;
   margin: 0 auto 0.5rem;
-  max-width: 72rem;
   padding: 0 1.5rem;
+  text-align: center;
 }
-@media (max-width: 60rem) {
-  .ask-intro { grid-template-columns: 1fr; gap: 2rem; padding: 0 1.25rem; }
-}
-.ask-intro-text p {
-  font-size: 1.02rem;
+.ask-lead p {
+  font-size: 1rem;
   line-height: 1.85;
   color: var(--sl-color-gray-2);
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.05rem;
 }
-.ask-intro-text a {
+.ask-lead a {
   color: var(--sl-accent);
   font-weight: 600;
 }
 
-/* 首页右侧：CSS 画的 app 窗口（v1 无真截图时的占位，见 #14） */
+/* hero 右侧：CSS 画的 app 窗口（经 hero.image.html 注入，见 #14） */
 .ask-shot {
   border-radius: 0.9rem;
   border: 1px solid var(--sl-color-gray-6);
@@ -87,8 +103,24 @@
 .ask-shot-ana {
   margin-top: 0.8rem; font-size: 0.78rem; line-height: 1.7;
   color: var(--sl-color-gray-3);
-  background: var(--sl-color-gray-7);
+  background: color-mix(in oklab, #4f46e5 6%, var(--sl-color-gray-7));
+  border-left: 3px solid #4f46e5;
   border-radius: 0.5rem; padding: 0.65rem 0.8rem;
+}
+/* 窗口底部 meta 行：迷你进度条 + 进度文案 */
+.ask-shot-meta {
+  display: flex; align-items: center; gap: 0.7rem;
+  margin-top: 1rem; padding-top: 0.75rem;
+  border-top: 1px dashed var(--sl-color-gray-5);
+  font-size: 0.74rem; color: var(--sl-color-gray-3);
+}
+.ask-shot-meta i {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: var(--sl-color-gray-6); position: relative; overflow: hidden;
+}
+.ask-shot-meta i::after {
+  content: ''; position: absolute; inset: 0 auto 0 0; width: 12.5%;
+  background: var(--ask-gradient); border-radius: 2px;
 }
 
 /* 首页区块通用：统一最大宽度与节奏 */

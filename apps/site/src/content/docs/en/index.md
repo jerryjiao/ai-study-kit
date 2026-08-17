@@ -4,6 +4,24 @@ description: An open-source study scaffold where quizzes, courses, flashcards an
 template: splash
 hero:
   tagline: An open-source scaffold under MIT. Questions can be past papers you collect or ones an AI writes for you; the tool takes care of courses, flashcards, deep-dives and spaced repetition, with cross-device sync.
+  image:
+    html: |
+      <div class="ask-shot">
+        <div class="ask-shot-bar"><i></i><i></i><i></i></div>
+        <div class="ask-shot-body">
+          <div class="ask-shot-tabs">
+            <span class="on">Quiz</span><span>Cards</span><span>Lessons</span><span>Wrong</span>
+          </div>
+          <div class="ask-shot-q">In git, what is the first step to get a working-directory change into the repository?</div>
+          <div class="ask-shot-opt"><i></i>A. git push</div>
+          <div class="ask-shot-opt ok"><i></i>B. git add ✓</div>
+          <div class="ask-shot-opt"><i></i>C. git commit</div>
+          <div class="ask-shot-ana">
+            Working dir → staging (git add) → repository (git commit) → remote (git push). The three-area model is git's core mental model.
+          </div>
+          <div class="ask-shot-meta"><i></i>Question 3 / 24 · streak 5</div>
+        </div>
+      </div>
   actions:
     - text: Try the demo
       link: /ai-study-kit/demo/
@@ -19,36 +37,19 @@ hero:
       icon: github
 ---
 
-<div class="ask-intro">
-  <div class="ask-intro-text">
-    <p>
-      This project turns one study path into a web app you can deploy yourself: a syllabus
-      defines what to learn, reference materials explain the concepts, and quizzes tell you
-      whether they stuck. The question bank is a JSON file, lessons are self-contained HTML,
-      and flashcards run an Anki-compatible SM-2 scheduler.
-    </p>
-    <p>
-      Not ready to install anything? Answer a few questions in the
-      <a href="/ai-study-kit/demo/">online demo</a> first. If it works for you, clone the repo,
-      swap in your own topic, and it becomes the thing you are studying.
-    </p>
-  </div>
-  <div class="ask-shot">
-    <div class="ask-shot-bar"><i></i><i></i><i></i></div>
-    <div class="ask-shot-body">
-      <div class="ask-shot-tabs">
-        <span class="on">Quiz</span><span>Cards</span><span>Lessons</span>
-      </div>
-      <div class="ask-shot-q">In git, what is the first step to get a working-directory change into the repository?</div>
-      <div class="ask-shot-opt"><i></i>A. git push</div>
-      <div class="ask-shot-opt ok"><i></i>B. git add ✓</div>
-      <div class="ask-shot-opt"><i></i>C. git commit</div>
-      <div class="ask-shot-ana">
-        Working dir → staging (git add) → repository (git commit) → remote (git push). The three-area model is git's core mental model.
-      </div>
-    </div>
-  </div>
-</div>
+<section class="ask-lead">
+  <p>
+    This project turns one study path into a web app you can deploy yourself: a syllabus
+    defines what to learn, reference materials explain the concepts, and quizzes tell you
+    whether they stuck. The question bank is a JSON file, lessons are self-contained HTML,
+    and flashcards run an Anki-compatible SM-2 scheduler.
+  </p>
+  <p>
+    Not ready to install anything? Answer a few questions in the
+    <a href="/ai-study-kit/demo/">online demo</a> first. If it works for you, clone the repo,
+    swap in your own topic, and it becomes the thing you are studying.
+  </p>
+</section>
 
 <section class="ask-section">
   <div class="ask-section-head">

@@ -4,6 +4,24 @@ description: 开源学习脚手架，答题、课程、闪卡、错题精讲、�
 template: splash
 hero:
   tagline: 开源脚手架，MIT 协议。题目可以是收集的真题，也可以让 AI 出；课程、闪卡、错题精讲和间隔重复由工具负责，进度跨设备同步。
+  image:
+    html: |
+      <div class="ask-shot">
+        <div class="ask-shot-bar"><i></i><i></i><i></i></div>
+        <div class="ask-shot-body">
+          <div class="ask-shot-tabs">
+            <span class="on">答题</span><span>闪卡</span><span>课程</span><span>错题</span>
+          </div>
+          <div class="ask-shot-q">git 中，工作区的修改要进入版本库，第一步是？</div>
+          <div class="ask-shot-opt"><i></i>A. git push</div>
+          <div class="ask-shot-opt ok"><i></i>B. git add ✓</div>
+          <div class="ask-shot-opt"><i></i>C. git commit</div>
+          <div class="ask-shot-ana">
+            解析：工作区先 add 进暂存区，再 commit 进版本库，最后 push 到远端。三区模型是 git 的核心心智模型。
+          </div>
+          <div class="ask-shot-meta"><i></i>第 3 / 24 题 · 本轮连对 5</div>
+        </div>
+      </div>
   actions:
     - text: 在线试玩
       link: /ai-study-kit/demo/
@@ -19,33 +37,16 @@ hero:
       icon: github
 ---
 
-<div class="ask-intro">
-  <div class="ask-intro-text">
-    <p>
-      这个项目把一条学习路径做成了可以自己部署的 web app：大纲定考什么，参考材料讲概念，做题验效果。
-      题库是一份 JSON，课程是自包含的 HTML，闪卡走 Anki 兼容的 SM-2 算法。
-    </p>
-    <p>
-      不想装任何东西，先去 <a href="/ai-study-kit/demo/">在线 demo</a> 里答几道题；
-      觉得有用，clone 仓库改掉示例主题，就是你在学的东西。
-    </p>
-  </div>
-  <div class="ask-shot">
-    <div class="ask-shot-bar"><i></i><i></i><i></i></div>
-    <div class="ask-shot-body">
-      <div class="ask-shot-tabs">
-        <span class="on">答题</span><span>闪卡</span><span>课程</span>
-      </div>
-      <div class="ask-shot-q">git 中，工作区的修改要进入版本库，第一步是？</div>
-      <div class="ask-shot-opt"><i></i>A. git push</div>
-      <div class="ask-shot-opt ok"><i></i>B. git add ✓</div>
-      <div class="ask-shot-opt"><i></i>C. git commit</div>
-      <div class="ask-shot-ana">
-        解析：工作区先 add 进暂存区，再 commit 进版本库，最后 push 到远端。三区模型是 git 的核心心智模型。
-      </div>
-    </div>
-  </div>
-</div>
+<section class="ask-lead">
+  <p>
+    这个项目把一条学习路径做成了可以自己部署的 web app：大纲定考什么，参考材料讲概念，做题验效果。
+    题库是一份 JSON，课程是自包含的 HTML，闪卡走 Anki 兼容的 SM-2 算法。
+  </p>
+  <p>
+    不想装任何东西，先去 <a href="/ai-study-kit/demo/">在线 demo</a> 里答几道题；
+    觉得有用，clone 仓库改掉示例主题，就是你在学的东西。
+  </p>
+</section>
 
 <section class="ask-section">
   <div class="ask-section-head">
