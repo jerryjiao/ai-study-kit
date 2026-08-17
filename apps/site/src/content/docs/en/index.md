@@ -3,7 +3,7 @@ title: Turn any quiz set into a complete learning loop
 description: An open-source study scaffold where quizzes, courses, flashcards and spaced repetition stay aligned around the same exam points
 template: splash
 header:
-  tagline: An open-source scaffold under MIT. You bring the question bank; it handles courses, flashcards, wrong-answer deep-dives and spaced repetition, with cross-device sync.
+  tagline: An open-source scaffold under MIT. Questions can be past papers you collect or ones an AI writes for you; the tool takes care of courses, flashcards, deep-dives and spaced repetition, with cross-device sync.
   actions:
     - text: Try the demo
       link: /ai-study-kit/demo/

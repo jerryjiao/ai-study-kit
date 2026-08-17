@@ -11,9 +11,9 @@ description: Get the demo running in five minutes and see the quizzes, flashcard
 | 📚 **A student revising** (exams / certifications) | ✅ Real question banks + AI wrong-question deep-dives |
 | 🎯 **Preparing for interviews** | ✅ Write your own questions + AI-generated courses, with SRS |
 | 🗂️ **Learning anything with "exam points"** (compliance, processes, terminology) | ✅ If it can be broken into Q&A, you can learn it |
-| ❌ Wanting a ready-made question bank | ❌ This is a **scaffold**, not a bank — bring your own questions or generate them with AI |
+| ❌ Wanting a ready-made question bank | ❌ This is a **scaffold**, not a bank — collect past papers or generate them with AI |
 
-**In one sentence**: this is a scaffold, not a question bank. You bring the questions; the tool turns them into a learning app with courses, flashcards and wrong-answer analytics.
+**In one sentence**: this is a scaffold, not a question bank. Questions can be past papers you collect or ones you write with an AI; once they are in JSON, the tool adds courses, flashcards, wrong-answer analytics and review scheduling.
 
 Don't want to clone? [Try the online demo](/ai-study-kit/demo/) — full features, progress saved in your browser only.
 
