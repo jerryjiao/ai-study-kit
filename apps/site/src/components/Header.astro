@@ -1,0 +1,151 @@
+---
+// 覆盖 Starlight 默认页头（astro.config.mjs components.Header 注册）：
+// 结构复刻 @astrojs/starlight/components/Header.astro，右上角加「文档 + 在线试玩」常驻入口。
+// 视觉（毛玻璃底、渐变描边、demo 胶囊按钮）在 src/styles/custom.css 的 header 段。
+import config from 'virtual:starlight/user-config';
+
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+import { SITE_BASE } from '../../site.config.mjs';
+
+/**
+ * Render the `Search` component if Pagefind is enabled or the default search component has been overridden.
+ */
+const shouldRenderSearch =
+	config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+
+// 页头入口文案跟随页面语言（root=中文 / en），措辞与首页 hero actions 对齐：
+// 在线试玩 = Try the demo；「文档」指向快速上手（文档体系的第一页）。
+const isEn = Astro.locals.starlightRoute.lang === 'en';
+const demoHref = `${SITE_BASE}/demo/`;
+const docsHref = `${SITE_BASE}${isEn ? '/en' : ''}/get-started/`;
+---
+
+<div class="header">
+	<div class="title-wrapper sl-flex">
+		<SiteTitle />
+	</div>
+	<div class="sl-flex print:hidden">
+		{shouldRenderSearch && <Search />}
+	</div>
+	<div class="sl-flex print:hidden right-group">
+		<div class="sl-hidden md:sl-flex sl-flex header-util">
+			<div class="sl-flex social-icons">
+				<SocialIcons />
+			</div>
+			<ThemeSelect />
+			<LanguageSelect />
+		</div>
+		<nav class="header-nav sl-flex" aria-label={isEn ? 'Site' : '站内入口'}>
+			<a class="header-link sl-hidden md:sl-inline-flex" href={docsHref}>
+				{isEn ? 'Docs' : '文档'}
+			</a>
+			<a class="header-demo" href={demoHref}>
+				{isEn ? 'Demo' : '在线试玩'}
+			</a>
+		</nav>
+	</div>
+</div>
+
+<style>
+	@layer starlight.core {
+		.header {
+			display: flex;
+			gap: var(--sl-nav-gap);
+			justify-content: space-between;
+			align-items: center;
+			height: 100%;
+		}
+
+		.title-wrapper {
+			/* Prevent long titles overflowing and covering the search and menu buttons on narrow viewports. */
+			overflow: clip;
+			/* Avoid clipping focus ring around link inside title wrapper. */
+			padding: 0.25rem;
+			margin: -0.25rem;
+			min-width: 0;
+		}
+
+		.right-group,
+		.header-util,
+		.social-icons,
+		.header-nav {
+			gap: 1rem;
+			align-items: center;
+		}
+		.social-icons::after {
+			content: '';
+			height: 2rem;
+			border-inline-end: 1px solid var(--sl-color-gray-5);
+		}
+
+		/* 文档：次级文字链接，hover 跟 accent */
+		.header-link {
+			font-size: 0.875rem;
+			font-weight: 500;
+			color: var(--sl-color-gray-2);
+			text-decoration: none;
+			border-radius: 0.375rem;
+		}
+		.header-link:hover {
+			color: var(--sl-accent);
+		}
+
+		/* 在线试玩：品牌渐变胶囊按钮，全尺寸常驻（移动端页头也保留这一个入口） */
+		.header-demo {
+			font-size: 0.875rem;
+			font-weight: 600;
+			line-height: 1;
+			color: #fff;
+			text-decoration: none;
+			padding: 0.55rem 1rem;
+			border-radius: 999px;
+			background: var(--ask-gradient);
+			box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+			white-space: nowrap;
+			transition: box-shadow 0.15s ease, transform 0.15s ease;
+		}
+		.header-demo:hover {
+			color: #fff;
+			box-shadow:
+				0 4px 14px -2px rgba(79, 70, 229, 0.45),
+				inset 0 1px 0 rgba(255, 255, 255, 0.18);
+			transform: translateY(-1px);
+		}
+
+		@media (min-width: 50rem) {
+			:global(:root[data-has-sidebar]) {
+				--__sidebar-pad: calc(2 * var(--sl-nav-pad-x));
+			}
+			:global(:root:not([data-has-toc])) {
+				--__toc-width: 0rem;
+			}
+			.header {
+				--__sidebar-width: max(0rem, var(--sl-content-inline-start, 0rem) - var(--sl-nav-pad-x));
+				--__main-column-fr: calc(
+					(
+							100% + var(--__sidebar-pad, 0rem) - var(--__toc-width, var(--sl-sidebar-width)) -
+								(2 * var(--__toc-width, var(--sl-nav-pad-x))) - var(--sl-content-inline-start, 0rem) -
+								var(--sl-content-width)
+						) / 2
+				);
+				display: grid;
+				grid-template-columns:
+        /* 1 (site title): runs up until the main content column’s left edge or the width of the title, whichever is the largest  */
+					minmax(
+						calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))),
+						auto
+					)
+					/* 2 (search box): all free space that is available. */
+					1fr
+					/* 3 (right items): use the space that these need. */
+					auto;
+				align-content: center;
+			}
+		}
+	}
+</style>

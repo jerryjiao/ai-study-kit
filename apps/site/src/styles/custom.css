@@ -12,6 +12,34 @@
   color: var(--sl-accent);
 }
 
+/* —— 页头（header.header 外壳由 Starlight PageFrame 渲染，这里直接覆盖 core 层默认）——
+   默认淡灰底 + 默认蓝站名与品牌 indigo 不搭：换纯白毛玻璃底 + 品牌渐变顶线 + 主文字色站名。 */
+header.header {
+  background: rgba(255, 255, 255, 0.86);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  backdrop-filter: blur(12px) saturate(1.5);
+}
+:root[data-theme='dark'] header.header {
+  background: color-mix(in oklab, #12141c 84%, transparent);
+}
+header.header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--ask-gradient);
+  pointer-events: none;
+}
+.site-title span {
+  color: var(--sl-color-text);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+/* logo 是深底方块图，圆角柔化后在浅色页头不显生硬 */
+.site-title img {
+  border-radius: 0.4rem;
+}
+
 /* —— 首页组件（.ask-* 命名空间）——
    splash hero 本体就是双栏（Starlight Hero ≥50rem 时 7fr/4fr）：
    左 = 大标题 + 标语 + CTA，右 = hero.image.html 里的 CSS app 窗口。

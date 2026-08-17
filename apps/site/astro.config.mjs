@@ -26,6 +26,8 @@ export default defineConfig({
         en: { label: 'English', lang: 'en' },
       },
       customCss: ['./src/styles/custom.css'],
+      // 页头覆盖：Starlight 默认 Header + 右上角「文档 / 在线试玩」常驻入口（src/components/Header.astro）
+      components: { Header: './src/components/Header.astro' },
       // OG 分享图（#14：C 风基准，scripts/gen-og.py 生成 public/og.png 后提交入库）
       head: [
         { tag: 'meta', attrs: { property: 'og:image', content: `https://jerryjiao.github.io${SITE_BASE}/og.png` } },
