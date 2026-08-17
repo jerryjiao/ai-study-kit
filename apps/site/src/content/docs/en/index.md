@@ -88,7 +88,7 @@ hero:
     <p>Anki has no quiz app or deep-dives; Quizlet is closed-source SaaS and keeps your data</p>
   </div>
   <div class="ask-compare-wrap">
-    <table class="ask-compare">
+    <table class="ask-compare matrix">
       <tr><th>Tool</th><th>Quizzes</th><th>Lessons</th><th>SRS cards</th><th>Deep-dives</th><th>Open source</th></tr>
       <tr><td class="tool">Anki</td><td>✗</td><td>✗</td><td class="y">✓</td><td>✗</td><td class="y">✓</td></tr>
       <tr><td class="tool">Quizlet</td><td class="y">✓</td><td>✗</td><td>Partial</td><td>✗</td><td>✗</td></tr>

@@ -85,7 +85,7 @@ hero:
     <p>Anki 闪卡强，但没有答题站和错题精讲；Quizlet 是闭源 SaaS，数据不在自己手里</p>
   </div>
   <div class="ask-compare-wrap">
-    <table class="ask-compare">
+    <table class="ask-compare matrix">
       <tr><th>工具</th><th>答题</th><th>课程</th><th>闪卡 SRS</th><th>错题精讲</th><th>开源</th></tr>
       <tr><td class="tool">Anki</td><td>✗</td><td>✗</td><td class="y">✓</td><td>✗</td><td class="y">✓</td></tr>
       <tr><td class="tool">Quizlet</td><td class="y">✓</td><td>✗</td><td>部分</td><td>✗</td><td>✗</td></tr>
