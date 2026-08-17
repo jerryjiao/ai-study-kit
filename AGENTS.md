@@ -83,6 +83,7 @@ pnpm run build             # sync:examples && sync:study && tsc -b && vite build
 pnpm test                  # vitest（grade/progress/progressStore/srs/reviewQueue）+ node:test（scripts/lib/*.test.mjs）
 pnpm run scan              # brand-scan.py（零泄露校验）
 pnpm run check:alignment   # bidirectional-check.py 四对齐校验（默认 dev-intro，可传主题目录）
+pnpm run ai:teach          # teach CLI 产课程（ai:grill / ai:podcast 同理，见 docs/ai-cli-guide.md）
 pnpm run skill:install     # 把 /study-coach skill 装进 ~/.agents/skills/
 pnpm start                 # build && server（本地一键）
 
@@ -143,7 +144,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 
 自动化校验脚本：[`docs/bidirectional-check.md`](./docs/bidirectional-check.md)（Python 骨架）。
 
-**改课表的操作链**：改 `MISSION.md` 学习目标 → 改 `examples/<theme>/lessons/*.html` → 改 `examples/<theme>/questions.json`（同步 day 标签）→ 改 `examples/<theme>/flashcards.json` → 跑 `pnpm run scan` + bidirectional-check 校验。注意：进度按题 id 存不按 day，重分配 day 不影响已答进度。
+**改课表的操作链**：改 `MISSION.md` 学习目标 → 改 `examples/<theme>/lessons/*.html` → 改 `examples/<theme>/questions.json`（同步 topic / day 标签）→ 改 `examples/<theme>/flashcards.json` → 跑 `pnpm run scan` + bidirectional-check 校验。注意：进度按题 id 存不按 day，重分配 day 不影响已答进度。
 
 ## 关键约定
 
@@ -196,4 +197,4 @@ Issues 走 GitHub Issues（`gh` CLI，repo 由 git remote 推断）。见 [`docs
 
 ### Domain docs
 
-Single-context：仓库根 `CONTEXT.md` + `docs/adr/`（按需懒创建，现均不存在）。见 [`docs/agents/domain.md`](./docs/agents/domain.md)。
+Single-context：仓库根 `CONTEXT.md`（术语表）+ `docs/adr/`（决策记录，如 0001 产题走 agent 直产）。见 [`docs/agents/domain.md`](./docs/agents/domain.md)。

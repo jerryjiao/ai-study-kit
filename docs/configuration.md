@@ -1,8 +1,6 @@
 # Configuration · 配置指南
 
-> **EN**: How to configure `.env` for the three AI CLIs. Covers LLM provider (OpenAI / GLM / DeepSeek / Kimi / 通义 / 豆包) and TTS provider (GLM-TTS).
->
-> **中文**：三个 AI CLI 的 `.env` 配置说明。覆盖 LLM provider（OpenAI / GLM / DeepSeek / Kimi / 通义 / 豆包）和 TTS provider（GLM-TTS）。
+三个 AI CLI 的 `.env` 配置说明。要配的东西很少：LLM provider 任选一家（OpenAI / GLM / DeepSeek / Kimi / 通义 / 豆包），想做播客再配 TTS（当前仅 GLM-TTS）。全部走 OpenAI 兼容协议，换 provider 只改三个变量。
 
 ---
 
@@ -94,8 +92,8 @@ GLM-TTS 支持的 voice 值（详见 [官方文档](https://docs.bigmodel.cn/cn/
 
 | Voice 值 | 风格 |
 |----------|------|
-| `male` / `female` | 通用男女声（推荐起步） |
-| `彤彤`（默认）/ `小陈` / `锤锤` / `jam` / `kazi` / `douji` / `luodo` | 具体音色名 |
+| `male` / `female` | 通用男女声（CLI 默认，推荐起步） |
+| `彤彤` / `小陈` / `锤锤` / `jam` / `kazi` / `douji` / `luodo` | 具体音色名 |
 
 不同音色可能需要不同账号权限，先用 `male`/`female` 测试通过再试具体音色。
 

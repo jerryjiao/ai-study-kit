@@ -1,8 +1,6 @@
 # Study Coach · `/study-coach` 学习教练指令
 
-> **EN**: `/study-coach` is a router skill shipped with ai-study-kit. It scans your learning state and tells you what to do next — no need to memorize the toolchain.
->
-> **中文**：ai-study-kit 的功能多（答题站 / 课程 / 闪卡 / 错题串讲 / 播客 / 部署），但对学习者来说这反而成了负担：**今天到底该干嘛？** `/study-coach` 就是回答这个问题的——装一次，之后每次学习从它开始。
+ai-study-kit 的功能多——答题站、课程、闪卡、错题串讲、播客、部署，但对学习者来说这反而成了负担：**今天到底该干嘛？** `/study-coach` 就是回答这个问题的。它是仓库自带的路由 skill：装一次，每次学习从它开始，由它扫状态、给推荐、带你执行，不用背工具链。
 
 ---
 

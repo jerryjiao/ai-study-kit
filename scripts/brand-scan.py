@@ -107,6 +107,8 @@ def scan_file(path: Path, brand_re: re.Pattern, personal_re: re.Pattern) -> list
     hits = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         # Allowlist: GitHub clone URLs `git clone https://github.com/<owner>/<repo>`,
+        # asset CDN URLs (`raw.githubusercontent.com/<owner>/<repo>/...`,
+        # `cdn.jsdelivr.net/gh/<owner>/<repo>@...`) — the README logo uses these —
         # GitHub Pages URLs `https://<owner>.github.io/<repo>`, and dynamic shields
         # badges `https://img.shields.io/github/<metric>/<owner>/<repo>` contain the
         # repo owner's username, which is intentionally public (the repo's owner).
@@ -115,7 +117,7 @@ def scan_file(path: Path, brand_re: re.Pattern, personal_re: re.Pattern) -> list
         clone_url_spans = [
             m.span()
             for m in re.finditer(
-                r"https?://(?:github\.com/[^/\s]+/[^/\s]+|img\.shields\.io/github/[^/\s]+(?:/[^/\s]+)*|[a-z0-9-]+\.github\.io(?:/[^/\s]+)?)",
+                r"https?://(?:github\.com/[^/\s]+/[^/\s]+|raw\.githubusercontent\.com/[^/\s]+/[^/\s]+|cdn\.jsdelivr\.net/gh/[^/\s]+/[^/\s]+|img\.shields\.io/github/[^/\s]+(?:/[^/\s]+)*|[a-z0-9-]+\.github\.io(?:/[^/\s]+)?)",
                 line,
             )
         ]

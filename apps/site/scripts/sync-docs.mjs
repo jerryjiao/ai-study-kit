@@ -41,9 +41,10 @@ for (const { src, dest, order, stripEn } of SYNC) {
   const title = m[1].trim();
   text = text.slice(m[0].length);
 
-  // 已英译篇目：去掉紧随标题的英文摘要引用块（官网有完整英文版，摘要冗余）
+  // 已英译篇目：去掉紧随标题的英文摘要引用块（官网有完整英文版，摘要冗余）。
+  // [^>\n] 不跨行——EN 行后直接接正文（无 > 中文引用行）时，[^>] 会一路吞到下一个 >。
   if (stripEn) {
-    text = text.replace(/^(\s*>\s*\*\*EN\*\*[^>]*\n(?:\s*>.*\n)*)\s*\n?/, '\n');
+    text = text.replace(/^(\s*>\s*\*\*EN\*\*[^>\n]*\n(?:\s*>.*\n)*)\s*\n?/, '\n');
   }
 
   const fm = `---\ntitle: ${JSON.stringify(title)}\nsidebar:\n  order: ${order}\n---\n\n`;
