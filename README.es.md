@@ -17,7 +17,7 @@
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
 </p>
 
-🌐 [Sitio web](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Demo en vivo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/es/get-started/)
+🌐 [Sitio web](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Demo en vivo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/get-started/)
 
 ---
 
@@ -234,7 +234,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # diálogos
 | **PDF / Word con preguntas**: solo lectura — sin corrección ni estadísticas | corrección automática, cuaderno de erróneas, estadísticas de precisión, planificación SRS |
 | **Preguntar directo a ChatGPT**: conocimiento disperso, sin ruta de aprendizaje | la IA estructura el conocimiento disperso en cursos + preguntas + tarjetas |
 
-**El diferenciador central**: el **ciclo de alineación cuádruple** — los puntos de examen que enseñan los cursos, que evalúan las preguntas, que fijan las tarjetas y que desarrollan los análisis de erróneas son el mismo conjunto (ver [docs/four-alignment.md](docs/four-alignment.md), [versión en español en la web](https://jerryjiao.github.io/ai-study-kit/es/method/four-alignment/)). Terminas una lección y las preguntas correspondientes ya están ahí; fallas una y el análisis está a un comando de distancia.
+**El diferenciador central**: el **ciclo de alineación cuádruple** — los puntos de examen que enseñan los cursos, que evalúan las preguntas, que fijan las tarjetas y que desarrollan los análisis de erróneas son el mismo conjunto (ver [docs/four-alignment.md](docs/four-alignment.md), [versión en inglés en la web](https://jerryjiao.github.io/ai-study-kit/en/method/four-alignment/)). Terminas una lección y las preguntas correspondientes ya están ahí; fallas una y el análisis está a un comando de distancia.
 
 ---
 
