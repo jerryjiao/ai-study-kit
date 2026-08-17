@@ -9,6 +9,22 @@ import { SITE_BASE } from './site.config.mjs';
 export default defineConfig({
   site: 'https://jerryjiao.github.io',
   base: SITE_BASE,
+  // dev 热更新 workaround（astro#17335，7.x 未修）：Vite 对 src/content/** 的 markdown
+  // 触发"抢先"热重载，抢在 content layer 写完 node_modules/.astro data store 之前，
+  // 页面用旧数据渲染后就不再刷新——Starlight 全站是 [slug] 动态路由，症状是改 md 页面永久陈旧。
+  // 拦掉这批提前事件，让 Astro 自己在 data store 写完后触发正确的刷新。
+  // 只影响 dev（handleHotUpdate 不参与 build），Pages 部署不受影响。
+  vite: {
+    plugins: [
+      {
+        name: 'skip-early-content-hmr',
+        enforce: 'pre',
+        handleHotUpdate({ file }) {
+          if (file.includes('/src/content/')) return [];
+        },
+      },
+    ],
+  },
   integrations: [
     starlight({
       title: 'ai-study-kit',
