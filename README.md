@@ -4,11 +4,13 @@
 
 # ai-study-kit
 
-> **EN** · An AI-assisted study toolkit scaffold. Turn any quiz set into a complete learning loop: answers + courses + flashcards + wrong-question deep-dives + spaced repetition, with cross-device progress sync. Distilled from real practice: syllabus defines scope, materials build concepts, quizzes validate mastery.
->
-> **中文** · 把任意主题的题库变成一个完整学习闭环——答题 + 课程 + 闪卡 + 错题精讲 + 间隔重复，进度跨设备同步。5 分钟跑起来看 demo，30 分钟改成你自己的主题。
+**简体中文** · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+> 把任意主题的题库变成一个完整学习闭环——答题 + 课程 + 闪卡 + 错题精讲 + 间隔重复，进度跨设备同步。5 分钟跑起来看 demo，30 分钟改成你自己的主题。
+
+[![Website](https://img.shields.io/badge/官网-online-blue)](https://jerryjiao.github.io/ai-study-kit/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+🌐 [官网](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [在线 demo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [快速上手](https://jerryjiao.github.io/ai-study-kit/get-started/)
 
 ---
 
@@ -193,6 +195,8 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 ---
 
 ## 🌍 多语言 / Multi-language
+
+**本 README**：顶部语言栏四语切换——[简体中文](README.md) / [English](README.en.md) / [Español](README.es.md) / [Русский](README.ru.md)。四份同构，改内容需四处同步（与 UI 词典同一约定）。
 
 **UI 界面**：顶栏一键切换 **中文 / English / Español / Русский**。
 
