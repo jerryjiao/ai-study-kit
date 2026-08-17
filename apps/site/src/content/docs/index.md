@@ -108,6 +108,22 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
+    <h2>不知道今天该学什么？</h2>
+    <p>换主题、产课、刷题、错题串讲、部署——这些命令不用记，内置的学习教练 /study-coach 替你安排</p>
+  </div>
+  <div class="ask-flow">
+    <span class="node">扫一遍学习状态</span><span class="arr">→</span>
+    <span class="node">推荐现在最该做的一件事</span><span class="arr">→</span>
+    <span class="node">带着你执行</span>
+  </div>
+  <p class="ask-more">
+    <code>pnpm run skill:install</code> 装进 AI CLI，之后每次学习从它开始 ·
+    <a href="/ai-study-kit/ai/study-coach/">看 /study-coach 怎么用</a>
+  </p>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
     <h2>不止是刷题工具</h2>
     <p>内置一套从真实学习实践里沉淀出来的方法论</p>
   </div>

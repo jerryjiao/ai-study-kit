@@ -111,6 +111,22 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
+    <h2>Not sure what to study today?</h2>
+    <p>Swap the theme, generate lessons, quiz, deep-dive, deploy — no need to memorize any of it; the built-in /study-coach picks what comes next</p>
+  </div>
+  <div class="ask-flow">
+    <span class="node">Scans your learning state</span><span class="arr">→</span>
+    <span class="node">Recommends the one thing to do</span><span class="arr">→</span>
+    <span class="node">Walks you through it</span>
+  </div>
+  <p class="ask-more">
+    <code>pnpm run skill:install</code> adds it to your AI CLI; every session starts there ·
+    <a href="/ai-study-kit/en/ai/study-coach/">How /study-coach works</a>
+  </p>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
     <h2>More than a quiz tool</h2>
     <p>A study methodology distilled from real practice is built in</p>
   </div>
