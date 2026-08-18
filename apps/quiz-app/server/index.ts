@@ -52,6 +52,10 @@ app.use('/study/*', async (c, next) => {
 app.use('/slides/*', serveStatic({ root: './dist' }));
 app.use('/study/*', serveStatic({ root: './dist' }));
 app.use('/assets/*', serveStatic({ root: './dist' }));
+// 根级静态文件（logo.png / favicon.png 等）：真实文件带正确 MIME 返回，找不到再落到
+// SPA fallback——顺序不能反。此前根级图片掉进 fallback 被当 index.html（text/html）发，
+// 浏览器解码失败显示裂图（仅 Hono 部署可见，dev/Pages 无此问题）。
+app.use('*', serveStatic({ root: './dist' }));
 
 // SPA fallback：其余路径返回 index.html
 app.get('*', (c) => {
