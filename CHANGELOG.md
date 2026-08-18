@@ -8,6 +8,24 @@
 
 - **site 官网四语**：Starlight locales 加 `es` / `ru`（挂 `/es/`、`/ru/`，未翻页走中文 fallback + 提示条，与 en 同分层策略）；新增 8 页翻译（es/ru 各 index / get-started / methodology / four-alignment，术语对齐 quiz-app UI 词典）；页头 `Header.astro` 的双语布尔判断改四语 label 表，「文档」链接按语言取路径前缀；README en/es/ru 的官网语言描述与文档导航链接同步（es/ru 读者直达本语言页，顶部快速上手链接此前指向中文根路径）。
 - **site 语言自适应**：首访根路径按浏览器语言（`navigator.languages` 按序取首个命中 en/es/ru）跳对应语言站；`localStorage ask-site-lang` 记用户最后浏览的语言，语言切换器的手动选择自然被记住（与 quiz-app 的 `ask-lang` 同思路）；仅根路径跳转、深链不劫持。GitHub Pages 纯静态托管做不了服务端跳转，脚本内联在 `Header.astro` 同步执行。
+- **site 页头常驻入口**：自定义 Starlight `Header.astro`——页头右上角常驻「文档 / 在线试玩」两个入口（默认页头没有外链位）；初版「文档」入口被 Starlight 内置样式永久隐藏，同批修复并重排右上角分组。
+- **README badge 扩容**：两枚扩六枚居中——新增 deploy 状态 / 界面四语 / PRs welcome / last commit；brand-scan 放行 shields 动态 badge 的 owner URL；README 四语同步。
+- **ADR-0001 决策入库**：产题走 agent 直产、不建第四个 CLI——调研归 agent、纪律与质量门归既有脚本，升级触发条件与备选方案见 `docs/adr/0001-agent-authored-questions-not-cli.md`；措辞对齐 issue #5 用「认证内容包」（初稿措辞撞个人词红线，deploy CI 曾被挂）。
+- **中文 README tagline 补一行英文一句话简介**：给国际读者的可发现性，默认语言不变；该行有意不对称、不参与四语同步（约定写入 AGENTS.md）。
+
+### Changed
+
+- **docs 六篇全量优化**（官网 en/method 两篇译文同步）：术语统一——teach/grill/podcast 一律称 CLI、skill 仅指 /study-coach；事实修正——删不存在的 moduleMap、题库分组按 topic（day 为可选日程标签）、teach 输入为 course-spec.json、configuration 音色默认 male/female；bidirectional-check.md 去掉与实际脚本漂移的内嵌源码、补 `pnpm run check:alignment` 入口；ai-cli-guide 主推 `pnpm run ai:*` 短命令并补 teach skill 源流致谢；引言统一中文导语。
+
+### Fixed
+
+- **README logo 直链三连修**：相对路径在 GitHub 渲染依赖 `/raw/` 重定向端点全站 404 → 换绝对 raw URL 又遇 CDN 429 / 墙内不可达 → 最终改 jsDelivr 外部域，浏览器只对话 GitHub camo 代理；四语 README 同步，brand-scan 白名单补 raw.githubusercontent 与 cdn.jsdelivr.net 资产 URL（直链含 owner 用户名，扫描门曾挂）。
+- **sync-docs 吞文**：stripEn 正则 `[^>]` 跨行吞正文（EN 行后接正文时吃掉 2/3 篇幅），改 `[^>\n]`。
+- **site favicon 换真 logo**：手绘 SVG 近似版与定稿 logo 不一致，favicon.png 同源拷贝 + Starlight favicon 配置指向；换文件名顺带绕开旧 svg 强缓存。
+- **site 首页 hero 收尾**：右侧补 app 窗口视觉（经 `hero.image.html` 入栏）；hero 下两段灰字压成一行规格条（中点分隔三事实，去掉与 hero/CTA/方法论区块的重复内容），中英同步。
+- **site 两节对比表视觉居中**：`fit-content` 收缩 + 能力矩阵格子居中。
+- **site dev 热更新**：拦掉 `src/content` 抢先 HMR（astro#17335），markdown 改动 1s 内生效（仅本地开发体验，不影响构建产物）。
+- **GSC 验证 token 纠偏**：账号级 token 对 github.io 子路径无效，换 UI 下发的 property 级串。
 
 ## [0.4.0] — 2026-08-17
 
