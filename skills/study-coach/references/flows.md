@@ -36,11 +36,16 @@
 
 **目的**：把用户想学的东西变成完整学习闭环。方法论铁律：**大纲定考什么 → 材料讲概念 → 做题验效果**——顺序不能反，不要上来就刷题。
 
-**步骤**（1-2 是问用户的两个选择点，其余直接做）：
+**步骤**（1-3 是问用户的三个确认点，其余直接做）：
 
 1. **定大纲**：问清「学什么主题 + 学到什么程度 + 给谁学」。写成 `examples/<theme>/MISSION.md`（能力大纲，参照 `examples/dev-intro/MISSION.md` 的粒度）。主题名用 kebab-case（如 `react-basics`、`k8s-fundamentals`）。
-2. **收材料**：让用户给 2-5 个权威来源（官方文档 > 经典教材 > 博客），写进 `examples/<theme>/RESOURCES.md`（参照 dev-intro 的格式和使用规则）。没有材料就先别产课——AI 凭空讲课违反方法论。
-3. **建骨架**：
+2. **排考点**（产题前的确认点，必须和用户对齐再动笔）：在 MISSION.md 的「## 考点排布表」节排出 `考点id(EP-NN) | 考点 | 深度 | 题型×题量 | day | 闪卡数`：
+   - **考点列填核心关键词**——四对齐校验按它做课程/闪卡覆盖与对账，必须是会出现在课程正文和题干里的词（如「暂存区」而不是「git 三区流转的心智模型」）。
+   - 深度三档：掌握 / 理解 / 了解；了解级可以 0 卡。
+   - 题量配比无硬规定，参考：single:multi:judge ≈ 5:3:2、难度 易:中:难 ≈ 3:5:2——**排布表说了算**。
+   - day 是日程标签（D1、D2…），题的 day、闪卡的复习节奏都对齐它。
+3. **收材料**：让用户给 2-5 个权威来源（官方文档 > 经典教材 > 博客），写进 `examples/<theme>/RESOURCES.md`（参照 dev-intro 的格式和使用规则）。没有材料就先别产课——AI 凭空讲课违反方法论。
+4. **建骨架**：
 
    ```bash
    cp -r examples/dev-intro examples/<theme>
@@ -51,10 +56,20 @@
    # questions.json / flashcards.json 里的演示题卡后面整文件替换，无需逐条删
    ```
 
-4. **产课程**（需 `.env` 配好 LLM）：写 `examples/<theme>/course-spec.json`（字段：theme/mission/audience/depth/lessonsCount/outline/resources，参照 dev-intro），然后 `node apps/quiz-app/scripts/teach-generate.mjs --theme <theme>`。没配 AI 就手写 `lessons/*.html`（结构参照现有课程：h1 + meta + lead + h2 小节 + callout + 互链）。
-5. **写题**：整文件替换 `examples/<theme>/questions.json`。Schema 见 `apps/quiz-app/src/types.ts` 的 `Question` 接口。三条纪律：id 用 `<前缀>-NNN` 全局唯一稳定（进度按 id 存）；`topic` 字段决定首页分组；多选 `answer` 数组必须全对才算对，别出「半对」歧义题。
-6. **写闪卡**：整文件替换 `examples/<theme>/flashcards.json`。每个课程核心概念 ≥1 张卡（四对齐的方向 3）。
-7. **切换激活主题**（两处必改，一处可选）：
+5. **产课程**（需 `.env` 配好 LLM）：写 `examples/<theme>/course-spec.json`（字段：theme/mission/audience/depth/lessonsCount/outline/resources，参照 dev-intro），然后 `node apps/quiz-app/scripts/teach-generate.mjs --theme <theme>`。没配 AI 就手写 `lessons/*.html`（结构参照现有课程：h1 + meta + lead + h2 小节 + callout + 互链）。
+6. **产题**（照表直产，`qa` / `scan` / 四对齐三门全绿才算本步完成）：照排布表**逐考点**产 `examples/<theme>/questions.json`，整文件替换。Schema 见 `apps/quiz-app/src/types.ts` 的 `Question` 接口。出题纪律：
+   - id 用 `<前缀>-NNN` 全局唯一且稳定——进度按 id 存，重产题库保留旧 id 免丢答题历史。
+   - `examPoint` 填考点 id（EP-NN）、`day` 对齐表的 day 列——四对齐校验按它们对账，表是权威。
+   - `topic` 字段决定首页分组；多选 `answer` 数组必须全对才算对，不出「半对」歧义题。
+   - 选项等长、格式不给线索——正确答案不能系统性更长、更规范或带格式提示。
+   - 产完即跑质量门，红了对着报错改到绿：
+     ```bash
+     cd apps/quiz-app && npm run qa && cd ../..   # 最长即答案 / 答案分布 / 选项长度
+     pnpm run scan                                # 品牌零泄露
+     pnpm run check:alignment                     # 排布表对账（examPoint/day/题量/卡数）
+     ```
+7. **产卡**：照排布表的闪卡数列配 `examples/<theme>/flashcards.json`，整文件替换。`闪卡数 ≥ 1` 的考点至少 1 张卡覆盖该考点关键词（四对齐方向 3）；0 卡考点必须是大纲声明的了解级。
+8. **切换激活主题**（两处必改，一处可选）：
 
    ```bash
    # ① 环境变量（跑 dev/build/test 时都要带；pm2 部署见 F9）
@@ -64,9 +79,9 @@
    # ③（可选）首页分组顺序：apps/quiz-app/src/lib/topicOrder.ts 的 TOPIC_ORDER
    ```
 
-8. **校验**：走 F8，全绿才算完成。
+9. **校验**：走 F8，全绿才算完成。
 
-**完成标志**：F8 四项全过 + 浏览器里主题已是新内容。接力 F3 开始学。
+**完成标志**：F8 五项全过 + 浏览器里主题已是新内容。接力 F3 开始学。
 
 ---
 
@@ -171,10 +186,10 @@
 **操作链（顺序固定，跳步必脱节）**：
 
 ```
-改 MISSION.md 学习目标
+改 MISSION.md 学习目标 / 考点排布表（表是权威：考点、题量、day 变了，题卡跟着对齐）
   → 改 examples/<theme>/lessons/*.html（课程）
-  → 改 examples/<theme>/questions.json（题的 day/topic 标签跟着课程走）
-  → 改 examples/<theme>/flashcards.json（核心概念 ≥1 卡）
+  → 改 examples/<theme>/questions.json（题的 day/examPoint/题量 对齐排布表）
+  → 改 examples/<theme>/flashcards.json（照表配卡）
   → 跑校验（F8 的 scan + bidirectional-check）
 ```
 
@@ -191,7 +206,7 @@
 
 ## F8 · 校验发布（verify）
 
-**目的**：发布前的质量门。四项全绿才算可发布/可部署。
+**目的**：发布前的质量门。五项全绿才算可发布/可部署。
 
 ```bash
 pnpm run scan    # ① 品牌零泄露——命中必须清零：把真实企业名换成中性说法后重跑
@@ -201,9 +216,9 @@ pnpm run build   # ④ 构建（含 examples → src/data、public/study 同步�
 python3 scripts/bidirectional-check.py examples/<theme>/   # ⑤ 四对齐（题→课、闪卡覆盖）
 ```
 
-⑤ 的关键词表内置是 dev-intro 的——自定义主题要把脚本顶部 keywords 换成该主题的考点词（脚本只抓「课程完全没讲 X」这种硬漏洞，语义对齐仍需人工判断）。
+⑤ 读主题 MISSION.md 的「## 考点排布表」做契约校验：考点覆盖（题→课）+ 题量/题型/day/闪卡数对账（大纲→题）。无排布表的主题回退 dev-intro 关键词模式并打 ⚠ 告警（建议补表）。**✗ 以非零退出码拦截，△ 略提只是警告**。脚本只抓「课程完全没讲 X」这类硬漏洞，语义对齐仍需人工判断。
 
-**失败处理**：①命中→中性化措辞；②③④报错→读报错信息修源文件（多半是 questions.json 字段类型错）；⑤出现 `✗`/`△`→回 F7 补讲或补卡。
+**失败处理**：①命中→中性化措辞；②③④报错→读报错信息修源文件（多半是 questions.json 字段类型错）；⑤退出码 1→按方向处置：方向 1 ✗ 回 F7 补讲；方向 2 对账不符→表是权威，补题/改 examPoint/day 对齐表；方向 3 ✗→补卡，或确属了解级就在表里声明 0 卡。
 
 **完成标志**：五项全绿。向用户报每项一行结论。
 

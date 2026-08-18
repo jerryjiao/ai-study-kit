@@ -106,7 +106,7 @@ cp -r examples/dev-intro examples/react-basics
 }
 ```
 
-完整字段见 [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts) 的 `Question` 接口。
+完整字段（含可选的 `day` 日程标签、`examPoint` 考点 id——四对齐校验按它们与 MISSION 排布表对账）见 [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts) 的 `Question` 接口。
 
 ### Step 3 · 改闪卡（5 分钟）
 
@@ -140,10 +140,14 @@ EXAMPLE_THEME=react-basics pnpm dev
 pnpm run scan       # 品牌扫描（0 hits 才算干净）
 pnpm test           # 5 个测试必须全过
 pnpm run build      # 构建必须成功
-python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
+python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验（读 MISSION 考点排布表对账）
 ```
 
 **搞定**。整个改造过程**不需要碰任何 React 代码**——只是改 JSON 和 HTML。
+
+### 让 AI agent 替你产题（可选）
+
+不想手写 JSON？装好 `/study-coach`（见上文「🧭 不知道下一步学什么」一节）后直接说「帮我给 react-basics 产一套题库」。agent 的流程是纪律化的：先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡——你确认后照表逐考点产题、产卡，最后自动跑 `qa` / `scan` / 四对齐三门质量校验，全绿才交付。手工路径永远是主路；两条路的产物同构，排布表就是人机之间的契约。
 
 ---
 
@@ -312,6 +316,6 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 
 ## 🙏 致谢
 
-- 学习方法论基于 [Matt Pocock 的 skill 体系](https://github.com/mattpocock) 启发
+- 内容包工作区结构（MISSION → RESOURCES → lessons 的组织）与出题纪律（选项等长、格式不给线索）借鉴 [Matt Pocock 的 teach skill](https://github.com/mattpocock)，决策源流见 [`docs/adr/0001-agent-authored-questions-not-cli.md`](docs/adr/0001-agent-authored-questions-not-cli.md)
 - 间隔重复算法参考 [Anki 的 SM-2 实现](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
 - 示例主题（dev-intro）的 git 知识参考 [Pro Git Book](https://git-scm.com/book/zh/v2)（官方，免费）

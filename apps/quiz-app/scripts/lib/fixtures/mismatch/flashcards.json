@@ -1,0 +1,9 @@
+[
+  {
+    "id": "FC-FX-01",
+    "front": "变量是什么？",
+    "back": "变量是给值起的名字，之后可以用名字引用这个值。",
+    "source": "with-table",
+    "topic": "basics"
+  }
+]

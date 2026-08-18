@@ -49,7 +49,7 @@ pnpm run skill:uninstall
 | # | 流程 | 什么时候用 | 关键命令 |
 |---|------|-----------|---------|
 | F1 | 初始化项目 | 从零跑起 demo | `pnpm install && pnpm dev` |
-| F2 | 开新主题 | 把想学的东西变成完整闭环 | 大纲 → 材料 → `teach-generate` → 题/卡 → 切主题 → 校验 |
+| F2 | 开新主题 | 把想学的东西变成完整闭环 | 大纲+考点排布表 → 材料 → `teach-generate` → 照表产题/卡 → 切主题 → 校验 |
 | F3 | 每日学习 | 「今天学什么」 | 到期闪卡 → 学课 → 刷题 → 错题重练 |
 | F4 | 错题串讲 | 错题攒 ≥3 道 | `pnpm run ai:grill -- --theme <t>` |
 | F5 | 做播客 | 通勤/运动巩固 | `pnpm run ai:podcast -- --input <file>` |
@@ -66,7 +66,7 @@ pnpm run skill:uninstall
 
 - **路由式 skill，不是又一个 CLI**：它不引入新运行时，只是把「读状态 → 推荐 → 执行已有命令/流程」编码成 agent 可循的指令。所有底层能力都是仓库既有的（三个 AI CLI、同步脚本、校验门）。
 - **状态先于建议**：教练禁止凭感觉推荐——每个快照字段都有探测命令（`skills/study-coach/references/state.md`），进度统计口径与 `apps/quiz-app/src/lib/progress.ts` 完全一致（墓碑过滤、随机沙盒不进主进度、错题毕业阈值、SRS 到期）。
-- **方法论内嵌**：推荐算法的顺序就是 [`methodology.md`](./methodology.md) 的「大纲 → 材料 → 做题」落地；F2 流程强制先写 MISSION/RESOURCES 再允许产课。
+- **方法论内嵌**：推荐算法的顺序就是 [`methodology.md`](./methodology.md) 的「大纲 → 材料 → 做题」落地；F2 流程强制先写 MISSION（含考点排布表）/RESOURCES 再允许产课产题——产题不是裸写 JSON，是照排布表逐考点直产 + 三门（qa/scan/四对齐）全绿收口。
 
 ## 扩展
 

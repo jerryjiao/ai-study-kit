@@ -1,0 +1,74 @@
+[
+  {
+    "id": "FX-001",
+    "type": "single",
+    "source": "with-table",
+    "topic": "basics",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "声明一个变量的正确关键字是？",
+    "options": {
+      "A": "let",
+      "B": "def",
+      "C": "case",
+      "D": "loop"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "let 用于声明变量；def/case/loop 与变量声明无关。"
+  },
+  {
+    "id": "FX-002",
+    "type": "single",
+    "source": "with-table",
+    "topic": "basics",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "把值绑定到变量的过程叫什么？",
+    "options": {
+      "A": "赋值",
+      "B": "编译",
+      "C": "导入",
+      "D": "导出"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "赋值把右边的值写进左边的变量。"
+  },
+  {
+    "id": "FX-003",
+    "type": "judge",
+    "source": "with-table",
+    "topic": "basics",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "变量在赋值之后还可以再次被赋值覆盖。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "普通变量可重复赋值，最后一次赋的值生效。"
+  },
+  {
+    "id": "FX-004",
+    "type": "judge",
+    "source": "with-table",
+    "topic": "basics",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "循环每轮开始前都会重新判断条件。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "条件循环每轮先判断条件，成立才进入循环体。"
+  }
+]

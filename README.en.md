@@ -102,7 +102,7 @@ Edit `examples/react-basics/questions.json` — replace the git/Linux questions 
 }
 ```
 
-See the `Question` interface in [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts) for all fields.
+See the `Question` interface in [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts) for all fields, including the optional `day` study-day tag and `examPoint` exam-point id — the four-way alignment check reconciles them against the exam-point table in MISSION.md.
 
 ### Step 3 · Write your flashcards (5 min)
 
@@ -136,10 +136,14 @@ EXAMPLE_THEME=react-basics pnpm dev
 pnpm run scan       # brand scan (0 hits = clean)
 pnpm test           # all 5 test files must pass
 pnpm run build      # build must succeed
-python3 scripts/bidirectional-check.py examples/react-basics/  # four-way alignment check
+python3 scripts/bidirectional-check.py examples/react-basics/  # four-way alignment check (reconciles against the exam-point table in MISSION.md)
 ```
 
 **Done.** You never touched any React code — just JSON and HTML.
+
+### Let an AI agent write the questions for you (optional)
+
+Don't want to hand-write JSON? Install `/study-coach` (the "🧭 Not sure what to do next?" section above), then just ask it to generate a question bank for react-basics. The agent follows a disciplined flow: it first aligns an **exam-point table** with you in MISSION.md — what to examine, how deep, how many of each question type, how many flashcards — then writes questions and flashcards point by point, and finishes by running the `qa` / `scan` / four-way-alignment quality gates; nothing is delivered until they're all green. The manual path stays the primary one — both paths produce the same artifacts, and the exam-point table is the contract between you and the agent.
 
 ---
 
@@ -311,6 +315,6 @@ PRs and issues are welcome. Please:
 
 ## 🙏 Acknowledgements
 
-- The methodology is inspired by [Matt Pocock's skill system](https://github.com/mattpocock)
+- The content-pack workspace structure (MISSION → RESOURCES → lessons) and the question-writing discipline (equal-length options, no formatting tells) borrow from [Matt Pocock's teach skill](https://github.com/mattpocock); the decision trail is in `docs/adr/0001-agent-authored-questions-not-cli.md`
 - The spaced-repetition algorithm follows [Anki's SM-2 implementation](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
 - The git knowledge in the sample theme draws on the [Pro Git book](https://git-scm.com/book/en/v2) (official, free)

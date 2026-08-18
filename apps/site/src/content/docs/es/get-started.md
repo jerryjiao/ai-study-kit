@@ -11,9 +11,9 @@ description: Pon la demo en marcha en cinco minutos y mira la práctica, las tar
 | 📚 **Estudiando para un examen** (asignatura / certificación) | ✅ Banco de preguntas real + análisis de erróneas generados por IA |
 | 🎯 **Preparando entrevistas** | ✅ Escribe tus propias preguntas + cursos generados por IA, con SRS |
 | 🗂️ **Aprendiendo cualquier cosa con «puntos de examen»** (cumplimiento, procesos, terminología) | ✅ Si se puede descomponer en preguntas y respuestas, se puede estudiar |
-| ❌ Buscas un banco de preguntas ya hecho | ❌ Esto es un **andamiaje**, no un banco — recopila exámenes reales o genera preguntas con IA |
+| ❌ Buscas un banco de preguntas ya hecho | ❌ Esto es un **andamiaje**, no un banco — recopila exámenes reales, escribe las preguntas a mano o deja que un agente de IA las genere |
 
-**En una frase**: esto es un andamiaje, no un banco de preguntas. Las preguntas pueden ser exámenes reales que recopiles o preguntas que escribas con una IA; en cuanto estén en JSON, la herramienta añade cursos, tarjetas, análisis de erróneas y planificación de repasos.
+**En una frase**: esto es un andamiaje, no un banco de preguntas. Las preguntas pueden ser exámenes reales que recopiles, escritas a mano, o un banco completo generado por un agente de IA — instala [`/study-coach`](/ai-study-kit/ai/study-coach/) y pídelo; el flujo está en [Hazlo tuyo](/ai-study-kit/es/your-theme/), sección «Deja que un agente de IA escriba las preguntas». En cuanto estén en JSON, la herramienta añade cursos, tarjetas, análisis de erróneas y planificación de repasos.
 
 ¿No quieres clonar? [Prueba la demo online](/ai-study-kit/demo/) — funcionalidad completa, el progreso se guarda solo en tu navegador.
 

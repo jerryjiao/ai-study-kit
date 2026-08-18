@@ -13,7 +13,7 @@ cp -r examples/dev-intro examples/react-basics
 
 ## Step 2 · 改题库（10 分钟）
 
-编辑 `examples/react-basics/questions.json`，把 git/Linux 题换成你的 React 题。一道题的结构如下。
+编辑 `examples/react-basics/questions.json`，把 git/Linux 题换成你的 React 题。一道题的结构如下。不想手写 JSON？拉到本页末尾看[「让 AI agent 替你产题」](#让-ai-agent-替你产题可选)。
 
 ```json
 {
@@ -67,9 +67,19 @@ EXAMPLE_THEME=react-basics pnpm dev
 pnpm run scan       # 品牌扫描（0 hits 才算干净）
 pnpm test           # 全部测试必须过
 pnpm run build      # 构建必须成功
-python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
+python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验（读 MISSION 考点排布表对账）
 ```
 
 到这里就完成了。整个过程不用写 React 组件代码：改的是 JSON、HTML，加上 Step 5 里两个常量文件。
+
+## 让 AI agent 替你产题（可选）
+
+Steps 2-3 的题和卡可以不手写。装好 [`/study-coach`](/ai-study-kit/ai/study-coach/) 后直接说「帮我给 react-basics 产一套题库」，agent 会：
+
+1. 先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡；
+2. 你确认后照表逐考点产题、产卡（题目带 `examPoint` 考点标注和 `day` 日程标签）；
+3. 自动跑 `qa` / `scan` / 四对齐三门质量校验，全绿才交付。
+
+手工路径（本页 Steps 1-6）永远是主路；两条路的产物同构，排布表就是人机之间的契约。
 
 改完内容记得跑[四对齐校验](/ai-study-kit/maintain/bidirectional-check/)，课程、题目、闪卡、错题精讲要围绕同一套考点对齐。

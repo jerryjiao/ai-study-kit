@@ -6,6 +6,11 @@
 
 ### Added
 
+- **产题走 agent 直产 + 考点排布表契约化（#15）**：MISSION.md 新增「## 考点排布表」节（`考点id(EP-NN) | 考点 | 深度 | 题型×题量 | day | 闪卡数`）作为机器可校验契约；`bidirectional-check.py` 读表做三向校验——题→课覆盖、大纲→题对账（题量/题型/day/闪卡数，漏标 examPoint 只 △ 提醒）、闪卡覆盖（声明 0 卡 = 了解级跳过）；无表主题回退高频词模式 + ⚠ 告警不报错，**换主题不再改脚本**。质量门硬化：✗ → exit 1（原先校验失败也退出 0）、△ 警告不拦截、目录不存在 exit 2。契约黑盒测试（CLI 边界 + 三套 fixture：带表对账 / 无表回退 / 对账不符拦截）挂进既有 node:test 层，`pnpm test` 自动跑到。
+- **dev-intro 活示例**：MISSION 补排布表（4 考点），10 题补 `day` / `examPoint` 标注，四对齐复验契约模式全绿。
+- **study-coach F2 产题纪律化**：新增「排考点」用户确认点（先对齐排布表再动笔）；产题步骤升级为照表逐考点直产 + 出题纪律清单（id 稳定、examPoint/day 对齐表、选项等长不给线索、多选无半对歧义）+ 参考配比（single:multi:judge ≈ 5:3:2、难度 易:中:难 ≈ 3:5:2）；产卡照表配卡。F8 去掉「手改 keywords」提醒；`docs/study-coach.md` 摘要同步；skill 已重新分发。
+- **README 四语 + 官网「让 AI agent 替你产题」**：四语 README 教程加 agent 产题小节（手工路径为主，排布表是人机契约）；官网 get-started 四语修「用 AI 生成」空许诺断链（给 `/study-coach` 真实入口与流程指引），your-theme 页加产题流程节（en/es/ru 为中文 fallback 页，一处修改全语生效）；README 致谢改具体——点名 teach skill 的工作区结构与选项等长纪律两处借用。
+- **CONTEXT.md 术语表**收编「考点排布表」「skill（vs CLI）」「主题（theme）」三词条。
 - **site 官网四语**：Starlight locales 加 `es` / `ru`（挂 `/es/`、`/ru/`，未翻页走中文 fallback + 提示条，与 en 同分层策略）；新增 8 页翻译（es/ru 各 index / get-started / methodology / four-alignment，术语对齐 quiz-app UI 词典）；页头 `Header.astro` 的双语布尔判断改四语 label 表，「文档」链接按语言取路径前缀；README en/es/ru 的官网语言描述与文档导航链接同步（es/ru 读者直达本语言页，顶部快速上手链接此前指向中文根路径）。
 - **site 语言自适应**：首访根路径按浏览器语言（`navigator.languages` 按序取首个命中 en/es/ru）跳对应语言站；`localStorage ask-site-lang` 记用户最后浏览的语言，语言切换器的手动选择自然被记住（与 quiz-app 的 `ask-lang` 同思路）；仅根路径跳转、深链不劫持。GitHub Pages 纯静态托管做不了服务端跳转，脚本内联在 `Header.astro` 同步执行。
 - **site 页头常驻入口**：自定义 Starlight `Header.astro`——页头右上角常驻「文档 / 在线试玩」两个入口（默认页头没有外链位）；初版「文档」入口被 Starlight 内置样式永久隐藏，同批修复并重排右上角分组。
@@ -15,6 +20,7 @@
 
 ### Changed
 
+- `docs/bidirectional-check.md` 重写为契约模式文档（退出码语义、方向 2 对账规则、0 卡声明、回退模式与告警）。
 - **docs 六篇全量优化**（官网 en/method 两篇译文同步）：术语统一——teach/grill/podcast 一律称 CLI、skill 仅指 /study-coach；事实修正——删不存在的 moduleMap、题库分组按 topic（day 为可选日程标签）、teach 输入为 course-spec.json、configuration 音色默认 male/female；bidirectional-check.md 去掉与实际脚本漂移的内嵌源码、补 `pnpm run check:alignment` 入口；ai-cli-guide 主推 `pnpm run ai:*` 短命令并补 teach skill 源流致谢；引言统一中文导语。
 
 ### Fixed

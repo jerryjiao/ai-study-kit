@@ -4,6 +4,8 @@
     "type": "single",
     "source": "dev-intro",
     "topic": "git-basics",
+    "day": "D1",
+    "examPoint": "EP-01",
     "question": "把一个普通目录变成 git 仓库（初始化 .git 子目录），用哪条命令？",
     "options": {
       "A": "git new",
@@ -19,6 +21,8 @@
     "type": "multi",
     "source": "dev-intro",
     "topic": "git-basics",
+    "day": "D1",
+    "examPoint": "EP-01",
     "question": "下面哪些命令会把改动写入暂存区（staging area）？（多选）",
     "options": {
       "A": "git add README.md",
@@ -34,6 +38,8 @@
     "type": "single",
     "source": "dev-intro",
     "topic": "git-basics",
+    "day": "D1",
+    "examPoint": "EP-01",
     "question": "提交暂存区到版本库并附带说明，正确的命令是？",
     "options": {
       "A": "git push -m \"说明\"",
@@ -49,6 +55,8 @@
     "type": "single",
     "source": "dev-intro",
     "topic": "git-basics",
+    "day": "D2",
+    "examPoint": "EP-02",
     "question": "想看最近 5 条提交的简短列表（每条一行），用哪条命令？",
     "options": {
       "A": "git log -5 --oneline",
@@ -64,6 +72,8 @@
     "type": "judge",
     "source": "dev-intro",
     "topic": "git-basics",
+    "day": "D1",
+    "examPoint": "EP-01",
     "question": "`git status` 显示工作区和暂存区的当前状态，包括哪些改动已暂存、哪些未暂存、哪些文件未被 git 跟踪。",
     "options": {
       "A": "正确",
@@ -77,6 +87,8 @@
     "type": "single",
     "source": "dev-intro",
     "topic": "git-basics",
+    "day": "D1",
+    "examPoint": "EP-01",
     "question": "git 的三个核心区域，按改动流向排序（从你编辑文件到形成历史）是？",
     "options": {
       "A": "版本库 → 暂存区 → 工作区",
@@ -92,6 +104,8 @@
     "type": "multi",
     "source": "dev-intro",
     "topic": "git-basics",
+    "day": "D2",
+    "examPoint": "EP-02",
     "question": "关于 `git reset` 与 `git revert`，下列说法正确的是？（多选）",
     "options": {
       "A": "reset 通过移动分支指针「抹掉」提交，历史里看不到被撤的提交",
@@ -107,6 +121,8 @@
     "type": "single",
     "source": "dev-intro",
     "topic": "linux-commands",
+    "day": "D2",
+    "examPoint": "EP-03",
     "question": "`ls -l` 输出里的权限字段 `-rwxr-xr--`，从左到右三组 `rwx` 分别属于谁？",
     "options": {
       "A": "其他人 / 所属组 / 所有者",
@@ -122,6 +138,8 @@
     "type": "single",
     "source": "dev-intro",
     "topic": "linux-commands",
+    "day": "D2",
+    "examPoint": "EP-03",
     "question": "你想让一个 shell 脚本 `deploy.sh` 可以直接 `./deploy.sh` 执行，应该用哪条命令给所有者加执行权限？",
     "options": {
       "A": "chmod 644 deploy.sh",
@@ -137,6 +155,8 @@
     "type": "judge",
     "source": "dev-intro",
     "topic": "linux-commands",
+    "day": "D2",
+    "examPoint": "EP-04",
     "question": "在 `/home/alice/projects` 目录下，路径 `../bob/notes.md` 表示 `/home/bob/notes.md`。",
     "options": {
       "A": "正确",

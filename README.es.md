@@ -102,7 +102,7 @@ Edita `examples/react-basics/questions.json` — reemplaza las preguntas de git/
 }
 ```
 
-Todos los campos están en la interfaz `Question` de [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts).
+Todos los campos, incluidos los opcionales `day` (etiqueta de día de estudio) y `examPoint` (id del punto de examen — el chequeo de alineación cuádruple los concilia con la tabla de puntos de la MISSION), están en la interfaz `Question` de [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts).
 
 ### Paso 3 · Escribe tus tarjetas (5 min)
 
@@ -136,10 +136,14 @@ EXAMPLE_THEME=react-basics pnpm dev
 pnpm run scan       # escaneo de marcas (0 coincidencias = limpio)
 pnpm test           # los 5 archivos de tests deben pasar
 pnpm run build      # el build debe funcionar
-python3 scripts/bidirectional-check.py examples/react-basics/  # chequeo de alineación cuádruple
+python3 scripts/bidirectional-check.py examples/react-basics/  # chequeo de alineación cuádruple (concilia con la tabla de puntos de examen de la MISSION)
 ```
 
 **Listo.** En ningún momento tocaste código React — solo JSON y HTML.
+
+### Deja que un agente de IA escriba las preguntas (opcional)
+
+¿No quieres redactar JSON a mano? Instala `/study-coach` (sección «🧭 ¿No sabes qué hacer ahora?» más arriba) y pide que genere un banco de preguntas para react-basics. El agente sigue un flujo disciplinado: primero alinea contigo una **tabla de puntos de examen** en MISSION.md — qué se examina, con qué profundidad, cuántas preguntas de cada tipo, cuántas tarjetas — y tras tu confirmación genera preguntas y tarjetas punto por punto, cerrando con las tres puertas de calidad (`qa` / `scan` / alineación cuádruple); solo entrega si todo está en verde. El camino manual sigue siendo el principal: ambos caminos producen lo mismo, y la tabla de puntos es el contrato entre tú y el agente.
 
 ---
 
@@ -311,6 +315,6 @@ Los PR y las issues son bienvenidos. Por favor:
 
 ## 🙏 Agradecimientos
 
-- La metodología está inspirada en [el sistema de skills de Matt Pocock](https://github.com/mattpocock)
+- La estructura del paquete de contenidos (MISSION → RESOURCES → lessons) y la disciplina de redacción de preguntas (opciones de longitud pareja, sin pistas de formato) se toman prestadas del [teach skill de Matt Pocock](https://github.com/mattpocock); el rastro de la decisión está en `docs/adr/0001-agent-authored-questions-not-cli.md`
 - El algoritmo de repetición espaciada sigue [la implementación SM-2 de Anki](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
 - El conocimiento de git del tema de ejemplo proviene del [libro Pro Git](https://git-scm.com/book/en/v2) (oficial, gratuito)
