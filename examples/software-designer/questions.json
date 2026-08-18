@@ -1,0 +1,5699 @@
+[
+  {
+    "id": "SD-001",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "采用 8 位补码表示整数，其表示范围是？",
+    "options": {
+      "A": "-127 ~ +127",
+      "B": "-128 ~ +127",
+      "C": "-128 ~ +128",
+      "D": "-127 ~ +128"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "8 位补码范围为 -2^7 ~ +(2^7-1)，即 -128 ~ +127：1000 0000 表示 -128，0111 1111 表示 +127。原码和反码的表示范围才是 -127 ~ +127。"
+  },
+  {
+    "id": "SD-002",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "已知 X 的 8 位补码为 1110 0110，则真值 X 是？",
+    "options": {
+      "A": "-26",
+      "B": "-25",
+      "C": "+25",
+      "D": "+26"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "符号位为 1，是负数。数值位取反加 1：0001 1001 + 1 = 0001 1010 = 26，故 X = -26（也可按 -128 + 102 = -26 验证）。"
+  },
+  {
+    "id": "SD-003",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "十进制数 -52 的 8 位补码是？",
+    "options": {
+      "A": "1100 1011",
+      "B": "1011 0011",
+      "C": "1100 1100",
+      "D": "0100 1100"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "+52 = 0011 0100；负数的补码由反码末位加 1 求得：反码 1100 1011，加 1 后为 1100 1100。0100 1100 是 +52 的补码。"
+  },
+  {
+    "id": "SD-004",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "用 8 位补码计算 25 + (-46)，所得结果的机器数及真值是？",
+    "options": {
+      "A": "0001 0101，+21",
+      "B": "1110 1010，-22",
+      "C": "1101 0010，-46",
+      "D": "1110 1011，-21"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "[25]补 = 0001 1001，[-46]补 = 1101 0010，相加得 1110 1011，未发生溢出。符号位为 1，数值位取反加 1 得 21，故真值为 -21。"
+  },
+  {
+    "id": "SD-005",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "已知某数的 8 位补码为 1010 1100，则其对应的 8 位移码是？",
+    "options": {
+      "A": "1101 0011",
+      "B": "0101 0011",
+      "C": "0010 1100",
+      "D": "1010 1100"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "同一真值的移码与补码仅符号位不同：补码 1010 1100 符号位 1 变 0，得移码 0010 1100。移码常用于表示浮点数的阶码，便于直接比较大小。"
+  },
+  {
+    "id": "SD-006",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "关于定点整数的补码表示，下列说法正确的有？（多选）",
+    "options": {
+      "A": "补码表示中 0 的编码形式是唯一的",
+      "B": "负数的补码等于其反码在末位加 1",
+      "C": "8 位补码与 8 位原码能表示的整数个数相同",
+      "D": "采用补码后，减法运算可以统一转换为加法运算"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "8 位原码只能表示 255 个整数（+0 与 -0 占两个编码），补码为 256 个（多出 -128），个数不同，C 错误；其余三项均为补码的基本性质。"
+  },
+  {
+    "id": "SD-007",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "设机器字长 8 位，关于真值 -100 的机器数表示，正确的有？（多选）",
+    "options": {
+      "A": "其原码为 0110 0100",
+      "B": "其反码为 1001 1011",
+      "C": "其补码为 1110 1100",
+      "D": "其补码为 1001 1100"
+    },
+    "answer": [
+      "B",
+      "D"
+    ],
+    "analysis": "100 = 0110 0100。原码应为 1110 0100（0110 0100 是 +100 的原码）；反码为数值位取反的 1001 1011；补码再末位加 1 得 1001 1100。"
+  },
+  {
+    "id": "SD-008",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "8 位补码 1000 0000 表示的真值是 -128。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。1000 0000 是 8 位补码的下界，表示 -2^7 = -128；该编码没有对应的原码和反码表示。"
+  },
+  {
+    "id": "SD-009",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-01",
+    "question": "将补码表示的数从 8 位扩展到 16 位时，无论该数正负，都只需在高位补 0。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。符号扩展应按符号位补位：正数高位补 0，负数高位必须补 1，否则扩展后的真值会改变。"
+  },
+  {
+    "id": "SD-010",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "用海明码对 16 位信息进行校验，至少需要的校验位数是？",
+    "options": {
+      "A": "4",
+      "B": "5",
+      "C": "6",
+      "D": "7"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "校验位 r 需满足 2^r ≥ n + r + 1。n = 16 时，r = 4 有 16 < 21 不满足，r = 5 有 32 ≥ 22 成立，故至少需要 5 位校验位。"
+  },
+  {
+    "id": "SD-011",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "采用偶校验方式，数据 1011010 的校验位应设置为？",
+    "options": {
+      "A": "0",
+      "B": "1",
+      "C": "0 或 1 均可",
+      "D": "由信道状况决定"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "偶校验要求整个码字（含校验位）中 1 的个数为偶数。数据 1011010 中已有 4 个 1，故校验位取 0。"
+  },
+  {
+    "id": "SD-012",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "信息码为 1010，生成多项式 G(x) = x^3 + x + 1，采用 CRC 校验时发送的码字是？",
+    "options": {
+      "A": "1010110",
+      "B": "1010010",
+      "C": "1010101",
+      "D": "1010011"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "信息位后补 3 个 0 得 1010000，对生成多项式对应的 1011 做模 2 除法，得余数 011；发送码字 = 信息位 + 余数 = 1010011。"
+  },
+  {
+    "id": "SD-013",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "若编码体系要能够纠正 1 位错误，其码距（海明距离）至少应为？",
+    "options": {
+      "A": "2",
+      "B": "3",
+      "C": "4",
+      "D": "5"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "检测 e 位错需码距 ≥ e + 1，纠正 t 位错需码距 ≥ 2t + 1。取 t = 1，得码距至少为 3。"
+  },
+  {
+    "id": "SD-014",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "关于奇偶校验与循环冗余校验（CRC），下列说法正确的有？（多选）",
+    "options": {
+      "A": "奇偶校验只能发现奇数个位出错，且不能定位错误",
+      "B": "奇偶校验能发现所有偶数个位出错的情况",
+      "C": "CRC 利用生成多项式产生校验码，检错能力比简单奇偶校验强",
+      "D": "CRC 广泛用于数据链路层的差错检测"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "两位同时出错时 1 的个数的奇偶性不变，奇偶校验发现不了偶数个错，B 错误；其余三项符合两种校验码的特性。"
+  },
+  {
+    "id": "SD-015",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "关于海明码，下列说法正确的有？（多选）",
+    "options": {
+      "A": "对 4 位信息位进行海明编码，至少需要 3 位校验位",
+      "B": "校验位一般放置在位号为 2 的幂（1、2、4、8…）的位置上",
+      "C": "增大码距可以提高编码的检错与纠错能力",
+      "D": "海明码能够自动纠正同时发生的 2 位错误"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "2^3 ≥ 4 + 3 + 1 = 8 成立，4 位信息用 3 位校验即可；海明码只能检测两位错、纠正一位错，不能纠正两位错，D 错误。"
+  },
+  {
+    "id": "SD-016",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-02",
+    "question": "CRC 校验中，接收方将收到的码字对生成多项式做模 2 除法，若余数为 0，则认为传输未发生差错。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。发送方在信息位后附加模 2 除法的余数（帧检验序列），接收方用同一生成多项式相除，余数为 0 即判定无差错（在其检错能力范围内）。"
+  },
+  {
+    "id": "SD-017",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-03",
+    "question": "某指令流水线分为 5 个子过程，耗时分别为 2ns、3ns、4ns、3ns、2ns。连续输入 20 条指令，全部完成需要的时间是？",
+    "options": {
+      "A": "56ns",
+      "B": "84ns",
+      "C": "96ns",
+      "D": "280ns"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "流水线周期取最长子过程的 4ns。总时间 T = 周期 ×（段数 + 指令条数 - 1）= 4 × (5 + 20 - 1) = 96ns。280ns 是不采用流水线顺序执行的总时间。"
+  },
+  {
+    "id": "SD-018",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-03",
+    "question": "某流水线分为取指、分析、执行 3 段，每段耗时均为 2ns。连续执行 1000 条指令且无冲突时，与顺序执行相比加速比约为？",
+    "options": {
+      "A": "2",
+      "B": "3",
+      "C": "6",
+      "D": "1000"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "顺序执行需 1000 × 6ns = 6000ns；流水执行需 2 × (3 + 1000 - 1) = 2004ns。加速比 = 6000 / 2004 ≈ 3，接近理想情况下的段数。"
+  },
+  {
+    "id": "SD-019",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-03",
+    "question": "流水线技术中，流水线的操作周期取决于？",
+    "options": {
+      "A": "最短流水段的执行时间",
+      "B": "各流水段执行时间的平均值",
+      "C": "流水线划分的段数多少",
+      "D": "最长流水段的执行时间"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "时钟周期必须保证最慢的一段能完成工作，各段才能同步推进，故流水线操作周期由耗时最长的流水段决定。"
+  },
+  {
+    "id": "SD-020",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-03",
+    "question": "关于指令流水线，下列说法正确的有？（多选）",
+    "options": {
+      "A": "流水线技术缩短了单条指令的执行时间",
+      "B": "流水线在连续输入多条指令时可显著提高吞吐率",
+      "C": "各流水段耗时越均衡，流水线的效率越高",
+      "D": "流水线适合在大量连续的同种任务处理中发挥优势"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "流水线并不能加快单条指令的执行，一条指令仍需依次经过各段；它靠多条指令在时间上的重叠并行提高整体吞吐率，A 错误。"
+  },
+  {
+    "id": "SD-021",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-03",
+    "question": "指令流水线的段数划分得越多，实际获得的加速比就一定越大。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。段数增多时各段耗时不均衡、指令相关与冲突等因素的影响会加剧，实际加速比还取决于各段均衡程度和指令能否连续流入。"
+  },
+  {
+    "id": "SD-022",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-04",
+    "question": "某系统 Cache 存取周期为 10ns，主存存取周期为 100ns，命中率为 90%。设命中时只访问 Cache、未命中直接访问主存，则平均访问时间为？",
+    "options": {
+      "A": "19ns",
+      "B": "20ns",
+      "C": "55ns",
+      "D": "100ns"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "平均访问时间 = 命中率 × Cache 周期 + 未命中率 × 主存周期 = 0.9 × 10 + 0.1 × 100 = 9 + 10 = 19ns。"
+  },
+  {
+    "id": "SD-023",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-04",
+    "question": "主存中的任一数据块都可以映射到 Cache 的任意一行，冲突率低但标记比较电路复杂。这种地址映射方式是？",
+    "options": {
+      "A": "直接映射",
+      "B": "组相联映射",
+      "C": "全相联映射",
+      "D": "段页式映射"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "全相联映射允许主存块装入 Cache 任意行，灵活性最高、冲突最少，但需与所有行的标记比较；直接映射只能装入唯一的指定行，组相联介于两者之间。"
+  },
+  {
+    "id": "SD-024",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-04",
+    "question": "某 Cache-主存系统采用组相联映射，Cache 共分 8 组、每组 4 行。主存地址中组号字段占的位数是？",
+    "options": {
+      "A": "3 位",
+      "B": "4 位",
+      "C": "5 位",
+      "D": "6 位"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "组号位数 = log2(组数) = log2(8) = 3 位。每组 4 行只影响标记比较的路数，不改变组号字段的位数。"
+  },
+  {
+    "id": "SD-025",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-04",
+    "question": "关于高速缓存（Cache），下列说法正确的有？（多选）",
+    "options": {
+      "A": "设置 Cache 主要利用了程序访问的局部性原理",
+      "B": "Cache 的存取速度通常低于主存，但容量远大于主存",
+      "C": "常用的 Cache 替换算法有 LRU、FIFO 和随机替换等",
+      "D": "Cache 对应用程序员是透明的，其管理由硬件完成"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "Cache 是用高速小容量存储器缓解 CPU 与主存速度差距，存取速度高于主存、容量远小于主存，B 说反了。"
+  },
+  {
+    "id": "SD-026",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-04",
+    "question": "CPU 与 Cache 之间以数据块为单位交换信息，而 Cache 与主存之间以字为单位交换信息。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。正好相反：CPU 与 Cache 之间按字为单位交换，Cache 与主存之间以数据块为单位调入调出。"
+  },
+  {
+    "id": "SD-027",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-05",
+    "question": "由两个可靠度均为 0.9 的子系统并联构成的系统，其可靠度是？",
+    "options": {
+      "A": "0.18",
+      "B": "0.81",
+      "C": "0.90",
+      "D": "0.99"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "并联系统可靠度 = 1 - (1 - R1)(1 - R2) = 1 - 0.1 × 0.1 = 0.99；0.81 是两子系统串联时的结果。"
+  },
+  {
+    "id": "SD-028",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-05",
+    "question": "三个子系统的可靠度分别为 0.9、0.8、0.7，串联构成的系统可靠度是？",
+    "options": {
+      "A": "0.496",
+      "B": "0.504",
+      "C": "0.700",
+      "D": "0.800"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "串联系统的可靠度等于各子系统可靠度之积：0.9 × 0.8 × 0.7 = 0.504，低于其中任何一个子系统。"
+  },
+  {
+    "id": "SD-029",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-05",
+    "question": "两个可靠度均为 R 的模块先并联冗余，再与一个可靠度为 R 的模块串联，整个系统的可靠度是？",
+    "options": {
+      "A": "2R^2 - R^3",
+      "B": "R^2",
+      "C": "2R - R^2",
+      "D": "1 - (1 - R)^2"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "并联部分可靠度为 1 - (1 - R)^2 = 2R - R^2，再与模块 R 串联相乘，得 R × (2R - R^2) = 2R^2 - R^3。"
+  },
+  {
+    "id": "SD-030",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-system",
+    "day": "D1",
+    "examPoint": "EP-05",
+    "question": "并联冗余系统的整体可靠度高于其中任何一个子系统的可靠度。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。并联系统只要还有一个子系统正常即可工作，R = 1 - (1 - R1)(1 - R2)，结果大于任一子系统的可靠度；串联系统则相反。"
+  },
+  {
+    "id": "SD-031",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "分时系统中，正在运行的进程从运行态转换为就绪态，最典型的原因是？",
+    "options": {
+      "A": "等待的某事件尚未发生",
+      "B": "分配给它的时间片已经用完",
+      "C": "等待的 I/O 操作已经完成",
+      "D": "被进程调度程序选中投入运行"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "运行态转就绪态的典型原因是时间片用完（或被更高优先级进程抢占）；A 对应运行转阻塞，C 对应阻塞转就绪，D 对应就绪转运行。"
+  },
+  {
+    "id": "SD-032",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "用于互斥的信号量 S 初值为 1，某时刻其值为 -3。此时因执行 P 操作而被阻塞的进程数是？",
+    "options": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "S < 0 时其绝对值即为阻塞队列中的进程数，|−3| = 3；另有 1 个进程已进入临界区正在使用资源。"
+  },
+  {
+    "id": "SD-033",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "生产者-消费者问题中缓冲区容量为 n，正确的信号量初值设置是？",
+    "options": {
+      "A": "empty = n、full = 0、mutex = 1",
+      "B": "empty = 0、full = n、mutex = 1",
+      "C": "empty = n、full = n、mutex = 0",
+      "D": "empty = 1、full = 1、mutex = n"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "empty 表示空缓冲区个数（初值 n），full 表示满缓冲区个数（初值 0），mutex 用于对缓冲区的互斥操作（初值 1）。"
+  },
+  {
+    "id": "SD-034",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "关于线程，下列说法正确的是？",
+    "options": {
+      "A": "线程是系统资源分配的基本单位",
+      "B": "同一进程内各线程拥有相互独立的地址空间",
+      "C": "一个进程内只能包含一个线程",
+      "D": "线程是处理器调度和分派的基本单位"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "引入线程后，处理器调度的基本单位是线程，而资源分配的基本单位仍是进程；同进程内各线程共享地址空间，一个进程可包含多个线程。"
+  },
+  {
+    "id": "SD-035",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "进程状态转换中，不可能发生的转换是？",
+    "options": {
+      "A": "就绪态 → 运行态",
+      "B": "阻塞态 → 运行态",
+      "C": "运行态 → 阻塞态",
+      "D": "运行态 → 就绪态"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "处于阻塞态的进程在所等待的事件发生后只能先转为就绪态，重新经调度才能运行，不存在阻塞态到运行态的直接转换。"
+  },
+  {
+    "id": "SD-036",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "关于进程，下列说法正确的有？（多选）",
+    "options": {
+      "A": "进程是程序在某一数据集合上的一次运行，是动态的概念",
+      "B": "进程具有并发性、动态性、独立性、异步性等特征",
+      "C": "一个程序只能对应一个进程，一个进程也只能对应一个程序",
+      "D": "在多道程序环境下，多个进程可以并发执行"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "程序是静态的，进程是其一次动态执行过程，同一个程序可以同时运行产生多个进程，两者并非一一对应，C 错误。"
+  },
+  {
+    "id": "SD-037",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "关于信号量与 P、V 操作，下列说法正确的有？（多选）",
+    "options": {
+      "A": "P、V 操作是不可分割的原子操作，执行过程不允许中断",
+      "B": "P 操作用于申请资源，可能使进程进入阻塞状态",
+      "C": "信号量的初值通常表示系统可用资源的数目",
+      "D": "V 操作可能使执行它的进程进入阻塞状态"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "V 操作释放资源，若等待队列中有进程则将其唤醒，V 操作本身不会阻塞执行它的进程，D 错误。"
+  },
+  {
+    "id": "SD-038",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "临界区是进程中访问临界资源的那段代码，各进程进入相关临界区必须互斥进行。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。临界资源一次仅允许一个进程使用，进程中访问临界资源的那段程序代码即临界区，进程进入临界区必须满足互斥等准则。"
+  },
+  {
+    "id": "SD-039",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-06",
+    "question": "进程控制块（PCB）是进程存在的唯一标志，创建进程实质上就是为其创建 PCB。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。系统通过 PCB 感知和管理进程，进程与 PCB 一一对应，创建进程就是创建其 PCB 并装入相关数据。"
+  },
+  {
+    "id": "SD-040",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-07",
+    "question": "为破坏“循环等待”条件以预防死锁，通常采用的方法是？",
+    "options": {
+      "A": "资源有序分配法",
+      "B": "一次性申请全部所需资源",
+      "C": "允许剥夺进程已占有的资源",
+      "D": "采用假脱机技术使独占设备改为共享"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "资源按序编号、所有进程按相同顺序申请，可破坏循环等待条件；B 破坏请求和保持条件，C 破坏不剥夺条件，D 破坏互斥条件。"
+  },
+  {
+    "id": "SD-041",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-07",
+    "question": "银行家算法属于处理死锁的哪种策略？",
+    "options": {
+      "A": "死锁预防",
+      "B": "死锁避免",
+      "C": "死锁检测",
+      "D": "死锁解除"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "银行家算法在每次资源分配前判断系统是否仍处于安全状态，只在不破坏安全性的前提下分配，属于死锁避免策略。"
+  },
+  {
+    "id": "SD-042",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-07",
+    "question": "系统中有 5 个进程，每个进程最多需要逐台申请 3 台打印机。为保证系统不发生死锁，打印机至少应配置多少台？",
+    "options": {
+      "A": "11",
+      "B": "13",
+      "C": "14",
+      "D": "15"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "最坏情况下每个进程都已获得 3 - 1 = 2 台，共占用 10 台；再增加 1 台即可保证某进程凑足 3 台运行完并释放资源，故至少 5 × (3 - 1) + 1 = 11 台。"
+  },
+  {
+    "id": "SD-043",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-07",
+    "question": "下列选项中，不属于死锁产生必要条件的是？",
+    "options": {
+      "A": "互斥条件",
+      "B": "请求和保持条件",
+      "C": "不剥夺条件",
+      "D": "时间片轮转调度"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "死锁的四个必要条件是互斥、请求和保持、不剥夺和循环等待；时间片轮转是一种处理器调度算法，与死锁的必要条件无关。"
+  },
+  {
+    "id": "SD-044",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-07",
+    "question": "关于死锁的处理策略，下列说法正确的有？（多选）",
+    "options": {
+      "A": "死锁预防必须同时破坏全部四个必要条件",
+      "B": "死锁避免在资源动态分配过程中防止系统进入不安全状态",
+      "C": "死锁检测与解除允许死锁发生，再通过撤销进程等方式恢复",
+      "D": "银行家算法通过寻找安全序列来判断本次分配是否安全"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "预防死锁只需破坏四个必要条件中的任何一个即可，并不要求全部破坏，A 错误。"
+  },
+  {
+    "id": "SD-045",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-07",
+    "question": "关于死锁的必要条件，下列说法正确的有？（多选）",
+    "options": {
+      "A": "互斥条件是指资源在同一时刻最多只能被一个进程占用",
+      "B": "不剥夺条件是指进程已获得的资源在使用完之前不能被强行夺走",
+      "C": "资源有序分配法破坏的是互斥条件",
+      "D": "只要破坏四个必要条件之一，死锁就不会发生"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "资源有序分配法破坏的是循环等待条件，不是互斥条件，C 错误；四个必要条件必须同时成立死锁才会发生。"
+  },
+  {
+    "id": "SD-046",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-07",
+    "question": "采用银行家算法时，若系统找不到任何安全序列，则系统一定已经发生了死锁。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。找不到安全序列只说明系统处于不安全状态，存在发生死锁的可能，并不等于已经发生死锁。"
+  },
+  {
+    "id": "SD-047",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-08",
+    "question": "某页式存储系统页面大小为 1KB，页表为：页 0→块 5、页 1→块 10、页 2→块 8、页 3→块 7。逻辑地址 2500 对应的物理地址是？",
+    "options": {
+      "A": "7620",
+      "B": "8192",
+      "C": "8644",
+      "D": "10692"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "页号 = ⌊2500 / 1024⌋ = 2，页内偏移 = 2500 - 2 × 1024 = 452；查页表得物理块号 8，物理地址 = 8 × 1024 + 452 = 8644。"
+  },
+  {
+    "id": "SD-048",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-08",
+    "question": "某页式存储系统逻辑地址为 24 位，页面大小为 4KB，则逻辑地址中页号字段占？",
+    "options": {
+      "A": "8 位",
+      "B": "10 位",
+      "C": "12 位",
+      "D": "14 位"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "页面大小 4KB = 2^12 字节，页内偏移占 12 位；页号位数 = 24 - 12 = 12 位。"
+  },
+  {
+    "id": "SD-049",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-08",
+    "question": "页面置换算法中，可能出现“分配的物理块数增多、缺页次数反而上升”异常现象的是？",
+    "options": {
+      "A": "先进先出（FIFO）置换算法",
+      "B": "最近最少使用（LRU）置换算法",
+      "C": "最佳（OPT）置换算法",
+      "D": "最近未使用（NRU）置换算法"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "Belady 异常是 FIFO 算法的著名缺陷；LRU 与 OPT 属于栈式算法，增加物理块数时缺页次数不会上升。"
+  },
+  {
+    "id": "SD-050",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-08",
+    "question": "某请求分页系统采用 LRU 置换算法，分配 3 个物理块。页面访问序列为 4、3、2、1、4、3、5、4、3、2、1、5，缺页次数是？",
+    "options": {
+      "A": "8",
+      "B": "9",
+      "C": "10",
+      "D": "12"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "按 LRU 依次模拟：前 7 次访问（4、3、2、1、4、3、5）均缺页，随后访问 4、3 命中，访问 2、1、5 又缺页，共缺页 10 次。"
+  },
+  {
+    "id": "SD-051",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-08",
+    "question": "关于存储管理，下列说法正确的有？（多选）",
+    "options": {
+      "A": "请求分页在分页基础上增加了请求调页和页面置换功能",
+      "B": "虚拟存储器的容量可大于实际内存，但受外存容量和地址结构限制",
+      "C": "段式管理中逻辑地址由段号和段内地址两部分组成",
+      "D": "引入虚拟存储器后，进程可编址的逻辑空间不能超过物理内存大小"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "虚拟存储器正是使进程逻辑地址空间可以远大于实际物理内存的技术，D 与其设计目的相悖，错误。"
+  },
+  {
+    "id": "SD-052",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-08",
+    "question": "LRU 页面置换算法总是淘汰进入内存时间最长的页面。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。“进入内存时间最长”描述的是 FIFO 算法；LRU 淘汰的是最近最长时间未被访问过的页面。"
+  },
+  {
+    "id": "SD-053",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-08",
+    "question": "请求分页系统中发生缺页中断时，若系统已无空闲物理块，就需要按置换算法淘汰页面。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。缺页中断处理先查看有无空闲物理块，若无则按置换算法选择淘汰页，被淘汰页若修改过还需写回外存。"
+  },
+  {
+    "id": "SD-054",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-09",
+    "question": "磁头当前位于 50 号磁道，等待服务的请求磁道依次到达：52、65、38、18、80。采用最短寻道时间优先（SSTF）算法，磁头总共移动的磁道数是？",
+    "options": {
+      "A": "62",
+      "B": "92",
+      "C": "124",
+      "D": "156"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "SSTF 每次选择距当前磁头最近的请求，服务顺序为 52→65→80→38→18：上行 50→80 移动 30 道，下行 80→18 移动 62 道，共 92 道。"
+  },
+  {
+    "id": "SD-055",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-09",
+    "question": "电梯调度算法（SCAN）的基本思想是？",
+    "options": {
+      "A": "按请求到达的先后次序依次提供服务",
+      "B": "每次都选择距离当前磁头最近的那个请求优先提供服务",
+      "C": "随机选择下一个访问请求提供服务",
+      "D": "沿一个方向顺序服务途经的请求，到达端点后折返"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "SCAN 像电梯一样沿当前移动方向一路服务途经请求，到达最远请求（或端点）后折返反向扫描，兼顾寻道性能与公平性；A 是 FCFS，B 是 SSTF。"
+  },
+  {
+    "id": "SD-056",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-09",
+    "question": "磁盘存取时间的主要组成部分是？",
+    "options": {
+      "A": "寻道时间与旋转延迟时间两部分的简单相加",
+      "B": "寻道时间、旋转延迟与数据传输时间之和",
+      "C": "旋转延迟与磁盘格式化时间之和",
+      "D": "数据传输时间与校验时间之和"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "磁盘存取时间 = 寻道时间（磁头定位到目标磁道）+ 旋转延迟（等待目标扇区转到磁头下方）+ 数据传输时间，前两项通常占主导。"
+  },
+  {
+    "id": "SD-057",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-09",
+    "question": "关于磁盘调度算法，下列说法正确的有？（多选）",
+    "options": {
+      "A": "FCFS 算法实现简单、对各请求公平，但平均寻道距离可能较长",
+      "B": "SCAN 算法折返后改为按最短寻道时间优先选择请求",
+      "C": "SSTF 算法平均寻道性能较好，但可能使远处请求长期得不到服务",
+      "D": "磁盘调度的主要目标是减少寻道时间，提高磁盘访问效率"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "SCAN 折返后仍沿反方向顺序扫描途经的请求，并非改用最短寻道优先，B 错误；SSTF 持续优先近距离请求，可能造成远处请求饥饿。"
+  },
+  {
+    "id": "SD-058",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-09",
+    "question": "最短寻道时间优先（SSTF）磁盘调度算法对所有请求都公平，不会出现请求饥饿现象。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。SSTF 持续优先服务近距离请求，远处请求可能被不断插队而长期得不到服务；对各请求公平的是 FCFS 算法。"
+  },
+  {
+    "id": "SD-059",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-10",
+    "question": "某磁盘用位示图管理空闲块，字长 32 位，字号与位号均从 0 计数。位示图中字号 40、位号 6 对应的磁盘块号（从 0 起）是？",
+    "options": {
+      "A": "1216",
+      "B": "1280",
+      "C": "1284",
+      "D": "1286"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "块号 = 字号 × 字长 + 位号 = 40 × 32 + 6 = 1286。"
+  },
+  {
+    "id": "SD-060",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-os",
+    "day": "D2",
+    "examPoint": "EP-10",
+    "question": "文件采用索引结构存放时，下列描述正确的是？",
+    "options": {
+      "A": "通过索引表建立逻辑块与物理块的映射，支持随机存取",
+      "B": "文件必须占用一组地址连续的磁盘块才能存放",
+      "C": "每个盘块末尾存放指向下一盘块的指针，只能顺序存取",
+      "D": "文件中的数据只能顺序读取，无法随机定位"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "索引结构为每个文件建立索引表，记录逻辑块号到物理块号的映射，可直接定位任意逻辑块，且物理块可以不连续；B 是连续结构，C 是链接结构。"
+  },
+  {
+    "id": "SD-061",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-11",
+    "question": "在 OSI 参考模型中，根据 IP 地址为分组选择传输路径（路由选择）的是哪一层？",
+    "options": {
+      "A": "物理层",
+      "B": "数据链路层",
+      "C": "网络层",
+      "D": "传输层"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "网络层（第 3 层）的核心功能是路由选择，把分组从源网络经中间结点转发到目的网络。物理层传比特流，数据链路层只管相邻结点间的帧，传输层提供端到端服务。"
+  },
+  {
+    "id": "SD-062",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-11",
+    "question": "数据格式转换、数据加密与压缩，属于 OSI 参考模型中哪一层的主要功能？",
+    "options": {
+      "A": "应用层",
+      "B": "表示层",
+      "C": "会话层",
+      "D": "传输层"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "表示层（第 6 层）处理两个通信系统间信息的语法表示：数据格式转换与编码、加密解密、压缩。这是常被误记到应用层的考点。"
+  },
+  {
+    "id": "SD-063",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-11",
+    "question": "下列协议与 OSI 参考模型层次的对应关系，正确的是？",
+    "options": {
+      "A": "TCP——网络层",
+      "B": "IP——传输层",
+      "C": "HTTP——会话层",
+      "D": "UDP——传输层"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "TCP 和 UDP 都是传输层协议，IP 是网络层协议，HTTP 是应用层协议。三个上三层（会话、表示、应用）中 HTTP 属于应用层，不对应会话层。"
+  },
+  {
+    "id": "SD-064",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-11",
+    "question": "建立、管理和终止应用程序之间的会话，并提供同步服务，是 OSI 哪一层的功能？",
+    "options": {
+      "A": "会话层",
+      "B": "应用层",
+      "C": "表示层",
+      "D": "传输层"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "会话层（第 5 层）负责建立、管理、终止会话，并提供同步点，通信出故障时可从同步点继续而不必从头开始。"
+  },
+  {
+    "id": "SD-065",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-11",
+    "question": "下列功能中，属于 OSI 参考模型传输层功能的有？（多选）",
+    "options": {
+      "A": "用端口号标识应用进程，实现复用与分用",
+      "B": "提供端到端的流量控制和差错控制",
+      "C": "为分组选择到达目的网络的路由",
+      "D": "对应用数据进行加密和压缩"
+    },
+    "answer": [
+      "A",
+      "B"
+    ],
+    "analysis": "路由选择是网络层的功能，加密压缩是表示层的功能。传输层通过端口号区分进程实现复用分用，并提供端到端传输控制。"
+  },
+  {
+    "id": "SD-066",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-11",
+    "question": "关于 OSI 参考模型各层的功能，下列说法正确的有？（多选）",
+    "options": {
+      "A": "物理层在传输媒体上透明地传送比特流",
+      "B": "数据链路层把比特组装成帧，在相邻结点间检测并处理传输差错",
+      "C": "表示层负责建立、管理和终止应用程序间的会话",
+      "D": "应用层直接为用户的应用进程提供网络服务"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "C 描述的是会话层的职责，表示层管的是数据格式转换、加密和压缩；其余三项分别是物理层、数据链路层、应用层的典型功能。"
+  },
+  {
+    "id": "SD-067",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-11",
+    "question": "在 OSI 参考模型中，第 N 层利用第 N-1 层提供的服务向第 N+1 层提供服务，并对上层屏蔽本层功能的实现细节。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。这正是分层设计的核心思想：层间通过服务接口交互，实现细节对上层透明，便于各层独立设计、实现和替换。"
+  },
+  {
+    "id": "SD-068",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-12",
+    "question": "某主机的 IP 地址为 192.168.1.66，子网掩码为 255.255.255.192（/26）。该主机所在子网的可用主机地址数是多少？",
+    "options": {
+      "A": "62",
+      "B": "30",
+      "C": "64",
+      "D": "126"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "/26 表示主机位有 32-26=6 位，子网地址总数 2^6=64，扣除网络地址和广播地址后可用主机数为 64-2=62。"
+  },
+  {
+    "id": "SD-069",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-12",
+    "question": "主机 IP 地址为 10.1.37.99，子网掩码为 255.255.240.0。该主机所在子网的网络地址是？",
+    "options": {
+      "A": "10.1.32.0",
+      "B": "10.1.33.0",
+      "C": "10.1.36.0",
+      "D": "10.1.37.0"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "第三字节 37=00100101，掩码字节 240=11110000，按位与得 00100000 即 32，故网络地址为 10.1.32.0（该子网为 /20）。"
+  },
+  {
+    "id": "SD-070",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-12",
+    "question": "主机 A 的地址为 192.168.72.20/26，主机 B 的地址为 192.168.72.90/26。下列判断正确的是？",
+    "options": {
+      "A": "两台主机同属子网 192.168.72.64/26",
+      "B": "两台主机不同子网：A 在 0 子网，B 在 64 子网",
+      "C": "两台主机不同子网：A 在 64 子网，B 在 128 子网",
+      "D": "仅凭 IP 地址无法判断，还必须知道网关"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "/26 的块大小为 64，子网边界是 0、64、128。20 和 90 都落在 64~127 区间，同属子网 192.168.72.64/26；判断是否同子网只需 IP 与掩码，与网关无关。"
+  },
+  {
+    "id": "SD-071",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-12",
+    "question": "用子网掩码 255.255.255.224（/27）对 C 类网络 192.168.9.0/24 划分子网，可划分出的子网数是？",
+    "options": {
+      "A": "4",
+      "B": "8",
+      "C": "16",
+      "D": "30"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "/24 划分为 /27 需从主机位借 3 位作子网号，2^3=8 个子网；每个子网剩余 5 位主机位，可用主机 2^5-2=30 个。"
+  },
+  {
+    "id": "SD-072",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-12",
+    "question": "某单位分到 192.168.0.0/24 至 192.168.3.0/24 共 4 个连续 C 类网络，将其聚合为一个 CIDR 地址块，最恰当的表示是？",
+    "options": {
+      "A": "192.168.0.0/21",
+      "B": "192.168.0.0/23",
+      "C": "192.168.0.0/22",
+      "D": "192.168.4.0/22"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "4 个连续 /24 共 4×256=1024 个地址，前缀 22 位时 2^(32-22)=1024 正好覆盖；且 192.168.0.0 对 1024 地址边界对齐，故聚合为 192.168.0.0/22。"
+  },
+  {
+    "id": "SD-073",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-12",
+    "question": "用子网掩码 255.255.255.240（/28）划分子网时，每个子网的可用主机地址数是 16。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。/28 的主机位为 4 位，每个子网共 2^4=16 个地址，扣除网络地址与广播地址后可用主机数是 16-2=14。"
+  },
+  {
+    "id": "SD-074",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-12",
+    "question": "IP 地址 192.168.1.63/26 所在子网的广播地址是 192.168.1.63。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。/26 子网块大小为 64，第一个子网范围是 192.168.1.0~192.168.1.63，主机位全 1 的 .63 正是该子网的广播地址，不能分配给主机。"
+  },
+  {
+    "id": "SD-075",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-13",
+    "question": "TCP 建立连接采用三次握手。其中第二次握手报文中被置为 1 的标志位是？",
+    "options": {
+      "A": "ACK",
+      "B": "SYN",
+      "C": "SYN+ACK",
+      "D": "FIN+ACK"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "第二次握手由服务器同时发出对客户端请求的确认和自己的同步请求，故 SYN 和 ACK 均置 1；第一次握手只有 SYN，第三次握手报文 ACK 置 1。"
+  },
+  {
+    "id": "SD-076",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-13",
+    "question": "TCP 拥塞控制的慢开始阶段，拥塞窗口（cwnd）随传输轮次的增长方式是？",
+    "options": {
+      "A": "每轮线性增加 1 个 MSS",
+      "B": "立即置为接收方通告的窗口",
+      "C": "每轮成倍增长",
+      "D": "固定在初始值保持不变"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "慢开始并非增长慢：cwnd 从小值起步，每经过一个 RTT 加倍（指数增长），达到慢开始门限 ssthresh 后转入拥塞避免阶段的线性增长。"
+  },
+  {
+    "id": "SD-077",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-13",
+    "question": "TCP 实现可靠传输（不丢失、不重复、按序到达）所依赖的核心机制是？",
+    "options": {
+      "A": "依靠加大发送窗口提高速率",
+      "B": "序号、确认与超时重传机制",
+      "C": "依靠前向纠错编码",
+      "D": "依靠向全网广播重传请求"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "TCP 给字节流编号，接收方逐段确认，发送方对未确认数据超时重传，并借序号完成去重和排序，这套机制构成可靠传输的基础。"
+  },
+  {
+    "id": "SD-078",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-13",
+    "question": "TCP 滑动窗口机制的主要作用是？",
+    "options": {
+      "A": "对传输数据进行加密",
+      "B": "解析目的主机的 IP 地址",
+      "C": "压缩报文段减小体积",
+      "D": "进行流量控制"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "发送窗口受接收方通告窗口的限制，滑动窗口据此调节发送速率，防止接收方缓冲区被淹没，即流量控制；拥塞控制则另由拥塞窗口约束。"
+  },
+  {
+    "id": "SD-079",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-13",
+    "question": "关于 TCP 与 UDP 的比较，下列说法正确的有？（多选）",
+    "options": {
+      "A": "TCP 面向连接，UDP 无连接",
+      "B": "TCP 提供可靠、按序的字节流传输，UDP 只是尽最大努力交付",
+      "C": "UDP 无确认重传开销，适合语音、视频等实时性要求高的应用",
+      "D": "UDP 为保证可靠性，对每个报文都要求确认"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "TCP 面向连接、可靠有序；UDP 无连接、尽力交付、开销小，适合实时应用。UDP 恰恰不提供确认重传机制，D 与 UDP 特性相反。"
+  },
+  {
+    "id": "SD-080",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-13",
+    "question": "关于 TCP 连接的建立与释放，下列说法正确的有？（多选）",
+    "options": {
+      "A": "第一次握手报文的 SYN 标志位置 1，用于同步初始序号",
+      "B": "连接释放一般需要四次挥手，因为 TCP 是全双工，两个方向要分别关闭",
+      "C": "主动关闭方发出最后一个 ACK 后立即进入 CLOSED 状态",
+      "D": "三次握手可防止已失效的连接请求报文突然到达而建立错误连接"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "C 错：主动关闭方回复最后的 ACK 后进入 TIME_WAIT 状态，等待 2MSL 才转 CLOSED，以保证对方能收到确认并让本连接的旧报文在网络中消逝。"
+  },
+  {
+    "id": "SD-081",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-13",
+    "question": "UDP 报文首部包含源端口、目的端口、长度和校验和四个字段，并设有序号与确认号字段以支持重传。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。UDP 首部只有源端口、目的端口、长度、校验和四个字段，没有序号和确认号，因此 UDP 不支持确认重传。"
+  },
+  {
+    "id": "SD-082",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-14",
+    "question": "HTTPS 在 HTTP 基础上叠加了安全层，其默认的服务端口号是？",
+    "options": {
+      "A": "21",
+      "B": "80",
+      "C": "443",
+      "D": "8080"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "HTTPS 默认使用 TCP 443 端口；80 是 HTTP 默认端口，21 是 FTP 控制连接端口，8080 只是常见的自定义备用端口。"
+  },
+  {
+    "id": "SD-083",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-14",
+    "question": "DHCP 协议的主要作用是？",
+    "options": {
+      "A": "把主机域名解析为对应的 IP 地址，提供域名到地址的映射",
+      "B": "为入网主机动态分配 IP 地址、子网掩码等配置",
+      "C": "在主机之间可靠地传输文件",
+      "D": "向邮件服务器提交待发邮件"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "DHCP（动态主机配置协议）自动为入网主机分配 IP 地址、子网掩码、默认网关、DNS 服务器地址等，免除手工配置。域名解析是 DNS，传文件是 FTP，发信是 SMTP。"
+  },
+  {
+    "id": "SD-084",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-14",
+    "question": "FTP 工作时同时建立控制连接和数据连接两条 TCP 连接，其中控制连接使用的默认熟知端口是？",
+    "options": {
+      "A": "20",
+      "B": "22",
+      "C": "23",
+      "D": "21"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "FTP 控制连接默认使用 21 端口，数据连接默认使用 20 端口；22 是 SSH，23 是 Telnet。"
+  },
+  {
+    "id": "SD-085",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-14",
+    "question": "下列协议与其默认端口、用途的对应关系，正确的有？（多选）",
+    "options": {
+      "A": "SMTP——25 端口，用于发送电子邮件",
+      "B": "DNS——53 端口，用于域名解析",
+      "C": "Telnet——23 端口，用于远程登录",
+      "D": "SNMP——69 端口，用于网络管理"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "SNMP 的默认端口是 161，69 是 TFTP 的端口；其余三项的端口与用途对应均正确。"
+  },
+  {
+    "id": "SD-086",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-14",
+    "question": "DNS 的域名查询报文主要使用 TCP 的 53 端口传输，以保证解析结果的可靠性。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。DNS 查询通常使用 UDP 53 端口（报文小、追求响应速度）；只有区域传送等大数据量传输才使用 TCP 53。"
+  },
+  {
+    "id": "SD-087",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-15",
+    "question": "工作在数据链路层、根据 MAC 地址表把帧转发到对应端口、且每个端口独立构成冲突域的设备是？",
+    "options": {
+      "A": "交换机",
+      "B": "集线器",
+      "C": "路由器",
+      "D": "中继器"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "二层交换机学习 MAC 地址表并按目的 MAC 定向转发帧，每个端口是一个独立冲突域；集线器和中继器工作在物理层，路由器工作在网络层。"
+  },
+  {
+    "id": "SD-088",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-15",
+    "question": "在常见组网设备中，能够隔离广播域、连接不同逻辑网络并按 IP 地址转发分组的是？",
+    "options": {
+      "A": "中继器",
+      "B": "集线器",
+      "C": "二层交换机",
+      "D": "路由器"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "路由器工作在网络层，按 IP 地址转发分组并不转发广播，从而隔离广播域；中继器、集线器在物理层，二层交换机（未划分 VLAN 时）所有端口仍属同一广播域。"
+  },
+  {
+    "id": "SD-089",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-15",
+    "question": "关于网络互连设备，下列说法正确的有？（多选）",
+    "options": {
+      "A": "中继器工作在物理层，对信号放大整形以延长网段",
+      "B": "集线器连接的所有站点共享带宽，同处一个冲突域",
+      "C": "二层交换机的每个端口是一个独立的冲突域",
+      "D": "路由器工作在数据链路层，根据 MAC 地址转发分组"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "路由器工作在网络层、根据 IP 地址转发分组并隔离广播域，D 把层次和依据都说错了；其余三项均正确。"
+  },
+  {
+    "id": "SD-090",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-net",
+    "day": "D3",
+    "examPoint": "EP-15",
+    "question": "集线器（hub）工作在 OSI 的物理层，它不识别 MAC 地址，连接的所有端口共享带宽。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。集线器只把收到的信号向除入口外的所有端口广播放大，属物理层设备，没有 MAC 学习与定向转发能力，所有端口同处一个冲突域、共享带宽。"
+  },
+  {
+    "id": "SD-091",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-16",
+    "question": "设有学生关系 S(Sno, Sname, Dept)，关系代数表达式 σDept='CS'(S) 所执行的运算是？",
+    "options": {
+      "A": "投影",
+      "B": "选择",
+      "C": "连接",
+      "D": "并"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "σ 是选择运算，从行的角度取出满足条件 Dept='CS' 的元组；取属性列用投影 π，连接和并都不是该表达式的含义。"
+  },
+  {
+    "id": "SD-092",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-16",
+    "question": "关系代数表达式 πSname,Dept(S) 执行的操作是？",
+    "options": {
+      "A": "从行的角度选出满足条件的元组",
+      "B": "先做并运算再做差运算",
+      "C": "取出指定的属性列并取消重复行",
+      "D": "求 S 与自身的笛卡尔积"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "π 是投影运算，从列的角度抽取 Sname 和 Dept 两列，投影后相同的重复行会被取消，结果元组数可能减少。"
+  },
+  {
+    "id": "SD-093",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-16",
+    "question": "与等值连接相比，关于自然连接 R⋈S 的正确说法是？",
+    "options": {
+      "A": "连接结果中保留全部重复的公共属性列，不做任何去重处理",
+      "B": "按全部公共属性值相等匹配，并去掉结果中重复的属性列",
+      "C": "等价于两个关系的笛卡尔积",
+      "D": "对两关系的属性取值没有任何匹配要求"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "自然连接按两个关系全部公共属性的取值相等来匹配元组，并在结果中去除重复的公共属性列；等值连接则保留重复的属性列。"
+  },
+  {
+    "id": "SD-094",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-16",
+    "question": "设关系 R(A,B) 有 3 个元组，S(B,C) 有 4 个元组。若 R 与 S 在属性 B 上没有相等的取值，则自然连接 R⋈S 的结果元组数是？",
+    "options": {
+      "A": "12",
+      "B": "7",
+      "C": "1",
+      "D": "0"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "自然连接只保留公共属性 B 取值相等的匹配组合，两关系在 B 上无任何相等取值时匹配不到元组，结果为空，即 0 个；若做笛卡尔积才是 3×4=12 个。"
+  },
+  {
+    "id": "SD-095",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-16",
+    "question": "关于关系代数运算，下列说法正确的有？（多选）",
+    "options": {
+      "A": "选择运算是从行的角度进行的操作",
+      "B": "投影去掉部分属性列后，结果元组数可能减少",
+      "C": "连接是从两个关系的笛卡尔积中选取满足属性间条件的元组",
+      "D": "选择从列的角度取属性，投影从行的角度筛元组"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "D 把两个运算的方向说反了：选择按条件从行中筛选元组，投影从列的角度取属性；A、B、C 均为正确表述（投影取消重复行会使元组数可能减少）。"
+  },
+  {
+    "id": "SD-096",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-16",
+    "question": "SQL 的 SELECT 子句（指定结果列）对应关系代数的投影运算，WHERE 子句对应选择运算。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。选列即投影 π，按条件筛行即选择 σ；GROUP BY、HAVING 等子句则超出基本关系代数的表达能力。"
+  },
+  {
+    "id": "SD-097",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "设有员工表 Emp(eno, ename, salary, dno)。查询各部门的平均工资，且只输出平均工资高于 6000 的部门号，该筛选条件应写在哪个子句中？",
+    "options": {
+      "A": "WHERE AVG(salary) > 6000",
+      "B": "HAVING AVG(salary) > 6000",
+      "C": "GROUP BY AVG(salary) > 6000",
+      "D": "ORDER BY AVG(salary) > 6000"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "聚合函数的结果只能用 HAVING 在分组之后过滤；WHERE 作用于分组前的原始行，不能直接使用聚合函数，GROUP BY 和 ORDER BY 也不是条件子句。"
+  },
+  {
+    "id": "SD-098",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "员工表 Emp(eno, ename, dno)、部门表 Dept(dno, dname)。查询部门名为「研发部」的员工姓名，正确的 SQL 语句是？",
+    "options": {
+      "A": "SELECT ename FROM Emp, Dept WHERE Emp.dno = Dept.dno AND dname = '研发部'",
+      "B": "SELECT ename FROM Emp, Dept WHERE Emp.eno = Dept.dno AND dname = '研发部'",
+      "C": "SELECT ename FROM Emp, Dept WHERE Emp.dno <> Dept.dno AND dname = '研发部'",
+      "D": "SELECT ename FROM Emp, Dept WHERE dname = '研发部' GROUP BY eno, dno"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "两表查询必须给出连接条件 Emp.dno = Dept.dno：B 缺连接条件会产生笛卡尔积；C 引用了 Emp 表中不存在的 dname 列；D 查的是部门表，取不到员工姓名。"
+  },
+  {
+    "id": "SD-099",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "在 Emp 表中查询姓名第二个字为「明」的员工（姓名为 2~3 个汉字），WHERE 子句的条件应写作？",
+    "options": {
+      "A": "ename LIKE '%明%'",
+      "B": "ename LIKE '_明%'",
+      "C": "ename LIKE '明%'",
+      "D": "ename LIKE '%明_'"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "LIKE 中 _ 匹配任意单个字符、% 匹配任意字符串。'_明%' 表示第一个字符任意、第二个字符是明、其后任意；A 是含明即匹配，C 是以明开头，D 是倒数第二个字为明。"
+  },
+  {
+    "id": "SD-100",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "关于关系数据库中的视图（VIEW），下列说法正确的是？",
+    "options": {
+      "A": "视图是实际存储数据的物理表，其中的数据独立于基本表单独维护",
+      "B": "视图不能与基本表出现在同一个查询中",
+      "C": "视图一经定义，其内容永远不变",
+      "D": "视图是虚表，数据库中一般只保存其定义，数据由基本表导出"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "视图是建立在一个或多个基本表（或视图）之上的虚表，一般只存定义不存数据，查询时动态从基本表导出，因此内容随基本表变化，也可与基本表联合查询。"
+  },
+  {
+    "id": "SD-101",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "要把表 Emp 上的查询权限授予用户 u1，正确的 SQL 语句是？",
+    "options": {
+      "A": "GRANT SELECT ON Emp TO u1",
+      "B": "REVOKE SELECT ON Emp FROM u1",
+      "C": "GRANT SELECT TO u1 FROM Emp",
+      "D": "ALTER USER u1 GRANT Emp"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "授权语句的语法是 GRANT 权限 ON 对象 TO 用户；REVOKE 是收回权限，C、D 的语法形式均不成立。"
+  },
+  {
+    "id": "SD-102",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "关于 SQL 的数据定义与数据操作语句，下列说法正确的有？（多选）",
+    "options": {
+      "A": "DELETE FROM Emp; 会删除 Emp 的全部元组，但表定义仍保留",
+      "B": "DROP TABLE Emp; 会将表的结构和数据一并删除",
+      "C": "UPDATE 语句可以同时修改多个属性列的值",
+      "D": "ALTER TABLE 语句用于向表中插入新的元组"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "ALTER TABLE 修改的是表结构（增加列、修改类型等），插入元组用 INSERT；DELETE 只删数据留结构，DROP 结构数据一起删，UPDATE 可用 SET col1=.., col2=.. 同时改多列。"
+  },
+  {
+    "id": "SD-103",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "关于 SQL 的聚合函数，下列说法正确的有？（多选）",
+    "options": {
+      "A": "AVG 计算某列平均值时忽略 NULL 值",
+      "B": "COUNT(*) 统计结果行数，包含取值为 NULL 的行",
+      "C": "聚合函数的筛选条件可以直接写在 WHERE 子句中",
+      "D": "对空表执行 COUNT(*) 的结果是 0，而不是 NULL"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "WHERE 在分组之前对行进行过滤，不能直接使用聚合函数，分组后的条件要写 HAVING；AVG、COUNT 的 NULL 处理及空表返回 0 的表述均正确。"
+  },
+  {
+    "id": "SD-104",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-17",
+    "question": "在 SQL 中判断某列取值为空，条件应写成 WHERE ename = NULL。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。NULL 表示未知值，与任何值用 = 比较的结果都不是真；判断空值必须用 IS NULL（判断非空用 IS NOT NULL）。"
+  },
+  {
+    "id": "SD-105",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-18",
+    "question": "将 ER 图转换为关系模式时，对 1:n 联系的正确处理方式是？",
+    "options": {
+      "A": "必须与 1 端实体的关系模式合并，此外不允许采用任何其他转换方式",
+      "B": "必须单独转换为一个关系模式，而且主码只能取 1 端实体的主码",
+      "C": "可单独转换为关系模式（主码为 n 端码），也可并入 n 端的关系模式",
+      "D": "联系本身无需转换为关系模式，相关的属性信息可以直接丢弃不用"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "1:n 联系有两种等价做法：单独建立关系模式时属性为两端码加联系属性、主码取 n 端实体的码；或并入 n 端实体的关系模式（加入 1 端码和联系属性），后者可减少表的数量。"
+  },
+  {
+    "id": "SD-106",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-18",
+    "question": "ER 图中的 m:n 联系转换为关系模式时，该关系模式的主码是？",
+    "options": {
+      "A": "任选一端实体的码",
+      "B": "联系自身属性的组合",
+      "C": "无需设置主码",
+      "D": "两端实体码的组合"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "m:n 联系必须单独转换为一个关系模式，属性由两端实体的码加上联系自身的属性组成，主码是两端实体码的组合。"
+  },
+  {
+    "id": "SD-107",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-18",
+    "question": "学生与课程之间是多对多的选课联系，转换得到关系模式 SC(Sno, Cno, Grade)，其主码是？",
+    "options": {
+      "A": "仅 Sno 一个属性就够了",
+      "B": "仅 Cno 一个属性就可以了",
+      "C": "(Sno, Cno) 组合",
+      "D": "任选 Grade 或 Sno 其中的一个属性"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "一名学生可选多门课、一门课可被多人选，单独的 Sno 或 Cno 都无法唯一标识一行，主码是 (Sno, Cno) 组合码，Grade 是普通属性。"
+  },
+  {
+    "id": "SD-108",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-18",
+    "question": "关于 ER 模型向关系模式的转换规则，正确的有？（多选）",
+    "options": {
+      "A": "实体转换为关系模式，实体的属性即关系的属性，实体的码即关系的码",
+      "B": "1:1 联系可转换为独立关系模式，也可与任意一端实体的关系模式合并",
+      "C": "1:n 联系转换出的独立关系模式，其主码取 1 端实体的码",
+      "D": "m:n 联系必须转换为独立关系模式，主码为两端实体码的组合"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "1:n 联系单独转换时主码应取 n 端实体的码，C 错；实体、1:1 联系、m:n 联系的转换规则表述均正确。"
+  },
+  {
+    "id": "SD-109",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-18",
+    "question": "在 ER 模型中，联系本身可以有自己的属性，例如「选课」联系上的「成绩」。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。成绩既不能只归属于学生也不能只归属于课程，只有挂在「选课」联系上语义才正确，转换时随联系进入 SC 关系。"
+  },
+  {
+    "id": "SD-110",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-18",
+    "question": "学生与课程之间的 m:n 选课联系可以并入学生关系模式完成转换，不必单独建表。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。m:n 联系若并入实体对应的关系会产生大量冗余并引发更新异常，必须转换为独立的关系模式，如 SC(Sno, Cno, Grade)。"
+  },
+  {
+    "id": "SD-111",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-19",
+    "question": "若关系模式 R 的所有属性都是不可再分的原子数据项，则 R 至少属于？",
+    "options": {
+      "A": "3NF",
+      "B": "2NF",
+      "C": "BCNF",
+      "D": "1NF"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "属性不可再分（消除复合属性和多值属性）是第一范式的定义，也是关系模式的最基本要求，满足它只说明 R 属于 1NF。"
+  },
+  {
+    "id": "SD-112",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-19",
+    "question": "在 1NF 的基础上，消除了非主属性对候选码的部分函数依赖，关系模式达到？",
+    "options": {
+      "A": "1NF",
+      "B": "2NF",
+      "C": "3NF",
+      "D": "BCNF"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "2NF = 1NF + 消除非主属性对码的部分函数依赖；若还要求消除非主属性对码的传递依赖，则是 3NF。"
+  },
+  {
+    "id": "SD-113",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-19",
+    "question": "在 2NF 的基础上，进一步消除非主属性对候选码的传递函数依赖，关系模式达到？",
+    "options": {
+      "A": "1NF",
+      "B": "2NF",
+      "C": "3NF",
+      "D": "BCNF"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "3NF = 2NF + 消除非主属性对码的传递函数依赖；再要求每个非平凡函数依赖的决定因素都包含码，才是 BCNF。"
+  },
+  {
+    "id": "SD-114",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-19",
+    "question": "关系 SC(Sno, Cno, Sname, Grade) 的函数依赖为 Sno→Sname、(Sno,Cno)→Grade，主码为 (Sno,Cno)。该关系模式最高属于？",
+    "options": {
+      "A": "1NF",
+      "B": "2NF",
+      "C": "3NF",
+      "D": "BCNF"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "非主属性 Sname 只依赖码的一部分 Sno，存在部分函数依赖，不满足 2NF，故最高只属于 1NF；可分解为 S(Sno,Sname) 和 SC(Sno,Cno,Grade) 消除该依赖。"
+  },
+  {
+    "id": "SD-115",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-19",
+    "question": "关于函数依赖与规范化，下列说法正确的有？（多选）",
+    "options": {
+      "A": "2NF 在 1NF 基础上消除了非主属性对候选码的部分函数依赖",
+      "B": "3NF 在 2NF 基础上消除了非主属性对候选码的传递函数依赖",
+      "C": "满足 BCNF 的关系模式中，每个非平凡函数依赖的决定因素都包含码",
+      "D": "规范化程度越高越好，设计时应一律提升到最高范式"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "规范化以分解为手段消除冗余和异常，但分解过多会增加查询时的连接开销，实际设计要在冗余与性能间权衡（通常到 3NF 或 BCNF 即可），D 过于绝对。"
+  },
+  {
+    "id": "SD-116",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-19",
+    "question": "满足 3NF 的关系模式中，包括主属性在内的所有属性都不存在对候选码的部分函数依赖。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错误。3NF 只消除非主属性对码的部分依赖和传递依赖；主属性对码的部分依赖要到 BCNF（所有非平凡依赖的决定因素都含码）才被排除。"
+  },
+  {
+    "id": "SD-117",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-20",
+    "question": "事务的原子性（Atomicity）是指？",
+    "options": {
+      "A": "事务中的操作要么全部执行、要么全部不执行",
+      "B": "事务执行前后，数据库始终处于逻辑上的一致状态",
+      "C": "并发执行的事务之间互不干扰",
+      "D": "事务一旦提交，其修改永久保存"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "原子性把事务当作不可分割的工作单位，全部成功或全部回滚；B、C、D 分别是一致性、隔离性、持久性的含义。"
+  },
+  {
+    "id": "SD-118",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-20",
+    "question": "两个事务读入同一数据并先后进行更新，后提交的更新覆盖了先提交的更新，使先前的修改丢失。这种并发问题称为？",
+    "options": {
+      "A": "不可重复读",
+      "B": "脏读",
+      "C": "丢失更新",
+      "D": "幻读"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "丢失更新（丢失修改）是并发写同一数据且相互不知晓的结果；脏读是读到未提交的数据，不可重复读是两次读同一行值不同，幻读是两次读结果集合行数不同。"
+  },
+  {
+    "id": "SD-119",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-20",
+    "question": "关于事务的 ACID 特性，下列说法正确的有？（多选）",
+    "options": {
+      "A": "一致性指事务执行完成后，数据库从一个一致状态转变到另一个一致状态",
+      "B": "隔离性指并发事务的执行互不干扰，一个事务的中间状态对其他事务不可见",
+      "C": "持久性指事务提交后其修改永久有效，系统故障也不应使其丢失",
+      "D": "原子性要求一个事务中只能包含一条操作语句"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "原子性指事务内操作要么全做要么全不做，与语句条数无关，D 曲解了含义；A、B、C 分别正确描述了一致性、隔离性、持久性。"
+  },
+  {
+    "id": "SD-120",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-db",
+    "day": "D4",
+    "examPoint": "EP-20",
+    "question": "遵守两段锁协议的并发调度一定是可串行化的，但仍可能发生死锁。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "正确。两段锁协议是可串行化调度的充分条件，但多个事务交错加锁可能形成环路等待，因此它不能防止死锁，还需配合死锁预防或检测策略。"
+  },
+  {
+    "id": "SD-121",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-21",
+    "question": "瀑布模型将软件生存周期划分为需求分析、软件设计、编码、测试、运行维护等阶段。关于其特点，正确的说法是？",
+    "options": {
+      "A": "各阶段可以任意并行开展，支持随时灵活切换",
+      "B": "阶段顺序固定，前一阶段完成并通过评审后才进入下一阶段",
+      "C": "进入每个阶段之前都必须完成一轮完整的风险分析",
+      "D": "每完成一个阶段就向用户交付一个可运行的产品增量"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "瀑布模型阶段严格顺序衔接，以上一阶段的文档产出并通过评审作为进入下一阶段的条件，属于文档驱动。风险分析是螺旋模型的标志，增量交付是增量模型的特征。"
+  },
+  {
+    "id": "SD-122",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-21",
+    "question": "螺旋模型在瀑布模型的基础上，每一轮周期都增加的一项关键活动是？",
+    "options": {
+      "A": "风险分析",
+      "B": "形式化验证",
+      "C": "逆向工程",
+      "D": "结对编程"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "螺旋模型把开发组织为多轮螺旋周期，每轮都包含制定计划、风险分析、实施工程和客户评估，其中风险分析是其区别于其他模型的标志，适合大型复杂高风险项目。"
+  },
+  {
+    "id": "SD-123",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-21",
+    "question": "用户只能描述大致的业务目标和期望，说不清具体功能需求。为帮助用户逐步明确需求，最合适的开发模型是？",
+    "options": {
+      "A": "瀑布模型",
+      "B": "形式化开发模型",
+      "C": "原型模型",
+      "D": "增量模型"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "原型模型通过快速构造可运行的原型，让用户在试用中反馈并逐步明确需求，适合需求模糊、难以事先完全定义的场景。瀑布要求需求事先明确，增量侧重分批交付，均不以获取需求为核心手段。"
+  },
+  {
+    "id": "SD-124",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-21",
+    "question": "与瀑布模型相比，增量模型最突出的优点是？",
+    "options": {
+      "A": "无需进行总体设计和需求定义即可直接编码",
+      "B": "每个增量的开发都不需要集成与回归测试",
+      "C": "对任何需求变化都不需要做计划和控制",
+      "D": "尽早向用户交付可用的部分产品，及时获得反馈"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "增量模型把产品分解为若干增量，按优先级分批实现和交付，用户能尽早使用核心功能并提出意见，从而降低整体风险。增量同样需要需求与总体设计，也必须做集成与回归测试。"
+  },
+  {
+    "id": "SD-125",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-21",
+    "question": "关于统一过程（UP/RUP），下列说法正确的有？（多选）",
+    "options": {
+      "A": "整个过程是用例驱动的，用例帮助识别和安排迭代内容",
+      "B": "以体系结构为中心，架构骨架是各迭代演化的基础",
+      "C": "软件生存周期被组织为多个迭代，每轮迭代产出渐增的系统",
+      "D": "它是一种严格的瀑布型过程，不支持迭代与增量开发"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "统一过程的三大特点是用例驱动、以体系结构为中心、迭代和增量开发，D 与迭代增量直接矛盾。"
+  },
+  {
+    "id": "SD-126",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-21",
+    "question": "关于敏捷方法，下列说法正确的有？（多选）",
+    "options": {
+      "A": "极限编程主张采用结对编程、持续集成等工程实践",
+      "B": "敏捷方法强调完备的过程文档，并严格冻结需求、拒绝一切变更",
+      "C": "敏捷宣言重视个体和交互胜过过程和工具，重视可运行软件胜过详尽文档",
+      "D": "敏捷方法适合需求多变、需要快速交付和持续反馈的项目"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "敏捷方法拥抱需求变化，强调人与协作、可运行软件和客户合作，冻结需求拒绝变更与敏捷价值观相反，B 错误。"
+  },
+  {
+    "id": "SD-127",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-21",
+    "question": "螺旋模型的每一轮周期通常都包括制定计划、风险分析、实施工程和客户评估四部分，适合支持大型复杂且高风险的项目。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。螺旋模型每轮沿四个部分推进：确定目标并制定计划、进行风险分析、实施工程开发、由客户评估并计划下一轮，风险驱动是其核心。"
+  },
+  {
+    "id": "SD-128",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-22",
+    "question": "在需求文档中，“系统应在 3 秒内返回统计查询结果”这一条目属于哪类需求？",
+    "options": {
+      "A": "功能需求",
+      "B": "性能需求",
+      "C": "部署需求",
+      "D": "数据需求"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "响应时间约束描述系统“做得多快”，属于非功能需求中的性能需求；它不描述系统提供的功能，也不涉及运行环境或数据内容。"
+  },
+  {
+    "id": "SD-129",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-22",
+    "question": "下列内容中，不应出现在软件需求规格说明书（SRS）中的是？",
+    "options": {
+      "A": "系统必须实现的功能及其输入输出说明",
+      "B": "性能、可靠性与安全性等质量要求",
+      "C": "核心模块内部采用的排序算法及其实现细节",
+      "D": "系统运行环境、接口与约束方面的要求"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "SRS 描述系统“做什么”，即功能、性能、接口和约束等；具体算法与实现细节属于“怎么做”，是概要设计和详细设计阶段的内容。"
+  },
+  {
+    "id": "SD-130",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-22",
+    "question": "结构化分析方法（SA）为系统建立的一组逻辑模型，通常不包括？",
+    "options": {
+      "A": "分层数据流图",
+      "B": "数据字典",
+      "C": "加工逻辑说明（小说明）",
+      "D": "程序流程图"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "SA 的核心成果是分层数据流图、数据字典和加工逻辑说明，共同构成系统的逻辑模型；程序流程图描述程序的控制流程与实现细节，属于设计阶段的产物。"
+  },
+  {
+    "id": "SD-131",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-22",
+    "question": "需求评审（需求验证）的主要目的是？",
+    "options": {
+      "A": "检查需求是否正确、完整、一致和可行，使各方达成共同理解",
+      "B": "估算系统软件开发的总成本与总的工作量，并确定项目预算规模",
+      "C": "确定模块划分与接口的设计方案",
+      "D": "为每一条需求预先设计好对应的测试数据以及完整的测试用例"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "需求评审在需求阶段发现需求本身的缺陷（遗漏、矛盾、不可行、二义），并使开发者与用户对“做什么”取得一致，形成后续设计、编码、测试的基线。"
+  },
+  {
+    "id": "SD-132",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-22",
+    "question": "下列需求条目中，属于非功能需求的有？（多选）",
+    "options": {
+      "A": "系统应支持不少于 5000 个用户的并发访问",
+      "B": "系统平均无故障时间（MTBF）不得低于 2000 小时",
+      "C": "系统应保证 7×24 小时连续运行，计划内停机每年不超过 4 小时",
+      "D": "系统应能按月自动生成库存汇总报表"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "A 是性能需求，B 是可靠性需求，C 是可用性需求，都描述系统应具备的质量属性，属非功能需求；D 描述系统提供的具体功能，是功能需求。"
+  },
+  {
+    "id": "SD-133",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-22",
+    "question": "关于需求分析阶段的工作，下列说法正确的有？（多选）",
+    "options": {
+      "A": "需求分析回答系统“做什么”，不涉及具体实现方式",
+      "B": "数据流图描述系统的逻辑模型，与具体实现技术无关",
+      "C": "需求一经确认就绝对不允许再发生任何变更",
+      "D": "需求规格说明书是后续设计、测试与验收的重要依据"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "需求分析确定系统必须具备的行为与约束，产出逻辑模型和 SRS；需求可以走变更控制流程受控变更，“绝不允许变更”的说法错误。"
+  },
+  {
+    "id": "SD-134",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-22",
+    "question": "软件需求规格说明书（SRS）一旦通过评审就成为基线，此后任何需求变更都不再被允许，否则项目必然失败。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。SRS 评审通过后成为需求基线，后续变更需通过正式的变更控制流程评估影响后再实施，而不是一律禁止；受控的需求变更是正常且必要的。"
+  },
+  {
+    "id": "SD-135",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "针对程序内部逻辑结构设计测试用例时，下列逻辑覆盖准则中，发现错误能力最弱的是？",
+    "options": {
+      "A": "语句覆盖",
+      "B": "判定覆盖",
+      "C": "条件覆盖",
+      "D": "条件组合覆盖"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "逻辑覆盖由弱到强依次为：语句覆盖 < 判定覆盖 < 条件覆盖 < 判定-条件覆盖 < 条件组合覆盖 < 路径覆盖。语句覆盖只要求每条语句执行一次，无法检查判定本身的错误。"
+  },
+  {
+    "id": "SD-136",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "设计测试用例使程序中每个判定的取真分支和取假分支都至少执行一次，满足的覆盖准则是？",
+    "options": {
+      "A": "语句覆盖",
+      "B": "判定覆盖",
+      "C": "条件覆盖",
+      "D": "条件组合覆盖"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "判定覆盖（分支覆盖）要求每个判定的真、假两个分支都被执行到，强于只要求每条语句执行一次的语句覆盖。"
+  },
+  {
+    "id": "SD-137",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "某系统要求输入为 1~120 的整数（年龄）。采用边界值分析法挑选测试输入时，最没有必要选取的是？",
+    "options": {
+      "A": "0",
+      "B": "2",
+      "C": "119",
+      "D": "60"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "边界值分析选取边界及其邻近值，如 0、1、2、119、120、121，用于暴露边界处理错误；60 位于输入域中部，不体现边界特征，不是该方法的目标取值。"
+  },
+  {
+    "id": "SD-138",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "依据需求规格说明，验证软件的功能和性能是否满足用户要求，这类测试通常称为？",
+    "options": {
+      "A": "单元测试",
+      "B": "集成测试",
+      "C": "确认测试",
+      "D": "回归测试"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "确认测试（验收测试）站在用户角度，以 SRS 为依据检验软件是否满足需求；单元测试针对程序模块，集成测试验证模块间接口，回归测试确认修改未引入新错误。"
+  },
+  {
+    "id": "SD-139",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "采用自底向上策略进行集成测试时，为调用最底层被测模块而临时开发的模拟上级调用者的模块称为？",
+    "options": {
+      "A": "桩（stub）模块，用于替代底层的被测模块",
+      "B": "驱动（driver）模块",
+      "C": "代理（proxy）模块",
+      "D": "主控（main）模块"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "自底向上集成时下层模块先测，需要编写驱动模块模拟上级调用；自顶向下集成则相反，需要桩模块代替尚未实现的被调用模块。"
+  },
+  {
+    "id": "SD-140",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "关于白盒测试与黑盒测试，下列说法正确的有？（多选）",
+    "options": {
+      "A": "白盒测试依据程序内部的逻辑结构设计用例，可用于度量覆盖率",
+      "B": "黑盒测试又称功能测试，依据需求规格说明而不依赖内部结构",
+      "C": "白盒测试不需要了解程序代码就能设计出测试用例",
+      "D": "等价类划分法和边界值分析法属于典型的白盒测试方法"
+    },
+    "answer": [
+      "A",
+      "B"
+    ],
+    "analysis": "白盒测试恰恰需要阅读代码、针对逻辑结构设计用例，C 错误；等价类划分与边界值分析从输入域出发设计用例，是黑盒方法，D 错误。"
+  },
+  {
+    "id": "SD-141",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "软件测试的目的在于证明程序中没有错误，只要测试通过就说明软件完全正确。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。测试是尽可能多地发现软件中的错误，测试通过只能说明未发现错误，并不能证明程序无错，残留缺陷仍可能在特定条件下暴露。"
+  },
+  {
+    "id": "SD-142",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-23",
+    "question": "α 测试是用户在开发场所、由开发者协助进行的测试；β 测试是用户在实际使用环境下独立进行的测试。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。这是确认测试中两者的经典区分：α 测试在受控的开发方环境中进行，β 测试在不受开发方控制的真实环境中由用户独立使用。"
+  },
+  {
+    "id": "SD-143",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-24",
+    "question": "某项目的活动网络中，活动 A、B、C、D、E、F 的持续时间分别为 3、4、2、5、3、2 天；B、C 在 A 完成后即可开始，D 依赖 B，E 依赖 C，F 依赖 D 和 E。该网络的关键路径长度是？",
+    "options": {
+      "A": "10 天",
+      "B": "12 天",
+      "C": "14 天",
+      "D": "18 天"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "从起点到终点共两条路径：A→B→D→F＝3+4+5+2＝14 天；A→C→E→F＝3+2+3+2＝10 天。关键路径是最长路径 14 天，其长度决定总工期。"
+  },
+  {
+    "id": "SD-144",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-24",
+    "question": "在进度网络图中，某活动的松弛时间（总时差）等于？",
+    "options": {
+      "A": "最迟开始时间与最早开始时间之差",
+      "B": "最早开始时间与最迟开始时间之差",
+      "C": "活动的持续时间与其工作量之差",
+      "D": "最早完成时间与最迟完成时间之和"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "总时差＝最迟开始−最早开始＝最迟完成−最早完成，表示活动在不影响总工期的前提下可以拖延的时间；关键活动的总时差为 0。"
+  },
+  {
+    "id": "SD-145",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-24",
+    "question": "风险暴露（风险曝光度）通常按什么公式度量？",
+    "options": {
+      "A": "风险发生的概率 × 风险发生造成的损失",
+      "B": "风险发生的概率与风险造成的损失两者的简单相加之和",
+      "C": "风险损失除以风险发生的概率",
+      "D": "风险条目数量乘以项目成员人数"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "风险暴露＝风险概率×潜在损失（常折算为货币），用于量化风险并排序，指导风险缓解资源的分配。"
+  },
+  {
+    "id": "SD-146",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-24",
+    "question": "下列属于软件项目管理主要内容的有？（多选）",
+    "options": {
+      "A": "代码混淆与字节码压缩",
+      "B": "项目进度（时间）管理",
+      "C": "风险管理",
+      "D": "成本估算与成本管理"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "软件项目管理覆盖范围、进度、成本、质量、人员、风险、配置等方面；代码混淆与压缩属于实现层面的技术手段，不是管理活动。"
+  },
+  {
+    "id": "SD-147",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-24",
+    "question": "关键路径是活动网络中从起点到终点的最短路径，因此压缩关键活动并不能缩短总工期。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。关键路径是从源点到汇点的最长路径，其长度决定总工期；压缩关键路径上的活动（且未使其他并行路径成为新瓶颈时）才可能缩短总工期。"
+  },
+  {
+    "id": "SD-148",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-25",
+    "question": "软件运行一直正常。因操作系统升级导致原有界面库不再兼容，需修改软件使其在新环境中正常运行，这类维护是？",
+    "options": {
+      "A": "纠正性维护",
+      "B": "适应性维护",
+      "C": "完善性维护",
+      "D": "预防性维护"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "为适应外部环境变化（操作系统、硬件平台、法规、数据格式等）而修改软件属于适应性维护；软件本身没有缺陷，也未新增功能。"
+  },
+  {
+    "id": "SD-149",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-25",
+    "question": "系统运行稳定，用户提出希望增加“按季度导出统计报表”的新功能以支撑业务发展，这类维护是？",
+    "options": {
+      "A": "纠正性维护",
+      "B": "适应性维护",
+      "C": "完善性维护",
+      "D": "预防性维护"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "为满足用户扩充功能、改善性能或使用体验而进行的修改属于完善性维护；环境和需求本身未变，也不是在修复缺陷或提前改造以防后患。"
+  },
+  {
+    "id": "SD-150",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-se",
+    "day": "D5",
+    "examPoint": "EP-25",
+    "question": "统计规律表明，四类软件维护中完善性维护所占的工作量比例通常最大。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。典型比例约为完善性 50%、适应性 25%、纠正性 21%、预防性 4%，用户提出的功能扩充与改进是维护工作的主要来源。"
+  },
+  {
+    "id": "SD-151",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "下列各项中，不属于数据流图（DFD）基本成分的是？",
+    "options": {
+      "A": "外部实体",
+      "B": "加工",
+      "C": "数据存储",
+      "D": "控制流"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "DFD 的四种基本成分是数据流、加工、数据存储和外部实体；DFD 只刻画数据的流动与加工，不表达控制逻辑和执行顺序，控制流是程序流程图等控制模型的要素。"
+  },
+  {
+    "id": "SD-152",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "图书借阅系统的顶层数据流图中，读者向系统提交借书申请并得到借书回执。其中“读者”应建模为？",
+    "options": {
+      "A": "加工",
+      "B": "外部实体",
+      "C": "数据存储",
+      "D": "数据流"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "读者处于系统边界之外，是数据的源点与终点，属于外部实体；它不被系统加工，也不是静态保存的数据或流动着的数据。"
+  },
+  {
+    "id": "SD-153",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "医院挂号系统中，“排班查询”功能接收就诊请求，检索科室排班数据并生成挂号单。“排班查询”应建模为？",
+    "options": {
+      "A": "外部实体",
+      "B": "数据存储",
+      "C": "加工",
+      "D": "数据流"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "“排班查询”对输入数据进行处理并产生输出，是系统内部的一个加工（处理）；被它检索的排班数据本身才应建模为数据存储。"
+  },
+  {
+    "id": "SD-154",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "检查分层数据流图时所说的“父图与子图平衡”，其含义是？",
+    "options": {
+      "A": "子图的输入输出数据流与父图对应加工的输入输出数据流一致",
+      "B": "父图与子图中加工的数量必须完全相等",
+      "C": "子图中每个加工的编号必须从 1 开始重新连续编排，不得沿用父图编号",
+      "D": "父图中出现的数据存储都必须在子图中再次出现"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对加工的分解细化不改变系统与外部的数据界面：子图边界上的输入输出数据流应与父图对应加工的输入输出一致，否则即为父子图不平衡。"
+  },
+  {
+    "id": "SD-155",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "顶层图中加工“订单处理”仅有输入数据流“订单”和输出数据流“发货单”；其子图中该加工的输入却增加了“客户资料”。这一分解存在的错误是？",
+    "options": {
+      "A": "加工成为黑洞，只有输入而没有输出",
+      "B": "父图与子图不平衡",
+      "C": "外部实体与数据存储直接相连",
+      "D": "同一数据流在两图中命名不一致"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "子图的输入数据流比父图对应加工多出“客户资料”，输入界面不一致，违反父子图平衡规则；若确实需要该输入，应先修改父图再分解。"
+  },
+  {
+    "id": "SD-156",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "某加工只接收输入数据流“入库单”，既不产生任何输出数据流，也不把结果写入任何数据存储。该加工违反的规则是？",
+    "options": {
+      "A": "违反了父图与子图的平衡原则",
+      "B": "加工没有输入数据流却产生了输出",
+      "C": "加工成为黑洞，有输入而无输出",
+      "D": "同一数据流在不同图中命名不一致"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "数据守恒要求加工的输出能由输入导出：只有输入而没有输出（黑洞）或没有输入却有输出（奇迹）都是数据流图的典型错误。"
+  },
+  {
+    "id": "SD-157",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "绘制数据流图时，下列符合绘图规范的有？（多选）",
+    "options": {
+      "A": "每个加工都必须既有输入数据流又有输出数据流",
+      "B": "为减少加工数量，外部实体与数据存储之间可以直接连数据流",
+      "C": "对加工逐层分解时保持父图与子图平衡",
+      "D": "数据流应命名且含义明确，避免同名异义"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "外部实体与数据存储之间的数据交换必须经过加工，二者不能直接相连，B 违反规范；A 防止黑洞与奇迹，C 保证分解一致，D 保证图的可读性。"
+  },
+  {
+    "id": "SD-158",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "仓库管理系统：采购员向系统提交进货单；系统校验进货单并更新库存台账；系统再根据库存水平向供应商发出补货请求。下列建模正确的有？（多选）",
+    "options": {
+      "A": "采购员建模为外部实体",
+      "B": "供应商建模为外部实体",
+      "C": "库存台账建模为数据存储",
+      "D": "“校验进货单”建模为数据存储"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "采购员、供应商都在系统边界之外，是外部实体；库存台账是系统内长期保存的静态数据，是数据存储；“校验进货单”是处理动作，应建模为加工。"
+  },
+  {
+    "id": "SD-159",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "数据流图中的数据存储表示系统内部保存的静态数据，外部实体则表示系统边界之外的数据源点或汇点。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。数据存储是系统内部暂存或长期保存数据的成分；外部实体（源点/汇点）在系统之外，是数据的出发地或目的地，两者不能混淆。"
+  },
+  {
+    "id": "SD-160",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-26",
+    "question": "分层数据流图中，只要子图的加工数量与父图保持一致，子图的输入输出数据流比父图多几条也是允许的。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。平衡的判定标准是输入输出数据流在数量和内容上与父图对应加工一致，而不是加工数量一致；子图数据流多于或少于父图对应加工即不平衡。"
+  },
+  {
+    "id": "SD-161",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "数据字典通常为数据流图中的成分建立条目。下列不属于其常见条目类型的是？",
+    "options": {
+      "A": "数据流条目",
+      "B": "数据项条目",
+      "C": "数据存储条目",
+      "D": "源程序条目"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "数据字典一般包括数据流、数据项、数据存储和加工（基本加工说明）四类条目，用来严格定义 DFD 中出现的每个成分；源程序不是它的描述对象。"
+  },
+  {
+    "id": "SD-162",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "在数据字典的符号约定中，表示数据项取值为 1 到 100 之间的整数的记法是？",
+    "options": {
+      "A": "[1|100]",
+      "B": "1+100",
+      "C": "1..100",
+      "D": "{1}100"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "两点连接符表示取值范围，1..100 即 1 到 100 之间的整数；[1|100] 表示从中任选其一（或），+ 表示“与”（顺序连接），{ } 表示重复。"
+  },
+  {
+    "id": "SD-163",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "与判定表相比，判定树描述加工逻辑的主要优点是？",
+    "options": {
+      "A": "树形图形化表达直观，便于阅读和沟通",
+      "B": "能够穷举比判定表更多的条件组合",
+      "C": "可以直接编译为可执行的目标代码",
+      "D": "书写之后占用的存储空间一定更小"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "判定树按条件逐层分支，直观易懂，适合与用户讨论确认加工逻辑；判定表以表格穷举条件组合，两者表达能力相当，B、C、D 的说法均不成立。"
+  },
+  {
+    "id": "SD-164",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "在数据字典符号中，记法“学历 = [本科|硕士|博士]”中的方括号 [ ] 表示？",
+    "options": {
+      "A": "重复多次出现",
+      "B": "可选的成分",
+      "C": "顺序连接（与）",
+      "D": "多中选一（或）"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "[ ] 表示从多个候选项中选择其一；{ } 表示重复，( ) 表示可选项，+ 表示“与”（顺序连接），= 表示定义为。"
+  },
+  {
+    "id": "SD-165",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "下列数据字典符号与其含义的对应关系，正确的有？（多选）",
+    "options": {
+      "A": "+ 表示从多个候选中选择其一",
+      "B": "{ } 表示重复出现",
+      "C": "( ) 表示可选项",
+      "D": "= 表示定义（由……组成）"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "+ 表示“与”（顺序连接），从多个候选中选择其一用 [ ] 表示，A 的对应关系错误；其余三项均正确。"
+  },
+  {
+    "id": "SD-166",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "可用于描述基本加工逻辑（加工说明）的工具有？（多选）",
+    "options": {
+      "A": "结构化语言",
+      "B": "判定表",
+      "C": "判定树",
+      "D": "ER 图"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "基本加工的逻辑说明常用结构化语言、判定表、判定树描述；ER 图描述数据实体及其联系，用于数据建模，不用于加工逻辑说明。"
+  },
+  {
+    "id": "SD-167",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "数据字典对数据流图中出现的数据流、数据项、数据存储等成分给出严格定义，与 DFD 配合共同构成系统的逻辑模型。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。DFD 给出系统数据加工的框架，数据字典对图中每个成分给出精确定义，两者结合才能完整、无歧义地描述系统的逻辑模型。"
+  },
+  {
+    "id": "SD-168",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-27",
+    "question": "数据字典只能定义数据项的取值范围和长度，不能描述数据流的组成结构。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。数据字典既定义数据项，也用“＝、＋、[ ]、{ }、( )”等符号定义数据流的组成结构，还定义数据存储和加工说明，覆盖 DFD 的各类成分。"
+  },
+  {
+    "id": "SD-169",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "下列模块间耦合类型中，耦合程度最高（最应避免）的是？",
+    "options": {
+      "A": "数据耦合",
+      "B": "控制耦合",
+      "C": "内容耦合",
+      "D": "公共耦合"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "耦合由低到高依次为：无直接耦合 < 数据耦合 < 标记耦合 < 控制耦合 < 公共耦合 < 内容耦合。内容耦合是一个模块直接访问另一模块的内部数据或代码，修改波及面最大。"
+  },
+  {
+    "id": "SD-170",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "下列内聚类型中，内聚程度最高的是？",
+    "options": {
+      "A": "时间内聚",
+      "B": "通信内聚",
+      "C": "顺序内聚",
+      "D": "功能内聚"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "内聚由低到高依次为：偶然内聚 < 逻辑内聚 < 时间内聚 < 过程内聚 < 通信内聚 < 顺序内聚 < 功能内聚。功能内聚的模块内所有元素共同完成单一功能，独立性最好。"
+  },
+  {
+    "id": "SD-171",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "某模块内的几个处理段之间没有任何内在联系，仅仅为了缩短程序而被拼在一起，这种内聚是？",
+    "options": {
+      "A": "偶然内聚",
+      "B": "逻辑内聚",
+      "C": "过程内聚",
+      "D": "功能内聚"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "偶然内聚的元素之间毫无关系，组合的原因纯属偶然（如节省代码量），内聚程度最低、可维护性最差，设计时应避免。"
+  },
+  {
+    "id": "SD-172",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "模块之间只通过参数传递简单变量的值（如一个整数、一个字符串），这种耦合称为？",
+    "options": {
+      "A": "数据耦合",
+      "B": "标记耦合",
+      "C": "控制耦合",
+      "D": "公共耦合"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "通过参数传递简单数据的是数据耦合，耦合程度低，是模块间推荐的合作方式；若传递的是整条记录（数据结构），则是标记耦合。"
+  },
+  {
+    "id": "SD-173",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "模块 A 调用模块 B 时传入一个标志 flag，由其取值决定 B 执行查询操作还是更新操作，这种耦合是？",
+    "options": {
+      "A": "数据耦合",
+      "B": "标记耦合",
+      "C": "控制耦合",
+      "D": "内容耦合"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "一方传递开关、标志等控制信息去支配另一方的执行路径，属于控制耦合；被调模块的行为因此依赖调用者的意图，耦合高于数据耦合和标记耦合。"
+  },
+  {
+    "id": "SD-174",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "模块 A 调用模块 B 时，传递的不是简单变量，而是一整条学生记录（含学号、姓名、成绩等字段），这种耦合是？",
+    "options": {
+      "A": "数据耦合",
+      "B": "标记耦合",
+      "C": "公共耦合",
+      "D": "内容耦合"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "参数为数据结构（记录、数组等）整体传递时称为标记耦合；当被调模块只使用其中部分字段时，应尽量收窄传递的数据范围以降低耦合。"
+  },
+  {
+    "id": "SD-175",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "一个模块内的各处理元素都使用同一批输入数据，或者产生同一份输出结果，该模块的内聚类型是？",
+    "options": {
+      "A": "时间内聚",
+      "B": "通信内聚",
+      "C": "过程内聚",
+      "D": "顺序内聚"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "通信内聚的元素围绕同一批数据组织（同输入或同输出）；顺序内聚则要求前一元素的输出恰是后一元素的输入，内聚程度更高。"
+  },
+  {
+    "id": "SD-176",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "衡量模块独立性的两个主要定性指标是？",
+    "options": {
+      "A": "内聚和耦合",
+      "B": "扇入和扇出",
+      "C": "深度和宽度",
+      "D": "耦合和深度"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "模块独立性用内聚（模块内部联系的紧密程度）和耦合（模块之间联系的紧密程度）衡量，设计目标是高内聚、低耦合；扇入扇出、深度宽度只是结构形态的参考量。"
+  },
+  {
+    "id": "SD-177",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "关于模块间的耦合，下列说法正确的有？（多选）",
+    "options": {
+      "A": "数据耦合通过参数传递简单数据，耦合程度低",
+      "B": "公共耦合通过全局数据交互，优于数据耦合，应优先采用",
+      "C": "控制耦合传递开关、标志等控制信息，使被调模块的行为受调用方支配",
+      "D": "内容耦合中一个模块直接访问另一个模块的内部，应尽量避免"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "公共耦合使多个模块通过全局数据互相牵连，一处修改多处受影响，耦合程度高，并非优先选择，B 错误；其余三项均为正确表述。"
+  },
+  {
+    "id": "SD-178",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "关于模块内聚，下列说法正确的有？（多选）",
+    "options": {
+      "A": "功能内聚的模块内所有元素共同完成一个单一功能，内聚性最高",
+      "B": "顺序内聚中前一个处理元素的输出是后一个处理元素的输入",
+      "C": "逻辑内聚的内聚程度高于功能内聚",
+      "D": "时间内聚仅因执行时间相同而把元素放在一起，内聚程度较低"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "逻辑内聚在七级排序中仅高于偶然内聚，远低于功能内聚，C 错误；其余说法均符合内聚的定义与强弱排序。"
+  },
+  {
+    "id": "SD-179",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "软件设计时应追求高内聚、低耦合，使每个模块功能单一、接口简单、相对独立。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。高内聚保证模块内部各元素联系紧密、职责单一，低耦合减少模块间依赖，两者共同提高模块独立性和系统的可维护性。"
+  },
+  {
+    "id": "SD-180",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-dfd",
+    "day": "D6",
+    "examPoint": "EP-28",
+    "question": "标记耦合通过全局共享数据使模块相互依赖，其耦合程度高于控制耦合。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。标记耦合指通过参数传递数据结构，程度低于控制耦合；通过全局共享数据使模块相互依赖的是公共耦合，其程度才高于控制耦合。"
+  },
+  {
+    "id": "SD-181",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "UML 用例图中 <<include>>（包含）关系的箭头方向与语义，正确的是？",
+    "options": {
+      "A": "箭头由被包含用例指向基本用例，被包含行为无条件执行",
+      "B": "箭头由基本用例指向被包含用例，被包含行为必然执行",
+      "C": "箭头由基本用例指向被包含用例，被包含行为按条件执行",
+      "D": "箭头由被包含用例指向基本用例，被包含行为可选执行"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "include 是无条件复用：基本用例执行过程中必然插入被包含用例的行为，虚线箭头由基本用例指向被包含用例。「按条件/可选执行」是 extend 的语义。"
+  },
+  {
+    "id": "SD-182",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "关于用例图中的参与者（actor），下列说法正确的是？",
+    "options": {
+      "A": "参与者只能由与系统交互的人员来担任",
+      "B": "参与者是系统内部的核心业务对象，用矩形表示",
+      "C": "同一个现实的人在系统中只能扮演一个参与者",
+      "D": "参与者可以是人、外部系统或设备，位于系统边界之外"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "参与者是位于系统边界之外、与系统发生交互的外部角色，可以是人、外部系统甚至定时器等设备；同一个现实的人也可以扮演多个不同参与者，参与者用人形图标表示。"
+  },
+  {
+    "id": "SD-183",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "UML 用例图中 <<extend>>（扩展）关系的箭头方向与触发条件，正确的是？",
+    "options": {
+      "A": "箭头由扩展用例指向基本用例，扩展行为仅在条件满足时执行",
+      "B": "箭头由基本用例指向扩展用例，扩展行为每次必然执行",
+      "C": "箭头由基本用例指向扩展用例，扩展行为仅在条件满足时执行",
+      "D": "箭头由扩展用例指向基本用例，扩展行为每次必然执行"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "extend 的箭头方向与 include 相反：由扩展用例指向基本用例；扩展行为是可选的，只在基本用例运行到扩展点且条件成立时才插入执行。"
+  },
+  {
+    "id": "SD-184",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "关于用例图中的泛化（generalization）关系，下列说法正确的是？",
+    "options": {
+      "A": "泛化只能建立在参与者之间，用例之间不能建立泛化关系",
+      "B": "泛化关系用带空心菱形一端的实线表示，菱形指向一般用例",
+      "C": "特殊用例继承一般用例的全部行为和关系，并可增加或重定义行为",
+      "D": "一般用例继承特殊用例的全部行为，二者可以互换使用"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "用例之间、参与者之间都可以建立泛化，记法是带空心三角箭头的实线、由特殊元素指向一般元素（空心菱形是聚合的记法）。特殊用例继承并可扩展一般用例的行为，方向不能颠倒。"
+  },
+  {
+    "id": "SD-185",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "UML 用例图主要用于描述系统的哪一类模型？",
+    "options": {
+      "A": "对象之间按时间顺序传递消息的交互过程",
+      "B": "系统的功能需求：参与者、用例以及系统边界",
+      "C": "类、接口之间的静态结构与关系",
+      "D": "数据在加工之间的流动与存储"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "用例图从外部参与者视角刻画系统「提供什么功能」，是需求分析阶段的功能模型；A 是序列图、C 是类图、D 是数据流图各自的职责。"
+  },
+  {
+    "id": "SD-186",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "关于用例间的 <<include>> 与 <<extend>> 关系，下列说法正确的有？（多选）",
+    "options": {
+      "A": "include 表示基本用例无条件复用被包含用例的行为",
+      "B": "extend 表示扩展用例只在扩展点条件成立时才被执行",
+      "C": "include 的虚线箭头由被包含用例指向基本用例",
+      "D": "extend 关系下，基本用例不依赖扩展用例也能完整执行"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "include 的箭头由基本用例指向被包含用例，C 把方向说反了；扩展是可选行为，基本用例可独立完整执行，A、B、D 正确。"
+  },
+  {
+    "id": "SD-187",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "关于参与者与用例之间的关系，下列说法正确的有？（多选）",
+    "options": {
+      "A": "参与者与用例之间的关联表示该参与者参与了此用例的执行",
+      "B": "每个用例都必须直接与至少一个参与者建立关联",
+      "C": "与当前系统交换数据的外部系统也可以建模为参与者",
+      "D": "定时器这类外部事件源也可以建模为参与者"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "被包含或扩展出来的用例往往不与参与者直接关联，B 的「必须」不成立；外部系统与定时事件源都可作为参与者建模。"
+  },
+  {
+    "id": "SD-188",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "用例图中，<<include>> 的虚线箭头由基本用例指向被包含用例，而 <<extend>> 的虚线箭头由扩展用例指向基本用例。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。这是两个关系最易混的记法点：包含箭头从基本用例出发，扩展箭头指向基本用例，方向恰好相反。"
+  },
+  {
+    "id": "SD-189",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-29",
+    "question": "用例描述中的事件流只需写正常执行的基本流，异常和分支场景应放到另一张单独的图中描述。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。用例规约的事件流应包括基本流和若干备选流（含异常流），备选流与基本流共同构成完整的用例描述，而不是另画一张图。"
+  },
+  {
+    "id": "SD-190",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "UML 类图中，「实现」关系的标准记法是？",
+    "options": {
+      "A": "带空心三角箭头的实线",
+      "B": "带实心菱形端（整体侧）的实线",
+      "C": "带空心菱形端（整体侧）的实线",
+      "D": "带空心三角箭头的虚线"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "实现（realization）用「虚线 + 空心三角箭头」表示，由实现类指向接口；实线 + 空心三角是泛化，实心菱形是组合，空心菱形是聚合。"
+  },
+  {
+    "id": "SD-191",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "下列「整体—部分」场景中，最适合建模为组合（composition）关系的是？",
+    "options": {
+      "A": "界面窗口与窗口上的按钮：窗口销毁后按钮随之销毁",
+      "B": "公司与员工：公司注销后员工仍可去其他公司任职",
+      "C": "球队与球员：球队解散后球员可转会到其他球队",
+      "D": "图书馆与图书：图书馆撤编后图书可调拨给其他馆"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "组合是强拥有关系，部分的生命周期依附于整体，整体消亡部分随之消亡；B、C、D 中部分对象都能脱离原整体继续存在，属于聚合。"
+  },
+  {
+    "id": "SD-192",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "类 Order（订单）与 Customer（客户）建立关联：Order 端多重度为 0..*，Customer 端多重度为 1。该关联的含义是？",
+    "options": {
+      "A": "一个订单可对应零个或多个客户，一个客户恰属于一个订单",
+      "B": "一个订单恰对应一个客户，一个客户可对应零个或多个订单",
+      "C": "一个订单至少对应一个客户，一个客户至少下一个订单",
+      "D": "一个订单最多对应一个客户，一个客户最多下一个订单"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "多重度读法是「站在一端看另一端」：Customer 端标 1 表示一个订单必须恰有一个客户；Order 端标 0..* 表示一个客户可以有 0 到多个订单。"
+  },
+  {
+    "id": "SD-193",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "类 A 的某操作在方法体内以局部变量形式临时创建并使用类 B 的对象，A 与 B 之间应建模为什么关系？",
+    "options": {
+      "A": "泛化",
+      "B": "关联",
+      "C": "依赖",
+      "D": "组合"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "仅在方法内部临时使用（局部变量、方法参数、静态调用）是最弱的「使用」关系，用带箭头的虚线表示依赖；关联要求以成员属性形式长期持有对方引用。"
+  },
+  {
+    "id": "SD-194",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "接口 IService 定义了一组操作签名，类 ServiceImpl 提供这些操作的具体实现，ServiceImpl 与 IService 之间是？",
+    "options": {
+      "A": "泛化关系，用实线加空心三角箭头表示",
+      "B": "依赖关系，用带实心菱形的实线表示",
+      "C": "实现关系，用虚线加空心三角箭头表示",
+      "D": "聚合关系，用虚线开叉箭头表示"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "类实现接口用「实现」关系：虚线 + 空心三角箭头，由类指向接口；实线 + 空心三角是类与类之间的泛化。"
+  },
+  {
+    "id": "SD-195",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "UML 类图中，属性名前的 # 号表示的可见性是？",
+    "options": {
+      "A": "public（公共）",
+      "B": "private（私有）",
+      "C": "package（包内可见）",
+      "D": "protected（受保护）"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "UML 可见性记法：+ 表示 public，- 表示 private，# 表示 protected，~ 表示 package。"
+  },
+  {
+    "id": "SD-196",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "关于 UML 类图中的关系，下列说法正确的有？（多选）",
+    "options": {
+      "A": "聚合与组合都表达「整体—部分」的语义",
+      "B": "组合关系中整体负责部分的生命周期，部分不能脱离整体独立存在",
+      "C": "关联的多重度只能取 0 或 1 两个值",
+      "D": "依赖是比关联更弱的关系，表示偶发性使用"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "多重度可以取 1、0..1、0..*、1..* 等多种形式，C 错误；A、B、D 分别是聚合组合与依赖的标准语义。"
+  },
+  {
+    "id": "SD-197",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "关于 UML 类图，下列说法正确的有？（多选）",
+    "options": {
+      "A": "类图可以直接表示对象之间消息传递的时间顺序",
+      "B": "类图是静态结构图，描述类、接口及它们之间的静态关系",
+      "C": "类图中操作的签名可以标注参数与返回类型",
+      "D": "关联可以是双向的，也可以通过导航箭头限定为单向"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "表示消息时间顺序的是序列图（行为图），A 错误；B、C、D 都是类图的常规能力。"
+  },
+  {
+    "id": "SD-198",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "聚合关系中，部分对象可以脱离整体对象独立存在，整体消亡时部分不一定随之消亡。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。聚合是弱拥有关系：部分可参与多个整体、可在整体消亡后继续存在；生命周期强绑定、部分随整体消亡的是组合。"
+  },
+  {
+    "id": "SD-199",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-30",
+    "question": "在 UML 类图中，带空心三角箭头的实线表示类之间的实现关系。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。实线 + 空心三角箭头是泛化（generalization）；实现关系用虚线 + 空心三角箭头。"
+  },
+  {
+    "id": "SD-200",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-31",
+    "question": "UML 序列图（顺序图）主要强调的内容是？",
+    "options": {
+      "A": "对象之间按时间顺序进行的消息交互",
+      "B": "系统的用例与参与者之间的功能划分",
+      "C": "一个对象状态迁移的触发事件与条件",
+      "D": "活动之间的分支、并发与汇合控制流"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "序列图纵向是时间轴、横向是参与交互的对象，核心是消息按时间先后在生命线之间传递；B 是用例图、C 是状态图、D 是活动图。"
+  },
+  {
+    "id": "SD-201",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-31",
+    "question": "要描述一个订单对象从创建、支付、发货到完成的状态变迁过程，最合适的 UML 图是？",
+    "options": {
+      "A": "用例图",
+      "B": "类图",
+      "C": "活动图",
+      "D": "状态图"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "状态图刻画单个对象在生命周期内响应事件的状态迁移，正对题意；活动图更适合描述跨角色的业务流程控制。"
+  },
+  {
+    "id": "SD-202",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-31",
+    "question": "UML 活动图中，同步条（fork，粗横条）分出多个分支的含义是？",
+    "options": {
+      "A": "条件分支：按条件只执行其中一条路径",
+      "B": "并发分支：多条路径的活动同时执行",
+      "C": "循环控制：流程回到之前的活动重新执行",
+      "D": "流程终止：所有活动到此全部结束"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "fork/join 粗横条表示控制流的并发分裂与汇合，多条分支同时推进、在 join 处等待汇合；条件分支用菱形判定表示。"
+  },
+  {
+    "id": "SD-203",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-31",
+    "question": "序列图中，对象生命线上的细长矩形（激活条/控制焦点）表示的含义是？",
+    "options": {
+      "A": "对象正处于某个稳定状态，等待事件到达",
+      "B": "消息沿箭头传递的方向",
+      "C": "对象正在执行某个操作的激活期",
+      "D": "对象已被销毁，生命线终止"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "激活条（执行规格）表示对象的一次执行激活期，即该对象直接或间接执行某个操作的时间段；对象销毁用生命线末端的大 X 表示。"
+  },
+  {
+    "id": "SD-204",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-31",
+    "question": "下列 UML 图中，属于行为图（动态模型）的有？（多选）",
+    "options": {
+      "A": "状态图",
+      "B": "类图",
+      "C": "活动图",
+      "D": "序列图"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "状态图、活动图、序列图（交互图）都刻画系统的动态行为；类图属于静态结构图。"
+  },
+  {
+    "id": "SD-205",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-31",
+    "question": "活动图中的泳道（swimlane）把活动按职责划分到不同分区，用来指明各项活动分别由哪个角色或部门执行。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。泳道是活动图对流程职责的分组手段，活动被划入对应分区，跨泳道的转移体现角色之间的协作交接。"
+  },
+  {
+    "id": "SD-206",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-32",
+    "question": "当一个对象（主题）的状态发生改变，需要自动通知所有依赖它的对象并更新时，最合适的设计模式是？",
+    "options": {
+      "A": "观察者（Observer）模式",
+      "B": "装饰器（Decorator）模式",
+      "C": "代理（Proxy）模式",
+      "D": "适配器（Adapter）模式"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "观察者模式定义对象间一对多的依赖关系，主题状态变化时自动通知全部观察者，正是「发布—订阅」语义。"
+  },
+  {
+    "id": "SD-207",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-32",
+    "question": "单例（Singleton）模式的核心意图是？",
+    "options": {
+      "A": "为一族相关产品对象的创建提供统一的接口，无需指定具体类",
+      "B": "保证一个类仅有一个实例，并提供一个访问它的全局访问点",
+      "C": "动态地给对象增加额外职责",
+      "D": "控制对目标对象的访问并在需要时延迟创建"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "单例 = 唯一实例 + 全局访问点；A 是抽象工厂、C 是装饰器、D 是代理的意图。"
+  },
+  {
+    "id": "SD-208",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-32",
+    "question": "工厂方法（Factory Method）模式与抽象工厂（Abstract Factory）模式的主要区别是？",
+    "options": {
+      "A": "工厂方法面向一系列相关产品对象的创建，抽象工厂一次只能创建单个产品",
+      "B": "工厂方法不需要定义任何具体工厂类",
+      "C": "抽象工厂只能创建一个等级结构的产品，且不能扩展",
+      "D": "工厂方法把产品实例化延迟到工厂子类，抽象工厂一次创建一族相关产品"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "工厂方法把「实例化哪个产品」延迟到具体工厂子类，一个工厂对应一个产品等级结构；抽象工厂围绕多个产品等级结构，一次创建一族配套产品。A 把两者的粒度说反了。"
+  },
+  {
+    "id": "SD-209",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-32",
+    "question": "下列设计模式中，属于结构型模式的有？（多选）",
+    "options": {
+      "A": "策略（Strategy）模式",
+      "B": "适配器（Adapter）模式",
+      "C": "代理（Proxy）模式",
+      "D": "装饰器（Decorator）模式"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "适配器、代理、装饰器都是结构型模式，关注对象的组合与接口适配；策略模式属于行为型模式。"
+  },
+  {
+    "id": "SD-210",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-uml",
+    "day": "D7",
+    "examPoint": "EP-32",
+    "question": "策略（Strategy）模式的意图是将对象组合成树形结构，以表示「部分—整体」的层次结构。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。「部分—整体」的树形组合是组合（Composite）模式的意图；策略模式是定义一族可互相替换的算法，并把每个算法封装起来。"
+  },
+  {
+    "id": "SD-211",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-33",
+    "question": "长度为 n 的顺序表，在第 i（1≤i≤n+1）个位置插入一个新元素时，需要向后移动的元素个数是？",
+    "options": {
+      "A": "n - i + 1",
+      "B": "n - i - 1",
+      "C": "i + 1",
+      "D": "i - 1"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "在第 i 位插入时，原第 i 到第 n 个元素依次后移，共移动 n - i + 1 个。验证：表尾追加（i = n+1）移动 0 个，表头插入（i = 1）移动 n 个，均与公式吻合。"
+  },
+  {
+    "id": "SD-212",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-33",
+    "question": "单链表中指针 p 指向某结点，在 p 之后插入新结点 s 且不丢失后续链，正确的操作序列是？",
+    "options": {
+      "A": "p->next = s; s->next = p->next;",
+      "B": "s->next = p; p->next = s;",
+      "C": "p = s; s->next = p->next;",
+      "D": "s->next = p->next; p->next = s;"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "先让 s 接住 p 原来的后继（s->next = p->next），再修改 p 使其指向 s。若先执行 p->next = s，p 的原后继链就丢失了，A 正是这种错误。"
+  },
+  {
+    "id": "SD-213",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-33",
+    "question": "下列问题中，最适合用队列（queue）作为核心数据结构解决的是？",
+    "options": {
+      "A": "检验表达式中的括号是否匹配",
+      "B": "实现函数的递归调用",
+      "C": "按层次顺序广度优先遍历图中的顶点",
+      "D": "对后缀表达式（逆波兰式）求值"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "广度优先遍历要求「先被发现的顶点先被扩展」，符合队列先进先出的特性；括号匹配、递归调用、后缀表达式求值都依赖后进先出的栈。"
+  },
+  {
+    "id": "SD-214",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-33",
+    "question": "用容量为 m 的数组实现循环队列（牺牲一个单元区分队空与队满，front 指向队头元素，rear 指向队尾元素的后一位置），判断队满的条件是？",
+    "options": {
+      "A": "front == rear",
+      "B": "(rear + 1) % m == front",
+      "C": "rear - front == m",
+      "D": "(front + 1) % m == rear"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "牺牲一个空位后，rear 再前进一格就撞上 front 即为队满：(rear + 1) % m == front；front == rear 是队空；取模运算体现存储空间的「循环」复用。"
+  },
+  {
+    "id": "SD-215",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-33",
+    "question": "与顺序表相比，关于单链表的特点，下列说法正确的有？（多选）",
+    "options": {
+      "A": "插入、删除结点时只需修改相邻结点的指针，无须成批移动元素",
+      "B": "支持随机访问，按序号取第 i 个元素的时间为 O(1)",
+      "C": "结点空间可动态申请，无须预先分配一整块连续存储区",
+      "D": "结点要额外存储指针域，存储密度低于顺序表"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "链表按序号访问必须从头指针顺链逐个计数，时间为 O(n)；随机存取（按序号 O(1) 定位）是顺序表的特性，B 错误。"
+  },
+  {
+    "id": "SD-216",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-33",
+    "question": "元素 1、2、3 依次进栈（进栈顺序固定，允许进栈出栈交叉进行），出栈序列 3,1,2 是不可能得到的。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。要使 3 最先出栈，必须 1、2、3 已全部进栈，此时 2 在栈顶、1 在其下，之后只能先出 2 再出 1，因此得不到 3,1,2。"
+  },
+  {
+    "id": "SD-217",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "一棵二叉树中度为 2 的结点有 8 个，则该树的叶子结点（度为 0）数是？",
+    "options": {
+      "A": "7",
+      "B": "8",
+      "C": "9",
+      "D": "16"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "由二叉树性质 n0 = n2 + 1，叶子数 = 8 + 1 = 9。推导：总结点数 n = n0 + n1 + n2，分支数 = n - 1 = n1 + 2n2，两式相减即得。"
+  },
+  {
+    "id": "SD-218",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "某二叉树的前序序列为 ABDECF、中序序列为 DBEAFC，其后序序列是？",
+    "options": {
+      "A": "DEBFCA",
+      "B": "DEBFAC",
+      "C": "EDBFCA",
+      "D": "DBEFCA"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "前序首字母 A 为根；中序中 A 左侧 DBE 为左子树、右侧 FC 为右子树。左子树由前序 BDE + 中序 DBE 得根 B、左 D、右 E；右子树由前序 CF + 中序 FC 得根 C、左 F。后序 = 左(DEB) 右(FC) 根(A) = DEBFCA。"
+  },
+  {
+    "id": "SD-219",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "一棵含 100 个结点的完全二叉树，其深度是（根结点深度为 1）？",
+    "options": {
+      "A": "6",
+      "B": "7",
+      "C": "8",
+      "D": "9"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "n 个结点的完全二叉树深度为 ⌊log₂n⌋ + 1。由 2⁶ = 64 ≤ 100 < 128 = 2⁷ 得 ⌊log₂100⌋ = 6，故深度为 7。"
+  },
+  {
+    "id": "SD-220",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "以 2、4、5、7 为叶子权值构造哈夫曼树，其带权路径长度（WPL）是？",
+    "options": {
+      "A": "18",
+      "B": "32",
+      "C": "35",
+      "D": "36"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "每次取最小两权合并：2+4=6，再 5+6=11，最后 7+11=18。WPL = 2×3 + 4×3 + 5×2 + 7×1 = 35，恰等于三次合并产生的中间结点权之和 6+11+18 = 35。"
+  },
+  {
+    "id": "SD-221",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "关于二叉排序树（二叉查找树），下列说法正确的是？",
+    "options": {
+      "A": "中序遍历二叉排序树可得到结点关键字的升序序列",
+      "B": "前序遍历二叉排序树可得到结点关键字的升序序列",
+      "C": "任一结点的左子树上全部结点关键字都大于该结点",
+      "D": "查找性能与关键字序列的插入顺序无关"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "中序序列有序是二叉排序树的判定与求有序输出的标准性质；左子树关键字应「小于」根，C 说反了；插入顺序不同会得到形状不同的树（如按有序序列插入退化为单链），D 错误。"
+  },
+  {
+    "id": "SD-222",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "关于二叉树与树的性质，下列说法正确的有？（多选）",
+    "options": {
+      "A": "二叉树中，度为 0 的结点数等于度为 2 的结点数加 1",
+      "B": "n 个结点的完全二叉树按层从 1 编号，编号为 i 的结点其左孩子（若存在）编号为 2i",
+      "C": "哈夫曼树是同样叶子权集下带权路径长度最短的二叉树，且没有度为 1 的结点",
+      "D": "二叉树就是每个结点的度都不超过 2 的树"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "A、B、C 是三条常考性质；D 错：二叉树可以为空，且子树严格区分左右、即使只有一个孩子也分左右，与「度不超过 2 的树」不是同一概念。"
+  },
+  {
+    "id": "SD-223",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "关于二叉树的遍历，下列说法正确的有？（多选）",
+    "options": {
+      "A": "已知前序序列和中序序列，可以唯一确定一棵二叉树",
+      "B": "已知前序序列和后序序列，一定能唯一确定一棵二叉树",
+      "C": "已知中序序列和后序序列，可以唯一确定一棵二叉树",
+      "D": "后序遍历中，根结点最后被访问"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "前序+后序无法区分「只有左孩子」和「只有右孩子」的单分支结点，B 错误；前序或后序定根、中序划分左右子树，A、C 成立；后序的访问顺序是左、右、根，D 成立。"
+  },
+  {
+    "id": "SD-224",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "哈夫曼树中不存在度为 1 的结点。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。哈夫曼树的构造是每次合并两棵权值最小的树，每个内部结点都由两棵子树合并而来，因此度只能为 2（内部结点）或 0（叶子）。"
+  },
+  {
+    "id": "SD-225",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-34",
+    "question": "含 n 个结点的完全二叉树按层从 1 编号后，编号为偶数的结点一定没有右孩子。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。结点 i 的右孩子编号为 2i+1，如结点 2 的右孩子是 5，只要 2i+1 ≤ n 就存在；有没有右孩子由 2i+1 是否越界决定，与编号奇偶无关。"
+  },
+  {
+    "id": "SD-226",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-35",
+    "question": "对于 n 个顶点、e 条边的图，关于其存储结构的说法正确的是？",
+    "options": {
+      "A": "邻接矩阵的空间开销为 O(n²)，与图中边数无关",
+      "B": "邻接矩阵的空间开销为 O(n+e)，与边数相关",
+      "C": "邻接表适合存储稠密图，邻接矩阵适合稀疏图",
+      "D": "有向图的邻接矩阵也一定是对称矩阵"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "邻接矩阵固定为 n 行 n 列，空间为 O(n²)；O(n+e) 的邻接表适合稀疏图（C 说反了）；只有无向图的邻接矩阵才必对称，D 错误。"
+  },
+  {
+    "id": "SD-227",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-35",
+    "question": "关于最短路径与相关算法，下列说法正确的是？",
+    "options": {
+      "A": "Dijkstra 算法适用于求解带负权值边的图的最短路径",
+      "B": "Floyd 算法用于求某个指定源点到其余各顶点的最短路径",
+      "C": "Dijkstra 算法求单源最短路径，要求边上权值非负",
+      "D": "拓扑排序算法能求出带权有向图的最短路径"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "Dijkstra 的贪心基础是「已确定的最短路径长度不再变化」，负权边会破坏它，A 错误；Floyd 求所有顶点对之间的最短路径，B 错误；拓扑排序用于安排 AOV 网中的活动次序，不解决带权最短路，D 错误。"
+  },
+  {
+    "id": "SD-228",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-35",
+    "question": "关于拓扑排序，下列说法正确的是？",
+    "options": {
+      "A": "任何有向图（包括其中存在回路的有向图）都一定存在相应的拓扑序列",
+      "B": "拓扑排序只适用于有向无环图，序列中每条边都由前趋指向后继顶点",
+      "C": "无向连通图也可以进行拓扑排序，得到顶点的线性序列",
+      "D": "有向无环图的拓扑序列必定是唯一的，与选点次序无关"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "有回路的有向图不存在拓扑序列，拓扑排序也不用于无向图，A、C 错误；当多个顶点入度同时为 0 时选取不唯一，拓扑序列可能不唯一，D 错误。"
+  },
+  {
+    "id": "SD-229",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-35",
+    "question": "关于图的深度优先遍历（DFS），下列说法正确的是？",
+    "options": {
+      "A": "DFS 需要借助队列实现，按层次逐层访问图中的顶点",
+      "B": "对连通图，从任一顶点出发做一次 DFS 可访问全部顶点",
+      "C": "从固定源点出发的 DFS 访问序列是唯一的",
+      "D": "深度优先遍历只适用于无向图"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "DFS 用递归或栈实现并回溯（A 是 BFS 的做法）；由于邻接点的访问次序可以不同，DFS 序列不唯一，C 错误；DFS 对有向图同样适用，D 错误。"
+  },
+  {
+    "id": "SD-230",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-35",
+    "question": "关于图的基本性质，下列说法正确的有？（多选）",
+    "options": {
+      "A": "邻接表的表头数组长度等于图的边数",
+      "B": "n 个顶点的连通无向图至少含 n-1 条边",
+      "C": "n 个顶点的强连通有向图至少含 n 条弧",
+      "D": "无向图的邻接矩阵一定是对称矩阵"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "表头数组按顶点建立、长度为 n，边信息在各自的边表里，A 错误；连通无向图至少是树形骨架 n-1 条边，强连通有向图至少构成一个有向环即 n 条弧；无向图邻接矩阵中 (i,j) 与 (j,i) 同时置位，必对称。"
+  },
+  {
+    "id": "SD-231",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-35",
+    "question": "用邻接表存储有向图时，某顶点边表中的结点个数等于该顶点的出度。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。邻接表的边表存放从该顶点射出的弧，边表结点数即出度；求入度需要遍历全部边表统计，或另建逆邻接表。"
+  },
+  {
+    "id": "SD-232",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-36",
+    "question": "关于快速排序的时间复杂度与稳定性，下列说法正确的是？",
+    "options": {
+      "A": "平均与最坏情况的时间复杂度均为 O(n log n)",
+      "B": "任何情况下时间复杂度都为 O(n log n)，且是稳定排序",
+      "C": "平均时间复杂度为 O(n²)，而最坏情况下的时间复杂度为 O(n log n)",
+      "D": "平均为 O(n log n)，最坏情况（如划分极不平衡）为 O(n²)"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "快速排序平均 O(n log n)、最坏 O(n²) 且不稳定，A、B、C 均错；枢轴选取不当导致每次划分极不平衡（如对已有序序列固定取首元素为枢轴）是最坏情形的典型来源。"
+  },
+  {
+    "id": "SD-233",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-36",
+    "question": "下列排序方法中，不稳定的是？",
+    "options": {
+      "A": "冒泡排序",
+      "B": "直接插入排序",
+      "C": "归并排序",
+      "D": "简单选择排序"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "冒泡、直接插入、归并（还有折半插入、基数排序）都是稳定排序；简单选择排序在把选出的最值与当前位置元素交换时会跨越相等元素，破坏稳定性。快速排序、堆排序、希尔排序也不稳定。"
+  },
+  {
+    "id": "SD-234",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-36",
+    "question": "下列关键码序列中，是大顶堆（最大堆）的是？",
+    "options": {
+      "A": "85, 91, 62, 48, 53, 47",
+      "B": "91, 85, 62, 48, 53, 47",
+      "C": "91, 62, 85, 95, 53, 47",
+      "D": "48, 53, 47, 91, 85, 62"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "逐对验证 B：结点 91 不小于孩子 85、62；85 不小于孩子 48、53；62 不小于孩子 47，成立。A 中 85 < 91、C 中 62 < 95、D 中 48 < 53，都违反了双亲不小于孩子的条件。"
+  },
+  {
+    "id": "SD-235",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-36",
+    "question": "关于各排序方法的特点，下列说法正确的有？（多选）",
+    "options": {
+      "A": "归并排序平均时间复杂度为 O(n log n)，且是稳定的排序方法",
+      "B": "直接插入排序在序列基本有序时效率很高，比较次数接近 n-1 量级",
+      "C": "简单选择排序在序列基本有序时时间复杂度会显著低于 O(n²)",
+      "D": "堆排序任何情况下的时间复杂度都是 O(n log n)，且只需 O(1) 辅助空间"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "简单选择排序的比较次数固定为 n(n-1)/2，与初始是否有序无关，恒为 O(n²)，C 错误；A、B、D 分别是归并、直接插入、堆排序的标准结论。"
+  },
+  {
+    "id": "SD-236",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-36",
+    "question": "堆排序特别适合元素基本有序的序列，此时其时间复杂度可接近 O(n)。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。堆排序无论初始状态如何都是 O(n log n)，基本有序并不能加速；「基本有序时接近 O(n)」是直接插入排序以及带提前结束标志的冒泡排序的特点。"
+  },
+  {
+    "id": "SD-237",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-37",
+    "question": "散列函数 H(key) = key mod 7，用线性探测法处理冲突。将关键码 15、22、29、36 依次插入初始为空的散列表，插入 36 时需要依次探测的存储位置个数（含最终落入的空位）是？",
+    "options": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "15 mod 7 = 1 放槽 1；22 mod 7 = 1 冲突，线性探测到槽 2；29 mod 7 = 1 冲突，探测 1、2 后放槽 3；36 mod 7 = 1 冲突，须依次探测位置 1、2、3、4 共 4 个位置（3 次冲突）后落入槽 4。"
+  },
+  {
+    "id": "SD-238",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-37",
+    "question": "关于散列表的装填因子 α = 表中存入的记录数 / 散列表长度，下列说法正确的是？",
+    "options": {
+      "A": "α 越大，发生冲突的可能性越大，平均查找长度一般也越大",
+      "B": "无论 α 多大，好的散列函数都能保证完全不发生冲突",
+      "C": "采用链地址法时，装填因子必须小于 1",
+      "D": "装填因子与冲突概率、平均查找长度无关"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "装填因子反映表的装满程度，是影响冲突概率和平均查找长度（ASL）的首要因素；链地址法每个桶可挂多个记录，α 可以大于 1，C 错误；散列函数再好也只能减少而不能保证无冲突，B 错误。"
+  },
+  {
+    "id": "SD-239",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-37",
+    "question": "下列属于散列表（哈希表）冲突处理方法的有？（多选）",
+    "options": {
+      "A": "开放定址法（如线性探测、二次探测）",
+      "B": "链地址法（拉链法）",
+      "C": "再散列法（双散列函数法）",
+      "D": "二分查找法（对有序序列的折半查找）"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "开放定址、链地址、再散列（以及公共溢出区法）都是标准的冲突处理方法；二分查找是一种查找算法，与散列冲突处理无关。"
+  },
+  {
+    "id": "SD-240",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-algo",
+    "day": "D8",
+    "examPoint": "EP-37",
+    "question": "采用链地址法处理冲突的散列表，其装填因子一定小于 1。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。链地址法允许一个桶挂多条记录链，表中记录总数可以超过桶的个数（表长），装填因子完全可以大于 1；要求 α ≤ 1 的是开放定址法，因为每个存储单元最多放一条记录。"
+  },
+  {
+    "id": "SD-241",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-38",
+    "question": "命题公式 ¬(P∨Q) 等值于（）。",
+    "options": {
+      "A": "¬P∨¬Q",
+      "B": "¬P∧¬Q",
+      "C": "¬(P∧Q)",
+      "D": "P∨¬Q"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "德摩根律：合取词取非后变析取词，即 ¬(P∨Q) ≡ ¬P∧¬Q。选项 A、C 只改变了连接词的一半，选项 D 没有等值依据。"
+  },
+  {
+    "id": "SD-242",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-38",
+    "question": "命题公式 P→Q 等值于（）。",
+    "options": {
+      "A": "¬P∨Q",
+      "B": "P∨¬Q",
+      "C": "¬P∧Q",
+      "D": "P∧¬Q"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "蕴含等价式：P→Q ≡ ¬P∨Q。只在 P 真而 Q 假时为假，与 ¬P∨Q 的取值完全一致。"
+  },
+  {
+    "id": "SD-243",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-38",
+    "question": "设含两个命题变元的公式 A，在其真值表的 4 种赋值中恰有 3 种赋值使 A 为真，则 A 的主析取范式中所含极小项的个数是（）。",
+    "options": {
+      "A": "1",
+      "B": "2",
+      "C": "3",
+      "D": "4"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "主析取范式中每个极小项恰好对应一种使公式为真的赋值。3 种成真赋值，就对应 3 个极小项（m_i 的下标即成真赋值的编号）。"
+  },
+  {
+    "id": "SD-244",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-38",
+    "question": "设命题变元 P、Q 构成的公式 A 的主合取范式为 M0∧M1，则 A 的主析取范式是（）。",
+    "options": {
+      "A": "m0∨m1",
+      "B": "m0∨m3",
+      "C": "m1∨m2",
+      "D": "m2∨m3"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "极大项 Mi 使公式在第 i 种赋值下为假。含 M0、M1 说明赋值 00、01 为假，则 10、11 为真，故主析取范式为 m2∨m3。"
+  },
+  {
+    "id": "SD-245",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-38",
+    "question": "下列命题等值式成立的有？（多选）",
+    "options": {
+      "A": "P→Q ≡ ¬Q→¬P",
+      "B": "¬(P∧Q) ≡ ¬P∨¬Q",
+      "C": "P∨(P∧Q) ≡ P",
+      "D": "P→Q ≡ Q→P"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "A 是逆否等值式，B 是德摩根律，C 是吸收律，三者均成立。D 不成立：P→Q 与 Q→P（逆命题）只是同为真或其中一真一假偶然出现，一般不等值。"
+  },
+  {
+    "id": "SD-246",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-38",
+    "question": "若含 n 个命题变元的公式，其主析取范式包含了全部 2^n 个极小项，则该公式是重言式（永真式）。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。主析取范式含全部极小项意味着每一种赋值下都至少有一个极小项为真，即公式在所有赋值下恒真，为重言式。"
+  },
+  {
+    "id": "SD-247",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-39",
+    "question": "一批产品共 10 件，其中 3 件次品、7 件正品，从中任取 2 件，恰取到 1 件次品的概率是（）。",
+    "options": {
+      "A": "7/15",
+      "B": "3/10",
+      "C": "1/15",
+      "D": "8/15"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "古典概型：P = C(3,1)×C(7,1)/C(10,2) = 21/45 = 7/15。"
+  },
+  {
+    "id": "SD-248",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-39",
+    "question": "某疾病在人群中的患病率为 1%；患病者检测呈阳性的概率为 95%，未患病者检测呈阳性的概率为 5%。某人检测结果为阳性，其确实患病的概率约为（）。",
+    "options": {
+      "A": "0.95",
+      "B": "0.50",
+      "C": "0.16",
+      "D": "0.05"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "贝叶斯公式：P(患病|阳性) = 0.95×0.01 / (0.95×0.01 + 0.05×0.99) = 0.0095/0.059 ≈ 0.16。基础患病率低时，阳性结果下真患病的概率并不高。"
+  },
+  {
+    "id": "SD-249",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-39",
+    "question": "设离散型随机变量 X 的分布为 P(X=0)=0.2，P(X=1)=0.5，P(X=2)=0.3，则 X 的方差 D(X) 是（）。",
+    "options": {
+      "A": "0.21",
+      "B": "0.49",
+      "C": "0.70",
+      "D": "1.21"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "E(X) = 0×0.2 + 1×0.5 + 2×0.3 = 1.1；E(X²) = 0 + 1×0.5 + 4×0.3 = 1.7；D(X) = E(X²) − (E(X))² = 1.7 − 1.21 = 0.49。"
+  },
+  {
+    "id": "SD-250",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-39",
+    "question": "5 名同学站成一排合影，其中甲、乙两人必须相邻，不同的排法共有（）种。",
+    "options": {
+      "A": "24",
+      "B": "42",
+      "C": "60",
+      "D": "48"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "捆绑法：把甲、乙看作一个整体，与其余 3 人共 4 个元素全排列，再乘以甲、乙内部排列：4!×2! = 24×2 = 48。"
+  },
+  {
+    "id": "SD-251",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-39",
+    "question": "关于事件的关系与数字特征，下列说法正确的有？（多选）",
+    "options": {
+      "A": "若两个概率均大于 0 的事件互斥，则它们一定不相互独立",
+      "B": "若 A 与 B 相互独立，则 P(A∪B) = P(A) + P(B) − P(A)P(B)",
+      "C": "D(X) = E(X²) − (E(X))²",
+      "D": "两个相互独立的事件是可以同时发生的"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "互斥时 P(AB)=0 ≠ P(A)P(B)（概率均大于 0），故互斥必不独立，A 错。B、C 是独立事件并的概率和方差的计算公式；独立与互斥是不同概念，独立事件可以同时发生，B、C、D 均正确。"
+  },
+  {
+    "id": "SD-252",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-39",
+    "question": "从一副 52 张的扑克牌中随机抽取一张，抽到红桃的概率是 1/13。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。红桃共 13 张，P = 13/52 = 1/4。1/13 是抽到某个特定点数（如 A）的概率。"
+  },
+  {
+    "id": "SD-253",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "Choose the term that best completes the sentence: \"A ___ specifies a sequence of interactions between a system and its external actors to achieve a particular goal.\"",
+    "options": {
+      "A": "use case",
+      "B": "compiler",
+      "C": "kernel",
+      "D": "register"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "use case（用例）定义系统与外部参与者（actor）之间为达成某个目标而进行的交互序列，是用例模型的基本单位。"
+  },
+  {
+    "id": "SD-254",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "Choose the term that best completes the sentence: \"___ testing verifies a program's functional behavior against its specification without any knowledge of its internal code structure.\"",
+    "options": {
+      "A": "White-box",
+      "B": "Stress",
+      "C": "Black-box",
+      "D": "Recovery"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "black-box testing（黑盒测试）只依据需求规格说明验证外部功能行为，不涉及内部代码结构；依据内部结构设计用例的是 white-box testing。"
+  },
+  {
+    "id": "SD-255",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "Choose the term that best completes the sentence: \"___ binds data and the operations that process it together inside a class and hides the internal implementation details.\"",
+    "options": {
+      "A": "Inheritance",
+      "B": "Polymorphism",
+      "C": "Compilation",
+      "D": "Encapsulation"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "encapsulation（封装）把数据与操作数据的函数绑定在类中并隐藏内部实现细节。inheritance 是继承，polymorphism 是多态。"
+  },
+  {
+    "id": "SD-256",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "Choose the term that best completes the sentence: \"___ allows a subclass to obtain the attributes and methods that are defined in its superclass.\"",
+    "options": {
+      "A": "Instantiation",
+      "B": "Inheritance",
+      "C": "Iteration",
+      "D": "Interpretation"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "inheritance（继承）使子类自动获得父类中定义的属性和方法。instantiation 是实例化，interpretation 是解释执行。"
+  },
+  {
+    "id": "SD-257",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "Choose the term that best completes the sentence: \"TCP is a connection-oriented protocol that provides ___ data delivery, while UDP is connectionless and offers no such guarantee.\"",
+    "options": {
+      "A": "broadcast",
+      "B": "encrypted",
+      "C": "reliable",
+      "D": "compressed"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "reliable（可靠的）指 TCP 通过确认、重传、序号等机制提供可靠交付；UDP 不提供这种保证，仅尽力交付。"
+  },
+  {
+    "id": "SD-258",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "下列软件工程术语与其常用中文译名对应正确的有？（多选）",
+    "options": {
+      "A": "requirement analysis — 需求分析",
+      "B": "black-box testing — 白盒测试",
+      "C": "object-oriented — 面向对象",
+      "D": "data dictionary — 数据字典"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "black-box testing 是黑盒测试，白盒测试是 white-box testing，B 搭配错误。其余三项对应均正确。"
+  },
+  {
+    "id": "SD-259",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "在软件工程英文术语中，\"coupling\" 对应的中文概念是内聚。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。coupling 是耦合，指模块之间的依赖程度；内聚是 cohesion，指模块内部元素的关联程度。这对术语经常互换设错。"
+  },
+  {
+    "id": "SD-260",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-40",
+    "question": "在项目管理英文文献中，\"milestone\" 通常指项目进度中的关键节点，中文常译作「里程碑」。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。milestone（里程碑）是进度计划中标志某阶段完成的标志性事件，通常作为监控项目进展的关键节点。"
+  },
+  {
+    "id": "SD-261",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "根据《著作权法》，自然人创作的作品，其发表权和著作财产权的保护期为（）。",
+    "options": {
+      "A": "作者终生",
+      "B": "作者终生及其去世后 50 年",
+      "C": "作品首次发表后 50 年",
+      "D": "永久不受限制"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "自然人作品的发表权和财产权利保护期为作者终生及其死亡后 50 年，截止于作者死亡后第 50 年的 12 月 31 日。首次发表后 50 年适用于法人作品等特殊情形。"
+  },
+  {
+    "id": "SD-262",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "作品的署名权、修改权、保护作品完整权的保护期（）。",
+    "options": {
+      "A": "不受限制",
+      "B": "作者终生",
+      "C": "首次发表后 50 年",
+      "D": "首次发表后 20 年"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "这三项属于著作人身权，其保护期不受限制；受 50 年限制的是发表权和财产权利。这是常考的时间点对比。"
+  },
+  {
+    "id": "SD-263",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "程序员在单位任职期间，针对本职工作中明确指定的开发目标所开发的软件，双方未另有书面合同约定归属，该软件的著作权归（）享有。",
+    "options": {
+      "A": "该程序员个人",
+      "B": "国家",
+      "C": "程序员与单位共同",
+      "D": "该单位"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "依《计算机软件保护条例》，针对本职工作中明确指定的开发目标所开发的软件，著作权由该法人或其他组织（单位）享有，单位可对开发者给予奖励。"
+  },
+  {
+    "id": "SD-264",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "接受他人委托创作的作品，双方在委托合同中未明确约定著作权归属的，著作权属于（）。",
+    "options": {
+      "A": "委托人",
+      "B": "受托人",
+      "C": "双方共同",
+      "D": "国家"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "依《著作权法》，委托作品合同未作明确约定或者没有订立合同的，著作权属于受托人（创作方）。委托人可在委托创作的特定目的范围内使用作品。"
+  },
+  {
+    "id": "SD-265",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "计算机软件著作权自（）起产生。",
+    "options": {
+      "A": "办理著作权登记之日",
+      "B": "软件首次发表之日",
+      "C": "软件开发完成之日",
+      "D": "向主管部门提交源程序之日"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "中国著作权实行自动保护原则，软件著作权自软件开发完成之日起产生。登记只是便于举证的自愿手续，不是取得权利的条件。"
+  },
+  {
+    "id": "SD-266",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "关于著作权的保护期，下列说法正确的有？（多选）",
+    "options": {
+      "A": "署名权的保护期不受限制",
+      "B": "自然人作品财产权的保护期为作者终生及其去世后 50 年",
+      "C": "由法人享有著作权的作品，其财产权保护期为作品首次发表后 50 年",
+      "D": "软件著作权的财产权保护期一律为首次发表后 100 年"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "A、B、C 均符合《著作权法》及《计算机软件保护条例》的规定。软件著作权财产权保护期为自然人终生加去世后 50 年或（法人）首次发表后 50 年，不是 100 年，D 错。"
+  },
+  {
+    "id": "SD-267",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "软件著作权人依《计算机软件保护条例》享有的权利包括？（多选）",
+    "options": {
+      "A": "复制权",
+      "B": "对软件中所采用算法的思想本身的专有权",
+      "C": "发行权",
+      "D": "署名权"
+    },
+    "answer": [
+      "A",
+      "C",
+      "D"
+    ],
+    "analysis": "软件著作权人享有发表权、署名权、复制权、发行权等权利。著作权只保护表达（程序及其文档），不保护算法思想本身，算法思想可通过专利等其他途径寻求保护，B 错。"
+  },
+  {
+    "id": "SD-268",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "下列情形中，构成侵犯软件著作权的有？（多选）",
+    "options": {
+      "A": "未经许可复制他人的软件用于经营活动",
+      "B": "未经许可向公众发行他人的软件",
+      "C": "为学习和研究软件内含的设计思想而安装、使用该软件",
+      "D": "破解他人软件并去除其权利管理信息后公开发布"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "A、B、D 均属条例明定的侵权行为。为学习和研究软件内含的设计思想与原理而安装、显示、传输或存储使用软件的，属条例允许的合理使用，不构成侵权，C 不选。"
+  },
+  {
+    "id": "SD-269",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "著作权保护的是思想本身，而不是思想的具体表达。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。著作权保护的是具有独创性的表达（作品的形式），不保护思想、思路、概念、方法本身。这一「思想与表达二分法」是著作权的基本原理。"
+  },
+  {
+    "id": "SD-270",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-misc",
+    "day": "D9",
+    "examPoint": "EP-41",
+    "question": "两人各自独立创作完成的作品即使内容相同或实质近似，也可以分别享有著作权，互不构成侵权。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。著作权自动保护独立完成的独创性表达，不以登记或在先发表为取得条件；独立创作（巧合相同）不构成抄袭侵权，双方各自享有著作权。"
+  },
+  {
+    "id": "SD-271",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "关于重载（overload）与重写（override），正确的说法是（）。",
+    "options": {
+      "A": "重载发生在父类与子类之间，重写只发生在同一个类的内部",
+      "B": "重写只要求方法名相同，参数列表和返回类型都可以不同",
+      "C": "重载：方法名相同、参数列表不同；重写：子类重新实现父类同名同参方法",
+      "D": "重载和重写都要求方法签名完全相同，两者之间的区别只体现在返回类型上"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "重载是同一个类（或继承链上）中方法名相同、参数列表不同的多个方法，编译期按参数静态绑定；重写要求子类方法与父类方法名相同、参数列表相同，运行期动态绑定。"
+  },
+  {
+    "id": "SD-272",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "下列关于 TCP 与 UDP 的比较，正确的是（）。",
+    "options": {
+      "A": "TCP 无连接且不保证可靠交付，UDP 面向连接且可靠",
+      "B": "TCP 面向连接，有流量与拥塞控制；UDP 无连接、开销小",
+      "C": "UDP 保证数据按序到达且不丢失，TCP 不提供这样的保证",
+      "D": "TCP 最适合实时音视频传输，UDP 最适合大批量可靠文件传输"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "TCP 面向连接，通过确认重传、流量控制、拥塞控制提供可靠有序传输；UDP 无连接、首部开销小、时延低，适合实时音视频等允许少量丢失的场景。A、C 把特征说反，D 把适用场景说反。"
+  },
+  {
+    "id": "SD-273",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "关于编译方式与解释方式，正确的说法是（）。",
+    "options": {
+      "A": "编译方式在每次运行时都要重新翻译源程序，解释方式会生成独立的目标程序",
+      "B": "解释方式先把源程序翻译成完整的目标程序再执行，编译方式逐句翻译并立即执行",
+      "C": "解释方式的执行效率通常高于编译方式",
+      "D": "编译先翻译成目标程序再执行；解释逐句翻译立即执行，不生成目标程序"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "编译方式整体翻译生成目标程序，执行快、可脱离源程序运行；解释方式逐句翻译并立即执行、不生成独立目标程序，交互性好但执行效率通常较低。"
+  },
+  {
+    "id": "SD-274",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "UML 中聚合（aggregation）与组合（composition）的区别是（）。",
+    "options": {
+      "A": "聚合中的部分可以独立于整体存在；组合中部分的生命周期依附于整体，整体消亡部分随之消亡",
+      "B": "组合中的部分对象可以脱离整体而独立存在下去，聚合中的部分必须依附于整体",
+      "C": "聚合与组合都表示部分完全依附于整体的关系，两者在语义上没有任何实质区别",
+      "D": "在记法上聚合用实心菱形表示、组合用空心菱形表示，二者仅仅是画法不同而已"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "聚合是「可分离的」整体—部分关系，部分可独立存在（如班级与学生）；组合是更强的拥有关系，部分与整体共存亡（如订单与订单明细）。UML 中聚合画在整体端的空心菱形，组合是实心菱形，D 说反了。"
+  },
+  {
+    "id": "SD-275",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "关于黑盒测试与白盒测试，正确的说法是（）。",
+    "options": {
+      "A": "白盒测试完全不考虑程序的内部逻辑结构，只依据需求规格说明设计测试用例",
+      "B": "黑盒测试以程序的内部逻辑结构为依据，追求语句覆盖和分支覆盖",
+      "C": "黑盒测试从功能与规格说明验证外部行为；白盒依据内部逻辑检查覆盖",
+      "D": "黑盒测试与白盒测试相互排斥，同一个项目只能选用其中一种方法"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "黑盒测试把程序当作看不见内部的「黑盒」，依据规格说明检查功能；白盒测试依据内部逻辑结构设计用例，覆盖语句、分支、路径。A、B 把两者的依据说反，D 错在两者常结合使用。"
+  },
+  {
+    "id": "SD-276",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "关于进程与线程，正确的说法是（）。",
+    "options": {
+      "A": "线程是资源分配与拥有的基本单位，进程是处理机调度的基本单位",
+      "B": "进程是资源分配与拥有的基本单位，线程是处理机调度的基本单位",
+      "C": "同一进程内的各线程各自拥有独立的地址空间",
+      "D": "线程之间的切换必须更换地址空间，其开销与进程切换完全相同"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "传统操作系统中进程既是分配又是调度单位，引入线程后：进程拥有资源（地址空间、打开文件等），线程是被调度执行的单位。同进程内线程共享地址空间，线程切换通常不换页表，开销更小。"
+  },
+  {
+    "id": "SD-277",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "下列关于数据库范式级别的说法，正确的是（）。",
+    "options": {
+      "A": "满足 3NF 的关系模式一定满足 BCNF",
+      "B": "2NF 只是在 1NF 的基础上消除了非主属性对候选码的传递函数依赖",
+      "C": "消除非主属性对候选码的部分函数依赖是 3NF 的要求",
+      "D": "满足 BCNF 必满足 3NF，满足 3NF 必满足 2NF（级别逐级包含）"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "范式级别逐级增强：1NF→2NF 消除非主属性对码的部分依赖，2NF→3NF 消除传递依赖，BCNF 是 3NF 的加强（每个非平凡函数依赖的决定因素都包含码），故 BCNF⊆3NF⊆2NF。A 方向说反，B、C 归错了级别。"
+  },
+  {
+    "id": "SD-278",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "模块独立性的两个定性度量指标是内聚和耦合，好的模块设计应做到（）。",
+    "options": {
+      "A": "高耦合、低内聚",
+      "B": "低耦合、低内聚",
+      "C": "高内聚、低耦合",
+      "D": "高内聚、高耦合"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "内聚描述模块内部元素的关联程度，越高越好（功能内聚最佳）；耦合描述模块间的依赖程度，越低越好（数据耦合较理想）。高内聚低耦合的模块独立性强、易于维护复用。"
+  },
+  {
+    "id": "SD-279",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "关于进程地址空间中的栈（stack）与堆（heap），正确的说法是（）。",
+    "options": {
+      "A": "栈由系统自动分配与回收；堆由程序员显式申请释放或由运行时管理",
+      "B": "堆由编译器自动完成内存的分配与回收，栈必须由程序员手动申请和释放",
+      "C": "局部变量通常存放在堆内存中，动态申请的内存则分配在栈上",
+      "D": "堆内存的分配速度通常比栈内存的分配速度要更快"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "栈用于局部变量与调用帧，由编译器生成的代码自动分配释放；堆用于动态分配，C/C++ 中手动申请释放，托管语言靠垃圾回收。栈分配只需移动栈指针，通常比堆快，B、C、D 均说反。"
+  },
+  {
+    "id": "SD-280",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "关于增量模型与螺旋模型，正确的说法是（）。",
+    "options": {
+      "A": "增量模型在每一轮迭代开始之前都必须先完成一次正式而完整的风险分析",
+      "B": "螺旋模型每轮迭代都以风险分析为核心；增量模型按构件分批交付产品",
+      "C": "螺旋模型在开发过程中不使用任何原型技术",
+      "D": "增量模型必须等全部需求完全明确之后才能开始编码"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "螺旋模型每圈都经历风险分析，是风险驱动的演化模型，且常用原型降低风险；增量模型把系统按优先级分成多个增量，每个增量交付可用的核心子集，无需全部需求一次冻结。A、C、D 均与两模型的特征相反。"
+  },
+  {
+    "id": "SD-281",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "下列软件开发模型与其特征对应正确的有？（多选）",
+    "options": {
+      "A": "瀑布模型 — 最适合需求频繁变更的大型项目",
+      "B": "螺旋模型 — 以风险分析作为每轮迭代的核心活动",
+      "C": "原型模型 — 在需求不明确时快速构造可运行的原型以澄清需求",
+      "D": "增量模型 — 第一个增量完成后即可交付可用的核心功能"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "瀑布模型阶段线性顺序、文档驱动，要求需求在早期基本明确，需求频繁变更的项目并不适合，A 错。B、C、D 分别是三种模型的典型特征。"
+  },
+  {
+    "id": "SD-282",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "关于模块的内聚与耦合级别，下列说法正确的有？（多选）",
+    "options": {
+      "A": "功能内聚是内聚程度最高、最理想的内聚形式",
+      "B": "数据耦合比控制耦合的耦合程度更低，是更理想的耦合形式",
+      "C": "偶然内聚是内聚程度最低的内聚形式之一",
+      "D": "传递控制信息的控制耦合比只传递数据的耦合方式更理想"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "内聚从低到高：偶然、逻辑、时间、过程、通信、顺序、功能，功能内聚最佳，A、C 正确。耦合从低到高理想度递减：数据、标记、控制、公共、内容，数据耦合最理想，控制耦合传递控制标志使模块相互牵制，D 说反。"
+  },
+  {
+    "id": "SD-283",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "下列 UML 类间关系的说法，正确的有？（多选）",
+    "options": {
+      "A": "泛化是一般与特殊的关系，子类继承并特殊化父类",
+      "B": "实现是类与接口之间的关系，类实现接口规定的操作契约",
+      "C": "关联表示类之间临时性的使用关系，例如方法参数引用了另一个类",
+      "D": "聚合是一种特殊的关联关系，表示整体与部分的语义"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "泛化（generalization）即继承关系，实现（realization）连接类与接口，聚合（aggregation）是表达整体—部分的特殊关联，A、B、D 正确。临时性使用（如方法参数）是依赖（dependency）而非关联，C 混淆了两者的持续时间语义。"
+  },
+  {
+    "id": "SD-284",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "子类重写（override）父类方法时，重写方法的访问权限不能比父类中被重写的方法更严格。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。重写要求保持兼容：访问权限只能相同或放宽（如 protected 可放宽为 public），不能收紧，否则通过父类引用调用该方法时会出现编译期或运行期不可访问的问题；重写还不能抛出更宽的受检异常。"
+  },
+  {
+    "id": "SD-285",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "在 OSI 参考模型中，路由器是传输层的网络互连设备。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。路由器工作在网络层，根据 IP 地址进行路由选择；物理层是中继器/集线器，数据链路层是网桥/交换机，传输层以上才有网关。"
+  },
+  {
+    "id": "SD-286",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-42",
+    "question": "编译器的前端通常与目标机无关，后端通常与源语言无关，这种划分有利于编译程序的移植与重定向。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。前端完成与源语言相关的词法、语法、语义分析并生成中间代码，后端把中间代码翻译为特定目标机的代码。换目标机只需换后端，重定向到新语言只需换前端，便于移植和复用。"
+  },
+  {
+    "id": "SD-287",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "某指令流水线分为 5 段，每段耗时 2ns，连续执行 100 条指令。与串行执行相比，该流水线的加速比约为（）。",
+    "options": {
+      "A": "4.8",
+      "B": "2.4",
+      "C": "5.0",
+      "D": "2.0"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "串行时间 = 5×2×100 = 1000ns；流水时间 = (5 + (100−1))×2 = 208ns；加速比 S = 1000/208 ≈ 4.8。"
+  },
+  {
+    "id": "SD-288",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "网络地址块 192.168.10.0/26 可分配给主机的地址数是（）个。",
+    "options": {
+      "A": "30",
+      "B": "64",
+      "C": "126",
+      "D": "62"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "/26 的主机位有 32−26 = 6 位，共 2^6 = 64 个地址，扣除网络地址和广播地址各 1 个，可分配主机地址 62 个。"
+  },
+  {
+    "id": "SD-289",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "某系统由两个可靠度均为 0.9 的部件并联，再与一个可靠度为 0.9 的部件串联，整个系统的可靠度是（）。",
+    "options": {
+      "A": "0.729",
+      "B": "0.900",
+      "C": "0.891",
+      "D": "0.990"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "并联部分 R = 1 − (1−0.9)² = 0.99；再串联一个 0.9 的部件，系统可靠度 = 0.99×0.9 = 0.891。"
+  },
+  {
+    "id": "SD-290",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "对权值集合 {a:4, b:2, c:1, d:1} 构造哈夫曼树，其带权路径长度 WPL 是（）。",
+    "options": {
+      "A": "12",
+      "B": "14",
+      "C": "15",
+      "D": "16"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "先合并 c+d=2，再与 b 合并为 4，最后与 a=4 合并。各叶结点深度：a 为 1，b 为 2，c、d 为 3。WPL = 4×1 + 2×2 + 1×3 + 1×3 = 14。"
+  },
+  {
+    "id": "SD-291",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "某 AOE 网的 activities 为：v1→v2 耗 3 天，v1→v3 耗 2 天，v2→v4 耗 4 天，v3→v4 耗 6 天。该工程的最短工期（关键路径长度）是（）天。",
+    "options": {
+      "A": "7",
+      "B": "5",
+      "C": "9",
+      "D": "8"
+    },
+    "answer": [
+      "D"
+    ],
+    "analysis": "从 v1 到 v4 仅有两条路径：3+4 = 7 和 2+6 = 8。关键路径是最长路径，故工期为 8 天，路径 v1→v3→v4 上的活动是关键活动。"
+  },
+  {
+    "id": "SD-292",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "某系统 Cache 存取周期为 20ns，主存存取周期为 100ns，命中率为 95%，则平均存取时间为（）。",
+    "options": {
+      "A": "24 ns",
+      "B": "25 ns",
+      "C": "21 ns",
+      "D": "59 ns"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "平均存取时间 = 命中率×Cache 周期 + 失效率×主存周期 = 0.95×20 + 0.05×100 = 19 + 5 = 24ns。"
+  },
+  {
+    "id": "SD-293",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "某存储器容量为 4K×8 位，按字节编址访问该存储器，需要的地址线根数是（）。",
+    "options": {
+      "A": "10",
+      "B": "11",
+      "C": "12",
+      "D": "13"
+    },
+    "answer": [
+      "C"
+    ],
+    "analysis": "4K = 4096 = 2^12 个编址单元，每单元 8 位正好按字节编址，需要 12 根地址线寻址；数据线为 8 根，与地址线无关。"
+  },
+  {
+    "id": "SD-294",
+    "type": "single",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "对长度为 100 的有序顺序表进行折半查找，查找成功时最多的关键字比较次数是（）次。",
+    "options": {
+      "A": "7",
+      "B": "6",
+      "C": "8",
+      "D": "10"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "折半查找的判定树高度为 ⌈log2(n+1)⌉。n = 100 时，⌈log2 101⌉ = ⌈6.66⌉ = 7，故最多比较 7 次。"
+  },
+  {
+    "id": "SD-295",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "某指令流水线分为 5 段，每段耗时 1Δt，连续执行 20 条指令。下列计算正确的有？（多选）",
+    "options": {
+      "A": "流水线稳定后每个 Δt 完成 5 条指令",
+      "B": "完成 20 条指令共需 (5 + 19)Δt = 24Δt",
+      "C": "与串行执行相比加速比约为 100/24 ≈ 4.17",
+      "D": "该流水线吞吐率约为 20/24 条/Δt"
+    },
+    "answer": [
+      "B",
+      "C",
+      "D"
+    ],
+    "analysis": "总时间 = (段数 + 任务数 − 1)×段周期 = (5+19)Δt = 24Δt；串行需 5×20 = 100Δt，加速比 ≈ 4.17；吞吐率 = 任务数/总时间 = 20/24 条/Δt。流水线稳定后每个 Δt 完成 1 条而非 5 条，A 错。"
+  },
+  {
+    "id": "SD-296",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "系统由可靠度均为 0.8 的两个部件 R1、R2 并联构成子系统，再与可靠度 0.9 的部件 R3 串联。下列说法正确的有？（多选）",
+    "options": {
+      "A": "并联子系统的可靠度为 1 − (1−0.8)² = 0.96",
+      "B": "并联结构可以提高可靠度，串联结构会使系统可靠度低于其中任何一个部件",
+      "C": "该并联子系统的可靠度为 0.8×0.8 = 0.64",
+      "D": "整个系统的可靠度为 0.96×0.9 = 0.864"
+    },
+    "answer": [
+      "A",
+      "B",
+      "D"
+    ],
+    "analysis": "并联子系统失效率为两者同时失效的概率 (0.2)² = 0.04，故可靠度 0.96，A 对；并联子系统内部是「或」的关系应按 1−(1−R1)(1−R2) 计算，C 用了串联的乘法公式，错；串联系统 R = 0.96×0.9 = 0.864，低于任一部件，B、D 正确。"
+  },
+  {
+    "id": "SD-297",
+    "type": "multi",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "对权值集合 {A:5, B:2, C:1, D:1} 构造哈夫曼树并编码，下列说法正确的有？（多选）",
+    "options": {
+      "A": "权值最大的字符 A 得到的编码长度最短",
+      "B": "该哈夫曼树的带权路径长度 WPL = 15",
+      "C": "构造过程中每次合并两个权值最小的结点，最终树中不存在度为 1 的结点",
+      "D": "出现频率越低的字符，其哈夫曼编码长度也越短"
+    },
+    "answer": [
+      "A",
+      "B",
+      "C"
+    ],
+    "analysis": "合并过程：C+D=2，再与 B 合并为 4，最后与 A 合并；深度为 A:1、B:2、C:3、D:3，WPL = 5×1+2×2+1×3+1×3 = 15。哈夫曼树每次合并两个最小结点，内部结点度均为 2。频率越低离根越远、编码越长，D 说反。"
+  },
+  {
+    "id": "SD-298",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "含 n 个叶结点（待编码字符）的哈夫曼树，其结点总数为 2n 个。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。哈夫曼树不存在度为 1 的结点，n 个叶结点对应 n−1 个度为 2 的内部结点，总结点数为 2n−1。例如 4 个叶结点的哈夫曼树共 7 个结点。"
+  },
+  {
+    "id": "SD-299",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "在 AOE 网中，缩短任意一个非关键活动的持续时间，都能缩短整个工程的工期。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "B"
+    ],
+    "analysis": "错。工期由关键路径（最长路径）决定，非关键活动存在时间余量（总时差），在其松弛范围内缩短不改变工期。只有缩短关键活动且关键路径不变时才能有效缩短工期。"
+  },
+  {
+    "id": "SD-300",
+    "type": "judge",
+    "source": "software-designer",
+    "topic": "sd-mixed",
+    "day": "D10",
+    "examPoint": "EP-43",
+    "question": "子网掩码为 255.255.255.240 时，每个子网中可分配给主机的地址数是 14 个。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": [
+      "A"
+    ],
+    "analysis": "对。255.255.255.240 即 /28，主机位 4 位，2^4 = 16 个地址，减去网络地址和广播地址各 1 个，可分配主机地址 16 − 2 = 14 个。"
+  }
+]

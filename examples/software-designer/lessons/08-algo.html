@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D8 · 数据结构与算法</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>D8 · 数据结构与算法</h1>
+<p class="meta">ai-study-kit 学习包　·　<a href="../MISSION.md">← mission</a>　·　下一课：<a href="09-misc.html">D9 · 数学 / 英语 / 法规</a></p>
+
+<p class="lead">这是开发者的主场，但考法和你日常写代码不同——软考不问工程取舍，问<strong>性质、复杂度、遍历互推</strong>。五条线：<strong>线性表</strong>、<strong>树</strong>、<strong>图</strong>、<strong>排序</strong>、<strong>散列</strong>，每条线都有固定的「必得计算分」。</p>
+
+<h2>一、线性表：栈与队列的口径题</h2>
+<p>线性表两种存法：<strong>顺序表</strong>（随机存取 O(1)、插删要挪元素）与<strong>链表</strong>（存取 O(n)、插删改指针即可）。两个受限的线性表是考点钉子户：</p>
+<ul>
+<li><strong>栈（Stack，LIFO）</strong>：进栈出栈序列合法性判断——任意时刻已出栈的最大值之后的元素只能按逆序出（经典判断题）。</li>
+<li><strong>队列（Queue，FIFO）</strong>：<strong>循环队列</strong>牺牲一格判满：<code>(rear+1)%m == front</code> 为满，<code>front == rear</code> 为空，元素个数 <code>(rear-front+m)%m</code>。</li>
+</ul>
+<pre><code>循环队列 m=6：front=2, rear=5  →  元素个数 = (5-2+6)%6 = 3（下标 2,3,4）</code></pre>
+
+<div class="compare">
+<div>
+<h4>顺序表</h4>
+<p>随机存取 O(1)；插删平均移动 n/2 个元素；存储密度高，需要连续空间，扩容昂贵。</p>
+</div>
+<div>
+<h4>单链表</h4>
+<p>按序存取 O(n)；定位后插删只改指针 O(1)；要额外存指针域，空间可离散分配。</p>
+</div>
+</div>
+
+<h2>二、树：性质、遍历互推、哈夫曼</h2>
+<p><strong>二叉树三大性质</strong>：第 i 层最多 2<sup>i-1</sup> 个结点；深度为 k 的二叉树最多 2<sup>k</sup>-1 个结点；叶子数与度为 2 结点数恒有 <code>n0 = n2 + 1</code>（选择题年年出）。n 个结点的完全二叉树深度为 ⌊log₂n⌋+1。</p>
+
+<p><strong>遍历互推（下午算法题的入门题型）</strong>——已知先序＋中序，推后序：</p>
+<pre><code>        A                先序：A B D E C F（根左右）
+       / \               中序：D B E A C F（左根右）
+      B   C              后序：D E B F C A（左右根）
+     / \    \
+    D   E    F
+推法：① 先序首字母 A 为根；② 中序里 A 左侧 DBE 是左子树、右侧 CF 是右子树；
+      ③ 对左子树递归：先序 B D E → 根 B，中序 D B E → 左 D 右 E；
+      ④ 对右子树递归：根 C，中序只剩 F → F 是 C 的孩子（先序 C F 定 F 在后）；
+      ⑤ 按「左右根」拼后序：D E B F C A。</code></pre>
+
+<p><strong>哈夫曼树（Huffman）</strong>：每次取<strong>两个最小</strong>权值合并，n 个叶子的哈夫曼树共 2n-1 个结点、无度为 1 的结点。带权路径长度 WPL 算例：</p>
+<pre><code>权值 {2, 3, 4, 6}
+第 1 步：2 + 3 = 5      →  {4, 5, 6}
+第 2 步：4 + 5 = 9      →  {6, 9}
+第 3 步：6 + 9 = 15     →  根
+WPL = 6×1 + 4×2 + 2×3 + 3×3 = 6 + 8 + 6 + 9 = 29
+（捷径：WPL = 各次合并之和 = 5 + 9 + 15 = 29，两条路必相等，可互验）</code></pre>
+
+<h2>三、图：存储、遍历、三个经典算法</h2>
+<p>图的两种存储（选择题常对比空间）：</p>
+<table>
+<thead><tr><th>存储</th><th>空间</th><th>适用</th><th>查边</th></tr></thead>
+<tbody>
+<tr><td>邻接矩阵</td><td>O(n²)</td><td>稠密图</td><td>O(1) 直接查格子</td></tr>
+<tr><td>邻接表</td><td>O(n+e)</td><td>稀疏图</td><td>O(度) 沿链扫</td></tr>
+</tbody>
+</table>
+
+<ul>
+<li><strong>遍历</strong>：深度优先 DFS（栈/递归，沿一条路走到黑再回溯）、广度优先 BFS（队列，逐层扩散）；邻接表下复杂度都是 O(n+e)。给顶点序列判断是 DFS 还是 BFS 是高频选择题。</li>
+<li><strong>Dijkstra</strong>：单源最短路径，贪心地按「当前最短」逐点收编，不适合<strong>负权</strong>边。</li>
+<li><strong>拓扑排序</strong>：AOV 网上反复挑<strong>入度为 0</strong> 的顶点输出并删其出边；结果不唯一；若输出顶点数 &lt; 总数说明网中<strong>有环</strong>。</li>
+</ul>
+<pre><code>AOV：V1→V2, V1→V3, V2→V4, V3→V4, V4→V5
+拓扑：入度 V1=0 起 → V1 → (V2 或 V3，不唯一) → V4 → V5</code></pre>
+
+<div class="callout callout-tip">
+<p><strong>关联记忆</strong>：AOV 网（顶点=活动）配拓扑排序查依赖；AOE 网（边=活动）配<strong>关键路径</strong>求工期——后者在 D10 的计算综合演练里出算例。</p>
+</div>
+
+<h2>四、排序：一张复杂度稳定性表打天下</h2>
+<table>
+<thead><tr><th>排序</th><th>平均</th><th>最坏</th><th>辅助空间</th><th>稳定</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>稳定</td></tr>
+<tr><td>希尔</td><td>O(n<sup>1.3</sup>)</td><td>O(n²)</td><td>O(1)</td><td>不稳定</td></tr>
+<tr><td>冒泡</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>稳定</td></tr>
+<tr><td>简单选择</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>不稳定</td></tr>
+<tr><td>快速</td><td>O(nlogn)</td><td>O(n²)（已有序最坏）</td><td>O(logn)</td><td>不稳定</td></tr>
+<tr><td>堆排序</td><td>O(nlogn)</td><td>O(nlogn)</td><td>O(1)</td><td>不稳定</td></tr>
+<tr><td>归并</td><td>O(nlogn)</td><td>O(nlogn)</td><td>O(n)</td><td>稳定</td></tr>
+<tr><td>基数</td><td>O(d(n+r))</td><td>O(d(n+r))</td><td>O(n+r)</td><td>稳定</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-warn">
+<p><strong>记忆锚点</strong>：不稳定口诀「<strong>快些选堆</strong>不值钱」——快排、希尔（些）、选择、堆排不稳定，其余（直接插入、冒泡、归并、基数）都稳定。快排最坏情况是<strong>序列已经基本有序</strong>；「最快不确定、最稳是归并（空间 O(n)）」。</p>
+</div>
+
+<h2>五、散列：冲突处理与装填因子</h2>
+<p>散列（Hash）用 <code>H(key) = key mod p</code>（p 常取不大于表长的素数）直接定址。<strong>冲突</strong>（不同关键字同址）的处理两大家：</p>
+<ul>
+<li><strong>开放定址法</strong>：冲突后按规则探测下一空位——线性探测（+1 往后找，易「堆积」）、二次探测（±1², ±2²…）、随机探测。</li>
+<li><strong>链地址法</strong>：同址关键字挂成单链表，删插友好。</li>
+</ul>
+<pre><code>H(k) = k mod 7，表长 7，线性探测插入 {26, 38, 12, 51, 31}：
+26%7=5 → 槽 5        38%7=3 → 槽 3
+12%7=5 → 冲突 → 槽 6   51%7=2 → 槽 2
+31%7=3 → 冲突 → 槽 4（跳过被 26 占的 5）
+
+下标：  0    1    2    3    4    5    6
+        -    -   51   38   31   26   12</code></pre>
+
+<p>平均查找长度 ASL 随<strong>装填因子</strong> <code>α = 表中记录数 / 表长</code> 增大而上升——α 是影响冲突频率的首要因素，与关键字本身无关。</p>
+
+<div class="quiz-anchor">
+EP-33 线性表（6 题：栈队列/循环队列）、EP-34 树（9 题：性质/遍历互推/哈夫曼 WPL）、EP-35 图（6 题：存储/DFS-BFS/Dijkstra/拓扑排序）、EP-36 排序（5 题：复杂度稳定性表）、EP-37 散列（4 题：冲突处理/装填因子）
+</div>
+
+<h2>六、下一步</h2>
+<ul>
+<li>合上课件重推一遍「先序＋中序 → 后序」和 WPL=29 两个算例。</li>
+<li>去答题站刷 D8 档（EP-33 ~ EP-37）。</li>
+<li>下一课：<a href="09-misc.html">D9 · 数学 / 英语 / 法规</a>——补弱速览。</li>
+</ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D6 · 结构化分析与设计</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>D6 · 结构化分析与设计</h1>
+<p class="meta">ai-study-kit 学习包　·　<a href="../MISSION.md">← mission</a>　·　下一课：<a href="07-uml.html">D7 · UML 与设计模式</a></p>
+
+<p class="lead">结构化方法分两步：<strong>SA（Structured Analysis，结构化分析）</strong>用<strong>数据流图</strong>＋<strong>数据字典</strong>把「数据在系统里怎么流」画清楚；<strong>SD（Structured Design，结构化设计）</strong>再把加工映射成模块，完成<strong>模块设计</strong>。下午案例第一道大题考的正是这条链路——本课按真题问法带你过一遍。</p>
+
+<h2>一、数据流图（DFD）：案例必考画图题</h2>
+<p>数据流图（Data Flow Diagram, DFD）从「数据流动」的视角刻画系统，<strong>只有四类元素</strong>，多画任何东西都算错：</p>
+<table>
+<thead><tr><th>元素</th><th>含义</th><th>记法</th></tr></thead>
+<tbody>
+<tr><td>外部实体</td><td>系统之外的数据源/数据宿（人或外部系统）</td><td>矩形框，如「旅客」</td></tr>
+<tr><td>加工</td><td>对数据的变换，动宾命名并编号</td><td>圆角框/圆圈，编号 1、1.2 逐层展开</td></tr>
+<tr><td>数据存储</td><td>静止存放的数据（文件、表）</td><td>开口矩形/双横线，编号 D1、D2</td></tr>
+<tr><td>数据流</td><td>数据的流向与内容</td><td>带名字的箭头</td></tr>
+</tbody>
+</table>
+
+<p>订票系统 0 层数据流图片段（真题风格）：</p>
+<pre><code>[旅客] ──订票请求──▶ (1 校验余票) ──余票查询──▶ ⟨D1 车次余票⟩
+  ▲                     │ ◀──余票信息── ⟨D1⟩
+  │                     ├──出票请求──▶ (2 开票收款) ──客票──▶ [旅客]
+  └──无票答复───────────┘                    │
+                                             └──售票记录──▶ ⟨D2 售票流水⟩</code></pre>
+
+<p><strong>分层</strong>：顶层图（关联图）只画一个加工代表整个系统，确定边界；往下逐层展开为 0 层、1 层图，加工编号 1 → 1.1 / 1.2 / 1.3。</p>
+
+<div class="callout callout-tip">
+<p><strong>父图与子图平衡规则（下午补图题的钥匙）</strong>：子图的输入、输出数据流必须与父图中对应加工的输入、输出数据流<strong>一致</strong>（条数、方向、内容）。题目挖掉一条数据流时，先在父图数进出，再回子图对账，缺哪条补哪条。</p>
+</div>
+
+<h3>真题问法与解题四步</h3>
+<ol>
+<li><strong>圈词</strong>：说明里的名词 → 外部实体/数据存储候选；动词 → 加工候选；「向…提交/返回…」→ 数据流候选。</li>
+<li><strong>查连线</strong>：每条数据流必须至少有一端接加工——实体→实体、实体↔存储直连都是错图。</li>
+<li><strong>查加工</strong>：有入无出是「黑洞」，有出无入是「奇迹」，都要回说明找缺失的数据流。</li>
+<li><strong>查平衡</strong>：用父图与子图平衡规则核对展开后的输入输出。</li>
+</ol>
+
+<h2>二、数据字典（DD）：给 DFD 的每条流做注解</h2>
+<p>数据字典（Data Dictionary, DD）对数据流图里的数据流、数据存储和加工做精确<strong>定义</strong>，四类条目：</p>
+<table>
+<thead><tr><th>条目类型</th><th>定义什么</th><th>示例</th></tr></thead>
+<tbody>
+<tr><td>数据项（数据元素）</td><td>不可再分的最小数据单位、取值类型与范围</td><td>车次号 = 1 个字符＋4 位数字</td></tr>
+<tr><td>数据流</td><td>流动数据包的组成</td><td>订票请求 = 旅客姓名＋车次号＋乘车日期＋(座位偏好)</td></tr>
+<tr><td>数据存储</td><td>存储数据的组成与组织</td><td>D2 售票流水 = {售票记录}</td></tr>
+<tr><td>基本加工</td><td>最底层加工的加工逻辑（怎么算）</td><td>用三工具描述，见下</td></tr>
+</tbody>
+</table>
+
+<p>常用定义符号：</p>
+<pre><code>=        定义为            +        与（顺序连接）
+[.. | ..] 或（多选一）      {..}     重复       m{..}n  重复 m~n 次
+(..)     可选              ".."     取值范围   "1".."9"
+例：订票请求 = 旅客姓名 + 车次号 + {行程段} + (座位偏好)</code></pre>
+
+<p><strong>加工逻辑三工具</strong>（描述底层加工「做什么、怎么做」）：</p>
+<ul>
+<li><strong>结构化语言</strong>：顺序/选择/重复三种控制结构＋自然语言，如「IF 余票&gt;0 THEN 开票 ELSE 登记 D3」。</li>
+<li><strong>判定表</strong>：多条件组合出多动作，最不易遗漏分支。</li>
+<li><strong>判定树</strong>：判定表的树形画法，直观易读。</li>
+</ul>
+
+<p>退票手续费规则，先列判定表再画判定树：</p>
+<table>
+<thead><tr><th>规则</th><th>1</th><th>2</th><th>3</th><th>4</th></tr></thead>
+<tbody>
+<tr><td>C1 会员等级（金卡/普卡）</td><td>金</td><td>金</td><td>普</td><td>普</td></tr>
+<tr><td>C2 开车前时间（≥48h / &lt;48h）</td><td>≥48</td><td>&lt;48</td><td>≥48</td><td>&lt;48</td></tr>
+<tr><td>A 手续费比例</td><td>0%</td><td>5%</td><td>5%</td><td>10%</td></tr>
+</tbody>
+</table>
+<pre><code>退票手续费 ── 金卡 ── ≥48h ── 0%
+                 └── &lt;48h ── 5%
+            └── 普卡 ── ≥48h ── 5%
+                 └── &lt;48h ── 10%</code></pre>
+
+<h2>三、模块设计：从 DFD 到结构图</h2>
+<p>SD 阶段把数据流图映射成<strong>结构图（程序模块结构）</strong>，两条映射路径：</p>
+<pre><code>变换流：  逻辑输入 ──▶ 变换中心 ──▶ 逻辑输出     （变换分析：按输入/变换/输出三分模块）
+事务流：  事务 ──▶ 事务中心 ─┬─▶ 动作 1          （事务分析：按动作分支分模块）
+                             ├─▶ 动作 2
+                             └─▶ 动作 3</code></pre>
+
+<p>评价模块设计好坏的两把尺：<strong>耦合</strong>（模块间联系，越低越好）与<strong>内聚</strong>（模块内联系，越高越好）——好设计就是「高内聚、低耦合」。</p>
+
+<table>
+<thead><tr><th>耦合七级（从好到差）</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td>非直接耦合</td><td>两模块无直接联系</td></tr>
+<tr><td>数据耦合</td><td>只传简单数据参数（目标状态）</td></tr>
+<tr><td>标记耦合</td><td>传数据结构（一部分用不到）</td></tr>
+<tr><td>控制耦合</td><td>传控制变量（开关/标志），对方决定做什么</td></tr>
+<tr><td>外部耦合</td><td>访问同一全局简单变量（如 I/O 约定）</td></tr>
+<tr><td>公共耦合</td><td>共享公共数据区（全局结构）</td></tr>
+<tr><td>内容耦合</td><td>直接访问对方内部数据/代码（最差）</td></tr>
+</tbody>
+</table>
+
+<table>
+<thead><tr><th>内聚七级（从好到差）</th><th>含义</th></tr></thead>
+<tbody>
+<tr><td>功能内聚</td><td>只做一件事且做好（目标状态）</td></tr>
+<tr><td>顺序内聚</td><td>前一个输出是后一个输入</td></tr>
+<tr><td>通信内聚</td><td>用同一组输入/输出数据</td></tr>
+<tr><td>过程内聚</td><td>按控制流顺序执行，数据关系弱</td></tr>
+<tr><td>时间内聚</td><td>同一时间执行（如初始化模块）</td></tr>
+<tr><td>逻辑内聚</td><td>逻辑上相似功能凑一起，靠参数选择</td></tr>
+<tr><td>偶然内聚</td><td>无关系的语句拼成模块（最差）</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-warn">
+<p><strong>模块设计启发式规则（判断题高频）</strong>：扇入尽量大（被更多上层复用）、扇出尽量小（一般 ≤7）；深化模块规模适中；模块<strong>作用域</strong>应在其<strong>控制域</strong>之内；尽量单入口单出口；消除重复功能。改造结构图的每一步都是朝着高内聚、低耦合走。</p>
+</div>
+
+<div class="quiz-anchor">
+EP-26 数据流图（10 题：四要素 / 分层平衡 / 补图）、EP-27 数据字典（8 题：条目类型 / 定义符号 / 加工逻辑三工具）、EP-28 模块设计（12 题：耦合内聚排序 / 变换流事务流 / 启发式规则）
+</div>
+
+<h2>四、下一步</h2>
+<ul>
+<li>本课是下午案例的地基：拿一张纸把订票系统数据流图默画一遍，再自查平衡规则。</li>
+<li>去答题站刷 D6 档（EP-26 ~ EP-28），错题自动进错题本。</li>
+<li>下一课：<a href="07-uml.html">D7 · UML 与设计模式</a>——案例卷第二主场。</li>
+</ul>
+</main>
+</body>
+</html>

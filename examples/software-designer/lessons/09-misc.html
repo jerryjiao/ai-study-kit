@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D9 · 数学 / 英语 / 法规</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>D9 · 数学 / 英语 / 法规</h1>
+<p class="meta">ai-study-kit 学习包　·　<a href="../MISSION.md">← mission</a>　·　下一课：<a href="10-mixed.html">D10 · 综合冲刺</a></p>
+
+<p class="lead">补弱档，目标是「不丢冤枉分」：<strong>命题逻辑</strong>会列等价式与主范式、<strong>概率统计</strong>会套全概率与贝叶斯、<strong>专业英语</strong>认得出高频术语、<strong>著作权</strong>记牢归属与保护期。都是套路题，一遍过即可。</p>
+
+<h2>一、命题逻辑：等价式 + 主范式</h2>
+<p>命题逻辑把命题符号化后只剩「等价变形」。必背等价式：</p>
+<table>
+<thead><tr><th>等价式</th><th>名称/说明</th></tr></thead>
+<tbody>
+<tr><td>¬¬P ⇔ P</td><td>双重否定</td></tr>
+<tr><td>¬(P∧Q) ⇔ ¬P∨¬Q；¬(P∨Q) ⇔ ¬P∧¬Q</td><td>德摩根律</td></tr>
+<tr><td>P→Q ⇔ ¬P∨Q</td><td>蕴含等值式（化箭头为与/或）</td></tr>
+<tr><td>P→Q ⇔ ¬Q→¬P</td><td>逆否命题（原命题与逆否同真假）</td></tr>
+<tr><td>P↔Q ⇔ (P→Q)∧(Q→P)</td><td>等价式展开</td></tr>
+<tr><td>P∨(P∧Q) ⇔ P；P∧(P∨Q) ⇔ P</td><td>吸收律</td></tr>
+</tbody>
+</table>
+
+<p><strong>主范式</strong>：任何公式都可化为唯一的主析取范式（极小项 m<sub>i</sub> 之或，按成真赋值编号）或主合取范式（极大项 M<sub>i</sub> 之与，按成假赋值编号）。算例：</p>
+<pre><code>求 F = (P∧Q) ∨ ¬P 的主析取范式：
+赋值      (P,Q) = 00    01    10    11
+F 取值      T     T     F     T
+成真赋值 → 极小项 m0（¬P∧¬Q）、m1（¬P∧Q）、m3（P∧Q）
+主析取范式：F ⇔ m0 ∨ m1 ∨ m3
+成假赋值 10 → 极大项 M2（P∨¬Q），主合取范式：F ⇔ M2
+（互检：缺哪个下标，另一范式就补哪个）</code></pre>
+
+<h3>真题问法</h3>
+<ol>
+<li>给公式选等价式：先用蕴含等值式消「→」，再德摩根展开。</li>
+<li>判断公式类型（永真 / 永假 / 可满足）：列全真值表，看取值分布。</li>
+<li>求主析取范式：真值表 → 成真赋值编号 → 极小项之或；主合取范式对偶处理。</li>
+</ol>
+
+<div class="callout callout-tip">
+<p><strong>速算锚点</strong>：主析取范式列成真赋值的 m 项；公式为永假式 ⇔ 主析取范式不存在（无成真赋值）；恒等式化简先用蕴含等值式消「→」再德摩根。</p>
+</div>
+
+<h2>二、概率统计：条件概率、全概率、贝叶斯</h2>
+<p>三个公式一条链：</p>
+<pre><code>条件概率：P(A|B) = P(AB) / P(B)
+全概率：  P(B)   = Σ P(B|Ai)·P(Ai)        （Ai 是完备的「原因」组）
+贝叶斯：  P(Ak|B) = P(B|Ak)·P(Ak) / P(B)  （由结果反推原因）</code></pre>
+
+<p>算例（次品溯源，软考经典造型）：甲乙丙三条产线占产量 50%、30%、20%，次品率分别为 1%、2%、4%。抽到一件次品，问来自甲线的概率：</p>
+<pre><code>P(次品) = 0.5×0.01 + 0.3×0.02 + 0.2×0.04 = 0.005+0.006+0.008 = 0.019   （全概率）
+P(甲|次品) = 0.005 / 0.019 ≈ 0.263                                      （贝叶斯）</code></pre>
+
+<p>概率统计的做题认型只有一句：题干问「结果发生的概率」→ 全概率；问「已知结果、反推是哪个原因」→ 贝叶斯。两类题型换个壳（邮件判垃圾、检测阳性推患病、机器故障溯源）都是同一套数字流。</p>
+
+<h2>三、专业英语：术语量决定完形分</h2>
+<p>上午最后一篇完形填空，考的是<strong>术语对应的精确度</strong>。高频术语表（先混脸熟）：</p>
+<table>
+<thead><tr><th>英文</th><th>中文</th><th>英文</th><th>中文</th></tr></thead>
+<tbody>
+<tr><td>requirement</td><td>需求</td><td>specification</td><td>规格说明</td></tr>
+<tr><td>maintenance</td><td>维护</td><td>reliability</td><td>可靠性</td></tr>
+<tr><td>encapsulation</td><td>封装</td><td>inheritance</td><td>继承</td></tr>
+<tr><td>polymorphism</td><td>多态</td><td>coupling / cohesion</td><td>耦合 / 内聚</td></tr>
+<tr><td>verification</td><td>验证（做对了吗）</td><td>validation</td><td>确认（做的是这个吗）</td></tr>
+<tr><td>throughput</td><td>吞吐量</td><td>latency</td><td>时延</td></tr>
+<tr><td>redundancy</td><td>冗余</td><td>protocol</td><td>协议</td></tr>
+<tr><td>integrity</td><td>完整性</td><td>availability</td><td>可用性</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-tip">
+<p><strong>完形技巧</strong>：先读首句定主题（多半是软件工程/网络段落）；四个选项若都是动词，看时态与单复数；若都是名词，看冠词 a/an/the 与前后介词搭配；并列结构（and/or 前后）词性一致。术语认识一半以上就能拿到 4-5 分。</p>
+</div>
+
+<h2>四、著作权：归属 + 保护期两张表</h2>
+<p>著作权自作品<strong>创作完成自动产生</strong>，登记不是取得条件（判断题最爱）。</p>
+
+<table>
+<thead><tr><th>作品情形</th><th>著作权归属</th></tr></thead>
+<tbody>
+<tr><td>一般职务作品</td><td>归<strong>作者</strong>；单位在业务范围内有优先使用权（两年内）</td></tr>
+<tr><td>特殊职务作品（主要利用单位物质技术条件、由单位承担责任）</td><td>作者仅署名权，其他权利归<strong>单位</strong>——软件职务作品多按此判</td></tr>
+<tr><td>委托作品</td><td>合同约定优先；<strong>无约定归受托人</strong></td></tr>
+<tr><td>合作作品</td><td>合作作者<strong>共同享有</strong></td></tr>
+</tbody>
+</table>
+
+<table>
+<thead><tr><th>权利</th><th>保护期</th></tr></thead>
+<tbody>
+<tr><td>署名权、修改权、保护作品完整权</td><td><strong>不受限制</strong>（永久保护）</td></tr>
+<tr><td>发表权＋财产权（自然人作品）</td><td>作者终生＋死后 <strong>50 年</strong>（止于 12 月 31 日）</td></tr>
+<tr><td>法人作品 / 一般职务作品的发表权与财产权</td><td>首次发表后 <strong>50 年</strong>（50 年内未发表的不再保护）</td></tr>
+<tr><td>软件著作权（法人）</td><td>首次发表后 50 年；自然人为终生＋死后 50 年</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-warn">
+<p><strong>易混提醒</strong>：著作权保护「表达」不保护思想/算法/思想本身；专利保护技术方案，软件<strong>著作权</strong>是自动取得而专利须申请。保护期数字「50 年」三种算法（终身+50、发表后 50、单位自创作完成）在判断题里反复换壳。</p>
+</div>
+
+<div class="quiz-anchor">
+EP-38 命题逻辑（6 题：等价式/主范式）、EP-39 概率统计（6 题：条件概率/贝叶斯）、EP-40 专业英语（8 题：术语/完形）、EP-41 著作权（10 题：归属/保护期）
+</div>
+
+<h2>五、下一步</h2>
+<ul>
+<li>两张表（等价式、保护期）抄一遍，比读十遍有效。</li>
+<li>去答题站刷 D9 档（EP-38 ~ EP-41），正确率目标 80%。</li>
+<li>下一课：<a href="10-mixed.html">D10 · 综合冲刺</a>——易混概念 + 计算综合收官。</li>
+</ul>
+</main>
+</body>
+</html>

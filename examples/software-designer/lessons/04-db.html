@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D4 · 数据库</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>D4 · 数据库</h1>
+<p class="meta">ai-study-kit 学习包　·　<a href="../MISSION.md">← mission</a>　·　下一课：<a href="05-se.html">D5 · 软件工程基础</a></p>
+
+<p class="lead">数据库上下午都考：<strong>关系代数</strong>符号、<strong>SQL</strong> 语法、<strong>ER 模型</strong>转关系模式（下午必考）、<strong>范式</strong>判定链、<strong>事务</strong>与并发。这是案例题的主战场之一，务必练到条件反射。</p>
+
+<h2>一、关系代数</h2>
+<p><strong>关系代数</strong>是过程式查询语言，五个基本运算：选择 σ、投影 π、并 ∪、差 −、笛卡尔积 ×。</p>
+<pre><code>σ_条件(R)     选行（水平）
+π_属性(R)     选列（垂直）
+R ⋈ S         连接（笛卡尔积 + 条件筛选的简写）
+自然连接：按全部公共属性等值匹配，且去掉重复属性列
+等值连接：保留重复列</code></pre>
+<div class="callout callout-warn">
+<p><strong>易错</strong>：自然连接去掉公共列，等值连接不去——选择题年年考这两个字的差别。</p>
+</div>
+
+<h2>二、SQL 要点</h2>
+<p><strong>SQL</strong> 考语法细节与执行顺序：</p>
+<pre><code>SELECT [DISTINCT] 列
+FROM 表1 [别名] JOIN 表2 ON 连接条件
+WHERE 行条件            -- 聚合前过滤
+GROUP BY 分组列
+HAVING 组条件           -- 聚合后过滤
+ORDER BY 排序列</code></pre>
+<ul>
+<li>WHERE 里不能出现聚合函数，HAVING 才可以。</li>
+<li>视图 VIEW 是虚表，库中只存定义；视图可更新与否取决于其来源（单表、无聚合）。</li>
+<li>授权：GRANT … ON 表 TO 用户 [WITH GRANT OPTION]；收回：REVOKE。</li>
+<li>空值判断必须用 IS NULL，不能 = NULL。</li>
+</ul>
+
+<h2>三、ER 模型与转换</h2>
+<p><strong>ER 模型</strong>三要素：实体（矩形）、属性（椭圆）、联系（菱形）。转换规则是下午题第一问的常客：</p>
+<table>
+<tr><th>联系类型</th><th>转换规则</th></tr>
+<tr><td>1:1</td><td>并入任一端（加对方主码与联系属性），或独立成表</td></tr>
+<tr><td>1:n</td><td>并入 n 端（加 1 端主码），或独立成表（主码取 n 端码）</td></tr>
+<tr><td>m:n</td><td>必须独立成表，主码 = 两端主码的组合</td></tr>
+</table>
+<pre><code>学生 —选课(m:n)— 课程 → SC(Sno, Cno, Grade)，主码 (Sno, Cno)
+冲突消解：同名属性合并；不同子实体先局部 ER 后全局集成</code></pre>
+
+<h2>四、范式判定链</h2>
+<p><strong>范式</strong>逐级消除依赖毛病，高级包含低级（BCNF ⊃ 3NF ⊃ 2NF ⊃ 1NF）：</p>
+<ul>
+<li>1NF：属性不可再分（原子性）。</li>
+<li>2NF：消除非主属性对候选码的<strong>部分</strong>函数依赖（码是组合时才可能出现）。</li>
+<li>3NF：消除非主属性对候选码的<strong>传递</strong>函数依赖。</li>
+<li>BCNF：每个决定因子都必须包含码（主属性间也不许部分/传递依赖）。</li>
+</ul>
+<pre><code>判断套路：①找候选码 ②看非主属性
+ SC(Sno, Cno, Sname, Grade)：码 (Sno,Cno)，Sname 只依赖 Sno
+ → 部分依赖 → 只到 1NF，拆成 S(Sno,Sname) + SC(Sno,Cno,Grade)</code></pre>
+<div class="callout callout-tip">
+<p><strong>记忆锚点</strong>：「2 消部分、3 消传递、BC 消主属性」——九个字答所有范式选择题。</p>
+</div>
+
+<h2>五、事务与并发控制</h2>
+<p><strong>事务</strong>四特性 ACID：原子性、一致性、隔离性、持久性。</p>
+<ul>
+<li>并发三问题：丢失修改、不可重复读、读脏数据（读未提交）。</li>
+<li>封锁协议：S 锁（读/共享）与 X 锁（写/排他）；两段锁协议保证可串行化，但可能死锁。</li>
+<li>隔离级别与三级封锁协议的对应关系是判断题考点。</li>
+</ul>
+</main>
+</body>
+</html>

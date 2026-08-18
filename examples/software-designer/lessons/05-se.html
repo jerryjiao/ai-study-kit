@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D5 · 软件工程基础</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>D5 · 软件工程基础</h1>
+<p class="meta">ai-study-kit 学习包　·　<a href="../MISSION.md">← mission</a>　·　下一课：<a href="06-dfd.html">D6 · 结构化分析与设计</a></p>
+
+<p class="lead">软工是上午大分值区也是下午背景知识：<strong>开发模型</strong>对比、<strong>需求分析</strong>分类、<strong>软件测试</strong>方法、<strong>项目管理</strong>计算、<strong>软件维护</strong>类型。开发者做这些题有体感，重点是记住教材口径的「标准答案」。</p>
+
+<h2>一、开发模型</h2>
+<p><strong>开发模型</strong>解决「过程怎么组织」，选择题考特征匹配：</p>
+<table>
+<tr><th>模型</th><th>核心特征</th><th>适用</th></tr>
+<tr><td>瀑布</td><td>阶段线性顺序、文档驱动</td><td>需求明确稳定</td></tr>
+<tr><td>增量</td><td>按构件分批交付可运行产品</td><td>可拆分交付</td></tr>
+<tr><td>原型</td><td>快速造原型澄清需求</td><td>需求模糊</td></tr>
+<tr><td>螺旋</td><td>每轮迭代都做风险分析</td><td>大型高风险</td></tr>
+<tr><td>统一过程</td><td>用例驱动、以架构为中心、迭代增量</td><td>—</td></tr>
+</table>
+<div class="callout callout-warn">
+<p><strong>易错</strong>：「每轮迭代都含风险分析」是螺旋模型的独有标签；喷泉模型面向对象、无间隙迭代。</p>
+</div>
+
+<h2>二、需求分析</h2>
+<p><strong>需求分析</strong>产出《需求规格说明书》（SRS），是后续设计与验收的基准。</p>
+<ul>
+<li>需求分类：功能需求 vs 非功能需求（性能、可靠性、安全性、易用性、可维护性……）。</li>
+<li>需求工程过程：需求获取 → 分析 → 定义（编写 SRS）→ 确认（评审）→ 管理（变更控制）。</li>
+<li>结构化分析方法（SA）的核心工具：分层 DFD + 数据字典——详见下一课。</li>
+<li>需求评审验证的是「正确、完整、一致、可行」，不是设计模块或估算成本。</li>
+</ul>
+
+<h2>三、软件测试</h2>
+<p><strong>软件测试</strong>分白盒黑盒两个视角，考覆盖强度与方法命名：</p>
+<ul>
+<li>白盒（结构）：语句覆盖 &lt; 判定覆盖 &lt; 条件覆盖 &lt; 判定-条件覆盖 &lt; 路径覆盖（强度递增）。</li>
+<li>黑盒（功能）：等价类划分、边界值分析、错误推测、因果图。</li>
+<li>阶段：单元测试（桩/驱动模块）→ 集成测试（自顶向下用桩、自底向上用驱动）→ 确认测试（验收）→ 系统测试。</li>
+<li>回归测试：修改后再跑旧用例，防改错扩散；α 测试在开发方场所、β 测试在用户场所。</li>
+</ul>
+
+<h2>四、项目管理</h2>
+<p><strong>项目管理</strong>考进度网络图计算：</p>
+<pre><code>关键路径 = 最长路径，总工期 = 关键路径长度
+活动总时差 = 最迟开始 − 最早开始（关键活动时差为 0）
+例：A(3)→B(4)→D(2)→E(4)：A-B-D-E 工期 13
+    A(3)→C(2)→E(4)：工期 9 → C 所在路径时差 = 13−9 = 4
+关键活动延误一天，总工期延误一天；非关键活动在其时差内延误不影响工期</code></pre>
+<ul>
+<li>风险暴露 RE = 风险概率 × 风险损失。</li>
+<li>Gantt 图展示进度安排，不体现任务依赖；PERT 图（网络图）体现依赖。</li>
+</ul>
+
+<h2>五、软件维护</h2>
+<p><strong>软件维护</strong>四类型，比例口诀「纠适完预」：</p>
+<table>
+<tr><th>类型</th><th>对象</th><th>占比（教材口径）</th></tr>
+<tr><td>纠正性</td><td>改错</td><td>~20%</td></tr>
+<tr><td>适应性</td><td>适配环境变化</td><td>~25%</td></tr>
+<tr><td>完善性</td><td>扩充功能/改进性能</td><td>~50%（最大头）</td></tr>
+<tr><td>预防性</td><td>为将来可维护性</td><td>~5%</td></tr>
+</table>
+<div class="callout callout-tip">
+<p><strong>记忆锚点</strong>：维护费占软件生命周期总成本的大头，其中完善性维护占比最大——两句话覆盖半数维护判断题。</p>
+</div>
+</main>
+</body>
+</html>
