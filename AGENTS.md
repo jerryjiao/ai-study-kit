@@ -127,7 +127,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - ⭐ **写 progress.json 的 `submittedAt`/`updatedAt` 必须用真实 `Date.now()`，绝不能用任意固定值或未来时间戳**。`mergeProgress`（progress.ts）按时间戳取新来合并多端写入——未来时间戳会永久压制所有真实时间的写入。
 - **`apps/quiz-app/public/study/` 是 sync 产物**（gitignored），由 `scripts/sync-study.mjs` 从 `examples/<theme>/` 同步，build 时自动重建。改课程请走 `examples/<theme>/lessons/*.html`，别手编 `public/study/`。
 - **官网 sync 产物禁止手编**：`apps/site/src/content/docs/{method,ai,maintain}/` 由 `sync-docs.mjs` 从根 `docs/` 生成；`apps/site/public/demo/` 由 `build-demo.mjs` 生成。改文档走根 `docs/`，改 demo 走 quiz-app。官网部署走 GitHub Actions（`.github/workflows/deploy-site.yml`，push main 自动发布 Pages），不占 pm2。
-- **⭐ 切换示例主题必须改两处**：`EXAMPLE_THEME` 环境变量（默认 `dev-intro`）+ `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 路径。只改一处会脱节。
+- **⭐ 切换示例主题只改 `EXAMPLE_THEME` 环境变量一处**（默认 `dev-intro`）。课程入口 `Courses.tsx` 的 `COURSE_URL` 读 sync 产物 `src/data/theme.json` 自动跟随激活主题（2026-08-18 前需手改两处，已收敛为一处）。首页分组可选改 `src/lib/topicOrder.ts`。
 - **⭐ 任何发布内容禁止出现真实品牌/企业名**（课程 HTML、闪卡、公开 md 等所有同步到 `apps/quiz-app/public/study/` 的文件）。这是开源协议 MIT 之外的<strong>额外中性化要求</strong>——避免把任何具体企业的商标/品牌带入开源工具。校验用 `pnpm run scan`，命中数必须为 0 才能发布。
   - 必须中性化的词列表见 `scripts/brand-scan.py` 的 `BRAND_PATTERNS` 常量（持续补充）。常见类别：车企、互联网大厂、能源/电信央企、EV 新势力。技术专名（如 Spring Cloud Alibaba 等开源技术栈）作为技术术语保留，扫描时人工确认即可。
   - **校验**：`python3 scripts/brand-scan.py` 扫所有 .html/.md/.json/.ts/.tsx/.py/.mjs，命中即 exit 1。

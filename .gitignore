@@ -40,6 +40,7 @@ apps/quiz-app/assets-src/
 apps/quiz-app/src/data/questions.json
 apps/quiz-app/src/data/flashcards.json
 apps/quiz-app/src/data/competency.json
+apps/quiz-app/src/data/theme.json
 
 # Synced study output (regenerated at build time)
 apps/quiz-app/public/study/

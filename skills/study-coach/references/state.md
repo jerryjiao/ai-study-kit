@@ -100,4 +100,4 @@ grep -cE '^TTS_PROVIDER=..' .env 2>/dev/null                                # TT
 ## 快照之外的加分项（顺手看，不强制）
 
 - `git status --porcelain` 有未提交改动且涉及 `examples/` → 快照里提一句「有未提交的内容改动，发布前记得走 F8 校验」。
-- `apps/quiz-app/src/pages/Courses.tsx` 里 `COURSE_URL` 指向的主题 ≠ 激活主题 → 直接报「主题切换只改了一半」，给修复步骤（见 flows.md 诊断节）。
+- 课程 tab 404 而题库正常 → build 时没带 `EXAMPLE_THEME`（sync 默认 dev-intro），带对主题重跑 build（课程 URL 由 theme.json 自动跟随，不存在「只改一半」）。

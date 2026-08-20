@@ -82,6 +82,6 @@ ai-study-kit 的工具链很全（答题站 / 课程 / 闪卡 / 错题精讲 / �
 
 1. `apps/quiz-app/src/data/*.json` 和 `public/study/` 是**同步产物，禁止手编**——内容只改 `examples/<theme>/` 下的源文件。
 2. `apps/quiz-app/progress.json` 是**运行期数据**：禁止提交、禁止手编；需要清进度用 app 内的「重置」入口，绝不手改文件。
-3. 切换主题要同步**两处**：`EXAMPLE_THEME` 环境变量 + `apps/quiz-app/src/pages/Courses.tsx` 的 `COURSE_URL`（首页分组可选改 `src/lib/topicOrder.ts`）。只改一处会脱节。
+3. 切换主题只改 `EXAMPLE_THEME` 环境变量一处——课程入口 `Courses.tsx` 读 sync 产物 `theme.json` 自动跟随（首页分组可选改 `apps/quiz-app/src/lib/topicOrder.ts`）。
 4. 改任何发布内容（课程/题/闪卡/文档）后必跑 `pnpm run scan`，命中数必须为 0——发布物里不许出现真实企业品牌名。
 5. 多选题判分是**全对才算对**；改题尽量保留旧题 id（进度按 id 存，换 id 会丢进度）。
