@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错题精讲 · 校验码能力边界：奇偶 / 海明 / CRC</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>错题精讲 · 校验码能力边界：奇偶 / 海明 / CRC</h1>
+<p class="meta">对应题目：SD-014　·　<a href="index.html">← 返回错题中心</a>　·　相关课程：<a href="../lessons/01-system.html">D1 · 计算机系统基础</a></p>
+
+<div class="quiz-anchor">
+SD-014（EP-02 校验码 · D1）　→　课程：D1 第二节「校验码：奇偶 / 海明 / CRC」　→　闪卡：FC-SD-03（海明关系式）、FC-SD-04（CRC 编码步骤）
+</div>
+
+<p class="lead">多选只选了 A：奇偶校验「检不出偶数个错、不能定位」判对了，但 C「CRC 检错能力比奇偶强」、D「CRC 广泛用于数据链路层」<strong>两条送分属性没敢选</strong>。多选题的策略不是「不确定就不选」，是把三种校验码的能力边界背成一张表，逐项对号。</p>
+
+<h2>一、核心能力表</h2>
+<p>课程里「三兄弟」一张表记全，做题时默画一遍：</p>
+<table>
+<thead><tr><th>校验码</th><th>原理</th><th>检纠错能力</th><th>必背口径</th></tr></thead>
+<tbody>
+<tr><td>奇偶校验</td><td>加 1 位校验位，把 1 的个数配成奇 / 偶</td><td>只能检<strong>奇数个</strong>位错，不能定位纠错</td><td>两位同错则奇偶性不变，恰好漏检</td></tr>
+<tr><td>海明码</td><td>校验位放在 2^i 号位，分组奇偶校验</td><td><strong>检 2 位错 / 纠 1 位错</strong></td><td>2^r ≥ k + r + 1（k=信息位，r=校验位，取最小 r）</td></tr>
+<tr><td>CRC</td><td>信息位补 0 后对生成多项式做模 2 除</td><td>检错能力强，<strong>只检不纠</strong></td><td>冗余位数 = 生成多项式最高次幂；余 0 判无错</td></tr>
+</tbody>
+</table>
+<p>再把 SD-014 四个选项过一遍判：</p>
+<table>
+<thead><tr><th>选项</th><th>判定</th><th>依据</th></tr></thead>
+<tbody>
+<tr><td>A 奇偶只能检奇数个位错、不能定位</td><td>对（已选 ✓）</td><td>能力边界就是「检 1 不纠」</td></tr>
+<tr><td>B 奇偶能发现所有偶数个位错</td><td>错</td><td>两位同时翻转，1 的个数奇偶性不变——偶数个错恰好检不出</td></tr>
+<tr><td>C CRC 检错能力比奇偶强</td><td><strong>对（漏选）</strong></td><td>模 2 除生成多项式，可检多位错，能力远强于奇偶</td></tr>
+<tr><td>D CRC 广泛用于数据链路层</td><td><strong>对（漏选）</strong></td><td>链路层帧差错检测的标准做法，教材固定口径</td></tr>
+</tbody>
+</table>
+
+<h2>二、决策流程</h2>
+<pre><code>见到校验码的多选 / 判断，逐项走这棵树：
+
+  这条说法在说哪种校验码？
+        │
+        ├─ 奇偶 ──→ 能纠错吗？否。能定位吗？否。
+        │            检几个？只检奇数个位错（偶数个恰好漏检）
+        │
+        ├─ 海明 ──→ 能纠几位？只纠 1 位。
+        │            检几位？检 2 位。位数靠 2^r ≥ k+r+1
+        │            （k=信息位，r=校验位，r 取最小可行值）
+        │
+        └─ CRC  ──→ 能纠错吗？不能，只检不纠。
+                     亮点在「检错强 + 链路层标配」→
+                     见到这两句正面描述，直接判对
+
+  多选策略：先按表定性，再逐项打勾；
+  漏选和错选同样丢分，判得准的属性就选上。</code></pre>
+
+<h2>三、易错警示</h2>
+
+<div class="callout callout-warn">
+<p><strong>错根 1</strong>：对 CRC 的「正面属性」不熟，只敢选自己错过的地方（A）。</p>
+<p><strong>真相</strong>：「检错能力比奇偶强」「广泛用于数据链路层的差错检测」是 CRC 的两条标准描述，属于送分项。能力表背牢，正面属性和短板一样都要认得。</p>
+</div>
+
+<div class="callout callout-warn">
+<p><strong>错根 2</strong>：以为奇偶校验至少能发现「两位同错」。</p>
+<p><strong>真相</strong>：恰好相反——两位同时出错，1 的个数的奇偶性不变，校验位对不上变化，<strong>偶数个位错检不出</strong>。B 选项就是拿这句话反着说。</p>
+</div>
+
+<div class="callout callout-warn">
+<p><strong>错根 3</strong>：海明码能力记串，写成「检 1 纠 2」或「能纠 2 位」。</p>
+<p><strong>真相</strong>：固定口径「<strong>检 2 位错、纠 1 位错</strong>」，位数用 2^r ≥ k + r + 1（k=信息位，r=校验位）。注意课程和闪卡里字母用法有差异时，以课程口径为准。</p>
+</div>
+
+<h2>四、变体训练</h2>
+<p>同一考点换个问法，做完再展开答案：</p>
+
+<div class="callout">
+<p><strong>变体 1</strong>：用海明码对 16 位信息进行校验，至少需要几位校验位？</p>
+<details><summary>对一下答案</summary>
+<p>k = 16，找最小 r 使 2^r ≥ k + r + 1。r = 4：16 ≥ 21 不成立；r = 5：32 ≥ 22 成立 → <strong>5 位</strong>。别忘了不等式右边也要加上 r 本身，r=4 时右边是 21 不是 17。</p>
+</details>
+</div>
+
+<div class="callout">
+<p><strong>变体 2</strong>：判断：CRC 接收方将收到的码字对生成多项式做模 2 除法，余数为 0 则认为传输未发生差错。</p>
+<details><summary>对一下答案</summary>
+<p><strong>对</strong>。余 0 判无错是 CRC 接收方的标准判定；模 2 除 = 逐位异或不借位，冗余位数 = 生成多项式最高次幂。</p>
+</details>
+</div>
+
+<div class="callout">
+<p><strong>变体 3</strong>：多选：关于海明码，下列说法正确的有？<br>
+A. 对 4 位信息位编码，至少需要 3 位校验位　B. 校验位放在位号为 2 的幂（1、2、4、8…）的位置上　C. 增大码距可以提高检错与纠错能力　D. 海明码能自动纠正同时发生的 2 位错误</p>
+<details><summary>对一下答案</summary>
+<p><strong>ABC</strong>。2^3 = 8 ≥ 4 + 3 + 1 = 8 成立，A 对；B 是海明码的放置规则；码距越大检纠能力越强，C 对；海明只能检 2 纠 1，<strong>纠不了 2 位</strong>，D 错。</p>
+</details>
+</div>
+
+<h2>五、回到四对齐</h2>
+<ul>
+<li><strong>题 → 课</strong>：SD-014 考的三种校验码能力边界，在 <a href="../lessons/01-system.html">D1 第二节</a>的能力表里逐行对应。</li>
+<li><strong>错题 → 闪卡</strong>：FC-SD-03（海明关系式）、FC-SD-04（CRC 编码步骤）覆盖本簇两个记忆锚，未毕业前每天过。</li>
+<li><strong>错题 → 错题</strong>：三个变体分别打「算位数、判接收方流程、多选再排除」，把能力表从三个方向各用了一遍。</li>
+</ul>
+
+<footer>
+<p>💡 本精讲为 ai-study-kit 错题串讲产物。如有不清楚，可以让 AI 助手进一步讲解。</p>
+</footer>
+</main>
+</body>
+</html>

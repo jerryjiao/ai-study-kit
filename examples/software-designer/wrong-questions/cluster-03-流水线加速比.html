@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错题精讲 · 流水线加速比：段数越多不等于越快</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>错题精讲 · 流水线加速比：段数越多不等于越快</h1>
+<p class="meta">对应题目：SD-021　·　<a href="index.html">← 返回错题中心</a>　·　相关课程：<a href="../lessons/01-system.html">D1 · 计算机系统基础</a></p>
+
+<div class="quiz-anchor">
+SD-021（EP-03 流水线 · D1）　→　课程：D1 第三节「流水线：周期、总时间、吞吐率、加速比」　→　闪卡：FC-SD-05（流水线执行时间公式）
+</div>
+
+<p class="lead">判断题「段数划分得越多，实际加速比就<strong>一定</strong>越大」，你选了「对」。错根不在流水线本身，而在没盯住题干里的「一定」两个字——理想模型里段数越多加速比确实<strong>趋近</strong>段数 k，但实际约束一上，「一定」就不成立了。</p>
+
+<h2>一、核心区别表</h2>
+<p>理想模型 vs 实际约束，逐个维度对：</p>
+<table>
+<thead><tr><th>维度</th><th>理想模型</th><th>实际约束（「一定」翻车的地方）</th></tr></thead>
+<tbody>
+<tr><td>段数 k 与加速比 S</td><td>k 越大，S 越接近 k</td><td>S <strong>趋近</strong> k 但永远达不到；k 越大断流代价越重</td></tr>
+<tr><td>流水线周期 Δt</td><td>各段均衡，都等于 Δt</td><td>Δt = <strong>max（各段时间）</strong>，最慢的段说了算；切得越碎越难均衡</td></tr>
+<tr><td>指令供给</td><td>指令连续流入</td><td>指令相关、冲突、转移让流水<strong>断流</strong>，段数多了断流损失更大</td></tr>
+<tr><td>额外开销</td><td>忽略</td><td>段间锁存器开销随段数<strong>累积</strong>，吃掉增益</td></tr>
+</tbody>
+</table>
+<p>结论就一句：实际加速比取决于<strong>各段均衡程度和指令能否连续流入</strong>，「段数多 → 加速比一定大」不成立。这正是 SD-021 的解析口径。</p>
+
+<h2>二、决策流程</h2>
+<pre><code>见到「段数越多……就越 / 一定……」类命题，走三问：
+
+  ① 各段耗时会均衡吗？
+     否（切段越细越难切匀，Δt 被 max 拖住）──┐
+  ② 指令能连续流入吗？                        │ 任一「否」
+     否（相关 / 冲突 / 转移导致断流）─────────┼──→ 命题不成立，
+  ③ 段间锁存开销可忽略吗？                    │      选「错」
+     否（开销随段数累积）────────────────────┘
+
+  计算类口径（课程三条公式）：
+    Δt = max(各段时间)（题目未给锁存时间则忽略）
+    T = 第一条指令完整时间 + (n-1) × Δt
+    S = 串行执行总时间 / T      （S < k，趋近不等于达到）
+  最大吞吐率 = 1/Δt，与指令条数无关。</code></pre>
+
+<h2>三、易错警示</h2>
+
+<div class="callout callout-warn">
+<p><strong>错根 1</strong>：对「一定」「就越」这类绝对化措辞不设防。</p>
+<p><strong>真相</strong>：判断题里的绝对化表述，默认请你找反例——本题的反例就是「各段耗时严重不均衡时，周期被最慢段拖住，段数再多也快不起来」。理想结论（S 趋近 k）加上「一定」就变成错误命题。</p>
+</div>
+
+<div class="callout callout-warn">
+<p><strong>错根 2</strong>：以为切段越多周期越小。</p>
+<p><strong>真相</strong>：周期由<strong>最慢的段</strong>决定（Δt = max），不是平均值。把一条 6ns 的段切成 10 份，只要其中一份 4ns，周期就是 4ns，其余切了白切。</p>
+</div>
+
+<div class="callout callout-tip">
+<p><strong>记忆锚点</strong>：「<strong>趋近 k，达不到 k</strong>」+「<strong>最慢的段说了算</strong>」。这两句同时管住判断题（SD-021 这类）和计算题（加速比永远算出 S &lt; k）。</p>
+</div>
+
+<h2>四、变体训练</h2>
+<p>同一考点换个问法，做完再展开答案：</p>
+
+<div class="callout">
+<p><strong>变体 1</strong>：某流水线分 5 段，耗时 2ns、3ns、4ns、3ns、2ns，连续输入 20 条指令，全部完成需要多久？</p>
+<details><summary>对一下答案</summary>
+<p>Δt = max = 4ns；第一条完整时间 = 2+3+4+3+2 = 14ns；T = 14 + 19×4 = <strong>90ns</strong>。注意各段不等长，不能直接套 (k+n-1)×Δt，必须先算第一条的完整时间。</p>
+</details>
+</div>
+
+<div class="callout">
+<p><strong>变体 2</strong>：3 段流水线每段 2ns，连续执行 1000 条指令且无冲突，与顺序执行相比加速比约是多少？</p>
+<details><summary>对一下答案</summary>
+<p>T = 6 + 999×2 = 2004ns；顺序执行 = 1000×6 = 6000ns；S = 6000 / 2004 ≈ <strong>3.0（实为 2.99）</strong>。理想段数是 3，实际永远差一点——这就是「趋近 k，达不到 k」的数值版。</p>
+</details>
+</div>
+
+<div class="callout">
+<p><strong>变体 3</strong>：判断：流水线的最大吞吐率为 1/Δt，与指令条数无关。</p>
+<details><summary>对一下答案</summary>
+<p><strong>对</strong>。n 趋向无穷时 T ≈ n×Δt，TP = n/T 趋向 1/Δt。这条恰好是「没有一定/就越」的客观陈述——和 SD-021 对比着记：绝对化命题找反例，客观公式直接判。</p>
+</details>
+</div>
+
+<h2>五、回到四对齐</h2>
+<ul>
+<li><strong>题 → 课</strong>：SD-021 的判定依据在 <a href="../lessons/01-system.html">D1 第三节</a>的三条公式和易错点里都有（「段数增加，加速比趋近段数 k，但永远达不到」）。</li>
+<li><strong>错题 → 闪卡</strong>：FC-SD-05（流水线执行时间公式）覆盖 T 与 S 的计算锚点，未毕业前每天过。</li>
+<li><strong>错题 → 错题</strong>：三个变体分别打「不等长段求 T、算出 S &lt; k、反向判客观命题」，从计算和判定两头夹住「一定」这个陷阱。</li>
+</ul>
+
+<footer>
+<p>💡 本精讲为 ai-study-kit 错题串讲产物。如有不清楚，可以让 AI 助手进一步讲解。</p>
+</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错题精讲 · 负数补码：取反之后还要加 1</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>错题精讲 · 负数补码：取反之后还要加 1</h1>
+<p class="meta">对应题目：SD-003　·　<a href="index.html">← 返回错题中心</a>　·　相关课程：<a href="../lessons/01-system.html">D1 · 计算机系统基础</a></p>
+
+<div class="quiz-anchor">
+SD-003（EP-01 补码 · D1）　→　课程：D1 第一节「补码：定点数表示与溢出判断」　→　闪卡：FC-SD-01（补码表示规则）、FC-SD-02（8 位补码范围）
+</div>
+
+<p class="lead">这道题的错根很典型：求 -52 的补码，<strong>取反做了，末位加 1 漏了</strong>。选的 A「1100 1011」其实是 -52 的<strong>反码</strong>，正确答案是 C「1100 1100」。三个编码一步之差，差的就是最后那个加 1。</p>
+
+<h2>一、核心区别表</h2>
+<p>负数的三种机器数是「链条式」关系：原码 → 取反 → 反码 → 加 1 → 补码。以 -52（8 位）为例对着看：</p>
+<table>
+<thead><tr><th>编码</th><th>负数怎么求</th><th>8 位表示范围</th><th>0 的表示</th><th>-52 的编码</th></tr></thead>
+<tbody>
+<tr><td>原码</td><td>符号位 1 + 绝对值的数值位</td><td>-127 ~ +127</td><td>+0 / -0 两种</td><td>1011 0100</td></tr>
+<tr><td>反码</td><td>原码符号位不变，数值位按位取反</td><td>-127 ~ +127</td><td>+0 / -0 两种</td><td>1100 1011（← 本次错选）</td></tr>
+<tr><td>补码</td><td><strong>反码末位加 1</strong></td><td><strong>-128 ~ +127</strong></td><td>0 唯一</td><td><strong>1100 1100（正确答案）</strong></td></tr>
+</tbody>
+</table>
+<p>范围差异不是巧合：补码把 ±0 两个编码省下一个给 -128，所以负方向比原码/反码多表示一个数。这张表右两列就是 SD-003 的全部陷阱。</p>
+
+<h2>二、决策流程</h2>
+<pre><code>求负数 -N 的 8 位补码：
+  ① 写 |N| 的原码            -52 → 52 = 0011 0100
+  ② 符号位变 1，数值位取反     → 1100 1011（这是反码，别停！）
+  ③ 末位加 1                  → 1100 1100（这才是补码）
+
+自检（强烈建议每次都做）：
+  补码 + |N| 的原码 = 1 0000 0000（即 2^8 进位丢弃）
+  1100 1100 + 0011 0100 = 1 0000 0000 ✓ 对上了
+
+反向（已知补码求真值）：
+  符号位为 1 → 数值位取反加 1 得 |X|，真值 = -|X|
+  例：1110 0110 → 0001 1001 + 1 = 0001 1010 = 26 → X = -26</code></pre>
+
+<h2>三、易错警示</h2>
+
+<div class="callout callout-warn">
+<p><strong>错根 1</strong>：取反之后忘了加 1，把反码当补码交卷。</p>
+<p><strong>真相</strong>：本题选项 A 就是设计好的反码陷阱。背口诀「<strong>负数补码 = 反码 + 1</strong>」，写完取反笔别停，加完 1 再看选项。</p>
+</div>
+
+<div class="callout callout-warn">
+<p><strong>错根 2</strong>：符号位到底取不取反，两种操作混着记。</p>
+<p><strong>真相</strong>：求负数补码时<strong>符号位保持 1，只翻数值位</strong>；而「已知补码求相反数的补码」才是<strong>连同符号位一起</strong>取反加 1。课程里这两条规则是分开列的，别合成一条。</p>
+</div>
+
+<div class="callout callout-tip">
+<p><strong>记忆锚点</strong>：1000 0000 在补码里是 <strong>-128</strong>，它在原码/反码里没有对应真值——「负数多表示一个」「0 唯一」两个性质都从这来。判断题拿 ±0 或 -128 偷换概念时，先想这格表。</p>
+</div>
+
+<h2>四、变体训练</h2>
+<p>同一考点换个问法，做完再展开答案：</p>
+
+<div class="callout">
+<p><strong>变体 1</strong>：求 -100 的 8 位补码，并写成十六进制。</p>
+<details><summary>对一下答案</summary>
+<p>+100 = 0110 0100 → 符号位 1、数值位取反得 1001 1011 → 加 1 得 <strong>1001 1100</strong>，十六进制 <strong>9CH</strong>。自检：1001 1100 + 0110 0100 = 1 0000 0000 ✓</p>
+</details>
+</div>
+
+<div class="callout">
+<p><strong>变体 2</strong>：8 位补码 1100 1011（你本次错选的那个码字）表示的真值是多少？</p>
+<details><summary>对一下答案</summary>
+<p>符号位 1，负数。数值位取反加 1：1000 1011……更快的做法是连同符号位取反加 1：0011 0100 + 1 = 0011 0101 = 53，所以真值是 <strong>-53</strong>。错选的 A 其实是 -53 的补码，不是 -52 的——差的就是那个 1。</p>
+</details>
+</div>
+
+<div class="callout">
+<p><strong>变体 3</strong>：已知 X 的 8 位补码是 1110 0110，X = ？</p>
+<details><summary>对一下答案</summary>
+<p>连同符号位取反：0001 1001，加 1：0001 1010 = 26，X = <strong>-26</strong>。正向求补和反向求真值用的是同一套「取反加 1」，方向相反。</p>
+</details>
+</div>
+
+<h2>五、回到四对齐</h2>
+<ul>
+<li><strong>题 → 课</strong>：SD-003 考的求补规则，在 <a href="../lessons/01-system.html">D1 第一节</a>的两条高频计算规则里明确讲过。</li>
+<li><strong>错题 → 闪卡</strong>：FC-SD-01（正负数求补规则）、FC-SD-02（8 位范围与「负数多一个」）就是给这个错点做的记忆锚，错题未毕业前每天过一遍。</li>
+<li><strong>错题 → 错题</strong>：本精讲把一道题拆成「正向求补、错选码字验尸、反向求真值」三个变体，确保操作链闭环而不是死记 -52 = 1100 1100。</li>
+</ul>
+
+<footer>
+<p>💡 本精讲为 ai-study-kit 错题串讲产物。如有不清楚，可以让 AI 助手进一步讲解。</p>
+</footer>
+</main>
+</body>
+</html>

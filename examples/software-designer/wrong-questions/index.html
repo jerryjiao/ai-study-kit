@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错题学习中心 · software-designer</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .layer-card {
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: .8rem 0;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .layer-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(67,56,202,.08); }
+  .layer-card h3 { margin: 0 0 .3rem; font-size: 1.1rem; color: var(--accent); }
+  .layer-card .row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .layer-card .meta-line { font-size: .85rem; color: var(--ink-faint); margin: .25rem 0 0; }
+  .badge {
+    display: inline-block; padding: .1em .55em; border-radius: 10px;
+    font-size: .75rem; font-weight: 600; background: var(--warn-soft); color: var(--warn);
+  }
+  .section-tag { font-size: .8rem; color: var(--ink-faint); font-weight: 400; }
+</style>
+</head>
+<body>
+<main>
+<h1>错题学习中心 · software-designer</h1>
+<p class="meta">ai-study-kit 学习包　·　<a href="../index.html">← 返回课程主页</a>　·　补充学习（非正课）</p>
+
+<p class="lead">错题精讲是四对齐的<strong>第四层</strong>——刷完题后，把未毕业错题按考点聚类，每簇深度展开为：核心区别表 + 决策流程 + 易错警示 + 变体训练。当前批次来自 D1 档（计算机系统基础）的三道错题，覆盖 EP-01 ~ EP-03 三个考点。</p>
+
+<h2>🔥 易错点精讲 <span class="section-tag">· 未毕业错题深挖</span></h2>
+
+<a class="layer-card" href="cluster-01-负数补码求法.html">
+  <div class="row">
+    <h3>→ 负数补码：取反之后还要加 1</h3>
+    <span class="badge">1 题</span>
+  </div>
+  <p class="meta-line">SD-003（EP-01）错点。求 -52 的补码停在反码，末位加 1 漏了——选的 A 是反码 1100 1011，正确是 C 1100 1100。一表理清原码/反码/补码的链条差异与 -128 的来历，附「补码+|N| 进位自检」和三个变体。</p>
+</a>
+
+<a class="layer-card" href="cluster-02-校验码能力边界.html">
+  <div class="row">
+    <h3>→ 校验码能力边界：奇偶 / 海明 / CRC</h3>
+    <span class="badge">1 题</span>
+  </div>
+  <p class="meta-line">SD-014（EP-02）错点。多选只选了 A——奇偶校验的短板判对了，CRC「检错更强、数据链路层标配」两条正面属性漏选。能力表（奇偶检 1 不纠 / 海明检 2 纠 1、2^r ≥ k+r+1 / CRC 只检不纠）+ 逐项判定 + 三个变体。</p>
+</a>
+
+<a class="layer-card" href="cluster-03-流水线加速比.html">
+  <div class="row">
+    <h3>→ 流水线加速比：段数越多不等于越快</h3>
+    <span class="badge">1 题</span>
+  </div>
+  <p class="meta-line">SD-021（EP-03）错点。判断题把「实际加速比一定越大」选成「对」——漏看了「一定」：周期由最慢段决定（Δt = max），相关冲突断流、锁存开销累积都会吃掉增益，S 只趋近 k 达不到 k。理想 vs 实际对比表 + 三问判定流程 + 三个变体。</p>
+</a>
+
+<h2>怎么用这几页</h2>
+<ol>
+<li>先读对应簇的「核心区别表」和「决策流程」，再合上页面在草稿纸重推一遍。</li>
+<li>做「变体训练」：先自己算/判，再展开答案对照；错任何一个变体，回课程对应节重看公式。</li>
+<li>错题未毕业（答对次数未达毕业阈值）前，相关闪卡（FC-SD-01 ~ FC-SD-05）每天随复习队列过。</li>
+</ol>
+
+<footer>
+<p>💡 本页为 ai-study-kit 错题串讲产物。换主题时，把你自己题库的高频错点同样聚类展开即可。</p>
+</footer>
+</main>
+</body>
+</html>

@@ -11,7 +11,7 @@
 <h1>D6 · 结构化分析与设计</h1>
 <p class="meta">ai-study-kit 学习包　·　<a href="../MISSION.md">← mission</a>　·　下一课：<a href="07-uml.html">D7 · UML 与设计模式</a></p>
 
-<p class="lead">结构化方法分两步：<strong>SA（Structured Analysis，结构化分析）</strong>用<strong>数据流图</strong>＋<strong>数据字典</strong>把「数据在系统里怎么流」画清楚；<strong>SD（Structured Design，结构化设计）</strong>再把加工映射成模块，完成<strong>模块设计</strong>。下午案例第一道大题考的正是这条链路——本课按真题问法带你过一遍。</p>
+<p class="lead">结构化方法分两步：<strong>SA（Structured Analysis，结构化分析）</strong>用<strong>数据流图</strong>＋<strong>数据字典</strong>把「数据在系统里怎么流」画清楚；<strong>SD（Structured Design，结构化设计）</strong>再把加工映射成模块，完成<strong>模块设计</strong>。下午案例第一道大题考的正是这条链路——本课按典型题问法带你过一遍。</p>
 
 <h2>一、数据流图（DFD）：案例必考画图题</h2>
 <p>数据流图（Data Flow Diagram, DFD）从「数据流动」的视角刻画系统，<strong>只有四类元素</strong>，多画任何东西都算错：</p>
@@ -25,7 +25,7 @@
 </tbody>
 </table>
 
-<p>订票系统 0 层数据流图片段（真题风格）：</p>
+<p>订票系统 0 层数据流图片段（典型题风格）：</p>
 <pre><code>[旅客] ──订票请求──▶ (1 校验余票) ──余票查询──▶ ⟨D1 车次余票⟩
   ▲                     │ ◀──余票信息── ⟨D1⟩
   │                     ├──出票请求──▶ (2 开票收款) ──客票──▶ [旅客]
@@ -38,7 +38,7 @@
 <p><strong>父图与子图平衡规则（下午补图题的钥匙）</strong>：子图的输入、输出数据流必须与父图中对应加工的输入、输出数据流<strong>一致</strong>（条数、方向、内容）。题目挖掉一条数据流时，先在父图数进出，再回子图对账，缺哪条补哪条。</p>
 </div>
 
-<h3>真题问法与解题四步</h3>
+<h3>典型题问法与解题四步</h3>
 <ol>
 <li><strong>圈词</strong>：说明里的名词 → 外部实体/数据存储候选；动词 → 加工候选；「向…提交/返回…」→ 数据流候选。</li>
 <li><strong>查连线</strong>：每条数据流必须至少有一端接加工——实体→实体、实体↔存储直连都是错图。</li>
@@ -121,7 +121,7 @@
 </table>
 
 <div class="callout callout-warn">
-<p><strong>模块设计启发式规则（判断题高频）</strong>：扇入尽量大（被更多上层复用）、扇出尽量小（一般 ≤7）；深化模块规模适中；模块<strong>作用域</strong>应在其<strong>控制域</strong>之内；尽量单入口单出口；消除重复功能。改造结构图的每一步都是朝着高内聚、低耦合走。</p>
+<p><strong>模块设计启发式规则（判断题高频）</strong>：扇入尽量大（被更多上层复用）、扇出尽量小（一般 ≤7）；模块规模适中；模块<strong>作用域</strong>应在其<strong>控制域</strong>之内；尽量单入口单出口；消除重复功能。改造结构图的每一步都是朝着高内聚、低耦合走。</p>
 </div>
 
 <div class="quiz-anchor">
