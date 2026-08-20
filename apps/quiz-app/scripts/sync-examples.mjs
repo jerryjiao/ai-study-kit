@@ -10,7 +10,7 @@
  *
  * 切换主题：改 EXAMPLE_THEME 常量，或抽出成环境变量。
  */
-import { copyFileSync, mkdirSync, existsSync } from 'node:fs';
+import { copyFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -42,3 +42,8 @@ for (const [src, dst] of FILES) {
   copyFileSync(srcPath, dstPath);
   console.log(`[sync-examples] ${src} → src/data/${dst}  (theme: ${EXAMPLE_THEME})`);
 }
+
+// 记录激活主题：Courses 页据此拼课程 URL（study/<theme>/），保证内容与课程永远同主题，
+// 也让「切换主题」只需改 EXAMPLE_THEME 一处（原需同步手改 Courses.tsx 的 COURSE_URL）。
+writeFileSync(join(DATA_DIR, 'theme.json'), JSON.stringify({ theme: EXAMPLE_THEME }, null, 2) + '\n');
+console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME})`);

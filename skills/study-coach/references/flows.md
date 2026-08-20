@@ -69,14 +69,13 @@
      pnpm run check:alignment                     # 排布表对账（examPoint/day/题量/卡数）
      ```
 7. **产卡**：照排布表的闪卡数列配 `examples/<theme>/flashcards.json`，整文件替换。`闪卡数 ≥ 1` 的考点至少 1 张卡覆盖该考点关键词（四对齐方向 3）；0 卡考点必须是大纲声明的了解级。
-8. **切换激活主题**（两处必改，一处可选）：
+8. **切换激活主题**（一处必改，一处可选）：
 
    ```bash
-   # ① 环境变量（跑 dev/build/test 时都要带；pm2 部署见 F9）
+   # ① 环境变量（跑 dev/build/test 时都要带；pm2 部署见 F9）——课程入口
+   #    Courses.tsx 读 sync 产物 src/data/theme.json 自动跟随，无需手改
    EXAMPLE_THEME=<theme> pnpm dev
-   # ② 课程入口：apps/quiz-app/src/pages/Courses.tsx 的 COURSE_URL
-   #    改成 '/study/<theme>/index.html'
-   # ③（可选）首页分组顺序：apps/quiz-app/src/lib/topicOrder.ts 的 TOPIC_ORDER
+   # ②（可选）首页分组顺序：apps/quiz-app/src/lib/topicOrder.ts 的 TOPIC_ORDER
    ```
 
 9. **校验**：走 F8，全绿才算完成。
@@ -256,7 +255,7 @@ SERVER=http://<host>:8787 node apps/quiz-app/scripts/grill-wrong.mjs --theme <th
 
 | 症状 | 根因 | 处置 |
 |------|------|------|
-| 课程 tab 白屏/404 | 主题切换只改了一半 | 核对 `EXAMPLE_THEME` 与 `Courses.tsx` 的 `COURSE_URL` 是否同主题；跑 `pnpm build`（内含 sync:study）后刷新 |
+| 课程 tab 白屏/404 | build 时没带 EXAMPLE_THEME / study 未同步 | 带 `EXAMPLE_THEME=<theme> pnpm build`（内含 sync:study，课程 URL 由 theme.json 自动跟随）后刷新 |
 | 进度「丢了」 | 多端时间戳合并取新 | 先确认设备在线且 POST 成功（顶栏同步状态）；`curl :8787/api/progress` 看服务器权威值——本地只是缓存 |
 | progress.json 写坏 | 手编/异常写入 | server 会按空进度重置，这是预期保护；**别手修这个文件**，需要清进度用 app 内重置入口 |
 | 改了题不生效 | 改到了 `src/data/` 同步产物 | 回 `examples/<theme>/` 改源文件，重跑 `pnpm dev/build` |

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BookOpen } from 'lucide-react';
 import { useI18n } from '../i18n';
+import themeMeta from '../data/theme.json';
 
 /**
  * 课程页：用全屏 iframe 嵌入 examples/<theme>/ 静态小站（teach 产出）。
@@ -15,7 +16,8 @@ import { useI18n } from '../i18n';
  * 顶栏只保留全局 TopNav（64px），iframe 占满剩余视口，最大化可阅读区域。
  */
 // BASE_URL 前缀：demo 子路径部署下课程静态站也能定位（自托管/开发时 BASE_URL='/' 不影响）
-const COURSE_URL = `${import.meta.env.BASE_URL}study/dev-intro/index.html`;
+// 主题名来自 sync-examples 产的 theme.json——课程 URL 跟随激活主题，切换主题无需手改此处。
+const COURSE_URL = `${import.meta.env.BASE_URL}study/${themeMeta.theme}/index.html`;
 
 export function Courses() {
   const { t } = useI18n();
