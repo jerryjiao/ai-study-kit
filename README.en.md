@@ -66,6 +66,8 @@ pnpm run skill:install     # installs to ~/.agents/skills/study-coach
 # restart your AI CLI (or open a new session), then type /study-coach
 ```
 
+On zcode / Claude Code you can install via the **plugin marketplace** instead: add the `https://github.com/jerryjiao/ai-study-kit` marketplace and install `study-coach` — future skill updates arrive with marketplace refreshes, no reinstall needed.
+
 It first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Nine playbooks cover everything from initializing the project to deploying it. (The playbook is written in Chinese; see [`docs/study-coach.md`](docs/study-coach.md).)
 
 ---

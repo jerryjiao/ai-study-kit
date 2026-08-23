@@ -6,7 +6,11 @@ ai-study-kit 的功能多——答题站、课程、闪卡、错题串讲、播�
 
 ## 安装
 
-skill 源文件在仓库 `skills/study-coach/`。装进你的 AI CLI（zcode / 任何认 `~/.agents/skills/` 的客户端）：
+skill 源文件在仓库 `skills/study-coach/`（单一事实源）。两条安装路径：
+
+**① plugin 市集（zcode / Claude Code，推荐）**：仓库自带 marketplace 清单（`.claude-plugin/marketplace.json`，由 `scripts/sync-plugin.mjs` 从源生成 `plugins/study-coach/`）。在客户端里添加 marketplace `https://github.com/jerryjiao/ai-study-kit`，安装 `study-coach` 插件——后续 skill 更新随市集刷新到达，**无需手动重装**（版本跟仓库 release）。
+
+**② 手动安装（任何认 `~/.agents/skills/` 的客户端）**：
 
 ```bash
 # 在 ai-study-kit 仓库根目录
@@ -70,7 +74,7 @@ pnpm run skill:uninstall
 
 ## 扩展
 
-加一个新流程：在 `skills/study-coach/references/flows.md` 加一节 playbook（目的/前置/步骤/完成标志），并在 `SKILL.md` 的菜单和意图路由表里加一行。改完 `pnpm run skill:install` 重新分发。
+加一个新流程：在 `skills/study-coach/references/flows.md` 加一节 playbook（目的/前置/步骤/完成标志），并在 `SKILL.md` 的菜单和意图路由表里加一行。改完 `pnpm run sync:plugin` 重新生成 plugin 产物（手动安装用户另跑 `pnpm run skill:install` 重新分发）。
 
 ## FAQ
 

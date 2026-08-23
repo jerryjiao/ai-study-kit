@@ -15,6 +15,7 @@
     "ai:grill": "node apps/quiz-app/scripts/grill-wrong.mjs",
     "ai:podcast": "node apps/quiz-app/scripts/podcast-generate.mjs",
     "check:alignment": "python3 scripts/bidirectional-check.py",
+    "sync:plugin": "node scripts/sync-plugin.mjs",
     "skill:install": "bash scripts/install-skill.sh",
     "skill:uninstall": "bash scripts/install-skill.sh --uninstall"
   }

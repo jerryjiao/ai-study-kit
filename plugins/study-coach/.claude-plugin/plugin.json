@@ -1,0 +1,24 @@
+{
+  "name": "study-coach",
+  "version": "0.4.0",
+  "description": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /study-coach 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。",
+  "description_i18n": {
+    "en": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release.",
+    "zh-CN": "ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、课程已读、AI 配置），带你执行每日学习、错题串讲、播客、产课到发版的全流程。"
+  },
+  "author": {
+    "name": "ai-study-kit",
+    "url": "https://github.com/jerryjiao/ai-study-kit"
+  },
+  "homepage": "https://github.com/jerryjiao/ai-study-kit",
+  "keywords": [
+    "study",
+    "learning",
+    "flashcards",
+    "srs",
+    "spaced-repetition",
+    "quiz",
+    "tutor",
+    "ai-study-kit"
+  ]
+}

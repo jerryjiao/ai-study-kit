@@ -66,6 +66,8 @@ pnpm run skill:install     # instala en ~/.agents/skills/study-coach
 # reinicia tu CLI de IA (o abre una sesión nueva) y escribe /study-coach
 ```
 
+En zcode / Claude Code también puedes instalar desde el **marketplace de plugins**: añade el marketplace `https://github.com/jerryjiao/ai-study-kit` e instala `study-coach` — las actualizaciones futuras del skill llegan con las actualizaciones del marketplace, sin reinstalar.
+
 Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Nueve guías cubren desde inicializar el proyecto hasta desplegarlo. (Las guías están escritas en chino; ver [`docs/study-coach.md`](docs/study-coach.md).)
 
 ---

@@ -68,7 +68,9 @@ pnpm run skill:install     # 装进 ~/.agents/skills/study-coach
 # 重启 AI CLI（或开新会话），输入 /study-coach
 ```
 
-它会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、AI 配置），然后**推荐你现在最该做的一件事**——是开新主题、复习到期闪卡、刷题、还是把攒下的错题做成串讲——选定后**带着你一步步执行**。从初始化整个项目到部署上线，九个流程全覆盖。
+用 zcode / Claude Code 的也可以走 **plugin 市集**：添加 marketplace `https://github.com/jerryjiao/ai-study-kit` 后安装 `study-coach`——后续 skill 更新随市集刷新，不用重装。
+
+它会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、课程已读、AI 配置），然后**推荐你现在最该做的一件事**——是开新主题、复习到期闪卡、刷题、还是把攒下的错题做成串讲——选定后**带着你一步步执行**。从初始化整个项目到部署上线，九个流程全覆盖。
 
 详见 [`docs/study-coach.md`](docs/study-coach.md)。
 
