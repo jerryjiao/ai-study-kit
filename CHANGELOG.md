@@ -4,8 +4,17 @@
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-08-23
+
+主题：**进度模型扩展（多主题隔离 + 课程已读）+ study-coach plugin 分发 + 认证内容包实战验证。**（图谱周期 #16「v0.4」；因 v0.4.0 已于 2026-08-17 割出，按 SemVer 本版发 0.5.0。）
+
 ### Added
 
+- **多主题进度隔离（#18，读端过滤）**：切主题后旧主题的到期卡/错题不再混入学习流——进度派生视图（统计/错题本/闪卡队列/nextDue/上次答到/study-coach 探测）一律先与激活主题的题/卡 id 集求交；`resetWrong/resetRead/resetSrs` 支持可选 `ids` 主题限定，不再误伤其他主题进度；存储与合并零变更、老 progress.json 零迁移。每日新卡配额有意保持跨主题全局。
+- **课程已读记录（#19）**：`progress.coursesRead`（key=`<theme>/<lesson文件名>`，per-key max LWW 合并）；`sync-examples.mjs` 产课程清单 `src/data/courses.json`；课程页课程目录栏点击定位 + iframe 每次加载（含课站内部互链）自动标记已读，「课全读」完成边界在 UI/skill/CLI 三处统一可机读；study-coach 快照新增 `lessonsRead` 并驱动「先读课 vs 直接刷题」分流。
+- **study-coach plugin 分发（#22）**：仓库自带 marketplace（`.claude-plugin/marketplace.json`）+ `plugins/study-coach/`（`scripts/sync-plugin.mjs` 从 `skills/study-coach/` 单一事实源生成，版本跟根 package.json）；zcode / Claude Code 添加 marketplace 装 study-coach，更新随市集刷新免手动重装；`pnpm run skill:install` 老路径保留（双路径）。
+- **软件设计师认证内容包（#5）**：`examples/software-designer/` 300 题 + 60 卡 + 10 课，agent 直产全链验证（排布表契约 → 照表产题产卡 → 四对齐校验绿）。
+- **首轮 agent 直产错题串讲 + 播客逐字稿（#7）**：真实学习闭环全流程跑通（300/300 全答、错题全毕业、3 簇串讲、播客稿），课程修复 9 节；产线编排实证 ≤5 并发分批 + 死 agent 捡产出 + 主会话兜底有效。
 - **产题走 agent 直产 + 考点排布表契约化（#15）**：MISSION.md 新增「## 考点排布表」节（`考点id(EP-NN) | 考点 | 深度 | 题型×题量 | day | 闪卡数`）作为机器可校验契约；`bidirectional-check.py` 读表做三向校验——题→课覆盖、大纲→题对账（题量/题型/day/闪卡数，漏标 examPoint 只 △ 提醒）、闪卡覆盖（声明 0 卡 = 了解级跳过）；无表主题回退高频词模式 + ⚠ 告警不报错，**换主题不再改脚本**。质量门硬化：✗ → exit 1（原先校验失败也退出 0）、△ 警告不拦截、目录不存在 exit 2。契约黑盒测试（CLI 边界 + 三套 fixture：带表对账 / 无表回退 / 对账不符拦截）挂进既有 node:test 层，`pnpm test` 自动跑到。
 - **dev-intro 活示例**：MISSION 补排布表（4 考点），10 题补 `day` / `examPoint` 标注，四对齐复验契约模式全绿。
 - **study-coach F2 产题纪律化**：新增「排考点」用户确认点（先对齐排布表再动笔）；产题步骤升级为照表逐考点直产 + 出题纪律清单（id 稳定、examPoint/day 对齐表、选项等长不给线索、多选无半对歧义）+ 参考配比（single:multi:judge ≈ 5:3:2、难度 易:中:难 ≈ 3:5:2）；产卡照表配卡。F8 去掉「手改 keywords」提醒；`docs/study-coach.md` 摘要同步；skill 已重新分发。
@@ -20,11 +29,14 @@
 
 ### Changed
 
+- **study-coach F4/F6 双路径口径（#8 复盘拍板）**：错题串讲与产课默认走 agent 会话直产（主推），无 agent 环境配 `.env` 走 CLI（podcast 音频合成仅 CLI 可干）；skill 已重新分发。
 - `docs/bidirectional-check.md` 重写为契约模式文档（退出码语义、方向 2 对账规则、0 卡声明、回退模式与告警）。
 - **docs 六篇全量优化**（官网 en/method 两篇译文同步）：术语统一——teach/grill/podcast 一律称 CLI、skill 仅指 /study-coach；事实修正——删不存在的 moduleMap、题库分组按 topic（day 为可选日程标签）、teach 输入为 course-spec.json、configuration 音色默认 male/female；bidirectional-check.md 去掉与实际脚本漂移的内嵌源码、补 `pnpm run check:alignment` 入口；ai-cli-guide 主推 `pnpm run ai:*` 短命令并补 teach skill 源流致谢；引言统一中文导语。
 
 ### Fixed
 
+- **自托管后端根级静态文件裂图（e347235）**：logo.png/favicon.png 掉进 Hono SPA fallback 被当 index.html 返回（仅 pm2 部署可见，vite dev / Pages 正常），fallback 前加 serveStatic 兜底。
+- **课程 URL 跟随激活主题（4612fe9）**：sync-examples 产 `src/data/theme.json`，`Courses.tsx` 读之自动跟随，切主题收敛为只改 `EXAMPLE_THEME` 一处。
 - **README logo 直链三连修**：相对路径在 GitHub 渲染依赖 `/raw/` 重定向端点全站 404 → 换绝对 raw URL 又遇 CDN 429 / 墙内不可达 → 最终改 jsDelivr 外部域，浏览器只对话 GitHub camo 代理；四语 README 同步，brand-scan 白名单补 raw.githubusercontent 与 cdn.jsdelivr.net 资产 URL（直链含 owner 用户名，扫描门曾挂）。
 - **sync-docs 吞文**：stripEn 正则 `[^>]` 跨行吞正文（EN 行后接正文时吃掉 2/3 篇幅），改 `[^>\n]`。
 - **site favicon 换真 logo**：手绘 SVG 近似版与定稿 logo 不一致，favicon.png 同源拷贝 + Starlight favicon 配置指向；换文件名顺带绕开旧 svg 强缓存。
