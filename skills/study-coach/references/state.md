@@ -49,30 +49,37 @@ console.log(`questions=${nq()} flashcards=${nf()} lessons=${nl()} clusters=${nw(
 curl -sf http://localhost:8787/api/health   # 服务探活，成功=在线
 ```
 
-进度统计（口径与 `apps/quiz-app/src/lib/progress.ts` 一致——墓碑=已删、随机沙盒不进主进度、错题毕业阈值随历史错次递增、SRS 按到期时间戳）：
+进度统计（口径与 `apps/quiz-app/src/lib/progress.ts` 一致——墓碑=已删、随机沙盒不进主进度、错题毕业阈值随历史错次递增、SRS 按到期时间戳；**answers/srs 先与主题题/卡 id 集求交**——多主题隔离，其他主题的进度不混入）：
 
 ```bash
 # 在线优先（-s 静默，失败不报错）；离线或文件为空则回落到仓库进度文件
 curl -sf http://localhost:8787/api/progress -o /tmp/coach-progress.json
 CP=$([ -s /tmp/coach-progress.json ] && echo /tmp/coach-progress.json || echo apps/quiz-app/progress.json)
 
-CP="$CP" node -e '
+CP="$CP" THEME="$THEME" node -e '
 const fs = require("fs");
+const readIds = (f) => { try { return new Set(JSON.parse(fs.readFileSync(f)).map((x) => x.id)); } catch { return new Set(); } };
+const qIds = readIds(`examples/${process.env.THEME}/questions.json`);
+const fcIds = readIds(`examples/${process.env.THEME}/flashcards.json`);
 let p;
 try { p = JSON.parse(fs.readFileSync(process.env.CP, "utf-8")); } catch { p = null; }
 if (!p) { console.log("progress=empty"); process.exit(0); }
 const pass = (wc) => (wc <= 1 ? 1 : wc === 2 ? 2 : 3);
 const now = Date.now();
-const recs = Object.entries(p.answers || {}).filter(([, r]) => !r.deletedAt);
+const recs = Object.entries(p.answers || {}).filter(([id, r]) => !r.deletedAt && qIds.has(id));
 const answered = recs.filter(([, r]) => !r.fromRandom).length;
 const openWrong = recs.filter(([, r]) => r.streak !== undefined && r.streak < pass(r.wrongCount ?? 1));
 const graded = recs.filter(([, r]) => !r.fromRandom && r.correct !== null);
 const correct = graded.filter(([, r]) => r.correct === true).length;
-const srsDue = Object.values(p.srs || {}).filter((s) => !s.deletedAt && s.due <= now).length;
+const srsDue = Object.entries(p.srs || {}).filter(([id, s]) => !s.deletedAt && fcIds.has(id) && s.due <= now).length;
+// 课程已读：coursesRead 的 "<theme>/<file>" 前缀命中 vs lessons 目录清单
+const lessonFiles = (() => { try { return fs.readdirSync(`examples/${process.env.THEME}/lessons`).filter((f) => f.endsWith(".html")); } catch { return []; } })();
+const readSet = new Set(lessonFiles.filter((f) => (p.coursesRead || {})[`${process.env.THEME}/${f}`] !== undefined));
 console.log(JSON.stringify({
   answered, openWrong: openWrong.length, wrongIds: openWrong.map(([id]) => id),
   accuracy: graded.length ? Math.round((correct / graded.length) * 100) + "%" : "n/a",
   srsDue,
+  lessonsRead: `${readSet.size}/${lessonFiles.length}`,
 }, null, 2));
 '
 ```

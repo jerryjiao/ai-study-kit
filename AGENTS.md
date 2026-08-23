@@ -152,7 +152,9 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **判分规则**：多选必须**全对才算对**（少选/多选/错选均错），见 `apps/quiz-app/src/lib/grade.ts`。
 - **题 id 全局唯一且稳定**：如 `GIT-001`、`LNX-002`、`FC-DEV-01` 等。进度按 id 存，改题源时尽量保留旧 id 以免进度错位。
 - **闪卡 SRS = Anki 兼容算法**：`apps/quiz-app/src/lib/srs.ts` 实现 SM-2 + Anki 学习步（新卡 `[1m,10m]` 两步毕业，重学步 `[10m]`，lapse 后 interval×0.5）。会话调度见 `reviewQueue.ts`（again/学习步未毕业 → 卡排队尾循环）。改算法要同时更新 `srs.test.ts`。
-- **进度重置能力**（`progress.ts`）：`resetWrong`（清错题）、`resetRead`（清看题）、`resetAnswersByIds`（按题 id 集合清，用于练习页"重做本题集"）、`resetSrs`（清闪卡）。UI 入口在各页面顶部。重置会同步写服务器。
+- **进度重置能力**（`progress.ts`）：`resetWrong`（清错题）、`resetRead`（清看题）、`resetSrs`（清闪卡）。**三者均接受可选 `ids` 参数做主题隔离**——UI 层传激活主题的题/卡 id 集，只清命中项不误伤其他主题进度；不传保持全量（向后兼容）。`resetAnswersByIds`（按题 id 集合清，用于练习页"重做本题集"）、`resetReadByIds` 同理。UI 入口在各页面顶部。重置会同步写服务器。
+- **⭐ 多主题进度隔离（读端过滤）**：progress 单文件按题 id 全局存（id 全局唯一稳定），**隔离在读端做**——所有进度派生视图（统计/错题本/闪卡队列/nextDue/上次答到/study-coach 探测）必须先与激活主题的题/卡 id 集求交，禁止直接遍历 `progress.answers`/`progress.srs` 全量。`srsMeta.newToday`（每日新卡配额）**有意全局共享**（跨主题防一天灌太多）。
+- **⭐ 课程已读（coursesRead）**：`progress.coursesRead` key=`"<theme>/<lesson文件名>"`、value=已读时间戳，merge 走 per-key max（LWW）。清单由 `sync-examples.mjs` 产 `src/data/courses.json`（theme + lessons[{file,title}]），课程页 iframe 每次加载命中清单即自动标记。「课全读」完成边界 = coursesRead 命中清单全集，UI 与 study-coach 探测（`lessonsRead` 字段）同口径。只标记不取消（无墓碑）。
 - **AI CLI（三个）**：内置在仓库的 `apps/quiz-app/scripts/` 下：
   - `teach-generate.mjs`：从 `examples/<theme>/course-spec.json` 产课程 HTML
   - `grill-wrong.mjs`：从 `/api/progress` 拉错题 + LLM 聚类 + 产错题精讲 HTML

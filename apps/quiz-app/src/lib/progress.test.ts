@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { emptyProgress, applyAnswer, applySrs, computeStats, computeListStats, wrongIds, mergeProgress, markRead, readIds, readCount, nextStreak, nextWrongCount, streakToPass, resetWrong, resetRead, resetSrs, resetAnswersByIds, resetReadByIds, noteNewCard, newCardsToday, dayKey, isAnswerDeleted, isCardDeleted, isRead, isFromRandom } from './progress';
+import { emptyProgress, applyAnswer, applySrs, computeStats, computeListStats, wrongIds, mergeProgress, markRead, readIds, readCount, nextStreak, nextWrongCount, streakToPass, resetWrong, resetRead, resetSrs, resetAnswersByIds, resetReadByIds, noteNewCard, newCardsToday, dayKey, isAnswerDeleted, isCardDeleted, isRead, isFromRandom, markCourseRead, isCourseRead } from './progress';
 import type { Question, Progress, SrsState } from '../types';
 
 const qs: Question[] = [
@@ -506,5 +506,69 @@ describe('progress', () => {
     expect(m.theme).toBe('dark');
     expect(m.answers.q1.correct).toBe(true); // answers 保留
     expect(m.read?.q1).toBe(5);              // read 保留
+  });
+
+  // —— 多主题隔离（v0.4 痛点 #2）：reset 类操作可限定 id 集，不误伤其他主题进度 ——
+  it('resetWrong(ids): 只清命中的错题，其他主题的错题原样保留', () => {
+    let p = applyAnswer(emptyProgress(), 'q1', { selected: ['A'], correct: false, submittedAt: 1, streak: 0 }); // 主题A错题
+    p = applyAnswer(p, 'OT-001', { selected: ['A'], correct: false, submittedAt: 2, streak: 0 });                // 其他主题错题
+    p = resetWrong(p, 100, ['q1']);
+    expect(isAnswerDeleted(p.answers['q1'])).toBe(true);    // 命中：打墓碑
+    expect(isAnswerDeleted(p.answers['OT-001'])).toBe(false); // 未命中：原样保留
+    expect(p.answers['OT-001'].streak).toBe(0);
+  });
+
+  it('resetRead(ids): 只清命中的看题，其他主题的看题原样保留', () => {
+    let p = markRead(emptyProgress(), 'q1');
+    p = markRead(p, 'OT-001');
+    const tombTime = Date.now() + 1000;  // 墓碑须晚于 markRead 的真实时间戳，读端才判已删
+    p = resetRead(p, tombTime, ['q1']);
+    expect(isRead(p, 'q1')).toBe(false);      // 命中：墓碑盖过 read
+    expect(isRead(p, 'OT-001')).toBe(true);  // 未命中：保留
+  });
+
+  it('resetSrs(ids): 只清命中的卡，其他主题的卡原样保留（srsMeta 仍全局清零）', () => {
+    let p = applySrs(emptyProgress(), 'FC-001', srs({ updatedAt: 5 }));
+    p = applySrs(p, 'FC-DEV-001', srs({ updatedAt: 6 }));
+    p = noteNewCard(p, DAY0);
+    p = resetSrs(p, 100, ['FC-001']);
+    expect(isCardDeleted(p.srs?.['FC-001'])).toBe(true);      // 命中：打墓碑
+    expect(isCardDeleted(p.srs?.['FC-DEV-001'])).toBe(false); // 未命中：保留
+    expect(p.srs?.['FC-DEV-001'].updatedAt).toBe(6);
+    expect(p.srsMeta).toBeUndefined();                        // 配额有意全局清零（跨主题共享）
+  });
+
+  it('reset 类不传 ids 时保持全量语义（向后兼容）', () => {
+    let p = applyAnswer(emptyProgress(), 'OT-001', { selected: ['A'], correct: false, submittedAt: 1, streak: 0 });
+    p = applySrs(p, 'FC-DEV-001', srs({ updatedAt: 5 }));
+    p = resetWrong(p, 100);
+    p = resetSrs(p, 100);
+    expect(isAnswerDeleted(p.answers['OT-001'])).toBe(true);
+    expect(isCardDeleted(p.srs?.['FC-DEV-001'])).toBe(true);
+  });
+
+  // —— 课程已读（v0.4 痛点 #3）：完成边界「课全读」的机读口径 ——
+  it('markCourseRead/isCourseRead: key 带主题前缀，多主题天然隔离', () => {
+    let p = markCourseRead(emptyProgress(), 'dev-intro', 'git-basics.html', 100);
+    expect(isCourseRead(p, 'dev-intro', 'git-basics.html')).toBe(true);
+    expect(isCourseRead(p, 'software-designer', 'git-basics.html')).toBe(false); // 同名文件不同主题≠已读
+    expect(p.coursesRead).toEqual({ 'dev-intro/git-basics.html': 100 });
+    // 重复标记刷新时间戳（不产生重复 key）
+    p = markCourseRead(p, 'dev-intro', 'git-basics.html', 300);
+    expect(p.coursesRead).toEqual({ 'dev-intro/git-basics.html': 300 });
+  });
+
+  it('mergeProgress: coursesRead per-key 取 max（跨设备 LWW）', () => {
+    const a: Progress = { version: 1, answers: {}, coursesRead: { 't1/l1.html': 100, 't1/l2.html': 50 } };
+    const b: Progress = { version: 1, answers: {}, coursesRead: { 't1/l1.html': 200, 't2/l1.html': 80 } };
+    const m = mergeProgress(a, b);
+    expect(m.coursesRead).toEqual({ 't1/l1.html': 200, 't1/l2.html': 50, 't2/l1.html': 80 });
+  });
+
+  it('mergeProgress: coursesRead 单边缺失取存在者（老数据无此字段）', () => {
+    const a: Progress = { version: 1, answers: {}, coursesRead: { 't1/l1.html': 100 } };
+    const b: Progress = { version: 1, answers: {} };
+    expect(mergeProgress(a, b).coursesRead).toEqual({ 't1/l1.html': 100 });
+    expect(mergeProgress(b, a).coursesRead).toEqual({ 't1/l1.html': 100 });
   });
 });

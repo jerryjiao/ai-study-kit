@@ -120,22 +120,28 @@ export function Home() {
     });
   }, [progress.answers]);
 
-  // 上次答到的主题：扫描所有非墓碑答题记录，取 submittedAt 最新者对应的题的 topic/subtopic。
+  // 上次答到的主题：扫描激活题库的答题记录（而非全量 answers），取 submittedAt 最新者。
   // 纯派生值（progress.answers + questions），不持久化——每次 Home 渲染按最新进度重算。
+  // ⚠️ 必须以 questions 为主序扫描（多主题隔离）：全量扫 answers 时，其他主题更新的
+  // 作答时间戳会吞掉本主题的 resume 入口（find 不到题 → 整个入口消失）。
   const lastTopic = useMemo(() => {
     let bestId: string | undefined;
     let bestTs = -1;
-    for (const [id, r] of Object.entries(progress.answers)) {
-      if (isAnswerDeleted(r)) continue; // 墓碑记录不算
-      if (r.fromRandom) continue;       // 随机沙盒记录不更新"继续上次"入口（随机是自测，非学习主线）
+    for (const q of questions) {
+      const r = progress.answers[q.id];
+      if (!r || isAnswerDeleted(r)) continue; // 墓碑记录不算
+      if (r.fromRandom) continue;            // 随机沙盒记录不更新"继续上次"入口（随机是自测，非学习主线）
       const ts = r.submittedAt ?? 0;
-      if (ts > bestTs) { bestTs = ts; bestId = id; }
+      if (ts > bestTs) { bestTs = ts; bestId = q.id; }
     }
     if (!bestId) return null;
     const q = questions.find((x) => x.id === bestId);
     if (!q) return null;
     return { topic: q.topic || '', subtopic: q.subtopic };
   }, [progress.answers]);
+
+  // 多主题隔离：本页 reset 类操作只清激活主题的进度（题 id 集），不误伤其他主题。
+  const themeQuestionIds = useMemo(() => questions.map((q) => q.id), []);
 
   // 展开状态：默认全部收起，点开才展开。
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
@@ -314,7 +320,7 @@ export function Home() {
             </button>
             <button
               onClick={async () => {
-                if (await confirm(t('home.confirmResetWrong'))) resetWrong();
+                if (await confirm(t('home.confirmResetWrong'))) resetWrong(themeQuestionIds);
               }}
               className="flex items-center justify-center gap-1.5 text-sm text-text-secondary hover:text-text-primary border border-border bg-bg-surface rounded-lg px-3 py-2.5 transition-colors"
             >
@@ -323,7 +329,7 @@ export function Home() {
             </button>
             <button
               onClick={async () => {
-                if (await confirm(t('home.confirmResetRead'))) resetRead();
+                if (await confirm(t('home.confirmResetRead'))) resetRead(themeQuestionIds);
               }}
               className="flex items-center justify-center gap-1.5 text-sm text-text-secondary hover:text-text-primary border border-border bg-bg-surface rounded-lg px-3 py-2.5 transition-colors"
             >

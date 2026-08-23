@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Progress, AnswerRecord, SrsState, SyncStatus, UiLang } from '../types';
-import { emptyProgress, applyAnswer, applySrs, markRead as markReadFn, nextStreak, nextWrongCount, streakToPass, resetWrong as resetWrongFn, resetRead as resetReadFn, resetAnswersByIds as resetAnswersByIdsFn, resetReadByIds as resetReadByIdsFn, resetSrs as resetSrsFn, noteNewCard } from '../lib/progress';
+import { emptyProgress, applyAnswer, applySrs, markRead as markReadFn, nextStreak, nextWrongCount, streakToPass, resetWrong as resetWrongFn, resetRead as resetReadFn, resetAnswersByIds as resetAnswersByIdsFn, resetReadByIds as resetReadByIdsFn, resetSrs as resetSrsFn, noteNewCard, markCourseRead as markCourseReadFn } from '../lib/progress';
 import type { ThemeMode } from '../lib/theme';
 import { isNew } from '../lib/srs';
 import { loadProgress, saveProgress, setSyncListener, flushPending } from '../api/progressClient';
@@ -16,13 +16,16 @@ interface ProgressCtxValue {
   retrySync: () => Promise<void>; // 手动重试 flush pending 队列（点击 banner 时调）
   submitAnswer: (id: string, rec: AnswerRecord) => void;
   markRead: (id: string) => void;
+  /** 标记一节课已读（课程页 iframe 加载命中清单时调）。key 自带主题前缀，多主题隔离。 */
+  markCourseRead: (theme: string, file: string) => void;
   reviewCard: (cardId: string, state: SrsState) => void;
   reset: () => Promise<void>;
-  resetWrong: () => void;
-  resetRead: () => void;
+  /** ids 可选：多主题隔离——传激活主题的题/卡 id 集时只清命中的，不误伤其他主题进度。 */
+  resetWrong: (ids?: string[]) => void;
+  resetRead: (ids?: string[]) => void;
   resetAnswersByIds: (ids: string[]) => void;
   resetReadByIds: (ids: string[]) => void;
-  resetSrs: () => void;
+  resetSrs: (ids?: string[]) => void;
   /** 单题手动移出错题集：把 streak 拉到 streakToPass 阈值，下次 wrongIds 自然过滤掉。
    *  用于错题练习时用户主动判定"已掌握"，不等连对达标。不删历史记录（wrongCount 保留）。 */
   dismissWrong: (id: string) => void;
@@ -88,6 +91,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     dirtyRef.current = true;
   }, []);
 
+  const markCourseRead = useCallback((theme: string, file: string) => {
+    setProgress((prev) => markCourseReadFn(prev, theme, file));
+    dirtyRef.current = true;
+  }, []);
+
   /** 闪卡：写入一张卡的 SRS 状态（由 srs.review 算好传入）。
    *  若该卡评分前是新卡（无记录 / 学习步首步无 lapse），顺带累加"今日新卡计数"，
    *  配合"每日新卡配额"防一天灌太多。 */
@@ -113,21 +121,23 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       read: prev.read ?? {},
       readTombstones: Object.fromEntries(Object.keys(prev.read ?? {}).map((id) => [id, now])),
       srs: Object.fromEntries(Object.entries(prev.srs ?? {}).map(([id, s]) => [id, { ...s, deletedAt: now }])),
-      // 保留 UI 偏好：reset 是清学习进度，不是清主题/闪卡配额等 UI 设置
+      // 保留 UI 偏好：reset 是清学习进度，不是清主题/语言等 UI 设置
       theme: prev.theme,
       themeUpdatedAt: prev.themeUpdatedAt,
+      lang: prev.lang,
+      langUpdatedAt: prev.langUpdatedAt,
     };
     setProgress(emptied);
     await saveProgress(emptied);
   }, []);
 
-  const resetWrong = useCallback(() => {            // 仅错题
-    setProgress((prev) => resetWrongFn(prev));
+  const resetWrong = useCallback((ids?: string[]) => {      // 仅错题（ids=激活主题题集时主题隔离）
+    setProgress((prev) => resetWrongFn(prev, Date.now(), ids));
     dirtyRef.current = true;
   }, []);
 
-  const resetRead = useCallback(() => {             // 仅看题
-    setProgress((prev) => resetReadFn(prev));
+  const resetRead = useCallback((ids?: string[]) => {       // 仅看题（同上）
+    setProgress((prev) => resetReadFn(prev, Date.now(), ids));
     dirtyRef.current = true;
   }, []);
 
@@ -143,9 +153,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     dirtyRef.current = true;
   }, []);
 
-  /** 重置闪卡进度：清空 srs 字段（所有卡回到新卡），保留答题/看题进度 */
-  const resetSrs = useCallback(() => {
-    setProgress((prev) => resetSrsFn(prev));
+  /** 重置闪卡进度：清 srs 字段（ids=激活主题卡集时主题隔离），保留答题/看题进度 */
+  const resetSrs = useCallback((ids?: string[]) => {
+    setProgress((prev) => resetSrsFn(prev, Date.now(), ids));
     dirtyRef.current = true;
   }, []);
 
@@ -176,8 +186,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<ProgressCtxValue>(
-    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang }),
-    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang]
+    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang }),
+    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang]
   );
 
   return <ProgressCtx.Provider value={value}>{children}</ProgressCtx.Provider>;

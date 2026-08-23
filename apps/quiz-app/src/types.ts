@@ -95,6 +95,11 @@ export interface Progress {
   readTombstones?: Record<string, number>;
   srs?: Record<string, SrsState>;         // 闪卡 SRS 进度：key=卡id(FC-NNN)
   srsMeta?: SrsMeta;                       // 闪卡全局元数据（今日新卡计数等）
+  /** 课程已读记录：key="<theme>/<lesson文件名>"（如 "dev-intro/git-basics.html"），
+   *  value=已读时间戳（Date.now()）。key 自带主题前缀——多主题天然隔离，切主题互不干扰。
+   *  merge 走 per-key max（同 read 字段）。只标记不取消（完成边界是自我追踪口径，无墓碑）。
+   *  「课全读」边界 = coursesRead 命中 src/data/courses.json 清单的全部 lesson。 */
+  coursesRead?: Record<string, number>;
   /** UI 主题偏好（非学习进度）：'light' | 'dark' | 'system'。
    *  跨设备同步走 mergeProgress（按 themeUpdatedAt 取新，同 srs/newToday 模式）。
    *  本地另有独立的 'ask-theme' key 供内联脚本秒读（见 index.html）。 */

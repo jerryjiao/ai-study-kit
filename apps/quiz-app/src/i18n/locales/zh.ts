@@ -164,6 +164,8 @@ export const zh = {
   'courses.notReadyHint':
     '课程内容来自 examples/<theme>/，需先运行 pnpm run build（含 sync:study）同步到 public/study/。',
   'courses.frameTitle': '学习课程',
+  'courses.index': '课程目录',
+  'courses.readProgress': '已读 {read}/{total}',
 
   // 同步横幅
   'sync.local': '在线演示模式：进度仅保存在此浏览器，不联网同步',

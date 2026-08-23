@@ -167,6 +167,8 @@ export const es: Record<TKey, string> = {
   'courses.notReadyHint':
     'El contenido viene de examples/<theme>/ — ejecuta pnpm run build (incluye sync:study) para sincronizarlo en public/study/.',
   'courses.frameTitle': 'Sitio del curso',
+  'courses.index': 'Índice de lecciones',
+  'courses.readProgress': 'Leídas {read}/{total}',
 
   // Aviso de sincronización
   'sync.local': 'Modo demo: el progreso se guarda solo en este navegador, sin sincronización',

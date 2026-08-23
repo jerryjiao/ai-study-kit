@@ -58,10 +58,13 @@ export function FlashcardsHome() {
   const totalToday = counts.review + counts.learning + counts.fresh;
   const streak = parseInt(lsGet(STREAK_KEY, '0'), 10) || 0;
 
-  // 下一张到期卡（给用户预期）
+  // 下一张到期卡（给用户预期）。多主题隔离：只看激活主题的卡（flashcards 为激活主题数据），
+  // 其他主题的 srs 记录不混入——否则 hint 显示的是别的主题的到期时间。
   const nextDue = useMemo(() => {
-    const future = Object.values(srs)
-      .map((s) => s.due)
+    const ids = new Set(flashcards.map((c) => c.id));
+    const future = Object.entries(srs)
+      .filter(([id, s]) => ids.has(id) && !s.deletedAt)
+      .map(([, s]) => s.due)
       .filter((d) => d > now)
       .sort((a, b) => a - b)[0];
     return future ? formatInterval((future - now) / DAY_MS) : null;
@@ -78,16 +81,23 @@ export function FlashcardsHome() {
     forceRerender((x) => x + 1);
   };
 
-  /** 重置全部闪卡进度：清服务器 srs 字段 + 本地 streak/last-complete-date。
-   *  所有卡回到新卡状态。不影响答题/看题进度。 */
+  /** 重置闪卡进度：只清激活主题的卡（多主题隔离，其他主题的 srs 不动）+ 本地 streak。
+   * 所有卡回到新卡状态。不影响答题/看题进度。 */
   const resetAllSrs = async () => {
     if (await confirm(t('fch.confirmResetSrs'))) {
-      resetSrs();
+      resetSrs(flashcards.map((c) => c.id));
       lsSet(STREAK_KEY, '0');
       lsSet(STREAK_DATE_KEY, '');
       forceRerender((x) => x + 1);
     }
   };
+
+  // 激活主题内有 SRS 进度的卡数（多主题隔离：墓碑不算、其他主题的卡不算），
+  // 决定重置入口的显隐与计数文案。
+  const activeSrsCount = useMemo(
+    () => flashcards.reduce((n, c) => (srs[c.id] && !isCardDeleted(srs[c.id]) ? n + 1 : n), 0),
+    [srs],
+  );
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-7">
@@ -193,15 +203,15 @@ export function FlashcardsHome() {
         </div>
       )}
 
-      {/* 危险操作：重置全部闪卡进度（仅在确有进度时显示，避免空态误触） */}
-      {Object.keys(srs).length > 0 && (
+      {/* 危险操作：重置本主题闪卡进度（仅在确有进度时显示，避免空态误触） */}
+      {activeSrsCount > 0 && (
         <div className="text-center pt-2 border-t border-border">
           <button
             onClick={resetAllSrs}
             className="inline-flex items-center gap-1.5 text-xs text-text-faint hover:text-red-600 transition-colors"
           >
             <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-            {t('fch.resetAllSrs', { n: Object.keys(srs).length })}
+            {t('fch.resetAllSrs', { n: activeSrsCount })}
           </button>
         </div>
       )}

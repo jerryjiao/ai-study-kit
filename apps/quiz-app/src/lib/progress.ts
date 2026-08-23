@@ -153,21 +153,27 @@ function tombstone(now: number): AnswerRecord {
 
 /** 重置错题：对所有错题记录（streak 被维护过的题）打墓碑，保留答对的与看题进度。
  *  注意：用墓碑而非删 key——writeProgress 是 read-merge-write，删 key 会被旧快照补回，
- *  打墓碑后 merge 时墓碑时间戳胜出，删除才持久化到磁盘。 */
-export function resetWrong(p: Progress, now = Date.now()): Progress {
+ *  打墓碑后 merge 时墓碑时间戳胜出，删除才持久化到磁盘。
+ *  传 ids 时只清命中的题（多主题隔离：UI 传激活主题的题 id 集，不误伤其他主题进度）。 */
+export function resetWrong(p: Progress, now = Date.now(), ids?: string[]): Progress {
+  const scope = ids ? new Set(ids) : null;
   const answers: Record<string, AnswerRecord> = {};
   for (const [id, r] of Object.entries(p.answers)) {
-    answers[id] = r.streak !== undefined ? tombstone(now) : r;
+    answers[id] = r.streak !== undefined && (!scope || scope.has(id)) ? tombstone(now) : r;
   }
   return { ...p, answers };
 }
 
 /** 重置看题：对所有 read key 打墓碑（写入 readTombstones），不动 read 本身。
  *  读端 isRead 会因 readTombstones[id] >= read[id] 视为未看。
- *  同样用墓碑——直接清 read:{} 会被 merge 补回。 */
-export function resetRead(p: Progress, now = Date.now()): Progress {
+ *  同样用墓碑——直接清 read:{} 会被 merge 补回。
+ *  传 ids 时只清命中的题（多主题隔离，同 resetWrong）。 */
+export function resetRead(p: Progress, now = Date.now(), ids?: string[]): Progress {
+  const scope = ids ? new Set(ids) : null;
   const tombs = { ...(p.readTombstones ?? {}) };
-  for (const id of Object.keys(p.read ?? {})) tombs[id] = now;
+  for (const id of Object.keys(p.read ?? {})) {
+    if (!scope || scope.has(id)) tombs[id] = now;
+  }
   return { ...p, readTombstones: tombs };
 }
 
@@ -199,10 +205,13 @@ export function resetReadByIds(p: Progress, ids: string[], now = Date.now()): Pr
 }
 
 /** 重置闪卡：对所有 srs 卡打墓碑 + 今日新卡计数归零，保留答题与看题进度。
- *  用墓碑——直接清 srs:{} 会被 merge 补回（与 resetWrong 同因）。 */
-export function resetSrs(p: Progress, now = Date.now()): Progress {
+ *  用墓碑——直接清 srs:{} 会被 merge 补回（与 resetWrong 同因）。
+ *  传 ids 时只清命中的卡（多主题隔离：UI 传激活主题的闪卡 id 集）。
+ *  srsMeta（每日新卡配额）保持全局清零——配额有意跨主题共享，防一天灌多主题。 */
+export function resetSrs(p: Progress, now = Date.now(), ids?: string[]): Progress {
+  const scope = ids ? new Set(ids) : null;
   const srs: Record<string, SrsState> = {};
-  for (const [id, s] of Object.entries(p.srs ?? {})) srs[id] = { ...s, deletedAt: now };
+  for (const [id, s] of Object.entries(p.srs ?? {})) srs[id] = (!scope || scope.has(id)) ? { ...s, deletedAt: now } : s;
   return { ...p, srs, srsMeta: undefined };
 }
 
@@ -238,6 +247,24 @@ export function noteNewCard(p: Progress, now = Date.now()): Progress {
 /** 写入一张卡的 SRS 状态 */
 export function applySrs(p: Progress, cardId: string, state: SrsState): Progress {
   return { ...p, srs: { ...(p.srs ?? {}), [cardId]: state } };
+}
+
+// —— 课程已读（完成边界「课全读」的机读口径）——
+
+/** 课程已读 key："<theme>/<lesson文件名>"。主题前缀让多主题天然隔离，
+ *  与 sync-examples.mjs 产出的 src/data/courses.json 清单（{theme, lessons:[{file}]})对账。 */
+export function courseKey(theme: string, file: string): string {
+  return `${theme}/${file}`;
+}
+
+/** 标记一节课已读（重复标记刷新时间戳——merge 取 per-key max，跨设备 LWW）。 */
+export function markCourseRead(p: Progress, theme: string, file: string, now = Date.now()): Progress {
+  return { ...p, coursesRead: { ...(p.coursesRead ?? {}), [courseKey(theme, file)]: now } };
+}
+
+/** 一节课是否已读（无记录即未读；本字段无墓碑，不存在"标记后取消"态）。 */
+export function isCourseRead(p: Progress, theme: string, file: string): boolean {
+  return p.coursesRead?.[courseKey(theme, file)] !== undefined;
 }
 
 /** 合并 read 字段：每个题 id 取时间戳较新者 */
@@ -337,6 +364,8 @@ export function mergeProgress(local: Progress, remote: Progress): Progress {
     answers,
     read: mergeRead(local.read, remote.read),
     readTombstones: mergeReadTombstones(local.readTombstones, remote.readTombstones),
+    // 课程已读：与 read 同款 per-key max（LWW）。key 自带主题前缀，多主题互不干扰。
+    coursesRead: mergeRead(local.coursesRead, remote.coursesRead),
     srs: mergeSrs(local.srs, remote.srs),
     srsMeta: mergeSrsMeta(local.srsMeta, remote.srsMeta),
     ...mergeTheme(
