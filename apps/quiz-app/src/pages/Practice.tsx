@@ -33,14 +33,17 @@ export function Practice() {
   // 仅存活于当前列表/模式会话；切换 scope（换 topic/day/mode/view）时由下方 effect 清空。
   const [sessionAnswers, setSessionAnswers] = useState<Record<string, { selected: string[]; revealed: boolean }>>({});
 
-  // base：按 topic/subtopic/day 过滤后的题池（顺序/错题/看题/random 共用基础过滤）
+  // base：按 topic/subtopic/day 过滤后的题池（顺序/错题/看题/random 共用基础过滤）。
+  // 拓展层（tier:'ext'，章节题库类）默认过滤，学习偏好 settings.extOn 打开后放行——
+  // 默认关对应"核心+模考为必做、拓展仅弱区加练"的课程口径（见主题 MISSION.md）。
+  const extOn = progress.settings?.extOn === true;
   const base = useMemo(() => {
-    let b: Question[] = questions;
+    let b: Question[] = extOn ? questions : questions.filter((q) => q.tier !== 'ext');
     if (topic) b = b.filter((q) => q.topic === topic);
     if (subtopic) b = b.filter((q) => q.subtopic === subtopic);
     if (day) b = b.filter((q) => q.day === day);
     return b;
-  }, [topic, subtopic, day]);
+  }, [topic, subtopic, day, extOn]);
 
   // ⭐ 错题模式用会话级快照，不让 list 随 progress 实时变化。
   //  根因：答对一题达到 streak 阈值后，wrongIds 自动把它移出错题集 → list 缩水 →
@@ -245,8 +248,10 @@ export function Practice() {
   // justAnsweredId = 本次会话"最后提交的那一题"且仍在该题上；任意翻页会经 gotoAndSave 把它清掉。
   const [justAnsweredId, setJustAnsweredId] = useState<string | null>(null);
   const justAnsweredCorrect = !isReadMode && !!cur && justAnsweredId === cur.id && !isLastInList;
+  // 学习偏好：设置面板可关"答对自动跳题"（缺省=开，保留既有行为）
+  const autoAdvanceOn = progress.settings?.autoAdvance !== false;
   useEffect(() => {
-    if (!justAnsweredCorrect) return;
+    if (!justAnsweredCorrect || !autoAdvanceOn) return;
     autoAdvanceTimer.current = setTimeout(() => {
       autoAdvanceTimer.current = null;
       // gotoAndSave 内首行会 cancelAutoAdvance，但此时 timer 已执行完置 null，无副作用。
@@ -257,7 +262,7 @@ export function Practice() {
     // 仅在"刚答对信号"或"当前题"变化时重设；pos 变化（含本定时器触发的跳转）经由 cur.id
     // 变化间接触发 cleanup → 取消本定时器，天然防重入。gotoAndSave 运行时已初始化（下方 const）。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [justAnsweredCorrect, cur?.id]);
+  }, [justAnsweredCorrect, cur?.id, autoAdvanceOn]);
 
   const gotoAndSave = (newPos: number) => {
     cancelAutoAdvance(); // 手动翻页/重做时取消挂起的自动跳转，否则会多跳一格

@@ -187,4 +187,18 @@ export const es: Record<TKey, string> = {
   // Cambio de idioma
   'lang.aria': 'Cambiar idioma',
   'lang.title': 'Idioma',
+
+  // Panel de preferencias de estudio
+  'settings.title': 'Preferencias de estudio',
+  'settings.close': 'Cerrar ajustes',
+  'settings.open': 'Abrir preferencias de estudio',
+  'settings.extLabel': 'Preguntas de ampliación',
+  'settings.extDesc': 'Incluir preguntas de nivel ampliación en la práctica (desactivado por defecto)',
+  'settings.autoLabel': 'Avance automático al acertar',
+  'settings.autoDesc': 'Pasa a la siguiente pregunta 3s después de acertar',
+  'settings.quotaLabel': 'Cuota diaria de tarjetas nuevas',
+  'settings.quotaDesc': 'Máximo de tarjetas nuevas por día (0-50)',
+  'settings.quotaMinus': 'Reducir cuota',
+  'settings.quotaPlus': 'Aumentar cuota',
+  'settings.syncHint': 'Las preferencias se sincronizan con tu progreso entre dispositivos.',
 };

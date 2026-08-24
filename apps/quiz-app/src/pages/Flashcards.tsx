@@ -36,7 +36,12 @@ export function Flashcards() {
   const [params] = useSearchParams();
   const isExtra = params.get('extra') === '1';
 
-  const appliedNewPerDay = parseInt(lsGet(NEW_PER_DAY_KEY, String(DEFAULT_NEW_PER_DAY)), 10) || DEFAULT_NEW_PER_DAY;
+  // 每日新卡配额：学习偏好（设置面板，跨设备同步）> localStorage（闪卡 dashboard 旧入口）> 默认 5。
+  // settings 里非有限数或超界时回退，防脏数据把队列撑爆。
+  const quotaFromSettings = progress.settings?.dailyNewCards;
+  const appliedNewPerDay = (typeof quotaFromSettings === 'number' && Number.isFinite(quotaFromSettings) && quotaFromSettings >= 0 && quotaFromSettings <= 50)
+    ? Math.floor(quotaFromSettings)
+    : (parseInt(lsGet(NEW_PER_DAY_KEY, String(DEFAULT_NEW_PER_DAY)), 10) || DEFAULT_NEW_PER_DAY);
   const [sessionTick, setSessionTick] = useState(0);  // 改 isExtra/appliedNewPerDay 时强制重建会话
 
   /** 进入复习页时构建一次今日队列（快照，评分后不重建）。

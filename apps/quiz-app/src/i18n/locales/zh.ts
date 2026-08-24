@@ -184,6 +184,20 @@ export const zh = {
   // 语言切换
   'lang.aria': '切换语言',
   'lang.title': '语言',
+
+  // 设置面板（学习偏好）
+  'settings.title': '学习偏好',
+  'settings.close': '关闭设置',
+  'settings.open': '打开学习偏好设置',
+  'settings.extLabel': '拓展题',
+  'settings.extDesc': '练习时包含拓展层题目（章节题库；默认关闭，仅弱区加练时开）',
+  'settings.autoLabel': '答对自动跳题',
+  'settings.autoDesc': '答对后 3 秒自动进入下一题；翻回上一题或关闭后手动翻页',
+  'settings.quotaLabel': '每日新卡配额',
+  'settings.quotaDesc': '闪卡每天最多引入的新卡数（0-50，防一天灌太多）',
+  'settings.quotaMinus': '减少配额',
+  'settings.quotaPlus': '增加配额',
+  'settings.syncHint': '设置随学习进度同步，跨设备自动跟随。',
 };
 
 export type TKey = keyof typeof zh;

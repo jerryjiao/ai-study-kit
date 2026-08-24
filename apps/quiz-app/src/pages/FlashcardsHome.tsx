@@ -18,13 +18,15 @@ const DEFAULT_NEW_PER_DAY = 5;
 
 /** 闪卡 dashboard：今日概览 + 开始复习入口 + 每日新卡设置（对应答题页的 Home） */
 export function FlashcardsHome() {
-  const { progress, resetSrs } = useProgress();
+  const { progress, resetSrs, updateSettings } = useProgress();
   const confirm = useConfirm();
   const { t } = useI18n();
   const srs = progress.srs ?? {};
   const now = Date.now();
 
-  const appliedNewPerDay = parseInt(lsGet(NEW_PER_DAY_KEY, String(DEFAULT_NEW_PER_DAY)), 10) || DEFAULT_NEW_PER_DAY;
+  const appliedNewPerDay = (typeof progress.settings?.dailyNewCards === 'number' && Number.isFinite(progress.settings.dailyNewCards) && progress.settings.dailyNewCards >= 0 && progress.settings.dailyNewCards <= 50)
+    ? Math.floor(progress.settings.dailyNewCards)
+    : (parseInt(lsGet(NEW_PER_DAY_KEY, String(DEFAULT_NEW_PER_DAY)), 10) || DEFAULT_NEW_PER_DAY);
   const [showSettings, setShowSettings] = useState(false);
   const [newPerDayInput, setNewPerDayInput] = useState(String(appliedNewPerDay));
   const [, forceRerender] = useState(0); // 设置保存后触发重算
@@ -72,6 +74,8 @@ export function FlashcardsHome() {
 
   const saveNewPerDay = () => {
     const n = Math.max(0, Math.min(50, parseInt(newPerDayInput, 10) || 0));
+    // 双写：settings（跨设备同步，顶栏设置面板同源）+ localStorage（旧读路径兜底）
+    updateSettings({ dailyNewCards: n });
     try {
       localStorage.setItem(NEW_PER_DAY_KEY, String(n));
     } catch {

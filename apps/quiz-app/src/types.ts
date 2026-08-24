@@ -6,6 +6,7 @@ export type UiLang = 'zh' | 'en' | 'es' | 'ru';
 export interface Question {
   id: string;                 // "GIT-001" | "LNX-002" 等，全局唯一稳定
   source: string;             // 题源标识，自定义（如 "dev-intro"）
+  tier?: 'ext';               // 分层标记（可选）：'ext'=拓展层题，练习池默认过滤、设置面板开"拓展题"后放行。无标记=核心层
   topic?: string;
   subtopic?: string;          // 大类下的细分考点（可选，用于主题内分组）
   day?: string;               // 学习日程标签（可选，如 "D1".."D8"，对应主题课表）
@@ -108,6 +109,21 @@ export interface Progress {
   /** UI 语言偏好（非学习进度），跨设备同步同 theme 的 LWW 模式（langUpdatedAt 仲裁）。 */
   lang?: UiLang;
   langUpdatedAt?: number;                 // 语言最后变更时间戳（Date.now()），LWW 仲裁用
+  /** 学习偏好（非学习进度，设置面板写入）：拓展开关/答对自动跳题/每日新卡配额。
+   *  跨设备同步同 theme 的 LWW 模式（settingsUpdatedAt 仲裁，整块合并不分字段）。 */
+  settings?: LearnSettings;
+  settingsUpdatedAt?: number;             // 设置最后变更时间戳（Date.now()），LWW 仲裁用
+}
+
+/** 学习偏好三件套（SettingsSheet 写入）。全部可选 + 读取侧约定缺省值：
+ *  extOn 缺省=关（拓展题默认不进练习池）、autoAdvance 缺省=开、dailyNewCards 缺省=5。 */
+export interface LearnSettings {
+  /** 拓展题开关：true 时 tier:'ext' 的题进练习池；缺省/ false 时过滤掉。 */
+  extOn?: boolean;
+  /** 答对 3 秒自动跳下一题：缺省视为 true（保留既有行为）。 */
+  autoAdvance?: boolean;
+  /** 闪卡每日新卡配额（0-50）：缺省回退 localStorage 'ask-new-per-day'，再缺省 5。 */
+  dailyNewCards?: number;
 }
 
 export interface Stats {

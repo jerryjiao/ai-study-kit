@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { Progress, AnswerRecord, SrsState, SyncStatus, UiLang } from '../types';
+import type { Progress, AnswerRecord, SrsState, SyncStatus, UiLang, LearnSettings } from '../types';
 import { emptyProgress, applyAnswer, applySrs, markRead as markReadFn, nextStreak, nextWrongCount, streakToPass, resetWrong as resetWrongFn, resetRead as resetReadFn, resetAnswersByIds as resetAnswersByIdsFn, resetReadByIds as resetReadByIdsFn, resetSrs as resetSrsFn, noteNewCard, markCourseRead as markCourseReadFn } from '../lib/progress';
 import type { ThemeMode } from '../lib/theme';
 import { isNew } from '../lib/srs';
@@ -33,6 +33,8 @@ interface ProgressCtxValue {
   setTheme: (mode: ThemeMode) => void;
   /** 设置 UI 语言偏好（zh/en/es/ru），同步到服务器跨设备跟随。 */
   setLang: (l: UiLang) => void;
+  /** 更新学习偏好（设置面板）：patch 合入 progress.settings 整块 LWW 同步（settingsUpdatedAt 仲裁）。 */
+  updateSettings: (patch: Partial<LearnSettings>) => void;
 }
 
 const ProgressCtx = createContext<ProgressCtxValue | null>(null);
@@ -121,11 +123,13 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       read: prev.read ?? {},
       readTombstones: Object.fromEntries(Object.keys(prev.read ?? {}).map((id) => [id, now])),
       srs: Object.fromEntries(Object.entries(prev.srs ?? {}).map(([id, s]) => [id, { ...s, deletedAt: now }])),
-      // 保留 UI 偏好：reset 是清学习进度，不是清主题/语言等 UI 设置
+      // 保留 UI 偏好：reset 是清学习进度，不是清主题/语言/学习偏好等设置
       theme: prev.theme,
       themeUpdatedAt: prev.themeUpdatedAt,
       lang: prev.lang,
       langUpdatedAt: prev.langUpdatedAt,
+      settings: prev.settings,
+      settingsUpdatedAt: prev.settingsUpdatedAt,
     };
     setProgress(emptied);
     await saveProgress(emptied);
@@ -185,9 +189,24 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     dirtyRef.current = true;
   }, []);
 
+  /** 更新学习偏好：patch 合入 settings 整块写（合并非替换字段级），时间戳 LWW。
+   *  dailyNewCards 变更时顺写 localStorage 'ask-new-per-day'——闪卡页既有读路径优先级
+   *  是 settings > localStorage > 5，双写保证旧版页面/离线场景也能立即生效。 */
+  const updateSettings = useCallback((patch: Partial<LearnSettings>) => {
+    setProgress((prev) => ({
+      ...prev,
+      settings: { ...prev.settings, ...patch },
+      settingsUpdatedAt: Date.now(),
+    }));
+    if (typeof patch.dailyNewCards === 'number') {
+      try { localStorage.setItem('ask-new-per-day', String(patch.dailyNewCards)); } catch { /* 配额满等，忽略 */ }
+    }
+    dirtyRef.current = true;
+  }, []);
+
   const value = useMemo<ProgressCtxValue>(
-    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang }),
-    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang]
+    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings }),
+    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings]
   );
 
   return <ProgressCtx.Provider value={value}>{children}</ProgressCtx.Provider>;

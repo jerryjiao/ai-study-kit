@@ -54,3 +54,5 @@ _online_progress_check.json
 # Local large media reference dirs (not needed by the repo)
 业务架构师课件/
 云原生资料/
+
+.mimosa/

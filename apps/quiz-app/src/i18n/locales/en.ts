@@ -187,4 +187,18 @@ export const en: Record<TKey, string> = {
   // Language toggle
   'lang.aria': 'Switch language',
   'lang.title': 'Language',
+
+  // Settings sheet (learning preferences)
+  'settings.title': 'Learning preferences',
+  'settings.close': 'Close settings',
+  'settings.open': 'Open learning preferences',
+  'settings.extLabel': 'Extension questions',
+  'settings.extDesc': 'Include extension-tier questions in practice (chapter drills; off by default)',
+  'settings.autoLabel': 'Auto-advance on correct',
+  'settings.autoDesc': 'Jump to the next question 3s after a correct answer',
+  'settings.quotaLabel': 'Daily new-card quota',
+  'settings.quotaDesc': 'Max new flashcards introduced per day (0-50)',
+  'settings.quotaMinus': 'Decrease quota',
+  'settings.quotaPlus': 'Increase quota',
+  'settings.syncHint': 'Preferences sync with your progress across devices.',
 };

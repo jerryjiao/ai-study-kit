@@ -571,4 +571,22 @@ describe('progress', () => {
     expect(mergeProgress(a, b).coursesRead).toEqual({ 't1/l1.html': 100 });
     expect(mergeProgress(b, a).coursesRead).toEqual({ 't1/l1.html': 100 });
   });
+
+  // ---- 学习偏好（settings，设置面板）：整块 LWW，settingsUpdatedAt 仲裁 ----
+
+  it('mergeProgress: settings 按 settingsUpdatedAt 取新（整块）', () => {
+    const a: Progress = { version: 1, answers: {}, settings: { extOn: true }, settingsUpdatedAt: 200 };
+    const b: Progress = { version: 1, answers: {}, settings: { dailyNewCards: 9 }, settingsUpdatedAt: 100 };
+    // a 新：整块取 a，不拼出 { extOn, dailyNewCards } 混合态
+    expect(mergeProgress(a, b).settings).toEqual({ extOn: true });
+    expect(mergeProgress(a, b).settingsUpdatedAt).toBe(200);
+    expect(mergeProgress(b, a).settings).toEqual({ extOn: true });
+  });
+
+  it('mergeProgress: settings 单边缺失取存在者（老快照无此字段）', () => {
+    const a: Progress = { version: 1, answers: {}, settings: { autoAdvance: false }, settingsUpdatedAt: 50 };
+    const b: Progress = { version: 1, answers: {} };
+    expect(mergeProgress(a, b).settings).toEqual({ autoAdvance: false });
+    expect(mergeProgress(b, a).settings).toEqual({ autoAdvance: false });
+  });
 });

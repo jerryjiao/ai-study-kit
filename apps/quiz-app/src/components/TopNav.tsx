@@ -1,15 +1,19 @@
+import { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { LangToggle } from './LangToggle';
+import { SettingsSheet } from './SettingsSheet';
 import { useI18n } from '../i18n';
 
 /**
- * 全局吸顶顶栏：品牌字标 + 三 tab 切换 + 语言/主题切换按钮。
+ * 全局吸顶顶栏：品牌字标 + 三 tab 切换 + 语言/主题切换按钮 + 学习偏好设置入口。
  * 「答题」覆盖首页 / 练习 / 看题；「闪卡」/flashcards；「课程」/courses。
  */
 export function TopNav() {
   const { pathname } = useLocation();
   const { t } = useI18n();
+  const [showSettings, setShowSettings] = useState(false);
   const onFlash = pathname === '/flashcards' || pathname.startsWith('/flashcards/');
   const onCourses = pathname === '/courses' || pathname.startsWith('/courses/');
   const onQuiz = !onFlash && !onCourses;
@@ -41,8 +45,17 @@ export function TopNav() {
           </NavLink>
           <LangToggle />
           <ThemeToggle />
+          <button
+            onClick={() => setShowSettings(true)}
+            className="p-2 rounded-full text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors"
+            title={t('settings.title')}
+            aria-label={t('settings.open')}
+          >
+            <Settings className="h-4 w-4" strokeWidth={2} />
+          </button>
         </nav>
       </div>
+      {showSettings && <SettingsSheet onClose={() => setShowSettings(false)} />}
     </header>
   );
 }

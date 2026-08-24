@@ -1,4 +1,4 @@
-import type { Progress, AnswerRecord, Question, Stats, SrsState, SrsMeta, UiLang } from '../types';
+import type { Progress, AnswerRecord, Question, Stats, SrsState, SrsMeta, UiLang, LearnSettings } from '../types';
 
 /** 错题移出阈值随历史难度递增（错过越多，需要越多连对才放行）：
  *  - wrongCount<=1（只错过 1 次）→ 连对 1 次即移出（简单题快放）
@@ -348,6 +348,20 @@ function mergeLang(
     : { lang: b.lang, langUpdatedAt: b.langUpdatedAt };
 }
 
+/** 合并学习偏好（设置面板）：与 mergeTheme 同构的 LWW，按 settingsUpdatedAt 整块取新。
+ *  不做 per-field 合并——三个偏好来自同一面板，拆开合并可能拼出两端各一半的混合态。 */
+function mergeSettings(
+  a: { settings?: LearnSettings; settingsUpdatedAt?: number } | undefined,
+  b: { settings?: LearnSettings; settingsUpdatedAt?: number } | undefined,
+): { settings?: LearnSettings; settingsUpdatedAt?: number } {
+  if (!a?.settings && !b?.settings) return {};
+  if (!a?.settings) return { settings: b!.settings, settingsUpdatedAt: b!.settingsUpdatedAt };
+  if (!b?.settings) return { settings: a.settings, settingsUpdatedAt: a.settingsUpdatedAt };
+  return (a.settingsUpdatedAt ?? 0) >= (b.settingsUpdatedAt ?? 0)
+    ? { settings: a.settings, settingsUpdatedAt: a.settingsUpdatedAt }
+    : { settings: b.settings, settingsUpdatedAt: b.settingsUpdatedAt };
+}
+
 /** 合并本地与服务器进度：answers 按定序时间戳（墓碑优先，否则 submittedAt）取新，
  *  read 按时间戳取新，readTombstones 取 max，srs 按 srsTs（墓碑优先）取新。
  *  墓碑参与定序是关键——让 reset 类操作的删除意图能在 read-merge-write 下持久化。 */
@@ -375,6 +389,10 @@ export function mergeProgress(local: Progress, remote: Progress): Progress {
     ...mergeLang(
       { lang: local.lang, langUpdatedAt: local.langUpdatedAt },
       { lang: remote.lang, langUpdatedAt: remote.langUpdatedAt },
+    ),
+    ...mergeSettings(
+      { settings: local.settings, settingsUpdatedAt: local.settingsUpdatedAt },
+      { settings: remote.settings, settingsUpdatedAt: remote.settingsUpdatedAt },
     ),
   };
 }
