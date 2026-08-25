@@ -56,3 +56,10 @@ _online_progress_check.json
 云原生资料/
 
 .mimosa/
+
+# 个人学习主题（ADR 0002）：含第三方版权题源，仅本地/部署使用，不入公开仓库
+examples/software-designer/
+# 服务器专用 PM2 部署配置（携带部署环境细节）
+apps/quiz-app/ecosystem.ruankao.config.cjs
+# 工具临时文件
+*.tmp.*
