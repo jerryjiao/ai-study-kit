@@ -13,6 +13,7 @@
 import { copyFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveThemeDir } from './lib/theme-path.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
@@ -20,19 +21,24 @@ const DATA_DIR = resolve(__dirname, '../src/data');
 
 // 防呆：未显式指定 EXAMPLE_THEME 时，沿用已同步主题（src/data/theme.json），
 // 防止裸跑 build/dev 把已部署主题的题库覆盖回默认示例。新环境无 theme.json 才回落 dev-intro。
+// theme.json 记 { theme, dir? }：仓库内主题只记名字；外部主题包额外记源目录绝对路径
+// （只记 basename 会在 examples/ 里找不到 → 误回落 dev-intro，静默切主题）。
 function detectTheme() {
   if (process.env.EXAMPLE_THEME) return process.env.EXAMPLE_THEME;
   const themeFile = join(DATA_DIR, 'theme.json');
   if (existsSync(themeFile)) {
     try {
-      const t = JSON.parse(readFileSync(themeFile, 'utf-8')).theme;
-      if (t && existsSync(join(REPO_ROOT, 'examples', t))) return t;
+      const t = JSON.parse(readFileSync(themeFile, 'utf-8'));
+      if (t.dir && existsSync(t.dir)) return t.dir;          // 外部主题包：粘滞完整路径
+      if (t.theme && existsSync(join(REPO_ROOT, 'examples', t.theme))) return t.theme;
     } catch { /* theme.json 损坏则回落默认 */ }
   }
   return 'dev-intro';
 }
-const EXAMPLE_THEME = detectTheme();
-const EXAMPLE_DIR = join(REPO_ROOT, 'examples', EXAMPLE_THEME);
+
+// 解析主题目录：EXAMPLE_THEME 支持仓库内主题名或外部主题包路径（见 lib/theme-path.mjs）
+const THEME_RAW = detectTheme();
+const { dir: EXAMPLE_DIR, name: EXAMPLE_THEME, external: EXTERNAL } = resolveThemeDir(THEME_RAW, REPO_ROOT);
 
 if (!existsSync(EXAMPLE_DIR)) {
   console.error(`[sync-examples] example theme not found: ${EXAMPLE_DIR}`);
@@ -71,8 +77,12 @@ if (existsSync(themeConfigSrc)) {
 
 // 记录激活主题：Courses 页据此拼课程 URL（study/<theme>/），保证内容与课程永远同主题，
 // 也让「切换主题」只需改 EXAMPLE_THEME 一处（原需同步手改 Courses.tsx 的 COURSE_URL）。
-writeFileSync(join(DATA_DIR, 'theme.json'), JSON.stringify({ theme: EXAMPLE_THEME }, null, 2) + '\n');
-console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME})`);
+// 外部主题包额外记 dir（绝对路径）——detectTheme 粘滞回退靠它，不靠裸名字。
+writeFileSync(
+  join(DATA_DIR, 'theme.json'),
+  JSON.stringify({ theme: EXAMPLE_THEME, ...(EXTERNAL ? { dir: EXAMPLE_DIR } : {}) }, null, 2) + '\n'
+);
+console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME}${EXTERNAL ? ' · 外部主题包' : ''})`);
 
 // 课程清单：examples/<theme>/lessons/*.html → src/data/courses.json。
 // Courses 页据此渲染课程目录 + 已读进度；study-coach skill / CLI 据此对账「课全读」

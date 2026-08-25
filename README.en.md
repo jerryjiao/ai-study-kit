@@ -82,6 +82,8 @@ Worked example: learning **React basics**. You only touch files under `examples/
 cp -r examples/dev-intro examples/react-basics
 ```
 
+> **Don't want to put content inside the kit repo?** A theme pack can live in your own project directory: `cp -r examples/dev-intro /path/to/your-project/theme/react-basics`, then pass that path wherever `EXAMPLE_THEME` is expected (a value containing path separators is treated as an external theme pack — all four scripts understand it: build sync / course generation / wrong-question deep-dives). The kit repo stays pristine and is used purely as a tool — see [`docs/adr/0004`](docs/adr/0004-external-theme-packs.md).
+
 ### Step 2 · Write your questions (10 min)
 
 Edit `examples/react-basics/questions.json` — replace the git/Linux questions with your React ones. The schema is simple:

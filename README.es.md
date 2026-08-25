@@ -82,6 +82,8 @@ Ejemplo práctico: aprender **bases de React**. Solo tocas archivos bajo `exampl
 cp -r examples/dev-intro examples/react-basics
 ```
 
+> **¿No quieres meter contenido en el repo del kit?** El paquete de tema puede vivir en tu propio proyecto: `cp -r examples/dev-intro /ruta/a/tu-proyecto/theme/react-basics`, y luego pasa esa ruta donde se espere `EXAMPLE_THEME` (un valor con separadores de ruta se trata como paquete de tema externo — los cuatro scripts lo entienden: sincronía de build / generación de cursos / repasos de errores). El repo del kit queda puro y se usa solo como herramienta — ver [`docs/adr/0004`](docs/adr/0004-external-theme-packs.md).
+
 ### Paso 2 · Escribe tus preguntas (10 min)
 
 Edita `examples/react-basics/questions.json` — reemplaza las preguntas de git/Linux por las tuyas de React. El esquema es simple:

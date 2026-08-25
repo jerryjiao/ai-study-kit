@@ -7,6 +7,7 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveThemeDir } from './lib/theme-path.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..', '..');
@@ -23,21 +24,22 @@ function copyTree(src, dest) {
   }
 }
 
-// 课程源目录：examples/<theme>/ → public/study/<theme>/
+// 课程源目录 → public/study/<name>/：仓库内 examples/<theme>/，或外部主题包路径
+// （EXAMPLE_THEME 含路径分隔符即外部形态，见 lib/theme-path.mjs；name 取 basename，URL 不变）。
 // 切换主题：改 EXAMPLE_THEME 环境变量。多个主题可放进数组（如 ['dev-intro', 'k8s-basics']）。
 const EXAMPLE_THEME = process.env.EXAMPLE_THEME || 'dev-intro';
-const COURSES = [EXAMPLE_THEME];
+const COURSES = [resolveThemeDir(EXAMPLE_THEME, repoRoot)];
 
 mkdirSync(join(__dirname, '..', 'public', 'study'), { recursive: true });
 
-for (const name of COURSES) {
-  const src = join(repoRoot, 'examples', name);
+for (const { dir: src, name, external } of COURSES) {
   const dest = join(__dirname, '..', 'public', 'study', name);
 
   if (!existsSync(src)) {
     console.warn(`[sync-study] 源目录不存在：${src}（尚未创建课程？跳过）`);
     continue;
   }
+  if (external) console.log(`[sync-study] 外部主题包：${src} → public/study/${name}/`);
 
   // 清空旧 dest 再拷（删除已移除的文件）。
   // Windows 上目录被占用时 rmSync 会 EPERM，此时降级为 cpSync 覆盖（不删旧文件，

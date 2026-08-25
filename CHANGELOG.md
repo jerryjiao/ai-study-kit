@@ -6,6 +6,8 @@
 
 ### Added
 
+- **外部主题包（主题目录可住仓库外，ADR 0004）**：`EXAMPLE_THEME` / `--theme` 支持路径形态（含分隔符即外部包，主题名取 basename）——sync-examples / sync-study / teach-generate / grill-wrong 四脚本统一走 `scripts/lib/theme-path.mjs` 解析；`theme.json` 扩为 `{theme, dir?}`（外部形态记源目录，detectTheme 粘滞回退靠它）。消费者可把学习内容放自己的项目目录，套件仓库只当工具。README 四语 make-it-yours 补外部包选项；study-coach skill 的状态探测/部署注记同步（plugin 副本已重生成）。
+- **修复 sync-plugin.mjs 在受限 Windows 下静默半途而废**：cpSync 目录递归被安全策略直接终止进程（rmSync 已执行 → plugin 目录被清空），改逐文件 copyTree（与 sync-study.mjs 同款修复）。
 - **主题显示配置机制（theme-config.json）**：题站呈现层全面配置化——首页排序（`topicOrder`）、主题显示名（`topicLabels`）、考点子主题展开（`subtopics`）、来源徽标（`sourceLabels`）、核心/拓展层（`sourceLayers` + `layerTopics`）、考点深度徽标（`epDepth`）、卡片配色与图标（`topicStyles`）全部住在 `examples/<theme>/theme-config.json`（sync-examples 拷到 `src/data/`，缺省写 `{}`），**换主题不再改任何应用代码**。全字段可选、缺什么回退什么（原始 id / 字母序 / 不展开 / 无层=全计划内 / 默认样式）。字段表与示例见 `docs/theming.md`；dev-intro 带最小示范配置。机制测试（回退语义/中文序号排序/层派生）+ settings LWW 合并测试入列，`pnpm test` 170 项。
 - **题目配图渲染**：`Question.imageRef` 在答题卡渲染 `examples/<theme>/assets/` 的配图（sync:study 已同步到 `public/study/<theme>/assets/`），BASE_URL 前缀拼根绝对路径防二级路由 404；alt 文案四语词典（`q.imageAlt`）。
 - **层筛选 chips（拓展加练开着时）**：练习页全部/核心/拓展三档切换 + URL `&layer=` 直达（首页纯拓展块、上次答到拓展题的链接携带）；开关关着时层概念整体不存在。层作用域由 `layerTopics` 配置，无配置无层。

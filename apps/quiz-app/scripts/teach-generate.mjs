@@ -18,6 +18,7 @@
  * 用法：
  *   node apps/quiz-app/scripts/teach-generate.mjs                       # 默认 dev-intro
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics
+ *   node apps/quiz-app/scripts/teach-generate.mjs --theme D:/x/theme/react-basics   # 外部主题包路径
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics --lessons 5
  *   node apps/quiz-app/scripts/teach-generate.mjs --lang en            # 课程用英语产（zh/en/es/ru）
  */
@@ -27,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import { chat, requireLlmConfig } from './lib/llm.mjs';
 import { slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline } from './lib/teach-utils.mjs';
 import { resolveLang, langConf } from './lib/langs.mjs';
+import { resolveThemeDir } from './lib/theme-path.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -34,7 +36,11 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 // ── 参数解析 ──────────────────────────────────────────────
 const args = process.argv.slice(2);
 const themeIdx = args.indexOf('--theme');
-const THEME = themeIdx >= 0 ? args[themeIdx + 1] : (process.env.EXAMPLE_THEME || 'dev-intro');
+// --theme 支持仓库内主题名或外部主题包路径（含分隔符），见 lib/theme-path.mjs
+const { dir: THEME_DIR, name: THEME } = resolveThemeDir(
+  themeIdx >= 0 ? args[themeIdx + 1] : (process.env.EXAMPLE_THEME || 'dev-intro'),
+  resolve(__dirname, '..', '..', '..')
+);
 const lessonsIdx = args.indexOf('--lessons');
 const LESSONS_OVERRIDE = lessonsIdx >= 0 ? parseInt(args[lessonsIdx + 1], 10) : null;
 const langIdx = args.indexOf('--lang');
@@ -49,12 +55,12 @@ try {
 
 // ── 主流程 ────────────────────────────────────────────────
 async function main() {
-  // 加载并校验 course-spec
-  const specPath = join(REPO_ROOT, 'examples', THEME, 'course-spec.json');
+  // 加载并校验 course-spec（仓库内 examples/<theme>/ 或外部主题包目录）
+  const specPath = join(THEME_DIR, 'course-spec.json');
   if (!existsSync(specPath)) {
     console.error(`❌ 找不到 course-spec.json：${specPath}`);
     console.error('');
-    console.error('请在 examples/<theme>/ 下创建 course-spec.json，schema 见 docs/ai-cli-guide.md');
+    console.error('请在主题目录（examples/<theme>/ 或外部主题包）下创建 course-spec.json，schema 见 docs/ai-cli-guide.md');
     console.error('或参考 examples/dev-intro/course-spec.json');
     process.exit(1);
   }
@@ -89,7 +95,7 @@ async function main() {
   }
 
   // 准备输出目录
-  const lessonsDir = join(REPO_ROOT, 'examples', THEME, 'lessons');
+  const lessonsDir = join(THEME_DIR, 'lessons');
   mkdirSync(lessonsDir, { recursive: true });
 
   // 预先算好所有文件名（用于 prev/next 链接）

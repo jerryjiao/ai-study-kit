@@ -19,18 +19,27 @@ test -f AGENTS.md
 ```bash
 echo "theme=${EXAMPLE_THEME:-dev-intro}"
 THEME="${EXAMPLE_THEME:-dev-intro}"
-test -d "examples/$THEME" && echo "dir=ok" || echo "dir=MISSING"
-ls examples/   # 有哪些主题可用
+# EXAMPLE_THEME 两种形态：仓库内主题名（examples/<name>/）或外部主题包路径（含 / 或 \，
+# 主题住在套件仓库之外——见 docs/adr/0004；构建/同步/teach/grill 四个脚本都认两种形态）
+case "$THEME" in
+  */*|*\\*) test -d "$THEME" && echo "dir=ok (外部主题包)" || echo "dir=MISSING" ;;
+  *) test -d "examples/$THEME" && echo "dir=ok" || echo "dir=MISSING" ;;
+esac
+ls examples/   # 仓库内有哪些主题（外部主题包不在此列，问用户路径）
 ```
+
+`src/data/theme.json` 带 `dir` 字段 = 上次同步用的是外部主题包（粘滞回退靠它，别删）。
 
 主题目录存在但内容是 dev-intro 原样（`questions.json` 里 id 前缀还是 GIT-/LNX-）→ 视为「新主题没做完」，提示走 F2 收尾。
 
 ## 2. 库存（题 / 闪卡 / 课 / 错题串讲）
 
 ```bash
-THEME="${EXAMPLE_THEME:-dev-intro}" node -e '
-const t = process.env.THEME;
-const fs = require("fs"), p = (f) => `examples/${t}/${f}`;
+# THEME_DIR：仓库内=examples/<name>，外部主题包=$EXAMPLE_THEME 本身
+THEME="${EXAMPLE_THEME:-dev-intro}"
+case "$THEME" in */*|*\\*) export D="$THEME" ;; *) export D="examples/$THEME" ;; esac
+node -e '
+const fs = require("fs"), p = (f) => `${process.env.D}/${f}`;
 const nq = () => { try { return JSON.parse(fs.readFileSync(p("questions.json"))).length } catch { return 0 } };
 const nf = () => { try { return JSON.parse(fs.readFileSync(p("flashcards.json"))).length } catch { return 0 } };
 const nl = () => { try { return fs.readdirSync(p("lessons")).filter(f => f.endsWith(".html")).length } catch { return 0 } };

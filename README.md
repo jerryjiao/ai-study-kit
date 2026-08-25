@@ -86,6 +86,8 @@ pnpm run skill:install     # 装进 ~/.agents/skills/study-coach
 cp -r examples/dev-intro examples/react-basics
 ```
 
+> **不想往套件仓库里放内容？** 主题包可以住在你自己的项目目录：`cp -r examples/dev-intro /path/to/your-project/theme/react-basics`，之后凡是用 `EXAMPLE_THEME` 的地方直接写这个路径（含路径分隔符即外部主题包形态，构建/产课/错题精讲四个脚本都认）。套件仓库保持纯净，只当工具用——详见 [`docs/adr/0004`](docs/adr/0004-external-theme-packs.md)。
+
 ### Step 2 · 改题库（10 分钟）
 
 编辑 `examples/react-basics/questions.json`——把 git/Linux 题换成你的 React 题。Schema 很简单：

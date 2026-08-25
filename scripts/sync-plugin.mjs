@@ -12,7 +12,7 @@
 // 版本：默认取根 package.json 的 version（发版改一处，plugin 跟随）；--version 可临时覆盖。
 //
 // 用法：node scripts/sync-plugin.mjs [--version 0.4.0]
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -21,6 +21,18 @@ const REPO_ROOT = resolve(__dirname, '..');
 const SKILL_NAME = 'study-coach';
 const SRC = join(REPO_ROOT, 'skills', SKILL_NAME);
 const PLUGIN_DIR = join(REPO_ROOT, 'plugins', SKILL_NAME);
+
+// 逐文件复制替代 cpSync 递归：同 sync-study.mjs 的坑——部分 Windows/受限环境下
+// cpSync 目录级递归会被安全策略直接终止进程（exit 127 无输出，此前已把 plugin 目录清到一半）。
+function copyTree(src, dest) {
+  mkdirSync(dest, { recursive: true });
+  for (const e of readdirSync(src, { withFileTypes: true })) {
+    const s = join(src, e.name);
+    const d = join(dest, e.name);
+    if (e.isDirectory()) copyTree(s, d);
+    else copyFileSync(s, d);
+  }
+}
 
 const args = process.argv.slice(2);
 const vIdx = args.indexOf('--version');
@@ -51,7 +63,7 @@ const manifest = {
 // plugin 目录：清重建（skills 拷贝 + 双 manifest）
 rmSync(PLUGIN_DIR, { recursive: true, force: true });
 mkdirSync(join(PLUGIN_DIR, 'skills', SKILL_NAME), { recursive: true });
-cpSync(SRC, join(PLUGIN_DIR, 'skills', SKILL_NAME), { recursive: true });
+copyTree(SRC, join(PLUGIN_DIR, 'skills', SKILL_NAME));
 mkdirSync(join(PLUGIN_DIR, '.zcode-plugin'), { recursive: true });
 mkdirSync(join(PLUGIN_DIR, '.claude-plugin'), { recursive: true });
 const manifestJson = JSON.stringify(manifest, null, 2) + '\n';

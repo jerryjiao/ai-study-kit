@@ -45,11 +45,15 @@
    - 题量配比无硬规定，参考：single:multi:judge ≈ 5:3:2、难度 易:中:难 ≈ 3:5:2——**排布表说了算**。
    - day 是日程标签（D1、D2…），题的 day、闪卡的复习节奏都对齐它。
 3. **收材料**：让用户给 2-5 个权威来源（官方文档 > 经典教材 > 博客），写进 `examples/<theme>/RESOURCES.md`（参照 dev-intro 的格式和使用规则）。没有材料就先别产课——AI 凭空讲课违反方法论。
-4. **建骨架**：
+4. **建骨架**（主题住哪二选一——仓库内 examples/<theme>/，或仓库外的**外部主题包**目录
+   （自己的项目目录，EXAMPLE_THEME 直接写路径，见 docs/adr/0004；不想动 kit 仓库的推荐后者））：
 
    ```bash
+   # 仓库内：
    cp -r examples/dev-intro examples/<theme>
-   # 清掉演示内容，只留骨架：
+   # 或外部主题包（目录名即主题名）：
+   # cp -r examples/dev-intro /path/to/your-project/theme/<theme>
+   # 清掉演示内容，只留骨架（路径换成上面二选一的实际位置）：
    rm examples/<theme>/lessons/*.html
    rm -rf examples/<theme>/wrong-questions
    mkdir examples/<theme>/wrong-questions
@@ -247,7 +251,8 @@ pnpm exec pm2 start ecosystem.config.cjs    # 必须在本目录启动（config 
 pnpm exec pm2 save
 
 # ② 自定义主题部署：EXAMPLE_THEME 要进 pm2 环境，改 ecosystem.config.cjs 的 apps[0].env
-#    env: { EXAMPLE_THEME: "<theme>" }，再 PORT=80 前缀或同处配 PORT
+#    env: { EXAMPLE_THEME: "<theme>" }，再 PORT=80 前缀或同处配 PORT。
+#    外部主题包同理，值直接写服务器上的绝对路径（如 "/home/u/packs/<theme>"）
 
 # ③ 之后在本地拉线上错题做串讲：
 SERVER=http://<host>:8787 node apps/quiz-app/scripts/grill-wrong.mjs --theme <theme>

@@ -25,6 +25,7 @@ import {
   buildClusterGrillPrompt, wrapClusterHTML, wrapIndexHTML, clusterFileName,
 } from './lib/grill-utils.mjs';
 import { resolveLang, langConf } from './lib/langs.mjs';
+import { resolveThemeDir } from './lib/theme-path.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -32,7 +33,11 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 // ── 参数解析 ──────────────────────────────────────────────
 const args = process.argv.slice(2);
 const themeIdx = args.indexOf('--theme');
-const THEME = themeIdx >= 0 ? args[themeIdx + 1] : (process.env.EXAMPLE_THEME || 'dev-intro');
+// --theme 支持仓库内主题名或外部主题包路径（含分隔符），见 lib/theme-path.mjs
+const { dir: THEME_DIR, name: THEME } = resolveThemeDir(
+  themeIdx >= 0 ? args[themeIdx + 1] : (process.env.EXAMPLE_THEME || 'dev-intro'),
+  REPO_ROOT
+);
 const maxClustersIdx = args.indexOf('--max-clusters');
 const MAX_CLUSTERS = maxClustersIdx >= 0 ? parseInt(args[maxClustersIdx + 1], 10) : 5;
 const SERVER = process.env.SERVER || 'http://localhost:8787';
@@ -70,7 +75,7 @@ async function main() {
   }
 
   // 2. 关联题库
-  const questionsPath = join(REPO_ROOT, 'examples', THEME, 'questions.json');
+  const questionsPath = join(THEME_DIR, 'questions.json');
   if (!existsSync(questionsPath)) {
     console.error(`❌ 找不到题库：${questionsPath}`);
     process.exit(1);
@@ -85,7 +90,7 @@ async function main() {
   console.log('');
 
   // 3. 读课程（用于精讲参照）
-  const lessons = loadLessonSnippets(THEME);
+  const lessons = loadLessonSnippets(THEME_DIR);
   if (lessons.length) {
     console.log(`📚 加载了 ${lessons.length} 节课程作为精讲参照`);
   }
@@ -100,7 +105,7 @@ async function main() {
   console.log('');
 
   // 5. 准备输出目录（备份旧 cluster-*.html 到 .archive/，避免用户手写内容被无声覆盖）
-  const outDir = join(REPO_ROOT, 'examples', THEME, 'wrong-questions');
+  const outDir = join(THEME_DIR, 'wrong-questions');
   mkdirSync(outDir, { recursive: true });
   const oldClusters = readdirSync(outDir).filter((f) => f.startsWith('cluster-') && f.endsWith('.html'));
   if (oldClusters.length > 0) {
@@ -164,9 +169,9 @@ async function fetchProgress(server) {
   }
 }
 
-/** 加载课程 HTML 摘要（前 500 字符作 snippet）。 */
+/** 加载课程 HTML 摘要（前 500 字符作 snippet）。theme 传 THEME_DIR（外部主题包同构）。 */
 function loadLessonSnippets(theme) {
-  const dir = join(REPO_ROOT, 'examples', theme, 'lessons');
+  const dir = join(theme, 'lessons');
   if (!existsSync(dir)) return [];
   return readdirSync(dir)
     .filter((f) => f.endsWith('.html'))
