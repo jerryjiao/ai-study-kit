@@ -1,0 +1,9 @@
+[
+  {
+    "id": "FC-FX-11",
+    "front": "暂存区是什么？",
+    "back": "提交前的准备区：改动先从工作区进入暂存区，再提交进版本库。",
+    "source": "no-table",
+    "topic": "git-basics"
+  }
+]

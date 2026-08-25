@@ -37,7 +37,22 @@
 
 ---
 
-## 🚀 5 分钟跑起来看 demo
+## 🤖 推荐开始方式：装插件，不用 clone
+
+把整套件装进你的 AI agent（zcode / Claude Code），**不需要 clone 本仓库、不需要记任何命令**——插件自带完整答题站源码快照，agent 会带你从零建站、产题、产课到部署：
+
+```
+/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
+# 安装 study-coach，然后新会话里说「我想学 X」或 /study-coach
+```
+
+学习项目（答题站 + 你的主题包）全部住你自己的目录，与插件升级互不干扰。初始化、开新主题、每日学习、错题串讲、播客、产课、校验、部署九个流程全覆盖，详见 [`docs/study-coach.md`](docs/study-coach.md)。
+
+想先看看长什么样？往下走 clone 路线。
+
+---
+
+## 🚀 5 分钟跑起来看 demo（clone 路线，开发者适用）
 
 ```bash
 git clone https://github.com/jerryjiao/ai-study-kit
@@ -59,16 +74,9 @@ pnpm dev
 
 ---
 
-## 🧭 不知道下一步学什么？装 `/study-coach`
+## 🧭 不知道下一步学什么？`/study-coach`
 
-上面这些（改主题、产课、刷题、错题串讲、播客、部署……）不用记。仓库内置一个**学习教练指令**，每次学习从它开始：
-
-```bash
-pnpm run skill:install     # 装进 ~/.agents/skills/study-coach
-# 重启 AI CLI（或开新会话），输入 /study-coach
-```
-
-用 zcode / Claude Code 的也可以走 **plugin 市集**：添加 marketplace `https://github.com/jerryjiao/ai-study-kit` 后安装 `study-coach`——后续 skill 更新随市集刷新，不用重装。
+上面装好插件（或 `pnpm run skill:install` 装进 `~/.agents/skills/`）后，每次学习从它开始。
 
 它会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、课程已读、AI 配置），然后**推荐你现在最该做的一件事**——是开新主题、复习到期闪卡、刷题、还是把攒下的错题做成串讲——选定后**带着你一步步执行**。从初始化整个项目到部署上线，九个流程全覆盖。
 

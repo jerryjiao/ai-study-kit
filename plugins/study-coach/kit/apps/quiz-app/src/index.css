@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── 语义色变量：tailwind.config.js 的 bg-surface / text-primary 等指向这里。
+ *    值用空格分隔的 R G B 三数（配合 rgb(var(…) / <alpha-value>) 语法，支持 opacity 修饰器）。
+ *    切夜间 = html.classList.toggle('dark')，变量自动切换。 */
+:root {
+  --color-bg-app: 248 250 252;      /* slate-50  */
+  --color-bg-surface: 255 255 255;  /* white     */
+  --color-bg-subtle: 248 250 252;   /* slate-50  */
+  --color-bg-hover: 241 245 249;    /* slate-100 */
+  --color-text-primary: 15 23 42;   /* slate-900 */
+  --color-text-secondary: 71 85 105;/* slate-600 */
+  --color-text-muted: 100 116 139;  /* slate-500 */
+  --color-text-faint: 148 163 184;  /* slate-400 */
+  --color-text-accent: 79 70 229;   /* indigo-600 */
+  --color-border: 226 232 240;      /* slate-200 */
+  --color-border-strong: 203 213 225;/* slate-300 */
+  color-scheme: light;
+}
+.dark {
+  --color-bg-app: 15 23 42;         /* slate-900  */
+  --color-bg-surface: 30 41 59;     /* slate-800  */
+  --color-bg-subtle: 30 41 59;      /* slate-800  */
+  --color-bg-hover: 51 65 85;       /* slate-700  */
+  --color-text-primary: 241 245 249;/* slate-100  */
+  --color-text-secondary: 203 213 225;/* slate-300 */
+  --color-text-muted: 148 163 184;  /* slate-400  */
+  --color-text-faint: 100 116 139;  /* slate-500  */
+  --color-text-accent: 129 140 248; /* indigo-400 */
+  --color-border: 51 65 85;         /* slate-700  */
+  --color-border-strong: 71 85 105; /* slate-600  */
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: rgb(var(--color-bg-app));
+    color: rgb(var(--color-text-primary));
+  }
+  /* 全局可见焦点环：键盘可达性（WCAG focus-states），仅键盘聚焦时显示，不影响鼠标体验 */
+  *:focus-visible {
+    outline: 2px solid theme('colors.indigo.500');
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  /* 尊重系统「减少动态效果」偏好（WCAG reduced-motion） */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

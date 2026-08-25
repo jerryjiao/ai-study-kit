@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错题学习中心 · dev-intro 示例</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  .layer-card {
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: .8rem 0;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .layer-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(67,56,202,.08); }
+  .layer-card h3 { margin: 0 0 .3rem; font-size: 1.1rem; color: var(--accent); }
+  .layer-card .row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .layer-card .meta-line { font-size: .85rem; color: var(--ink-faint); margin: .25rem 0 0; }
+  .badge {
+    display: inline-block; padding: .1em .55em; border-radius: 10px;
+    font-size: .75rem; font-weight: 600; background: var(--warn-soft); color: var(--warn);
+  }
+  .section-tag { font-size: .8rem; color: var(--ink-faint); font-weight: 400; }
+</style>
+</head>
+<body>
+<main>
+<h1>错题学习中心 · dev-intro</h1>
+<p class="meta">ai-study-kit 示例　·　<a href="../MISSION.md">← mission</a>　·　补充学习（非正课）</p>
+
+<p class="lead">错题精讲是 ai-study-kit 四对齐里的<strong>第四层</strong>——刷完题后，把高频错点单独拎出来深度展开。这里列的是 dev-intro 主题（git + Linux）下的错题簇。</p>
+
+<h2>🔥 易混点精讲 <span class="section-tag">· 高频错题深挖</span></h2>
+
+<a class="layer-card" href="cluster-01-git-reset-vs-revert.html">
+  <div class="row">
+    <h3>→ git reset vs git revert：撤销 commit 的两条路</h3>
+    <span class="badge">高频易错</span>
+  </div>
+  <p class="meta-line">考题 GIT-007 错点。两条命令都能"撤销 commit"，但机制完全不同：reset 抹历史、revert 加反向。本地 vs 团队分支选错的代价是协作冲突。包含：核心区别表、决策流程图、易错警示、变体题。</p>
+</a>
+
+<h2>如何用 ai-study-kit 给自己的主题生成错题精讲</h2>
+<ol>
+<li>用答题站刷完一批题，错题自动进错题集。</li>
+<li>调用 <code>grill-wrong-questions</code> skill，把错题按考点聚类，每个聚类产出一份 HTML 精讲。</li>
+<li>HTML 放到 <code>wrong-questions/cluster-NN-*.html</code>，主页（本文件）加一条卡片链接。</li>
+<li>每个精讲要满足<strong>四对齐</strong>：能追溯到对应 day 的课程（题→课）、能引到对应的闪卡（错题→闪卡）。</li>
+</ol>
+
+<footer>
+<p>💡 这是 ai-study-kit 的示例。换主题时，把这里的 cluster-01-* 换成你自己题库的错题聚类即可。</p>
+</footer>
+</main>
+</body>
+</html>

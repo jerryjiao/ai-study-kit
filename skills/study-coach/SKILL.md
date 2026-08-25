@@ -16,7 +16,7 @@ ai-study-kit 的工具链很全（答题站 / 课程 / 闪卡 / 错题精讲 / �
 
 | 字段 | 回答的问题 |
 |------|-----------|
-| **仓库** | 当前目录是 ai-study-kit 仓库吗？还是根本没 clone？ |
+| **仓库/项目** | 当前目录是 ai-study-kit 仓库（贡献者）还是用户学习项目（F1 建的，无 git）？还是都没有？ |
 | **主题** | 激活主题是哪个（`EXAMPLE_THEME`，默认 `dev-intro`）？是演示还是用户自己的主题？ |
 | **库存** | 题库 N 题 · 闪卡 N 张 · 课程 N 节 · 错题串讲 N 簇 |
 | **进度** | 已答 N/M · 未毕业错题 N · 到期闪卡 N · 课程已读 N/M（coursesRead 口径，见 state.md） |
@@ -82,6 +82,6 @@ ai-study-kit 的工具链很全（答题站 / 课程 / 闪卡 / 错题精讲 / �
 
 1. `apps/quiz-app/src/data/*.json` 和 `public/study/` 是**同步产物，禁止手编**——内容只改 `examples/<theme>/` 下的源文件。
 2. `apps/quiz-app/progress.json` 是**运行期数据**：禁止提交、禁止手编；需要清进度用 app 内的「重置」入口，绝不手改文件。
-3. 切换主题只改 `EXAMPLE_THEME` 环境变量一处——课程入口 `Courses.tsx` 读 sync 产物 `theme.json` 自动跟随（首页分组可选改 `apps/quiz-app/src/lib/topicOrder.ts`）。
+3. 切换主题只改 `EXAMPLE_THEME` 环境变量一处——课程入口 `Courses.tsx` 读 sync 产物 `theme.json` 自动跟随；首页分组/显示名等呈现定制走主题包的 `theme-config.json`（可选文件，无配置优雅回退，见 docs/theming.md）。
 4. 改任何发布内容（课程/题/闪卡/文档）后必跑 `pnpm run scan`，命中数必须为 0——发布物里不许出现真实企业品牌名。
 5. 多选题判分是**全对才算对**；改题尽量保留旧题 id（进度按 id 存，换 id 会丢进度）。

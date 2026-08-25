@@ -1,0 +1,45 @@
+[
+  {
+    "id": "FX-101",
+    "type": "single",
+    "source": "no-table",
+    "topic": "git-basics",
+    "question": "把工作区的改动放入暂存区，用哪条命令？",
+    "options": {
+      "A": "git add",
+      "B": "git log",
+      "C": "git init",
+      "D": "git push"
+    },
+    "answer": ["A"],
+    "analysis": "git add 把工作区改动放入暂存区，等待提交。"
+  },
+  {
+    "id": "FX-102",
+    "type": "single",
+    "source": "no-table",
+    "topic": "git-basics",
+    "question": "查看哪些改动已在暂存区、哪些未暂存，用哪条命令？",
+    "options": {
+      "A": "git status",
+      "B": "git clone",
+      "C": "git branch",
+      "D": "git tag"
+    },
+    "answer": ["A"],
+    "analysis": "git status 显示工作区与暂存区的当前状态。"
+  },
+  {
+    "id": "FX-103",
+    "type": "judge",
+    "source": "no-table",
+    "topic": "git-basics",
+    "question": "暂存区位于工作区和版本库之间，是提交前的准备区。",
+    "options": {
+      "A": "对",
+      "B": "错"
+    },
+    "answer": ["A"],
+    "analysis": "改动流向：工作区 → 暂存区 → 版本库。"
+  }
+]

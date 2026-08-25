@@ -13,6 +13,7 @@
 //
 // 用法：node scripts/sync-plugin.mjs [--version 0.4.0]
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -60,7 +61,7 @@ const manifest = {
   keywords: KEYWORDS,
 };
 
-// plugin 目录：清重建（skills 拷贝 + 双 manifest）
+// plugin 目录：清重建（skills 拷贝 + app 源码快照 + 双 manifest）
 rmSync(PLUGIN_DIR, { recursive: true, force: true });
 mkdirSync(join(PLUGIN_DIR, 'skills', SKILL_NAME), { recursive: true });
 copyTree(SRC, join(PLUGIN_DIR, 'skills', SKILL_NAME));
@@ -69,6 +70,23 @@ mkdirSync(join(PLUGIN_DIR, '.claude-plugin'), { recursive: true });
 const manifestJson = JSON.stringify(manifest, null, 2) + '\n';
 writeFileSync(join(PLUGIN_DIR, '.zcode-plugin', 'plugin.json'), manifestJson);
 writeFileSync(join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'), manifestJson);
+
+// kit/ = 迷你仓库快照（发行形态：装插件即得可构建的答题站 + dev-intro 演示，用户零 clone）。
+// 只拷 git 跟踪文件——跟踪面天然排除 node_modules/dist/同步产物(.json)/.env/progress.json，
+// 指纹门禁保证零私人内容。必须保留 apps/examples 的相对结构：scripts 的 REPO_ROOT 约定是
+// `../../..`（apps/quiz-app/scripts → 仓库根），examples/dev-intro 是无 EXAMPLE_THEME 时的回落主题。
+// skill 的 F1 流把整个 kit/ 拷进用户项目（见 references/flows.md）。
+const KIT_DST = join(PLUGIN_DIR, 'kit');
+const tracked = execFileSync('git', ['ls-files', '--', 'apps/quiz-app', 'examples/dev-intro'], { cwd: REPO_ROOT })
+  .toString()
+  .split('\n')
+  .filter(Boolean);
+for (const rel of tracked) {
+  const dest = join(KIT_DST, rel);
+  mkdirSync(dirname(dest), { recursive: true });
+  copyFileSync(join(REPO_ROOT, rel), dest);
+}
+console.log(`[sync-plugin] apps/quiz-app + examples/dev-intro 跟踪面 ${tracked.length} 文件 → plugins/${SKILL_NAME}/kit/`);
 
 // repo 根市集：marketplace.json（zcode/Claude 添加 marketplace 时读这份清单）
 mkdirSync(join(REPO_ROOT, '.claude-plugin'), { recursive: true });

@@ -35,7 +35,22 @@
 
 ---
 
-## 🚀 Prueba el demo en 5 minutos
+## 🤖 Forma recomendada de empezar: instala el plugin — sin clonar nada
+
+Instala todo el kit en tu agente de IA (zcode / Claude Code). **Sin clonar el repo y sin memorizar comandos** — el plugin incluye una instantánea completa y construible de la app, y el agente te acompaña de cero a un sitio de estudio funcionando, generando preguntas y cursos por el camino:
+
+```
+/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
+# instala study-coach y dile «quiero aprender X» (o /study-coach) en una nueva sesión
+```
+
+Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Nueve flujos cubiertos de principio a fin: arranque, tema nuevo, estudio diario, repaso de errores, pódcast, generación de cursos, verificación y despliegue — ver [`docs/study-coach.md`](docs/study-coach.md).
+
+¿Solo quieres ver cómo es? Sigue la ruta de clonación de abajo.
+
+---
+
+## 🚀 Prueba el demo en 5 minutos (ruta clone, para desarrolladores)
 
 ```bash
 git clone https://github.com/jerryjiao/ai-study-kit
@@ -57,16 +72,9 @@ pnpm dev
 
 ---
 
-## 🧭 ¿No sabes qué hacer ahora? Instala `/study-coach`
+## 🧭 ¿No sabes qué hacer ahora? `/study-coach`
 
-Todo lo que sigue en esta página — cambiar de tema, generar cursos, practicar, análisis de errores, pódcast, despliegue — no hace falta memorizarlo. El repositorio incluye un **comando de entrenador de estudio** desde el que puede empezar cada sesión:
-
-```bash
-pnpm run skill:install     # instala en ~/.agents/skills/study-coach
-# reinicia tu CLI de IA (o abre una sesión nueva) y escribe /study-coach
-```
-
-En zcode / Claude Code también puedes instalar desde el **marketplace de plugins**: añade el marketplace `https://github.com/jerryjiao/ai-study-kit` e instala `study-coach` — las actualizaciones futuras del skill llegan con las actualizaciones del marketplace, sin reinstalar.
+Con el plugin instalado arriba (o con `pnpm run skill:install` en `~/.agents/skills/`), cada sesión de estudio puede empezar aquí.
 
 Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Nueve guías cubren desde inicializar el proyecto hasta desplegarlo. (Las guías están escritas en chino; ver [`docs/study-coach.md`](docs/study-coach.md).)
 

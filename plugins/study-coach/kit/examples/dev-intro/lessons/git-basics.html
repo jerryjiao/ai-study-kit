@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 1 课 · git 三区与基础命令</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>第 1 课 · git 三区与基础命令</h1>
+<p class="meta">ai-study-kit 示例课　·　<a href="../MISSION.md">← mission</a>　·　下一课：<a href="linux-basics.html">Linux 目录与权限</a></p>
+
+<p class="lead">git 的所有命令都在做一件事——在三个区域之间搬数据。理解了<strong>三区模型</strong>，所有 <code>add</code>/<code>commit</code>/<code>reset</code>/<code>checkout</code> 都有了统一答案。</p>
+
+<h2>一、三个区域是什么</h2>
+<p>每个 git 仓库内部有<strong>三个</strong>存放数据的地方：</p>
+<ul>
+<li><strong>工作区（Working Directory）</strong>——你眼睛看到的、编辑器里改的那些文件。</li>
+<li><strong>暂存区（Staging Area / index）</strong>——git 内部的一块缓冲，<code>git add</code> 把工作区改动复制到这里，准备打包成一个提交。</li>
+<li><strong>版本库（Repository / HEAD）</strong>——commit 历史本身。<code>git commit</code> 把暂存区的快照永久写入历史。</li>
+</ul>
+
+<img src="../public/slides/git-three-states.png" alt="git 三区流转图" />
+
+<p>改动的<strong>自然流向</strong>是从左到右：</p>
+<pre><code>工作区  ──git add──▶  暂存区  ──git commit──▶  版本库</code></pre>
+
+<div class="callout callout-tip">
+<p><strong>记忆锚点</strong>：三区不是抽象概念，是 <code>.git/</code> 目录里真实存在的数据结构——工作区是文件系统，暂存区是 <code>.git/index</code>，版本库是 <code>.git/objects</code> 里的 commit 链。</p>
+</div>
+
+<h2>二、四条基础命令</h2>
+<table>
+<thead><tr><th>命令</th><th>作用</th><th>数据流向</th></tr></thead>
+<tbody>
+<tr><td><code>git init</code></td><td>把当前目录变成 git 仓库（创建 <code>.git/</code>）</td><td>建立基础设施</td></tr>
+<tr><td><code>git add &lt;file&gt;</code></td><td>把工作区改动写入暂存区</td><td>工作区 → 暂存区</td></tr>
+<tr><td><code>git commit -m "..."</code></td><td>把暂存区快照提交到版本库</td><td>暂存区 → 版本库</td></tr>
+<tr><td><code>git status</code></td><td>看工作区/暂存区当前状态（不会改任何东西）</td><td>只读检查</td></tr>
+</tbody>
+</table>
+
+<p>典型工作流：</p>
+<pre><code>git init                              # 第一次：把目录变成仓库
+echo "# my-project" &gt;&gt; README.md       # 工作区新建文件
+git add README.md                     # 暂存它
+git status                            # 看一眼，确认暂存了
+git commit -m "init: add README"      # 提交到版本库
+git log --oneline                     # 看历史</code></pre>
+
+<div class="callout callout-warn">
+<p><strong>易错点</strong>：<code>commit</code> 不会自动包含工作区的改动——它只提交<strong>已经 add 到暂存区</strong>的内容。新手常改完文件直接 <code>commit</code>，结果发现这次提交是空的。</p>
+</div>
+
+<h2>三、看历史：<code>git log</code></h2>
+<p>提交多了之后，需要查「以前发生过什么」。最常用的形式是：</p>
+<pre><code>git log --oneline        # 每条提交一行：短 hash + 说明
+git log --oneline -5     # 只看最近 5 条
+git log --stat           # 每条提交还显示改了哪些文件、增删行数</code></pre>
+
+<p><code>--oneline</code> 是日常查历史的默认形式——一行一条，一眼看完全部提交时间线。</p>
+
+<h2>四、撤销的三种姿势</h2>
+<p>改错了怎么办？看你错在哪一区，撤销方式不同：</p>
+
+<div class="compare">
+<div>
+<h4>工作区改错</h4>
+<p><code>git restore &lt;file&gt;</code><br>
+（旧写法 <code>git checkout -- &lt;file&gt;</code>）</p>
+<p>用暂存区/版本库的版本覆盖工作区，丢掉未暂存的改动。</p>
+</div>
+<div>
+<h4>暂存区加错</h4>
+<p><code>git restore --staged &lt;file&gt;</code><br>
+（旧写法 <code>git reset HEAD &lt;file&gt;</code>）</p>
+<p>把暂存区的改动退回工作区，但保留改动本身。</p>
+</div>
+</div>
+
+<p>最难的是<strong>撤销整个 commit</strong>，有两条路：</p>
+
+<div class="callout">
+<p><strong><code>git reset</code></strong> —— 移动分支指针「回到过去」，被越过的提交从历史消失。例：<code>git reset --hard HEAD~1</code> 抹掉最近 1 条提交。</p>
+<p><strong><code>git revert</code></strong> —— 新建一个「反向提交」抵消原提交，历史里能看到原提交 + 撤销提交。例：<code>git revert &lt;commit-hash&gt;</code>。</p>
+</div>
+
+<div class="callout callout-warn">
+<p><strong>团队协作铁律</strong>：已经 <code>push</code> 到共享分支的提交，<strong>禁用 <code>reset</code></strong>（会改写历史，其他人 pull 会冲突），<strong>必须用 <code>revert</code></strong>。<code>reset</code> 只在自己本地未推送的提交上安全使用。</p>
+</div>
+
+<p>这个易混点是高频错题，建议搭配错题精讲《git reset vs git revert》深入读一遍：<a href="../wrong-questions/cluster-01-git-reset-vs-revert.html">→ 错题精讲</a>。</p>
+
+<div class="quiz-anchor">
+GIT-001（init）、GIT-002（add 写暂存区）、GIT-003（commit）、GIT-004（log）、GIT-005（status）、GIT-006（三区流向）、GIT-007（reset vs revert）
+</div>
+
+<h2>五、下一步</h2>
+<ul>
+<li>读完这课，去答题页刷 GIT-001 到 GIT-007 七道题。</li>
+<li>错题别放过——看错题精讲《git reset vs revert》。</li>
+<li>下一课：<a href="linux-basics.html">Linux 目录与权限</a>。</li>
+</ul>
+
+<footer>
+<p>💡 这是 ai-study-kit 的示例课。如果哪里不清楚，可以问 AI 助手进一步讲解。换主题（比如 K8s、React）只需替换 <code>questions.json</code>、<code>flashcards.json</code>、<code>lessons/*.html</code> 这几个文件。</p>
+</footer>
+</main>
+</body>
+</html>

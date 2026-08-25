@@ -1,34 +1,38 @@
 # Flow Playbooks · 流程手册
 
 > Step 3 按编号取用。每个流程：**目的 → 前置 → 步骤 → 完成标志**。
-> 所有路径相对 ai-study-kit 仓库根。改文件前先看 SKILL.md 硬红线。
+> 路径基准：有仓库时相对仓库根；插件安装用户（无仓库）相对**用户学习项目根**（F0 建的 `<project>/`）。改文件前先看 SKILL.md 硬红线。
 
 ---
 
-## F1 · 初始化项目（bootstrap）
+## F1 · 初始化项目（bootstrap，零 clone）
 
-**目的**：从零到「浏览器里看到 demo 答题站」。
+**目的**：从零到「浏览器里看到答题站」。**用户不需要 GitHub、不需要 clone 仓库**——插件自带完整可构建快照。
+
+**定位插件里的快照**：本文件位于 `<插件根>/skills/study-coach/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
 
 **步骤**：
 
-1. 仓库不存在则 clone：
+1. 选定用户学习项目目录（问一次，默认 `~/study-kit/`），拷出快照并装依赖：
 
    ```bash
-   git clone https://github.com/jerryjiao/ai-study-kit
-   cd ai-study-kit
+   mkdir -p ~/study-kit && cp -r <插件根>/kit ~/study-kit/kit
+   cd ~/study-kit/kit/apps/quiz-app && npm install
    ```
 
-2. 装依赖 + 起开发服务器：
+2. 直接起开发服务器（快照带 dev-intro 演示主题，回落链自动生效）：
 
    ```bash
-   pnpm install
-   pnpm dev      # 前端 :5173（/api 代理到 :8787）
+   npm run dev      # 前端 :5173（/api 代理到 :8787）
    ```
 
-3. 打开 `http://localhost:5173`，确认三个 tab：**答题**（10 题，点选项即判分）、**闪卡**（4 张，again/hard/good/easy）、**课程**（2 节 HTML）。
-4. 告诉用户：这是 dev-intro 演示主题——**内容全都不会用**，学自己的东西走 F2。
+3. 打开 `http://localhost:5173`，确认三个 tab：**答题**、**闪卡**、**课程** 都能渲染。
+4. 告诉用户：这是 dev-intro 演示主题——内容全都不会用，学自己的东西走 F2（**用户主题建议建在 `~/study-kit/theme/<name>/`**——外部主题包形态，住 kit 目录外，升级重拷不碰它；构建 `EXAMPLE_THEME=~/study-kit/theme/<name>`）。
+5. （备选路线，开发者/贡献者用）clone 仓库：`git clone https://github.com/jerryjiao/ai-study-kit && pnpm install && pnpm dev`。
 
 **完成标志**：三个 tab 都能正常渲染。之后默认接力 F2。
+
+**升级**（插件更新后）：`cp kit/apps/quiz-app/progress.json /tmp/` → 重拷 `<插件根>/kit` → 拷回 progress.json（进度按题 id 存，主题包在 kit 外均不受影响）。
 
 ---
 

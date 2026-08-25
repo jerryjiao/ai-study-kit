@@ -1,0 +1,16 @@
+{
+  "theme": "dev-intro",
+  "mission": "让开发者 5 分钟看懂 ai-study-kit 的课程生成能力——以 git + Linux 基础为示例主题",
+  "audience": "任何能看懂 git/Linux 基础命令的开发者（开源仓库的访客）",
+  "depth": "beginner",
+  "lessonsCount": 2,
+  "outline": [
+    "git 三区与基础命令",
+    "Linux 目录与权限"
+  ],
+  "resources": [
+    { "title": "Pro Git Book（中文版，官方免费）", "url": "https://git-scm.com/book/zh/v2" },
+    { "title": "git 官方文档", "url": "https://git-scm.com/docs" },
+    { "title": "Linux man pages", "url": "https://man7.org/linux/man-pages/" }
+  ]
+}

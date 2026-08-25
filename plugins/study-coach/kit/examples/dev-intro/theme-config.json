@@ -1,0 +1,28 @@
+{
+  "$comment": [
+    "主题显示配置（可选文件）：套件从这里读首页排序、显示名、子主题、来源徽标、层、样式等呈现层数据。",
+    "sync-examples 把本文件拷到 src/data/theme-config.json；未提供本文件的主题回退为：",
+    "显示原始 topic id、大类按字母序、不展开子主题、来源原样显示、无层概念（全部题算计划内）、默认样式。",
+    "全部字段均可省略——缺什么回退什么。字段详解见仓库 docs/theming.md。"
+  ],
+  "topicLabels": {
+    "git-basics": "Git 基础",
+    "linux-commands": "Linux 命令"
+  },
+  "topicOrder": [
+    "git-basics",
+    "linux-commands"
+  ],
+  "topicStyles": {
+    "git-basics": {
+      "cls": "bg-indigo-50 border-indigo-200 text-indigo-800 hover:bg-indigo-100",
+      "childCls": "bg-indigo-50/40 border-indigo-100 text-indigo-700 hover:bg-indigo-100/70",
+      "icon": "Boxes"
+    },
+    "linux-commands": {
+      "cls": "bg-sky-50 border-sky-200 text-sky-800 hover:bg-sky-100",
+      "childCls": "bg-sky-50/40 border-sky-100 text-sky-700 hover:bg-sky-100/70",
+      "icon": "Layers"
+    }
+  }
+}

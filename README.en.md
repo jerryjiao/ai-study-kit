@@ -35,7 +35,22 @@
 
 ---
 
-## 🚀 See the demo in 5 minutes
+## 🤖 Recommended way to start: install the plugin — no clone needed
+
+Install the whole kit into your AI agent (zcode / Claude Code). **No repo cloning, no commands to memorize** — the plugin ships a complete buildable app snapshot, and the agent walks you from zero to a running study site, generating questions and courses along the way:
+
+```
+/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
+# install study-coach, then say "I want to learn X" (or /study-coach) in a new session
+```
+
+Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Nine flows covered end to end: bootstrap, new theme, daily study, wrong-question grilling, podcasts, course generation, verification, deploy — see [`docs/study-coach.md`](docs/study-coach.md).
+
+Just want to see what it looks like first? Take the clone route below.
+
+---
+
+## 🚀 See the demo in 5 minutes (clone route, for developers)
 
 ```bash
 git clone https://github.com/jerryjiao/ai-study-kit
@@ -57,16 +72,9 @@ pnpm dev
 
 ---
 
-## 🧭 Not sure what to do next? Install `/study-coach`
+## 🧭 Not sure what to do next? `/study-coach`
 
-Everything further down this page — switching themes, generating courses, drilling, wrong-answer deep-dives, podcasts, deployment — you don't have to remember any of it. The repo ships a **study coach command** that every study session can start from:
-
-```bash
-pnpm run skill:install     # installs to ~/.agents/skills/study-coach
-# restart your AI CLI (or open a new session), then type /study-coach
-```
-
-On zcode / Claude Code you can install via the **plugin marketplace** instead: add the `https://github.com/jerryjiao/ai-study-kit` marketplace and install `study-coach` — future skill updates arrive with marketplace refreshes, no reinstall needed.
+Once the plugin is installed above (or via `pnpm run skill:install` into `~/.agents/skills/`), every study session can start here.
 
 It first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Nine playbooks cover everything from initializing the project to deploying it. (The playbook is written in Chinese; see [`docs/study-coach.md`](docs/study-coach.md).)
 

@@ -1,6 +1,6 @@
 {
   "name": "study-coach",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /study-coach 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。",
   "description_i18n": {
     "en": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release.",
