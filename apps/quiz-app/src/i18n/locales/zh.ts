@@ -46,6 +46,7 @@ export const zh = {
 
   // 练习页
   'practice.readMode': '看题模式',
+  'practice.layerAll': '全部',
   'practice.redoSet': '重做本题集',
   'practice.redoSetTitle': '清空本题集答题记录，重新作答',
   'practice.jumpUnanswered': '跳到未答',
@@ -81,6 +82,7 @@ export const zh = {
   'q.single': '单选题',
   'q.difficulty': '难度 {level}',
   'q.index': '第 {n} 题',
+  'q.imageAlt': '题目配图',
   'q.submitSelfEval': '提交（自评）',
   'q.submit': '提交答案',
   'q.correct': '回答正确',
@@ -181,23 +183,22 @@ export const zh = {
   'theme.title': '当前：{label}（点击切换）',
   'theme.aria': '切换主题，当前{label}',
 
+  // 设置面板（学习偏好：拓展加练/答对自动跳题/每日新卡配额）
+  'settings.title': '学习偏好',
+  'settings.close': '关闭',
+  'settings.extLabel': '拓展加练',
+  'settings.extDesc': '默认关。开 = 显示拓展层（章节题）：练习页出现层筛选，首页出现拓展题块，用于弱考点补刷',
+  'settings.autoLabel': '答对自动跳题',
+  'settings.autoDesc': '默认开。答对后 3 秒自动进入下一题；关 = 停在原题方便读解析',
+  'settings.quotaLabel': '每日新卡配额',
+  'settings.quotaDesc': '闪卡每天最多引入的新卡数（0-50），与闪卡页设置同步',
+  'settings.quotaMinus': '减少配额',
+  'settings.quotaPlus': '增加配额',
+  'settings.syncHint': '偏好随进度跨设备同步',
+
   // 语言切换
   'lang.aria': '切换语言',
   'lang.title': '语言',
-
-  // 设置面板（学习偏好）
-  'settings.title': '学习偏好',
-  'settings.close': '关闭设置',
-  'settings.open': '打开学习偏好设置',
-  'settings.extLabel': '拓展题',
-  'settings.extDesc': '练习时包含拓展层题目（章节题库；默认关闭，仅弱区加练时开）',
-  'settings.autoLabel': '答对自动跳题',
-  'settings.autoDesc': '答对后 3 秒自动进入下一题；翻回上一题或关闭后手动翻页',
-  'settings.quotaLabel': '每日新卡配额',
-  'settings.quotaDesc': '闪卡每天最多引入的新卡数（0-50，防一天灌太多）',
-  'settings.quotaMinus': '减少配额',
-  'settings.quotaPlus': '增加配额',
-  'settings.syncHint': '设置随学习进度同步，跨设备自动跟随。',
 };
 
 export type TKey = keyof typeof zh;

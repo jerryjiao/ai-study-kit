@@ -46,6 +46,7 @@ export const ru: Record<TKey, string> = {
 
   // Тренировка
   'practice.readMode': 'Режим чтения',
+  'practice.layerAll': 'Все',
   'practice.redoSet': 'Пройти заново',
   'practice.redoSetTitle': 'Очистить ответы этого набора и пройти заново',
   'practice.jumpUnanswered': 'К неотвеченным',
@@ -83,6 +84,7 @@ export const ru: Record<TKey, string> = {
   'q.single': 'Один вариант',
   'q.difficulty': 'Сложность {level}',
   'q.index': 'Вопрос {n}',
+  'q.imageAlt': 'Изображение к вопросу',
   'q.submitSelfEval': 'Отправить (самооценка)',
   'q.submit': 'Отправить',
   'q.correct': 'Верно!',
@@ -184,21 +186,20 @@ export const ru: Record<TKey, string> = {
   'theme.title': 'Сейчас: {label} (нажмите для переключения)',
   'theme.aria': 'Переключить тему, сейчас: {label}',
 
+  // Панель настроек (учебные предпочтения)
+  'settings.title': 'Настройки обучения',
+  'settings.close': 'Закрыть',
+  'settings.extLabel': 'Дополнительные задания',
+  'settings.extDesc': 'По умолчанию выключено. Вкл = показать дополнительный слой (вопросы по главам): фильтр слоя в практике, наборы на главной — для проработки слабых тем',
+  'settings.autoLabel': 'Автопереход при верном ответе',
+  'settings.autoDesc': 'По умолчанию включено. Через 3 с после верного ответа — следующий вопрос; выкл = остаться и прочитать разбор',
+  'settings.quotaLabel': 'Новых карточек в день',
+  'settings.quotaDesc': 'Максимум новых карточек в день (0-50), синхронизируется со страницей карточек',
+  'settings.quotaMinus': 'Уменьшить лимит',
+  'settings.quotaPlus': 'Увеличить лимит',
+  'settings.syncHint': 'Настройки синхронизируются между устройствами вместе с прогрессом',
+
   // Смена языка
   'lang.aria': 'Переключить язык',
   'lang.title': 'Язык',
-
-  // Панель настроек (учебные предпочтения)
-  'settings.title': 'Настройки обучения',
-  'settings.close': 'Закрыть настройки',
-  'settings.open': 'Открыть настройки обучения',
-  'settings.extLabel': 'Дополнительные вопросы',
-  'settings.extDesc': 'Включать дополнительные вопросы в практику (по умолчанию выключено)',
-  'settings.autoLabel': 'Автопереход при верном ответе',
-  'settings.autoDesc': 'Через 3с после верного ответа — к следующему вопросу',
-  'settings.quotaLabel': 'Дневная квота новых карточек',
-  'settings.quotaDesc': 'Максимум новых карточек в день (0-50)',
-  'settings.quotaMinus': 'Уменьшить квоту',
-  'settings.quotaPlus': 'Увеличить квоту',
-  'settings.syncHint': 'Настройки синхронизируются вместе с прогрессом между устройствами.',
 };

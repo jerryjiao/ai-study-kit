@@ -2,9 +2,16 @@ import { useState, useEffect } from 'react';
 import { Check, X, Sparkles, LogOut } from 'lucide-react';
 import type { Question } from '../types';
 import { gradeQuestion } from '../lib/grade';
+import { topicLabel, SOURCE_LABELS, layerOf } from '../lib/topicOrder';
 import { OptionList } from './OptionList';
 import { useConfirm } from './ConfirmDialog';
 import { useI18n } from '../i18n';
+import themeMeta from '../data/theme.json';
+
+/** 题目配图：examples/<theme>/assets/<imageRef>，由 sync:study 同步到 public/study/<theme>/assets/。
+ *  Vite 静态服务 public 目录。必须用 BASE_URL 前缀拼成根绝对路径：BrowserRouter 的 basename
+ *  不影响文档相对 URL 的解析，裸相对路径在 /practice/all 等二级路由下会解析到 /practice/study/... 而 404。 */
+const ACTIVE_THEME = (themeMeta as { theme: string }).theme;
 
 interface Props {
   q: Question;
@@ -55,14 +62,28 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
         }`}>
           {multi ? t('q.multi') : q.type === 'judge' ? t('q.judge') : t('q.single')}
         </span>
-        <span className="bg-bg-subtle px-2 py-0.5 rounded-md font-medium text-text-secondary">{q.source}</span>
-        {q.topic && <span className="text-text-faint">· {q.topic}</span>}
+        <span className="bg-bg-subtle px-2 py-0.5 rounded-md font-medium text-text-secondary">{SOURCE_LABELS[q.source] ?? q.source}</span>
+        {layerOf(q.source) && (
+          <span className={`px-2 py-0.5 rounded-md font-medium ${
+            layerOf(q.source) === '核心' ? 'bg-indigo-50 text-indigo-600' : 'bg-bg-subtle text-text-faint'
+          }`}>{layerOf(q.source)}</span>
+        )}
+        {q.topic && <span className="text-text-faint">· {topicLabel(q.topic)}</span>}
         {q.difficulty && (
           <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-medium">{t('q.difficulty', { level: q.difficulty })}</span>
         )}
         <span className="ml-auto text-text-faint tabular-nums">{t('q.index', { n: index + 1 })}</span>
       </div>
       <p className="text-lg font-medium text-text-primary mb-5 whitespace-pre-wrap leading-relaxed">{q.question}</p>
+
+      {q.imageRef && (
+        <img
+          src={`${import.meta.env.BASE_URL}study/${ACTIVE_THEME}/assets/${q.imageRef}`}
+          alt={t('q.imageAlt')}
+          loading="lazy"
+          className="max-w-full rounded-xl border border-border mb-5 bg-white shadow-soft"
+        />
+      )}
 
       <OptionList options={q.options} type={q.type} selected={selected} revealed={revealed}
         answer={q.answer} onToggle={toggle} disabled={revealed} />

@@ -109,20 +109,20 @@ export interface Progress {
   /** UI 语言偏好（非学习进度），跨设备同步同 theme 的 LWW 模式（langUpdatedAt 仲裁）。 */
   lang?: UiLang;
   langUpdatedAt?: number;                 // 语言最后变更时间戳（Date.now()），LWW 仲裁用
-  /** 学习偏好（非学习进度，设置面板写入）：拓展开关/答对自动跳题/每日新卡配额。
-   *  跨设备同步同 theme 的 LWW 模式（settingsUpdatedAt 仲裁，整块合并不分字段）。 */
+  /** 学习偏好（非学习进度）：设置面板三项，见 LearnSettings。整体对象按 settingsUpdatedAt 做 LWW。 */
   settings?: LearnSettings;
-  settingsUpdatedAt?: number;             // 设置最后变更时间戳（Date.now()），LWW 仲裁用
+  settingsUpdatedAt?: number;             // 学习偏好最后变更时间戳（Date.now()），LWW 仲裁用
 }
 
-/** 学习偏好三件套（SettingsSheet 写入）。全部可选 + 读取侧约定缺省值：
- *  extOn 缺省=关（拓展题默认不进练习池）、autoAdvance 缺省=开、dailyNewCards 缺省=5。 */
+/** 学习偏好（设置面板）：非学习进度、跨设备同步（整体 LWW）。
+ *  三项均可缺省 = 用默认行为；reset 清学习进度时保留。 */
 export interface LearnSettings {
-  /** 拓展题开关：true 时 tier:'ext' 的题进练习池；缺省/ false 时过滤掉。 */
+  /** 拓展层加练开关。false/缺省（默认）= 拓展彻底隐身：练习页层 chip 不渲染、
+   *  首页纯拓展块隐藏、layer=拓展 直达失效，一切列表只含计划内题；true = 拓展可见可选。 */
   extOn?: boolean;
-  /** 答对 3 秒自动跳下一题：缺省视为 true（保留既有行为）。 */
+  /** 答对自动跳下一题（3 秒）。true/缺省（默认）= 保持现行自动跳；false = 停在原题读解析。 */
   autoAdvance?: boolean;
-  /** 闪卡每日新卡配额（0-50）：缺省回退 localStorage 'ask-new-per-day'，再缺省 5。 */
+  /** 每日新卡配额（闪卡）。缺省 = 5；历史值存 localStorage['ask-new-per-day']，读取时兼容回退。 */
   dailyNewCards?: number;
 }
 

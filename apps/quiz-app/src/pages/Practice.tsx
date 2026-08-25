@@ -9,7 +9,7 @@ import { loadPosIndex, savePosId } from '../lib/posMemory';
 import { QuestionCard } from '../components/QuestionCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { SessionSummary } from '../components/SessionSummary';
-import { buildAtomicOrder, atomicLabel } from '../lib/topicOrder';
+import { buildAtomicOrder, atomicLabel, topicLabel, stripSubtopicPrefix, layerOf, isPlanned, LAYER_TOPICS } from '../lib/topicOrder';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useI18n } from '../i18n';
 
@@ -33,17 +33,40 @@ export function Practice() {
   // 仅存活于当前列表/模式会话；切换 scope（换 topic/day/mode/view）时由下方 effect 清空。
   const [sessionAnswers, setSessionAnswers] = useState<Record<string, { selected: string[]; revealed: boolean }>>({});
 
-  // base：按 topic/subtopic/day 过滤后的题池（顺序/错题/看题/random 共用基础过滤）。
-  // 拓展层（tier:'ext'，章节题库类）默认过滤，学习偏好 settings.extOn 打开后放行——
-  // 默认关对应"核心+模考为必做、拓展仅弱区加练"的课程口径（见主题 MISSION.md）。
+  // 层筛选（核心/拓展）：仅有层概念的大类（theme-config 的 layerTopics）有意义；模考/其他主题隐藏。
+  // 拓展加练开关（设置面板，缺省关）关着时层概念整体不存在：chips 不渲染、layer 参数失效、
+  // 列表一律只含计划内题；开着时回到"默认核心、chip 三档、layer 直达"行为。
+  // tier 过滤保留：tier 是题库数据侧的逐题拓展标记，与配置侧的 source 层双轨并存。
   const extOn = progress.settings?.extOn === true;
+  const layerEnabled = extOn && LAYER_TOPICS.includes(topic);
+  const initLayer = (t: string, lp: string | null): '' | '核心' | '拓展' => {
+    if (!extOn) return '';                              // 拓展隐身：层筛选整体失效
+    if (!LAYER_TOPICS.includes(t)) return '';           // 无层概念的主题
+    if (lp === '拓展') return '拓展';
+    if (lp === '全部') return '';
+    return '核心';
+  };
+  const [layer, setLayer] = useState<'' | '核心' | '拓展'>(() => initLayer(topic, params.get('layer')));
+  // 层状态与 URL 双向协调：换 topic 回默认（核心）；URL 带 layer 参数时以参数为准
+  // （首页纯拓展块 → &layer=拓展；普通链接无参数 → 默认核心，同主题内切块不打断当前筛选）。
+  const layerParam = params.get('layer');
+  useEffect(() => {
+    setLayer(initLayer(topic, layerParam));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic, layerParam, extOn]);
+  // 无层概念的主题（模考/通用主题）不参与层过滤——即使 layer 残留非空值也不生效
+  const activeLayer = layerEnabled ? layer : '';
+
+  // base：按 topic/subtopic/day 过滤后的题池（顺序/错题/看题/random 共用基础过滤）
   const base = useMemo(() => {
     let b: Question[] = extOn ? questions : questions.filter((q) => q.tier !== 'ext');
     if (topic) b = b.filter((q) => q.topic === topic);
     if (subtopic) b = b.filter((q) => q.subtopic === subtopic);
     if (day) b = b.filter((q) => q.day === day);
+    if (activeLayer) b = b.filter((q) => layerOf(q.source) === activeLayer);
+    if (!extOn) b = b.filter((q) => isPlanned(q)); // 拓展隐身：任何列表只含计划内题
     return b;
-  }, [topic, subtopic, day, extOn]);
+  }, [topic, subtopic, day, activeLayer, extOn]);
 
   // ⭐ 错题模式用会话级快照，不让 list 随 progress 实时变化。
   //  根因：答对一题达到 streak 阈值后，wrongIds 自动把它移出错题集 → list 缩水 →
@@ -63,7 +86,8 @@ export function Practice() {
   const list = useMemo(() => {
     if (mode === 'wrong') return wrongSnapshot ?? [];
     if (mode === 'random') {
-      const pool = [...base];
+      // 随机沙盒从计划内题抽（口径与首页"随机 20"入口一致；拓展经 chip 放行，不进随机池）
+      const pool = base.filter((q) => isPlanned(q));
       for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
       return pool.slice(0, Math.min(20, pool.length));
     }
@@ -84,7 +108,12 @@ export function Practice() {
   // topic 为空（如 /practice/all 无 query）时不参与"下一题集"流程。
   const nextAtomic = useMemo(() => {
     if (!topic || day) return null;  // 按 day 练习或无过滤的顺序练习无"下一个 topic"
-    const order = buildAtomicOrder(questions);
+    // 主线只走计划内题集：纯拓展块（计划内 0 题，默认核心层会过滤成空列表）跳过，
+    // 它们的入口是首页灰色"拓展 N"徽标，不在完成流"下一题集"链条里。
+    const order = buildAtomicOrder(questions).filter((a) =>
+      a.subtopic ? questions.some((q) => q.topic === a.topic && q.subtopic === a.subtopic && isPlanned(q))
+                  : questions.some((q) => q.topic === a.topic && isPlanned(q))
+    );
     const curIdx = order.findIndex((a) => a.topic === topic && a.subtopic === (subtopic || ''));
     if (curIdx < 0 || curIdx >= order.length - 1) return null;  // 未命中或已是末尾
     return order[curIdx + 1];
@@ -376,9 +405,25 @@ export function Practice() {
       {/* 顶部信息行：左面包屑（day/topic/subtopic/看题模式），右题号。单独一行避免与操作按钮挤。
           H5 宽度有限时面包屑 truncate 不挤压题号。 */}
       <div className="flex items-center justify-between gap-3 text-sm text-text-muted">
-        <span className="truncate min-w-0">{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topic} · </span>}{subtopic && <span className="text-text-faint">{subtopic} · </span>}{isReadMode && <span className="text-sky-500">{t('practice.readMode')}</span>}</span>
+        <span className="truncate min-w-0">{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topicLabel(topic)} · </span>}{subtopic && <span className="text-text-faint">{stripSubtopicPrefix(subtopic)} · </span>}{isReadMode && <span className="text-sky-500">{t('practice.readMode')}</span>}</span>
         <span className="font-medium tabular-nums shrink-0">{Math.min(pos + 1, list.length)} / {list.length}</span>
       </div>
+      {/* 层筛选 chips：全部 / 核心 / 拓展（无层概念的主题不显示）。切层即时生效。 */}
+      {layerEnabled && (
+        <div className="flex items-center gap-2 -mt-2">
+          {(['', '核心', '拓展'] as const).map((l) => (
+            <button
+              key={l || 'all'}
+              onClick={() => setLayer(l)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                layer === l ? 'bg-indigo-600 text-white' : 'bg-bg-subtle text-text-muted hover:text-text-secondary'
+              }`}
+            >
+              {l || t('practice.layerAll')}
+            </button>
+          ))}
+        </div>
+      )}
       {/* 操作按钮行：重做本题集 / 跳到未答 / 重看本题集。独立一行，靠右排列，H5 不再拥挤。
           三个按钮互斥条件渲染（看题 vs 答题），同行最多出现两个。无按钮时此行不占空间。 */}
       {((mode !== 'random' && mode !== 'wrong' && !isReadMode && (answeredInList > 0 || answeredInList < list.length)) ||

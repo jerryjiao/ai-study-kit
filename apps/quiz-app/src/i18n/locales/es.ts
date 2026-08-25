@@ -46,6 +46,7 @@ export const es: Record<TKey, string> = {
 
   // Práctica
   'practice.readMode': 'Modo lectura',
+  'practice.layerAll': 'Todos',
   'practice.redoSet': 'Rehacer esta serie',
   'practice.redoSetTitle': 'Borrar las respuestas de esta serie y rehacerla',
   'practice.jumpUnanswered': 'Ir a sin responder',
@@ -83,6 +84,7 @@ export const es: Record<TKey, string> = {
   'q.single': 'Opción única',
   'q.difficulty': 'Dificultad {level}',
   'q.index': 'Pregunta {n}',
+  'q.imageAlt': 'Imagen de la pregunta',
   'q.submitSelfEval': 'Enviar (autoevaluada)',
   'q.submit': 'Enviar',
   'q.correct': '¡Correcto!',
@@ -184,21 +186,20 @@ export const es: Record<TKey, string> = {
   'theme.title': 'Actual: {label} (clic para cambiar)',
   'theme.aria': 'Cambiar tema, actual: {label}',
 
+  // Panel de ajustes (preferencias de estudio)
+  'settings.title': 'Preferencias de Estudio',
+  'settings.close': 'Cerrar',
+  'settings.extLabel': 'Ejercicios Ampliados',
+  'settings.extDesc': 'Desactivado por defecto. Activado = mostrar la capa ampliada (preguntas por capítulo): filtro de capa en práctica, bloques en la página principal — para reforzar temas débiles',
+  'settings.autoLabel': 'Avance Automático al Aciertar',
+  'settings.autoDesc': 'Activado por defecto. Salta a la siguiente pregunta 3 s tras acertar; desactivado = quedarse a leer la explicación',
+  'settings.quotaLabel': 'Nuevas Tarjetas al Día',
+  'settings.quotaDesc': 'Máximo de tarjetas nuevas por día (0-50), sincronizado con la página de tarjetas',
+  'settings.quotaMinus': 'Reducir límite',
+  'settings.quotaPlus': 'Aumentar límite',
+  'settings.syncHint': 'Las preferencias se sincronizan entre dispositivos con tu progreso',
+
   // Cambio de idioma
   'lang.aria': 'Cambiar idioma',
   'lang.title': 'Idioma',
-
-  // Panel de preferencias de estudio
-  'settings.title': 'Preferencias de estudio',
-  'settings.close': 'Cerrar ajustes',
-  'settings.open': 'Abrir preferencias de estudio',
-  'settings.extLabel': 'Preguntas de ampliación',
-  'settings.extDesc': 'Incluir preguntas de nivel ampliación en la práctica (desactivado por defecto)',
-  'settings.autoLabel': 'Avance automático al acertar',
-  'settings.autoDesc': 'Pasa a la siguiente pregunta 3s después de acertar',
-  'settings.quotaLabel': 'Cuota diaria de tarjetas nuevas',
-  'settings.quotaDesc': 'Máximo de tarjetas nuevas por día (0-50)',
-  'settings.quotaMinus': 'Reducir cuota',
-  'settings.quotaPlus': 'Aumentar cuota',
-  'settings.syncHint': 'Las preferencias se sincronizan con tu progreso entre dispositivos.',
 };

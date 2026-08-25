@@ -10,7 +10,6 @@ import {
   ChevronRight,
   ChevronDown,
   Boxes,
-  Layers,
   Gauge,
   Cloud,
   Sparkles,
@@ -23,7 +22,8 @@ import { computeStats, wrongIds, readCount, isAnswerDeleted } from '../lib/progr
 import { clearPos } from '../lib/posMemory';
 import { useProgress } from '../hooks/useProgress';
 import { StatBadge } from '../components/StatBadge';
-import { TOPIC_ORDER, orderedSubtopics as buildOrderedSubs } from '../lib/topicOrder';
+import { TOPIC_ORDER, orderedSubtopics as buildOrderedSubs, topicLabel, stripSubtopicPrefix, epDepthOf, isPlanned, LAYER_TOPICS } from '../lib/topicOrder';
+import { themeConfig, iconFor } from '../lib/themeConfig';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useI18n } from '../i18n';
 
@@ -31,26 +31,20 @@ export function Home() {
   const { progress, reset, resetWrong, resetRead, syncStatus } = useProgress();
   const confirm = useConfirm();
   const { t } = useI18n();
+  // 拓展加练开关（设置面板，缺省关）：关 = 拓展彻底隐身（纯拓展块不渲染、直达链接失效）
+  const extOn = progress.settings?.extOn === true;
   const stats = useMemo(() => computeStats(progress, questions), [progress]);
   const wrongCount = wrongIds(progress, questions).length;
   const readNum = useMemo(() => readCount(progress, questions), [progress]);
   const pct = (n: number) => (stats.total === 0 ? 0 : Math.round((n / stats.total) * 100));
 
-  // 主题体系：按 TOPIC_ORDER 顺序 + 各自配色 + 图标。
-  // topicStyles 用主题名作 key——你换主题时同步替换这里的 key 即可。
+  // 主题体系：各 topic 的配色 + 图标，全部来自 theme-config.json 的 topicStyles
+  // （icon 是配置里的字符串名，经 iconFor 映射到 lucide 组件；未配置的主题走默认样式）。
   // childCls = 子主题用的浅一档同色系样式（主题支持 subtopic 分块时用）。
-  const topicStyles: Record<string, { cls: string; childCls: string; icon: typeof Boxes }> = {
-    'git-basics': {
-      cls: 'bg-indigo-50 border-indigo-200 text-indigo-800 hover:bg-indigo-100',
-      childCls: 'bg-indigo-50/40 border-indigo-100 text-indigo-700 hover:bg-indigo-100/70',
-      icon: Boxes,
-    },
-    'linux-commands': {
-      cls: 'bg-sky-50 border-sky-200 text-sky-800 hover:bg-sky-100',
-      childCls: 'bg-sky-50/40 border-sky-100 text-sky-700 hover:bg-sky-100/70',
-      icon: Layers,
-    },
-  };
+  const topicStyles: Record<string, { cls: string; childCls: string; icon: typeof Boxes }> = {};
+  for (const [topic, st] of Object.entries(themeConfig.topicStyles ?? {})) {
+    topicStyles[topic] = { cls: st.cls, childCls: st.childCls, icon: iconFor(st.icon) };
+  }
   // 由浅入深：按 TOPIC_ORDER 学习顺序排。
   // 顺序定义与 Practice 的"下一题集"跳转共享，见 src/lib/topicOrder.ts。
   // topicChildren：从 questions 数据派生各 topic 下实际存在的 subtopic（含分块后缀"一/二/三"按序归位）。
@@ -60,10 +54,11 @@ export function Home() {
     return result;
   }, []);
 
-  // 大类题数 + 子主题题数统计（topic 为空的题归到 '' 桶，展示时再渲染「未分类」文案）
+  // 大类题数 + 子主题题数统计（主进度口径 = 计划内题，拓展层不进计数；topic 为空的题归到 '' 桶）
   const topics = useMemo(() => {
     const m = new Map<string, number>();
     for (const q of questions) {
+      if (!isPlanned(q)) continue;
       const t = q.topic || '';
       m.set(t, (m.get(t) ?? 0) + 1);
     }
@@ -74,14 +69,25 @@ export function Home() {
       return a.localeCompare(b);
     });
   }, []);
+  // 子主题计数：计划内计数（卡片主数字）与拓展计数（纯拓展块的灰徽标）分开统计
   const subtopicCounts = useMemo(() => {
     const m = new Map<string, number>();
     for (const q of questions) {
-      if (!q.subtopic) continue;
+      if (!q.subtopic || !isPlanned(q)) continue;
       m.set(q.subtopic, (m.get(q.subtopic) ?? 0) + 1);
     }
     return m;
   }, []);
+  const subExtCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const q of questions) {
+      if (!q.subtopic || isPlanned(q)) continue;
+      m.set(q.subtopic, (m.get(q.subtopic) ?? 0) + 1);
+    }
+    return m;
+  }, []);
+  // 随机 20 沙盒从计划内抽（拓展经 chip 放行，不进随机池）
+  const plannedCount = useMemo(() => questions.filter((q) => isPlanned(q)).length, []);
 
   // 原子 topic = 最细粒度的分组单元：有 subtopic 的题按 subtopic 归、
   // 无 subtopic 的题归到 "{topic}·其他"。用于"已答明细"面板逐块展示未答覆盖。
@@ -90,6 +96,7 @@ export function Home() {
     type Row = { key: string; topic: string; name: string; subtopic: string; isOther: boolean; total: number; answered: number };
     const m = new Map<string, Row>();
     for (const q of questions) {
+      if (!isPlanned(q)) continue; // 覆盖明细 = 主进度口径，纯拓展块不列（其补刷进度看错题本）
       const topic = q.topic || '';
       const hasSub = !!q.subtopic;
       const key = hasSub ? `${topic}::${q.subtopic}` : `${topic}::\u0000`; // \u0000 = 其他桶
@@ -98,7 +105,7 @@ export function Home() {
         row = {
           key,
           topic,
-          name: hasSub ? q.subtopic!.replace(/^(BA|IA|指标|CN)·/, '') : '',
+          name: hasSub ? stripSubtopicPrefix(q.subtopic!) : '',
           subtopic: q.subtopic ?? '',
           isOther: !hasSub,
           total: 0,
@@ -137,7 +144,7 @@ export function Home() {
     if (!bestId) return null;
     const q = questions.find((x) => x.id === bestId);
     if (!q) return null;
-    return { topic: q.topic || '', subtopic: q.subtopic };
+    return { topic: q.topic || '', subtopic: q.subtopic, isExt: !isPlanned(q) };
   }, [progress.answers]);
 
   // 多主题隔离：本页 reset 类操作只清激活主题的进度（题 id 集），不误伤其他主题。
@@ -179,9 +186,13 @@ export function Home() {
       {lastTopic && (() => {
         const st = topicStyles[lastTopic.topic];
         const Icon = st?.icon ?? Boxes;
-        const shortSub = lastTopic.subtopic?.replace(/^(BA|IA|指标|CN)·/, '');
-        const to = lastTopic.subtopic
-          ? `/practice/all?topic=${encodeURIComponent(lastTopic.topic)}&subtopic=${encodeURIComponent(lastTopic.subtopic)}`
+        const shortSub = lastTopic.subtopic ? stripSubtopicPrefix(lastTopic.subtopic) : '';
+        // 上次答的是拓展题 → 开关开着时链接带 layer=拓展 直达拓展筛选；
+        // 开关关着（拓展隐身）时回落到该主题的计划内列表（subtopic 落下会是空列表）
+        const layerSuffix = lastTopic.isExt && extOn ? '&layer=拓展' : '';
+        const subFallBack = lastTopic.isExt && !extOn;
+        const to = lastTopic.subtopic && !subFallBack
+          ? `/practice/all?topic=${encodeURIComponent(lastTopic.topic)}&subtopic=${encodeURIComponent(lastTopic.subtopic)}${layerSuffix}`
           : `/practice/all?topic=${encodeURIComponent(lastTopic.topic)}`;
         return (
           <Link
@@ -194,8 +205,8 @@ export function Home() {
             <span className="flex-1">
               <span className="text-xs opacity-70">{t('home.resume')}</span>
               <span className="ml-1.5 font-medium">
-                {lastTopic.topic || t('home.uncategorized')}
-                {shortSub ? <span className="opacity-70"> · {shortSub}</span> : null}
+                {topicLabel(lastTopic.topic) || t('home.uncategorized')}
+                {shortSub && !subFallBack ? <span className="opacity-70"> · {shortSub}</span> : null}
               </span>
             </span>
             <span className="shrink-0 text-xs opacity-70">{t('home.resumeGo')}</span>
@@ -218,9 +229,9 @@ export function Home() {
             className="flex items-center justify-center gap-2 bg-bg-surface border border-border-strong rounded-xl px-4 py-3 font-medium hover:bg-bg-hover transition-colors"
           >
             <Shuffle className="h-4 w-4 text-text-muted" strokeWidth={2} />
-            {/* 题数按 min(20, 全库) 动态显示——Practice 的 random 列表就是 slice(0, min(20, len))，
-                小题库写死 20 会"承诺 20 只给 10"（2026-08-17 踩过）。 */}
-            {t('home.random20', { n: Math.min(20, questions.length) })}
+            {/* 题数按 min(20, 计划内题池) 动态显示——Practice 的 random 列表就是
+                slice(0, min(20, len))，且随机池只从计划内抽（口径一致，避免"承诺 20 只给 10"）。 */}
+            {t('home.random20', { n: Math.min(20, plannedCount) })}
           </Link>
         </div>
       </div>
@@ -246,7 +257,7 @@ export function Home() {
                     }`}
                   >
                     <Icon className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} />
-                    <span className="flex-1 text-left font-medium truncate">{topic || t('home.uncategorized')}</span>
+                    <span className="flex-1 text-left font-medium truncate">{topicLabel(topic) || t('home.uncategorized')}</span>
                     <span className="shrink-0 text-xs opacity-70 tabular-nums">{count}</span>
                     <ChevronDown
                       className={`h-4 w-4 shrink-0 opacity-50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -261,28 +272,44 @@ export function Home() {
                       style?.cls ?? 'bg-bg-surface border-border text-text-secondary hover:bg-bg-hover'
                     }`}
                   >
-                        <Icon className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} />
-                        <span className="flex-1 font-medium truncate">{topic || t('home.uncategorized')}</span>
-                        <span className="shrink-0 text-xs opacity-70 tabular-nums">{count}</span>
-                      </Link>
+                    <Icon className="h-4 w-4 shrink-0 opacity-70" strokeWidth={2} />
+                    <span className="flex-1 font-medium truncate">{topicLabel(topic) || t('home.uncategorized')}</span>
+                    <span className="shrink-0 text-xs opacity-70 tabular-nums">{count}</span>
+                  </Link>
                 )}
                 {/* 子主题网格：缩进 + 同色系浅一档，展开时才渲染 */}
                 {hasChildren && isOpen && (
                   <div className="grid grid-cols-2 gap-1.5 pl-3">
                     {children.map((sub) => {
                       const subCount = subtopicCounts.get(sub) ?? 0;
+                      const extCount = subExtCounts.get(sub) ?? 0;
+                      // 计划内为 0、拓展>0 的"纯拓展块"：拓展开关关着时整块隐身；
+                      // 开着时计数位改灰色"拓展 N"徽标，链接带 layer=拓展 让 Practice 直接落在拓展筛选上
+                      const extOnly = subCount === 0 && extCount > 0;
+                      if (extOnly && !extOn) return null;
                       // 子主题显示名：去掉 "TOPIC·" 前缀（大类已显示，前缀冗余）
-                      const shortName = sub.replace(/^(BA|IA|指标|CN)·/, '');
+                      const shortName = stripSubtopicPrefix(sub);
+                      // 考点深度徽标（掌握/理解/了解）：仅有层概念的大类（layerTopics）显示
+                      const depth = LAYER_TOPICS.includes(topic) ? epDepthOf(shortName) : null;
                       return (
                         <Link
                           key={sub}
-                          to={`/practice/all?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(sub)}`}
+                          to={`/practice/all?topic=${encodeURIComponent(topic)}&subtopic=${encodeURIComponent(sub)}${extOnly ? '&layer=拓展' : ''}`}
                           className={`flex items-center gap-2 rounded-lg px-3 py-2 border text-xs transition-colors ${
                             style?.childCls ?? 'bg-bg-subtle border-border text-text-secondary hover:bg-bg-hover'
                           }`}
                         >
                           <span className="flex-1 truncate">{shortName}</span>
-                          <span className="shrink-0 text-[11px] opacity-60 tabular-nums">{subCount}</span>
+                          {depth && (
+                            <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                              depth === '掌握' ? 'bg-rose-50 text-rose-500' : depth === '理解' ? 'bg-amber-50 text-amber-600' : 'bg-bg-subtle text-text-faint'
+                            }`}>{depth}</span>
+                          )}
+                          {extOnly ? (
+                            <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-bg-subtle text-text-faint">拓展 {extCount}</span>
+                          ) : (
+                            <span className="shrink-0 text-[11px] opacity-60 tabular-nums">{subCount}</span>
+                          )}
                         </Link>
                       );
                     })}
@@ -397,7 +424,7 @@ function AnsweredDetailPanel({
           return (
             <div key={topic || '__uncategorized__'} className="px-3 py-2">
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-xs font-semibold text-text-secondary">{topic || t('home.uncategorized')}</span>
+                <span className="text-xs font-semibold text-text-secondary">{topicLabel(topic) || t('home.uncategorized')}</span>
                 <span className="text-[11px] text-text-faint tabular-nums">
                   {gAns}/{gTotal}
                 </span>

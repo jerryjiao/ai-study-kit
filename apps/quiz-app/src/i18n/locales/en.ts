@@ -46,6 +46,7 @@ export const en: Record<TKey, string> = {
 
   // Practice
   'practice.readMode': 'Reading mode',
+  'practice.layerAll': 'All',
   'practice.redoSet': 'Redo this set',
   'practice.redoSetTitle': 'Clear this set’s answer records and redo it',
   'practice.jumpUnanswered': 'Jump to unanswered',
@@ -83,6 +84,7 @@ export const en: Record<TKey, string> = {
   'q.single': 'Single choice',
   'q.difficulty': 'Difficulty {level}',
   'q.index': 'Question {n}',
+  'q.imageAlt': 'Question image',
   'q.submitSelfEval': 'Submit (self-graded)',
   'q.submit': 'Submit',
   'q.correct': 'Correct!',
@@ -184,21 +186,20 @@ export const en: Record<TKey, string> = {
   'theme.title': 'Current: {label} (click to switch)',
   'theme.aria': 'Switch theme, current: {label}',
 
+  // Settings sheet (learning preferences)
+  'settings.title': 'Learning Preferences',
+  'settings.close': 'Close',
+  'settings.extLabel': 'Extension Drills',
+  'settings.extDesc': 'Off by default. On = show the extension layer (chapter questions): layer filter in practice, extension sets on home — for drilling weak topics',
+  'settings.autoLabel': 'Auto-advance on Correct',
+  'settings.autoDesc': 'On by default. Jumps to the next question 3s after a correct answer; off = stay to read the explanation',
+  'settings.quotaLabel': 'Daily New Cards',
+  'settings.quotaDesc': 'Max new flashcards introduced per day (0-50), synced with the flashcards page',
+  'settings.quotaMinus': 'Decrease quota',
+  'settings.quotaPlus': 'Increase quota',
+  'settings.syncHint': 'Preferences sync across devices with your progress',
+
   // Language toggle
   'lang.aria': 'Switch language',
   'lang.title': 'Language',
-
-  // Settings sheet (learning preferences)
-  'settings.title': 'Learning preferences',
-  'settings.close': 'Close settings',
-  'settings.open': 'Open learning preferences',
-  'settings.extLabel': 'Extension questions',
-  'settings.extDesc': 'Include extension-tier questions in practice (chapter drills; off by default)',
-  'settings.autoLabel': 'Auto-advance on correct',
-  'settings.autoDesc': 'Jump to the next question 3s after a correct answer',
-  'settings.quotaLabel': 'Daily new-card quota',
-  'settings.quotaDesc': 'Max new flashcards introduced per day (0-50)',
-  'settings.quotaMinus': 'Decrease quota',
-  'settings.quotaPlus': 'Increase quota',
-  'settings.syncHint': 'Preferences sync with your progress across devices.',
 };
