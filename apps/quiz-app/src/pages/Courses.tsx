@@ -16,9 +16,9 @@ import coursesMeta from '../data/courses.json';
  * 课程内容由 sync:study 脚本从 examples/<theme>/ 同步到 public/study/<theme>/，
  * 访问路径 /study/<theme>/index.html。dev/prod 都能跑（vite publicDir 自动托管）。
  *
- * 课程已读（v0.4 痛点 #3）：顶部课程目录栏列出清单（sync-examples 产的 courses.json），
+ * 课程已读（v0.4 痛点 #3）：左侧竖排课程目录栏列出清单（sync-examples 产的 courses.json），
  * 点击定位到对应 lesson；iframe 每次加载（含课站内部互链导航）按 same-origin pathname
- * 匹配清单自动标记已读（progress.coursesRead，key="<theme>/<文件名>"）。
+ * 匹配清单自动标记已读并高亮当前课（progress.coursesRead，key="<theme>/<文件名>"）。
  * 「课全读」完成边界 = 清单全部命中，UI 与 study-coach skill 同口径可机读。
  */
 // BASE_URL 前缀：demo 子路径部署下课程静态站也能定位（自托管/开发时 BASE_URL='/' 不影响）
@@ -46,6 +46,7 @@ export function Courses() {
   const [error, setError] = useState(false);
   const [showIndex, setShowIndex] = useState(true);
   const [src, setSrc] = useState(COURSE_URL);
+  const [currentFile, setCurrentFile] = useState<string | null>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const lessons = coursesMeta.lessons as Lesson[];
 
@@ -63,13 +64,15 @@ export function Courses() {
     return () => { cancelled = true; };
   }, []);
 
-  // iframe 每次导航（点击目录 / 课站内链）后按 pathname 匹配清单自动标记已读。
+  // iframe 每次导航（点击目录 / 课站内链）后按 pathname 匹配清单自动标记已读，
+  // 同时更新当前课高亮（回到 index / 参考页时清空）。
   // same-origin 才读得到 contentWindow.location（课程静态站同源托管，天然满足）。
   const onFrameLoad = () => {
     try {
       const loc = frameRef.current?.contentWindow?.location;
       if (!loc) return;
       const file = matchLesson(loc.pathname, lessons);
+      setCurrentFile(file);
       if (file) markCourseRead(themeMeta.theme, file);
     } catch {
       // 跨源（理论不会发生）——读不到就跳过，目录点击路径仍可标记
@@ -87,50 +90,67 @@ export function Courses() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
-      {/* 课程目录栏：清单 + 已读进度。点击定位 iframe 到对应 lesson（加载即自动标记已读）。 */}
-      <div className="border-b border-border bg-bg-subtle/60">
-        <div className="max-w-5xl mx-auto px-3 py-1.5 flex items-center gap-2">
+    <div className="h-[calc(100vh-4rem)] flex">
+      {/* 课程目录栏：左侧竖排清单 + 已读进度。点击定位 iframe 到对应 lesson（加载即自动标记已读）。 */}
+      <aside
+        className={`${showIndex ? 'w-60' : 'w-11'} shrink-0 flex flex-col border-r border-border bg-bg-subtle/60 transition-[width]`}
+      >
+        <div className={`flex items-center py-1.5 ${showIndex ? 'px-2' : 'justify-center px-0'}`}>
           <button
             onClick={() => setShowIndex((v) => !v)}
-            className="flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors select-none"
+            title={t('courses.index')}
+            className={`flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors select-none ${
+              showIndex ? '' : 'w-7 h-7 justify-center rounded-md'
+            }`}
           >
-            <List className="h-3.5 w-3.5" strokeWidth={2} />
-            {t('courses.index')}
-            <ChevronDown
-              className={`h-3.5 w-3.5 opacity-50 transition-transform ${showIndex ? 'rotate-180' : ''}`}
-              strokeWidth={2}
-            />
+            <List className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            {showIndex && (
+              <>
+                <span className="truncate">{t('courses.index')}</span>
+                <ChevronDown
+                  className="ml-auto h-3.5 w-3.5 shrink-0 opacity-50 rotate-90 transition-transform"
+                  strokeWidth={2}
+                />
+              </>
+            )}
           </button>
-          <span className="ml-auto flex items-center gap-1 text-xs text-text-faint tabular-nums">
-            {readCount === lessons.length && lessons.length > 0 ? (
-              <CircleCheck className="h-3.5 w-3.5 text-green-500" strokeWidth={2} />
-            ) : null}
-            {t('courses.readProgress', { read: readCount, total: lessons.length })}
-          </span>
         </div>
         {showIndex && lessons.length > 0 && (
-          <div className="max-w-5xl mx-auto px-3 pb-2 flex gap-1.5 overflow-x-auto">
-            {lessons.map((l) => {
-              const read = isCourseRead(progress, themeMeta.theme, l.file);
-              return (
-                <button
-                  key={l.file}
-                  onClick={() => setSrc(`${BASE}lessons/${l.file}`)}
-                  className={`flex items-center gap-1.5 shrink-0 rounded-full px-3 py-1 text-xs border transition-colors ${
-                    read
-                      ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
-                      : 'bg-bg-surface border-border text-text-secondary hover:border-indigo-300 hover:text-indigo-700'
-                  }`}
-                >
-                  {read ? <CircleCheck className="h-3 w-3" strokeWidth={2.5} /> : null}
-                  <span className="truncate max-w-48">{l.title}</span>
-                </button>
-              );
-            })}
-          </div>
+          <>
+            <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+              {lessons.map((l) => {
+                const read = isCourseRead(progress, themeMeta.theme, l.file);
+                const active = currentFile === l.file;
+                return (
+                  <button
+                    key={l.file}
+                    onClick={() => {
+                      setSrc(`${BASE}lessons/${l.file}`);
+                      setCurrentFile(l.file);
+                    }}
+                    className={`w-full flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-left text-xs border transition-colors ${
+                      active
+                        ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                        : read
+                          ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                          : 'bg-bg-surface border-border text-text-secondary hover:border-indigo-300 hover:text-indigo-700'
+                    }`}
+                  >
+                    {read ? <CircleCheck className="h-3 w-3 shrink-0" strokeWidth={2.5} /> : null}
+                    <span className="truncate">{l.title}</span>
+                  </button>
+                );
+              })}
+            </nav>
+            <div className="flex items-center gap-1 border-t border-border px-3 py-1.5 text-xs text-text-faint tabular-nums">
+              {readCount === lessons.length && lessons.length > 0 ? (
+                <CircleCheck className="h-3.5 w-3.5 text-green-500" strokeWidth={2} />
+              ) : null}
+              {t('courses.readProgress', { read: readCount, total: lessons.length })}
+            </div>
+          </>
         )}
-      </div>
+      </aside>
       <iframe
         ref={frameRef}
         src={src}

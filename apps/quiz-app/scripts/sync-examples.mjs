@@ -16,9 +16,23 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
-const EXAMPLE_THEME = process.env.EXAMPLE_THEME || 'dev-intro';
-const EXAMPLE_DIR = join(REPO_ROOT, 'examples', EXAMPLE_THEME);
 const DATA_DIR = resolve(__dirname, '../src/data');
+
+// 防呆：未显式指定 EXAMPLE_THEME 时，沿用已同步主题（src/data/theme.json），
+// 防止裸跑 build/dev 把已部署主题的题库覆盖回默认示例。新环境无 theme.json 才回落 dev-intro。
+function detectTheme() {
+  if (process.env.EXAMPLE_THEME) return process.env.EXAMPLE_THEME;
+  const themeFile = join(DATA_DIR, 'theme.json');
+  if (existsSync(themeFile)) {
+    try {
+      const t = JSON.parse(readFileSync(themeFile, 'utf-8')).theme;
+      if (t && existsSync(join(REPO_ROOT, 'examples', t))) return t;
+    } catch { /* theme.json 损坏则回落默认 */ }
+  }
+  return 'dev-intro';
+}
+const EXAMPLE_THEME = detectTheme();
+const EXAMPLE_DIR = join(REPO_ROOT, 'examples', EXAMPLE_THEME);
 
 if (!existsSync(EXAMPLE_DIR)) {
   console.error(`[sync-examples] example theme not found: ${EXAMPLE_DIR}`);

@@ -24,6 +24,10 @@ const root = resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const fileIdx = args.indexOf('--file');
 const explicitFile = fileIdx >= 0 ? args[fileIdx + 1] : null;
+// 检查1 阈值（最长即答案占比上限）。默认 0.3 针对 AI 出题纪律（选项等长防线索泄露）；
+// 真题库的正确项长度由命题组决定，是客观分布而非纪律缺陷，可用 --max-longest 0.5 放宽。
+const mlIdx = args.indexOf('--max-longest');
+const MAX_LONGEST_RATIO = mlIdx >= 0 ? parseFloat(args[mlIdx + 1]) : 0.3;
 
 // ── 加载题目 ──────────────────────────────────────────────
 const file = explicitFile ?? 'src/data/questions.json';
@@ -47,8 +51,8 @@ function checkLongestAnswer() {
     if (allLongest) hits.push(q.id);
   }
   const ratio = valid ? hits.length / valid : 0;
-  const pass = ratio <= 0.3;
-  console.log(`${pass ? '✅' : '❌'} 检查1·最长即答案：${hits.length}/${valid} = ${(ratio * 100).toFixed(0)}%（阈值 ≤30%）${pass ? '' : ' FAIL'}`);
+  const pass = ratio <= MAX_LONGEST_RATIO;
+  console.log(`${pass ? '✅' : '❌'} 检查1·最长即答案：${hits.length}/${valid} = ${(ratio * 100).toFixed(0)}%（阈值 ≤${(MAX_LONGEST_RATIO * 100).toFixed(0)}%）${pass ? '' : ' FAIL'}`);
   if (!pass && hits.length <= 30) console.log(`   命中：${hits.join(', ')}`);
   return pass;
 }

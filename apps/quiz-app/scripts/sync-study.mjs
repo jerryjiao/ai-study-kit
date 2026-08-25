@@ -4,12 +4,24 @@
 //
 // 用法：node apps/quiz-app/scripts/sync-study.mjs
 //       EXAMPLE_THEME=my-topic node apps/quiz-app/scripts/sync-study.mjs
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..', '..');
+
+// 逐文件复制替代 cpSync 递归：部分 Windows/受限环境下 cpSync 目录级递归会被
+// 安全策略直接终止进程（exit 127 无输出）；逐文件 copyFileSync 实测可正常通过。
+function copyTree(src, dest) {
+  mkdirSync(dest, { recursive: true });
+  for (const e of readdirSync(src, { withFileTypes: true })) {
+    const s = join(src, e.name);
+    const d = join(dest, e.name);
+    if (e.isDirectory()) copyTree(s, d);
+    else copyFileSync(s, d);
+  }
+}
 
 // 课程源目录：examples/<theme>/ → public/study/<theme>/
 // 切换主题：改 EXAMPLE_THEME 环境变量。多个主题可放进数组（如 ['dev-intro', 'k8s-basics']）。
@@ -41,6 +53,6 @@ for (const name of COURSES) {
       }
     }
   }
-  cpSync(src, dest, { recursive: true });
+  copyTree(src, dest);
   console.log(`[sync-study] 已同步课程 → public/study/${name}/`);
 }

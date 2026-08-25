@@ -9,11 +9,12 @@ import { useI18n } from '../i18n';
 /**
  * 全局吸顶顶栏：品牌字标 + 三 tab 切换 + 语言/主题切换按钮 + 学习偏好设置入口。
  * 「答题」覆盖首页 / 练习 / 看题；「闪卡」/flashcards；「课程」/courses。
+ * 齿轮 = 学习偏好（拓展加练/答对自动跳题/每日新卡配额），与主题/语言同簇。
  */
 export function TopNav() {
   const { pathname } = useLocation();
   const { t } = useI18n();
-  const [showSettings, setShowSettings] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const onFlash = pathname === '/flashcards' || pathname.startsWith('/flashcards/');
   const onCourses = pathname === '/courses' || pathname.startsWith('/courses/');
   const onQuiz = !onFlash && !onCourses;
@@ -24,7 +25,8 @@ export function TopNav() {
     }`;
 
   return (
-    <header className="sticky top-0 z-20 h-16 bg-bg-surface/85 backdrop-blur-md border-b border-border">
+    <>
+      <header className="sticky top-0 z-20 h-16 bg-bg-surface/85 backdrop-blur-md border-b border-border">
       <div className="max-w-4xl mx-auto w-full h-full px-3 sm:px-4 flex items-center justify-between gap-2">
         <Link to="/" aria-label={t('nav.backHome')} className="flex items-center gap-2 text-base font-bold text-text-primary tracking-tight select-none transition-colors hover:text-text-accent shrink-0">
           {/* BASE_URL 前缀：public 资源在 JS 里写死 "/logo.png" 不会随 vite base 重写，
@@ -43,19 +45,23 @@ export function TopNav() {
           <NavLink to="/courses" className={cls(onCourses)}>
             {t('nav.courses')}
           </NavLink>
-          <LangToggle />
-          <ThemeToggle />
           <button
-            onClick={() => setShowSettings(true)}
+            onClick={() => setSettingsOpen(true)}
             className="p-2 rounded-full text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors"
             title={t('settings.title')}
-            aria-label={t('settings.open')}
+            aria-label={t('settings.title')}
           >
             <Settings className="h-4 w-4" strokeWidth={2} />
           </button>
+          <LangToggle />
+          <ThemeToggle />
         </nav>
       </div>
-      {showSettings && <SettingsSheet onClose={() => setShowSettings(false)} />}
-    </header>
+      </header>
+      {/* 弹层必须是 header 的兄弟节点：header 的 backdrop-blur 会给 fixed 后代
+          创建 containing block（backdrop-filter 陷阱），放里面蒙层就只盖住顶栏、
+          弹层也被压进 64px 高的条里。 */}
+      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+    </>
   );
 }
