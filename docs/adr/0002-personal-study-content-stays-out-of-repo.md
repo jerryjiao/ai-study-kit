@@ -5,7 +5,7 @@ date: 2026-08-25
 
 # 0002 · 个人学习主题内容不入公开仓库，示例只留 dev-intro
 
-`examples/` 的定位是套件的演示载体，不是用户的个人数据盘。软件设计师备考主题（`examples/software-designer/`）内容含第三方版权题源（真题 OCR 图片、真题文本），且属个人使用数据而非套件功能——两者都不该出现在开源仓库。我们决定：**该目录从 git 跟踪中移除并加入 .gitignore，目录原地保留在磁盘（内容源、部署构建输入不变）；仓库示例只留 `dev-intro`**。既有历史中已提交的该目录内容用 `git filter-repo` 全量抽除后 force push，不保留历史残留。
+`examples/` 的定位是套件的演示载体，不是用户的个人数据盘。软件设计师认证学习主题（`examples/software-designer/`）内容含第三方版权题源（真题 OCR 图片、真题文本），且属个人使用数据而非套件功能——两者都不该出现在开源仓库。我们决定：**该目录从 git 跟踪中移除并加入 .gitignore，目录原地保留在磁盘（内容源、部署构建输入不变）；仓库示例只留 `dev-intro`**。既有历史中已提交的该目录内容用 `git filter-repo` 全量抽除后 force push，不保留历史残留。
 
 ## Considered Options
 
