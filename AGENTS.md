@@ -56,21 +56,21 @@ ai-study-kit/
 │   ├── four-alignment.md      # 四对齐原则
 │   ├── bidirectional-check.md # 自动化校验脚本说明
 │   ├── ai-cli-guide.md        # teach/grill/podcast 三个 AI CLI 用法
-│   ├── study-coach.md         # /study-coach 学习教练指令
+│   ├── ai-study-kit.md         # /ai-study-kit 学习教练指令
 │   └── configuration.md       # .env 配置（LLM/TTS provider）
 ├── skills/
-│   └── study-coach/           # 学习教练 skill 单一事实源（探测状态 → 推荐 → 带执行）
+│   └── ai-study-kit/           # 学习教练 skill 单一事实源（探测状态 → 推荐 → 带执行）
 │       ├── SKILL.md           # 路由指令本体
 │       └── references/        # state.md 探测协议 + flows.md 九流程 playbook
 ├── plugins/
-│   └── study-coach/           # zcode/Claude plugin（sync 产物，sync-plugin.mjs 生成，勿手编）
+│   └── ai-study-kit/           # zcode/Claude plugin（sync 产物，sync-plugin.mjs 生成，勿手编）
 ├── .claude-plugin/
 │   └── marketplace.json       # repo 根市集清单（sync 产物，同上）
 ├── scripts/
 │   ├── brand-scan.py          # 零泄露扫描（品牌 + 个人语境）
 │   ├── bidirectional-check.py # 四对齐校验（题→课、闪卡覆盖）
-│   ├── install-skill.sh       # /study-coach 安装器（→ ~/.agents/skills/）
-│   ├── sync-plugin.mjs        # skills/study-coach → plugins/study-coach + 市集清单
+│   ├── install-skill.sh       # /ai-study-kit 安装器（→ ~/.agents/skills/）
+│   ├── sync-plugin.mjs        # skills/ai-study-kit → plugins/ai-study-kit + 市集清单
 │   └── render_ascii_slide.py  # ASCII → PNG 渲染（给示例画图用）
 ├── README.md                  # 项目主页（四语：中文基准 + README.en/es/ru.md 译本，顶部切换栏互链）
 ├── CHANGELOG.md               # 版本日志
@@ -90,7 +90,7 @@ pnpm test                  # vitest（grade/progress/progressStore/srs/reviewQue
 pnpm run scan              # brand-scan.py（零泄露校验）
 pnpm run check:alignment   # bidirectional-check.py 四对齐校验（默认 dev-intro，可传主题目录）
 pnpm run ai:teach          # teach CLI 产课程（ai:grill / ai:podcast 同理，见 docs/ai-cli-guide.md）
-pnpm run skill:install     # 把 /study-coach skill 装进 ~/.agents/skills/
+pnpm run skill:install     # 把 /ai-study-kit skill 装进 ~/.agents/skills/
 pnpm start                 # build && server（本地一键）
 
 # 直接在 apps/quiz-app/ 执行：
@@ -159,8 +159,8 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **题 id 全局唯一且稳定**：如 `GIT-001`、`LNX-002`、`FC-DEV-01` 等。进度按 id 存，改题源时尽量保留旧 id 以免进度错位。
 - **闪卡 SRS = Anki 兼容算法**：`apps/quiz-app/src/lib/srs.ts` 实现 SM-2 + Anki 学习步（新卡 `[1m,10m]` 两步毕业，重学步 `[10m]`，lapse 后 interval×0.5）。会话调度见 `reviewQueue.ts`（again/学习步未毕业 → 卡排队尾循环）。改算法要同时更新 `srs.test.ts`。
 - **进度重置能力**（`progress.ts`）：`resetWrong`（清错题）、`resetRead`（清看题）、`resetSrs`（清闪卡）。**三者均接受可选 `ids` 参数做主题隔离**——UI 层传激活主题的题/卡 id 集，只清命中项不误伤其他主题进度；不传保持全量（向后兼容）。`resetAnswersByIds`（按题 id 集合清，用于练习页"重做本题集"）、`resetReadByIds` 同理。UI 入口在各页面顶部。重置会同步写服务器。
-- **⭐ 多主题进度隔离（读端过滤）**：progress 单文件按题 id 全局存（id 全局唯一稳定），**隔离在读端做**——所有进度派生视图（统计/错题本/闪卡队列/nextDue/上次答到/study-coach 探测）必须先与激活主题的题/卡 id 集求交，禁止直接遍历 `progress.answers`/`progress.srs` 全量。`srsMeta.newToday`（每日新卡配额）**有意全局共享**（跨主题防一天灌太多）。
-- **⭐ 课程已读（coursesRead）**：`progress.coursesRead` key=`"<theme>/<lesson文件名>"`、value=已读时间戳，merge 走 per-key max（LWW）。清单由 `sync-examples.mjs` 产 `src/data/courses.json`（theme + lessons[{file,title}]），课程页 iframe 每次加载命中清单即自动标记。「课全读」完成边界 = coursesRead 命中清单全集，UI 与 study-coach 探测（`lessonsRead` 字段）同口径。只标记不取消（无墓碑）。
+- **⭐ 多主题进度隔离（读端过滤）**：progress 单文件按题 id 全局存（id 全局唯一稳定），**隔离在读端做**——所有进度派生视图（统计/错题本/闪卡队列/nextDue/上次答到/ai-study-kit 探测）必须先与激活主题的题/卡 id 集求交，禁止直接遍历 `progress.answers`/`progress.srs` 全量。`srsMeta.newToday`（每日新卡配额）**有意全局共享**（跨主题防一天灌太多）。
+- **⭐ 课程已读（coursesRead）**：`progress.coursesRead` key=`"<theme>/<lesson文件名>"`、value=已读时间戳，merge 走 per-key max（LWW）。清单由 `sync-examples.mjs` 产 `src/data/courses.json`（theme + lessons[{file,title}]），课程页 iframe 每次加载命中清单即自动标记。「课全读」完成边界 = coursesRead 命中清单全集，UI 与 ai-study-kit 探测（`lessonsRead` 字段）同口径。只标记不取消（无墓碑）。
 - **AI CLI（三个）**：内置在仓库的 `apps/quiz-app/scripts/` 下：
   - `teach-generate.mjs`：从 `examples/<theme>/course-spec.json` 产课程 HTML
   - `grill-wrong.mjs`：从 `/api/progress` 拉错题 + LLM 聚类 + 产错题精讲 HTML
@@ -168,14 +168,14 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - 全部支持 `--lang zh|en|es|ru`（或 `STUDY_LANG` 环境变量）指定**生成内容**语言；注册表在 `scripts/lib/langs.mjs`，CLI 日志始终中文。
   - 全部需要 `.env` 配 LLM/TTS provider。详见 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md) + [`docs/configuration.md`](./docs/configuration.md)。
 - **⭐ UI 多语言（中/EN/ES/RU）**：词典在 `apps/quiz-app/src/i18n/locales/`（zh 是基准，en/es/ru 以 `Record<TKey, string>` 锚定 key 集）。改/加 UI 文案必须四份词典同步改，`i18n.test.ts` 会校验 key 完整性 + 占位符一致性。**禁止在组件里写死用户可见文案**（题库/闪卡内容除外——那是数据）。语言偏好持久化与 theme 同构：localStorage `ask-lang` + `progress.lang/langUpdatedAt`（LWW）。逻辑里不要用展示文案做比较（如"其他"桶用 `isOther` flag，别比字符串）。**README 同为四语**（README.md 中文基准 + README.en/es/ru.md 完整译本，顶部切换栏互链），改 README 内容必须四份同步改，es/ru 术语以 UI 词典为准（tab 名、功能名与 locale 文件一致）。唯一例外：README.md 中文基准的 tagline blockquote 里带一行英文一句话简介（给国际读者的可发现性），这是有意的不对称，不要同步到 en/es/ru。
-- **学习教练 skill（`/study-coach`）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后输入 `/study-coach` 触发。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/study-coach/references/flows.md` 的 playbook 带执行（初始化/新主题/每日学习/错题串讲/播客/产课/改内容/校验/部署）。源文件在 `skills/study-coach/`（**单一事实源**），安装用 `pnpm run skill:install`。
-- **⭐ study-coach plugin 分发（插件=发行形态）**：`plugins/study-coach/` + repo 根 `.claude-plugin/marketplace.json` 是 `scripts/sync-plugin.mjs` 的**committed sync 产物，禁止手编**——改 skill 走 `skills/study-coach/` 源，改完重跑 `pnpm run sync:plugin`（版本跟根 package.json）。插件内容 = skills + **`kit/` 迷你仓库快照**（apps/quiz-app + examples/dev-intro 的 git 跟踪面，"装插件零 clone 建站"的数据基础，skill F1 流从快照拷进用户项目）。用户安装二选一：① zcode / Claude Code 添加 marketplace `https://github.com/jerryjiao/ai-study-kit` 装 study-coach（更新 = marketplace refresh，无需手动重装）；② `pnpm run skill:install`（拷贝到 `~/.agents/skills/`，更新需重跑，适合无 plugin 机制的环境）。
+- **学习教练 skill（`/ai-study-kit`）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后输入 `/ai-study-kit` 触发。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/ai-study-kit/references/flows.md` 的 playbook 带执行（初始化/新主题/每日学习/错题串讲/播客/产课/改内容/校验/部署）。源文件在 `skills/ai-study-kit/`（**单一事实源**），安装用 `pnpm run skill:install`。
+- **⭐ ai-study-kit plugin 分发（插件=发行形态）**：`plugins/ai-study-kit/` + repo 根 `.claude-plugin/marketplace.json` 是 `scripts/sync-plugin.mjs` 的**committed sync 产物，禁止手编**——改 skill 走 `skills/ai-study-kit/` 源，改完重跑 `pnpm run sync:plugin`（版本跟根 package.json）。**命名史**：skill/插件原名 study-coach，2026-08-25 v0.7.0 全位置改名 ai-study-kit（市集插件名终身不可改，趁零用户窗口定的终名）。插件内容 = skills + **`kit/` 迷你仓库快照**（apps/quiz-app + examples/dev-intro 的 git 跟踪面，"装插件零 clone 建站"的数据基础，skill F1 流从快照拷进用户项目）。用户安装二选一：① zcode / Claude Code 添加 marketplace `https://github.com/jerryjiao/ai-study-kit` 装 ai-study-kit（更新 = marketplace refresh，无需手动重装）；② `pnpm run skill:install`（拷贝到 `~/.agents/skills/`，更新需重跑，适合无 plugin 机制的环境）。
 
 ## zcode / AI agent 访问资料的方式
 
 - **被问学习方法论时**：读 [`docs/methodology.md`](./docs/methodology.md)。
 - **被问四对齐时**：读 [`docs/four-alignment.md`](./docs/four-alignment.md)。
-- **被问「接下来学什么 / 怎么开始 / 装 skill」时**：读 [`skills/study-coach/SKILL.md`](./skills/study-coach/SKILL.md)，按它的三步协议执行（探测→推荐→带执行）。
+- **被问「接下来学什么 / 怎么开始 / 装 skill」时**：读 [`skills/ai-study-kit/SKILL.md`](./skills/ai-study-kit/SKILL.md)，按它的三步协议执行（探测→推荐→带执行）。
 - **被问多语言/i18n 时**：UI 看 `apps/quiz-app/src/i18n/`（词典 + Provider），AI CLI 输出语言看 `scripts/lib/langs.mjs` + `docs/ai-cli-guide.md` 的「输出语言」章节。
 - **被问 AI CLI 用法时**：读 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md)。
 - **被问 .env 配置时**：读 [`docs/configuration.md`](./docs/configuration.md)。
@@ -188,7 +188,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - 方法论：[`docs/methodology.md`](./docs/methodology.md)
 - 四对齐：[`docs/four-alignment.md`](./docs/four-alignment.md)
 - 双向校验：[`docs/bidirectional-check.md`](./docs/bidirectional-check.md)
-- 学习教练指令：[`docs/study-coach.md`](./docs/study-coach.md)
+- 学习教练指令：[`docs/ai-study-kit.md`](./docs/ai-study-kit.md)
 - AI CLI 指南：[`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md)
 - 配置指南：[`docs/configuration.md`](./docs/configuration.md)
 - 部署与跨设备同步原理：[`README.md`](./README.md)

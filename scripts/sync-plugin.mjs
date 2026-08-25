@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// sync-plugin.mjs — 把 skills/study-coach/（单一事实源）打包成 zcode/Claude plugin 结构，
-// 供 marketplace 分发：plugins/study-coach/（committed sync 产物，勿手编）。
+// sync-plugin.mjs — 把 skills/ai-study-kit/（单一事实源）打包成 zcode/Claude plugin 结构，
+// 供 marketplace 分发：plugins/ai-study-kit/（committed sync 产物，勿手编）。
 //
 // 产物结构（对照本机解剖的官方插件 github@0.1.1 / cloudflare@1.0.0）：
-//   plugins/study-coach/
+//   plugins/ai-study-kit/
 //     .zcode-plugin/plugin.json    # zcode manifest
 //     .claude-plugin/plugin.json   # Claude Code 兼容（同内容）
-//     skills/study-coach/SKILL.md + references/   # 从 skills/study-coach/ 原样拷贝
+//     skills/ai-study-kit/SKILL.md + references/   # 从 skills/ai-study-kit/ 原样拷贝
 //   .claude-plugin/marketplace.json  # repo 根市集清单（add marketplace 用仓库完整 URL）
 //
 // 版本：默认取根 package.json 的 version（发版改一处，plugin 跟随）；--version 可临时覆盖。
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
-const SKILL_NAME = 'study-coach';
+const SKILL_NAME = 'ai-study-kit';
 const SRC = join(REPO_ROOT, 'skills', SKILL_NAME);
 const PLUGIN_DIR = join(REPO_ROOT, 'plugins', SKILL_NAME);
 
@@ -45,7 +45,7 @@ if (!existsSync(join(SRC, 'SKILL.md'))) {
   process.exit(1);
 }
 
-const DESCRIPTION = 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /study-coach 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。';
+const DESCRIPTION = 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /ai-study-kit 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。';
 const KEYWORDS = ['study', 'learning', 'flashcards', 'srs', 'spaced-repetition', 'quiz', 'tutor', 'ai-study-kit'];
 
 const manifest = {
@@ -92,7 +92,7 @@ console.log(`[sync-plugin] apps/quiz-app + examples/dev-intro 跟踪面 ${tracke
 mkdirSync(join(REPO_ROOT, '.claude-plugin'), { recursive: true });
 const marketplace = {
   name: 'ai-study-kit',
-  description: 'ai-study-kit plugin marketplace: the /study-coach learning coach skill.',
+  description: 'ai-study-kit plugin marketplace: the /ai-study-kit learning coach skill.',
   owner: { name: 'ai-study-kit', url: 'https://github.com/jerryjiao/ai-study-kit' },
   plugins: [
     {
@@ -111,4 +111,4 @@ writeFileSync(join(REPO_ROOT, '.claude-plugin', 'marketplace.json'), JSON.string
 
 console.log(`[sync-plugin] skills/${SKILL_NAME} → plugins/${SKILL_NAME}  (v${VERSION})`);
 console.log('[sync-plugin] → .claude-plugin/marketplace.json  (repo-root marketplace)');
-console.log('[sync-plugin] 安装：zcode / Claude Code 添加 marketplace https://github.com/jerryjiao/ai-study-kit 后装 study-coach；改 skill 源后重跑本脚本再提交。');
+console.log('[sync-plugin] 安装：zcode / Claude Code 添加 marketplace https://github.com/jerryjiao/ai-study-kit 后装 ai-study-kit；改 skill 源后重跑本脚本再提交。');

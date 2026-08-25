@@ -21,7 +21,7 @@ MISSION.md 的「## 考点排布表」节——`考点id(EP-NN) | 考点 | 深�
 _Avoid_: quiz-spec、题库规格文件（独立文件形态已被 ADR-0001 否决）
 
 **skill（vs CLI）**:
-skill 指装进 agent 环境、给 AI 执行的指令包——仓库内只有 `/study-coach` 一个。CLI 指仓库 `apps/quiz-app/scripts/` 下的可执行脚本（teach-generate / grill-wrong / podcast-generate）。两类东西，不混称。
+skill 指装进 agent 环境、给 AI 执行的指令包——仓库内只有 `/ai-study-kit` 一个（原 study-coach，2026-08-25 改名）。CLI 指仓库 `apps/quiz-app/scripts/` 下的可执行脚本（teach-generate / grill-wrong / podcast-generate）。两类东西，不混称。
 _Avoid_: 把 CLI 叫 skill（旧文档的混称，已纠正）
 
 **主题（theme）**:

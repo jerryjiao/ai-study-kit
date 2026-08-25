@@ -74,7 +74,7 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 
 ## 让 AI agent 替你产题（可选）
 
-Steps 2-3 的题和卡可以不手写。装好 [`/study-coach`](/ai-study-kit/ai/study-coach/) 后直接说「帮我给 react-basics 产一套题库」，agent 会：
+Steps 2-3 的题和卡可以不手写。装好 [`/ai-study-kit`](/ai-study-kit/ai/ai-study-kit/) 后直接说「帮我给 react-basics 产一套题库」，agent 会：
 
 1. 先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡；
 2. 你确认后照表逐考点产题、产卡（题目带 `examPoint` 考点标注和 `day` 日程标签）；

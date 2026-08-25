@@ -85,7 +85,7 @@ writeFileSync(
 console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME}${EXTERNAL ? ' · 外部主题包' : ''})`);
 
 // 课程清单：examples/<theme>/lessons/*.html → src/data/courses.json。
-// Courses 页据此渲染课程目录 + 已读进度；study-coach skill / CLI 据此对账「课全读」
+// Courses 页据此渲染课程目录 + 已读进度；ai-study-kit skill / CLI 据此对账「课全读」
 // 完成边界（coursesRead 的 "<theme>/<file>" key 命中清单全集 = 课全读）。
 // title 取 lesson 的 <title>（teach 产出必有），取不到时退回文件名。
 const lessonsDir = join(EXAMPLE_DIR, 'lessons');

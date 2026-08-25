@@ -41,10 +41,10 @@ Instala todo el kit en tu agente de IA (zcode / Claude Code). **Sin clonar el re
 
 ```
 /plugin marketplace add https://github.com/jerryjiao/ai-study-kit
-# instala study-coach y dile «quiero aprender X» (o /study-coach) en una nueva sesión
+# instala ai-study-kit y dile «quiero aprender X» (o /ai-study-kit) en una nueva sesión
 ```
 
-Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Nueve flujos cubiertos de principio a fin: arranque, tema nuevo, estudio diario, repaso de errores, pódcast, generación de cursos, verificación y despliegue — ver [`docs/study-coach.md`](docs/study-coach.md).
+Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Nueve flujos cubiertos de principio a fin: arranque, tema nuevo, estudio diario, repaso de errores, pódcast, generación de cursos, verificación y despliegue — ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).
 
 ¿Solo quieres ver cómo es? Sigue la ruta de clonación de abajo.
 
@@ -72,11 +72,11 @@ pnpm dev
 
 ---
 
-## 🧭 ¿No sabes qué hacer ahora? `/study-coach`
+## 🧭 ¿No sabes qué hacer ahora? `/ai-study-kit`
 
 Con el plugin instalado arriba (o con `pnpm run skill:install` en `~/.agents/skills/`), cada sesión de estudio puede empezar aquí.
 
-Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Nueve guías cubren desde inicializar el proyecto hasta desplegarlo. (Las guías están escritas en chino; ver [`docs/study-coach.md`](docs/study-coach.md).)
+Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Nueve guías cubren desde inicializar el proyecto hasta desplegarlo. (Las guías están escritas en chino; ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).)
 
 ---
 
@@ -155,7 +155,7 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # chequeo de alin
 
 ### Deja que un agente de IA escriba las preguntas (opcional)
 
-¿No quieres redactar JSON a mano? Instala `/study-coach` (sección «🧭 ¿No sabes qué hacer ahora?» más arriba) y pide que genere un banco de preguntas para react-basics. El agente sigue un flujo disciplinado: primero alinea contigo una **tabla de puntos de examen** en MISSION.md — qué se examina, con qué profundidad, cuántas preguntas de cada tipo, cuántas tarjetas — y tras tu confirmación genera preguntas y tarjetas punto por punto, cerrando con las tres puertas de calidad (`qa` / `scan` / alineación cuádruple); solo entrega si todo está en verde. El camino manual sigue siendo el principal: ambos caminos producen lo mismo, y la tabla de puntos es el contrato entre tú y el agente.
+¿No quieres redactar JSON a mano? Instala `/ai-study-kit` (sección «🧭 ¿No sabes qué hacer ahora?» más arriba) y pide que genere un banco de preguntas para react-basics. El agente sigue un flujo disciplinado: primero alinea contigo una **tabla de puntos de examen** en MISSION.md — qué se examina, con qué profundidad, cuántas preguntas de cada tipo, cuántas tarjetas — y tras tu confirmación genera preguntas y tarjetas punto por punto, cerrando con las tres puertas de calidad (`qa` / `scan` / alineación cuádruple); solo entrega si todo está en verde. El camino manual sigue siendo el principal: ambos caminos producen lo mismo, y la tabla de puntos es el contrato entre tú y el agente.
 
 ---
 
@@ -264,7 +264,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # diálogos
 | [Methodology](https://jerryjiao.github.io/ai-study-kit/es/method/methodology/) | temario → materiales → preguntas |
 | [Four alignment](https://jerryjiao.github.io/ai-study-kit/es/method/four-alignment/) | cómo se mantienen sincronizados cursos / preguntas / tarjetas / análisis |
 | [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | uso completo de los tres CLI de IA (en chino) |
-| [`docs/study-coach.md`](docs/study-coach.md) | `/study-coach`: instalación, enrutado, extensión (en chino) |
+| [`docs/ai-study-kit.md`](docs/ai-study-kit.md) | `/ai-study-kit`: instalación, enrutado, extensión (en chino) |
 | [`docs/configuration.md`](docs/configuration.md) | `.env`: proveedores de LLM + TTS (en chino) |
 | [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | verificaciones cruzadas automatizadas (en chino) |
 | [`AGENTS.md`](AGENTS.md) | convenciones de colaboración con IA: estructura / comandos / reglas (en chino) |
@@ -283,7 +283,7 @@ pnpm test             # correr los 5 archivos de tests (130 casos)
 pnpm run scan         # escaneo de marcas
 pnpm run server       # arrancar solo el backend
 pnpm start            # build + server
-pnpm run skill:install    # instalar el comando /study-coach
+pnpm run skill:install    # instalar el comando /ai-study-kit
 pnpm run check:alignment  # chequeo de alineación cuádruple (por defecto dev-intro; acepta un directorio de tema)
 
 # dentro de apps/quiz-app/

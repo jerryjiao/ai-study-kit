@@ -5,7 +5,7 @@ date: 2026-08-17
 
 # 0001 · 产题走 agent 直产，不建产题 CLI
 
-仓库已有三个 AI CLI（teach / grill / podcast），唯独产题没有工具化；methodology.md 却宣称「出题：AI 协助生成」。我们决定：**产题 = agent 直产**（study-coach F2 纪律化：先与用户对齐 MISSION.md 考点排布表，再照表逐考点产题），不建第四个 CLI；质量纪律交给既有脚本门——`bidirectional-check.py` 改为解析 MISSION 排布表做考点校验与题量/卡数对账，替代「换主题手改脚本 keywords」。智能（调研、出题判断）归 agent，纪律（schema、对账、全绿门槛）归脚本。
+仓库已有三个 AI CLI（teach / grill / podcast），唯独产题没有工具化；methodology.md 却宣称「出题：AI 协助生成」。我们决定：**产题 = agent 直产**（ai-study-kit 教练 skill 的 F2 纪律化：先与用户对齐 MISSION.md 考点排布表，再照表逐考点产题），不建第四个 CLI；质量纪律交给既有脚本门——`bidirectional-check.py` 改为解析 MISSION 排布表做考点校验与题量/卡数对账，替代「换主题手改脚本 keywords」。智能（调研、出题判断）归 agent，纪律（schema、对账、全绿门槛）归脚本。
 
 ## Considered Options
 

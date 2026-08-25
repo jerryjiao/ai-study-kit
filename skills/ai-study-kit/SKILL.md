@@ -1,10 +1,10 @@
 ---
-name: study-coach
-description: Study coach for ai-study-kit. Scans your learning state (theme, progress, due flashcards, wrong questions, AI config) and tells you what to do next — bootstrap, new theme, daily study, wrong-question grill, podcast, content edits, verify, deploy. /study-coach 学习教练：扫描学习状态，推荐下一步该学什么、做什么。
+name: ai-study-kit
+description: Study coach for ai-study-kit. Scans your learning state (theme, progress, due flashcards, wrong questions, AI config) and tells you what to do next — bootstrap, new theme, daily study, wrong-question grill, podcast, content edits, verify, deploy. /ai-study-kit 学习教练：扫描学习状态，推荐下一步该学什么、做什么。
 disable-model-invocation: true
 ---
 
-# Study Coach · 学习教练
+# ai-study-kit 学习教练
 
 ai-study-kit 的工具链很全（答题站 / 课程 / 闪卡 / 错题精讲 / 播客 / 部署），但**没人该为了学习去记命令**。本指令就是教练：先看状态，再给建议，最后带你执行。
 

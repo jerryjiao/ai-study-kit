@@ -9,7 +9,7 @@
 
 **目的**：从零到「浏览器里看到答题站」。**用户不需要 GitHub、不需要 clone 仓库**——插件自带完整可构建快照。
 
-**定位插件里的快照**：本文件位于 `<插件根>/skills/study-coach/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
+**定位插件里的快照**：本文件位于 `<插件根>/skills/ai-study-kit/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
 
 **步骤**：
 
@@ -124,7 +124,7 @@
 **前置**：① 后端在线（离线先 `pnpm run server` 后台起）；② 快照 `openWrong ≥ 1`（0 就别跑，白调 LLM）；③ CLI 路径需 `.env` LLM 三项配齐（agent 直产路径不需要）。
 
 **路径选择**（双路径，agent 直产为主推——2026-08-20 复盘拍板）：
-- **在 agent 会话里（zcode + /study-coach）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。
+- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。
 - **独立终端 / 无 agent 环境**：跑下方 CLI。
 
 **步骤**：
@@ -174,7 +174,7 @@
 **前置**：`examples/<theme>/course-spec.json` 存在；CLI 路径需 `.env` LLM 配齐（agent 直产路径不需要）。没有 spec 先按 F2 第 1-2 步补大纲和材料——**没有权威材料的课不许产**。
 
 **路径选择**（双路径，agent 直产为主推——2026-08-20 复盘拍板）：
-- **在 agent 会话里（zcode + /study-coach）**：走 agent 直产，不跑 CLI。让 agent 照 spec + RESOURCES.md 直产 `examples/<theme>/lessons/*.html`（版式参照既有 lessons 与 `scripts/lib/teach-utils.mjs` 的 wrap 模板），产完过 scan/对齐门禁再 build。验证轮 #5/#7 已实证质量达标。
+- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 照 spec + RESOURCES.md 直产 `examples/<theme>/lessons/*.html`（版式参照既有 lessons 与 `scripts/lib/teach-utils.mjs` 的 wrap 模板），产完过 scan/对齐门禁再 build。验证轮 #5/#7 已实证质量达标。
 - **独立终端 / 无 agent 环境**：跑下方 CLI。
 
 **步骤**：

@@ -37,7 +37,7 @@ The tool aligns five artifacts around the same knowledge points:
 4. **Wrong-question deep-dives** (grill CLI output) — high-frequency mistakes clustered and expanded per cluster: why you got it wrong and where the confusing boundaries lie, not just the correct answer.
 5. **Review podcasts** (podcast CLI output) — courses, questions and deep-dives turned into two-host audio for commutes and workouts.
 
-AI participates at every layer: question writing (an agent authors questions point by point from the syllabus — see the F2 flow of `/study-coach`), teaching (teach), card-making (distilling concepts from the course), mistake forensics (grill), and podcast synthesis (podcast). How these artifacts stay around one set of exam points is the [Four-Alignment](/ai-study-kit/en/method/four-alignment/) principle.
+AI participates at every layer: question writing (an agent authors questions point by point from the syllabus — see the F2 flow of `/ai-study-kit`), teaching (teach), card-making (distilling concepts from the course), mistake forensics (grill), and podcast synthesis (podcast). How these artifacts stay around one set of exam points is the [Four-Alignment](/ai-study-kit/en/method/four-alignment/) principle.
 
 ---
 

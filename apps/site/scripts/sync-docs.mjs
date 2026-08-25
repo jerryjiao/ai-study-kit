@@ -18,7 +18,7 @@ const SYNC = [
   { src: 'methodology.md', dest: 'method/methodology.md', order: 1, stripEn: true },
   { src: 'four-alignment.md', dest: 'method/four-alignment.md', order: 2, stripEn: true },
   { src: 'ai-cli-guide.md', dest: 'ai/ai-cli.md', order: 1, stripEn: false },
-  { src: 'study-coach.md', dest: 'ai/study-coach.md', order: 2, stripEn: false },
+  { src: 'ai-study-kit.md', dest: 'ai/ai-study-kit.md', order: 2, stripEn: false },
   { src: 'configuration.md', dest: 'ai/configuration.md', order: 3, stripEn: false },
   { src: 'bidirectional-check.md', dest: 'maintain/bidirectional-check.md', order: 1, stripEn: false },
 ];

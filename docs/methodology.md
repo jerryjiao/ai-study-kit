@@ -36,7 +36,7 @@
 4. **错题精讲（grill CLI 产出）**——高频错点聚类后逐簇深挖，讲清楚为什么错、易混点的边界在哪，不只是给正确答案。
 5. **复习播客（podcast CLI 产出）**——课程、题目、错题精讲合成男女双播音频，通勤、运动时复习。
 
-AI 在每一层都参与：出题（agent 按大纲逐考点直产，见 [`study-coach.md`](./study-coach.md) 的 F2 流程）、讲课（teach）、做卡（从课程提炼概念）、错题深挖（grill）、播客合成（podcast）。这些产物怎么保持围绕同一套考点，见[`four-alignment.md`](./four-alignment.md)。
+AI 在每一层都参与：出题（agent 按大纲逐考点直产，见 [`ai-study-kit.md`](./ai-study-kit.md) 的 F2 流程）、讲课（teach）、做卡（从课程提炼概念）、错题深挖（grill）、播客合成（podcast）。这些产物怎么保持围绕同一套考点，见[`four-alignment.md`](./four-alignment.md)。
 
 ---
 

@@ -43,10 +43,10 @@
 
 ```
 /plugin marketplace add https://github.com/jerryjiao/ai-study-kit
-# 安装 study-coach，然后新会话里说「我想学 X」或 /study-coach
+# 安装 ai-study-kit，然后新会话里说「我想学 X」或 /ai-study-kit
 ```
 
-学习项目（答题站 + 你的主题包）全部住你自己的目录，与插件升级互不干扰。初始化、开新主题、每日学习、错题串讲、播客、产课、校验、部署九个流程全覆盖，详见 [`docs/study-coach.md`](docs/study-coach.md)。
+学习项目（答题站 + 你的主题包）全部住你自己的目录，与插件升级互不干扰。初始化、开新主题、每日学习、错题串讲、播客、产课、校验、部署九个流程全覆盖，详见 [`docs/ai-study-kit.md`](docs/ai-study-kit.md)。
 
 想先看看长什么样？往下走 clone 路线。
 
@@ -74,13 +74,13 @@ pnpm dev
 
 ---
 
-## 🧭 不知道下一步学什么？`/study-coach`
+## 🧭 不知道下一步学什么？`/ai-study-kit`
 
 上面装好插件（或 `pnpm run skill:install` 装进 `~/.agents/skills/`）后，每次学习从它开始。
 
 它会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、课程已读、AI 配置），然后**推荐你现在最该做的一件事**——是开新主题、复习到期闪卡、刷题、还是把攒下的错题做成串讲——选定后**带着你一步步执行**。从初始化整个项目到部署上线，九个流程全覆盖。
 
-详见 [`docs/study-coach.md`](docs/study-coach.md)。
+详见 [`docs/ai-study-kit.md`](docs/ai-study-kit.md)。
 
 ---
 
@@ -159,7 +159,7 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 
 ### 让 AI agent 替你产题（可选）
 
-不想手写 JSON？装好 `/study-coach`（见上文「🧭 不知道下一步学什么」一节）后直接说「帮我给 react-basics 产一套题库」。agent 的流程是纪律化的：先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡——你确认后照表逐考点产题、产卡，最后自动跑 `qa` / `scan` / 四对齐三门质量校验，全绿才交付。手工路径永远是主路；两条路的产物同构，排布表就是人机之间的契约。
+不想手写 JSON？装好 `/ai-study-kit`（见上文「🧭 不知道下一步学什么」一节）后直接说「帮我给 react-basics 产一套题库」。agent 的流程是纪律化的：先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡——你确认后照表逐考点产题、产卡，最后自动跑 `qa` / `scan` / 四对齐三门质量校验，全绿才交付。手工路径永远是主路；两条路的产物同构，排布表就是人机之间的契约。
 
 ---
 
@@ -266,7 +266,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播
 | [`docs/four-alignment.md`](docs/four-alignment.md) | 四对齐原则：课程 / 题 / 闪卡 / 错题怎么协同 |
 | [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | 自动化校验脚本（题 ↔ 课 ↔ 闪卡 互查） |
 | [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | 三个 AI CLI（teach/grill/podcast）完整用法 |
-| [`docs/study-coach.md`](docs/study-coach.md) | `/study-coach` 学习教练：安装、路由、扩展 |
+| [`docs/ai-study-kit.md`](docs/ai-study-kit.md) | `/ai-study-kit` 学习教练：安装、路由、扩展 |
 | [`docs/configuration.md`](docs/configuration.md) | `.env` 配置：LLM provider + TTS provider |
 | [`AGENTS.md`](AGENTS.md) | AI 协作约定（项目结构 / 命令 / 红线） |
 | [`examples/dev-intro/`](examples/dev-intro/) | git+Linux 完整示例：题 + 闪卡 + 课程 + 错题精讲 |
@@ -284,7 +284,7 @@ pnpm test             # 跑 5 个测试文件（130 个用例）
 pnpm run scan         # 零泄露扫描
 pnpm run server       # 单独起后端
 pnpm start            # build + server
-pnpm run skill:install    # 安装 /study-coach 学习教练指令
+pnpm run skill:install    # 安装 /ai-study-kit 学习教练指令
 pnpm run check:alignment  # 四对齐校验（默认扫 dev-intro，可传主题目录）
 
 # 在 apps/quiz-app/ 下

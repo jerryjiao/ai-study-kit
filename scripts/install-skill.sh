@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# install-skill.sh — install the /study-coach skill into your AI CLI's skills directory.
+# install-skill.sh — install the /ai-study-kit skill into your AI CLI's skills directory.
 #
-# Default target: ~/.agents/skills/study-coach  (zcode / agents convention)
+# Default target: ~/.agents/skills/ai-study-kit  (zcode / agents convention)
 # Other CLIs:     pass --dest, e.g.  --dest ~/.claude/skills
 #
 # Usage:
 #   bash scripts/install-skill.sh                  # copy-install to ~/.agents/skills
 #   bash scripts/install-skill.sh --link           # symlink instead of copy (auto-updates with repo)
-#   bash scripts/install-skill.sh --dest DIR       # install into DIR/study-coach
+#   bash scripts/install-skill.sh --dest DIR       # install into DIR/ai-study-kit
 #   bash scripts/install-skill.sh --uninstall      # remove from default dest
 #   bash scripts/install-skill.sh --uninstall --dest DIR
 set -euo pipefail
 
-SKILL_NAME="study-coach"
+SKILL_NAME="ai-study-kit"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC_DIR="$REPO_ROOT/skills/$SKILL_NAME"
 DEST_BASE="${HOME}/.agents/skills"

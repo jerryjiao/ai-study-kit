@@ -19,7 +19,7 @@ import coursesMeta from '../data/courses.json';
  * 课程已读（v0.4 痛点 #3）：左侧竖排课程目录栏列出清单（sync-examples 产的 courses.json），
  * 点击定位到对应 lesson；iframe 每次加载（含课站内部互链导航）按 same-origin pathname
  * 匹配清单自动标记已读并高亮当前课（progress.coursesRead，key="<theme>/<文件名>"）。
- * 「课全读」完成边界 = 清单全部命中，UI 与 study-coach skill 同口径可机读。
+ * 「课全读」完成边界 = 清单全部命中，UI 与 ai-study-kit skill 同口径可机读。
  */
 // BASE_URL 前缀：demo 子路径部署下课程静态站也能定位（自托管/开发时 BASE_URL='/' 不影响）
 // 主题名来自 sync-examples 产的 theme.json——课程 URL 跟随激活主题，切换主题无需手改此处。
