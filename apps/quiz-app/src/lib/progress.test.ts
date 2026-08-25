@@ -88,6 +88,29 @@ describe('progress', () => {
     expect(mergeProgress({ version: 1, answers: {} } as Progress, { version: 1, answers: {} } as Progress).read).toEqual({});
   });
 
+  // 学习偏好（设置面板）：整体对象按 settingsUpdatedAt LWW，同 theme 模式
+  it('mergeProgress: settings 整体按 settingsUpdatedAt 取新', () => {
+    const a: Progress = { version: 1, answers: {}, settings: { extOn: true, dailyNewCards: 10 }, settingsUpdatedAt: 100 };
+    const b: Progress = { version: 1, answers: {}, settings: { extOn: false, autoAdvance: false }, settingsUpdatedAt: 200 };
+    const m = mergeProgress(a, b);
+    expect(m.settings).toEqual({ extOn: false, autoAdvance: false }); // 整份胜出，不逐字段合并
+    expect(m.settingsUpdatedAt).toBe(200);
+    // 参数位置不影响结果：200 仍是较新时间戳，交换后 b 依旧胜出
+    expect(mergeProgress(b, a).settings).toEqual({ extOn: false, autoAdvance: false });
+  });
+  it('mergeProgress: 单边无 settings 时取存在者（旧数据兼容）', () => {
+    const a: Progress = { version: 1, answers: {}, settings: { extOn: true }, settingsUpdatedAt: 50 };
+    const b: Progress = { version: 1, answers: {} };
+    expect(mergeProgress(a, b).settings).toEqual({ extOn: true });
+    expect(mergeProgress(b, a).settings).toEqual({ extOn: true });
+    expect(mergeProgress(a, b).settingsUpdatedAt).toBe(50);
+  });
+  it('mergeProgress: 相同时间戳时取 local/a（与 answers >= 口径一致）', () => {
+    const a: Progress = { version: 1, answers: {}, settings: { extOn: true }, settingsUpdatedAt: 100 };
+    const b: Progress = { version: 1, answers: {}, settings: { extOn: false }, settingsUpdatedAt: 100 };
+    expect(mergeProgress(a, b).settings).toEqual({ extOn: true });
+  });
+
   it('nextStreak: 答错归0入错题，错题答对累加，从未答错的题答对不维护', () => {
     expect(nextStreak(false, undefined)).toBe(0);     // 首次答错 → 入错题集 streak=0
     expect(nextStreak(false, 2)).toBe(0);             // 错题又答错 → 归0

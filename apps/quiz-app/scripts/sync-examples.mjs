@@ -57,6 +57,18 @@ for (const [src, dst] of FILES) {
   console.log(`[sync-examples] ${src} → src/data/${dst}  (theme: ${EXAMPLE_THEME})`);
 }
 
+// 主题显示配置（可选文件）：examples/<theme>/theme-config.json → src/data/theme-config.json。
+// 未提供时写空对象 {}——应用按「无配置回退」运行（原始 topic id / 无子主题 / 无层 / 全部计划内 / 默认样式），
+// 保证 import 恒可解析。字段语义见 docs/theming.md。
+const themeConfigSrc = join(EXAMPLE_DIR, 'theme-config.json');
+if (existsSync(themeConfigSrc)) {
+  copyFileSync(themeConfigSrc, join(DATA_DIR, 'theme-config.json'));
+  console.log(`[sync-examples] theme-config.json → src/data/theme-config.json  (theme: ${EXAMPLE_THEME})`);
+} else {
+  writeFileSync(join(DATA_DIR, 'theme-config.json'), '{}\n');
+  console.log(`[sync-examples] theme-config.json 不存在 → 写空配置（无配置回退行为）  (theme: ${EXAMPLE_THEME})`);
+}
+
 // 记录激活主题：Courses 页据此拼课程 URL（study/<theme>/），保证内容与课程永远同主题，
 // 也让「切换主题」只需改 EXAMPLE_THEME 一处（原需同步手改 Courses.tsx 的 COURSE_URL）。
 writeFileSync(join(DATA_DIR, 'theme.json'), JSON.stringify({ theme: EXAMPLE_THEME }, null, 2) + '\n');

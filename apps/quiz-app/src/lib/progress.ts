@@ -1,4 +1,5 @@
 import type { Progress, AnswerRecord, Question, Stats, SrsState, SrsMeta, UiLang, LearnSettings } from '../types';
+import { isPlanned } from './topicOrder';
 
 /** 错题移出阈值随历史难度递增（错过越多，需要越多连对才放行）：
  *  - wrongCount<=1（只错过 1 次）→ 连对 1 次即移出（简单题快放）
@@ -87,19 +88,21 @@ export function readIds(p: Progress): string[] {
   return Object.keys(p.read ?? {}).filter((id) => isRead(p, id));
 }
 
-/** 统计题库内已看题数（过滤题库已删除的陈旧 id + 墓碑） */
+/** 统计题库内已看题数（过滤题库已删除的陈旧 id + 墓碑 + 非计划内题——已看%分母是计划内总数） */
 export function readCount(p: Progress, questions: Question[]): number {
   let n = 0;
-  for (const q of questions) if (isRead(p, q.id)) n++;
+  for (const q of questions) if (isPlanned(q) && isRead(p, q.id)) n++;
   return n;
 }
 
-/** 统计：自评题(correct===null)不计入正确率分母；墓碑记录(deletedAt)视为未答；
- *  随机沙盒记录(fromRandom)不计入主进度（已答%/正确率）——它只进错题本。 */
+/** 统计（主进度口径 = 计划内题，见 topicOrder.isPlanned）：自评题(correct===null)不计入正确率分母；
+ *  墓碑记录(deletedAt)视为未答；随机沙盒记录(fromRandom)不计入主进度（已答%/正确率）——它只进错题本。
+ *  拓展层答题不推主进度（分母不含拓展），但错题照进错题本（wrongIds 不过滤）。 */
 export function computeStats(p: Progress, questions: Question[]): Stats {
-  const total = questions.length;
+  const scoped = questions.filter((q) => isPlanned(q));
+  const total = scoped.length;
   let answered = 0, correct = 0, wrong = 0, graded = 0;
-  for (const q of questions) {
+  for (const q of scoped) {
     const rec = p.answers[q.id];
     if (!rec || isDeleted(rec)) continue;
     if (isFromRandom(rec)) continue;  // 随机沙盒记录不进主进度统计（错题本另算）
