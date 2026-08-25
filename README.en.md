@@ -127,10 +127,10 @@ EXAMPLE_THEME=react-basics pnpm dev
 # refresh the browser — your React questions are in
 ```
 
-### Step 5 · (Optional) Courses + home-page grouping (10 min)
+### Step 5 · (Optional) Courses + home-page presentation (10 min)
 
-- **Courses**: replace `examples/react-basics/lessons/*.html` with your own (AI can help — see the next section). Also point `COURSE_URL` in `apps/quiz-app/src/pages/Courses.tsx` to `/study/react-basics/index.html`.
-- **Grouping**: edit `TOPIC_ORDER` in `apps/quiz-app/src/lib/topicOrder.ts` and replace `'git-basics', 'linux-commands'` with your topics.
+- **Courses**: replace `examples/react-basics/lessons/*.html` with your own (AI can help — see the next section). The courses entry follows the active theme (`EXAMPLE_THEME`) automatically — no code changes needed.
+- **Presentation**: edit `examples/react-basics/theme-config.json` — an optional file that drives home-page grouping order (`topicOrder`), display names (`topicLabels`), subtopic expansion (`subtopics`), source badges (`sourceLabels`), core/extension layers (`sourceLayers` + `layerTopics`), exam-point depth badges (`epDepth`), and card colors & icons (`topicStyles`). Without it the app falls back gracefully: raw topic ids, alphabetical order, no subtopics. Full field reference and examples: [`docs/theming.md`](docs/theming.md).
 
 ### Step 6 · Validate (2 min)
 

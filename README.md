@@ -131,10 +131,10 @@ EXAMPLE_THEME=react-basics pnpm dev
 # 浏览器刷新——你的 React 题已经进答题站了
 ```
 
-### Step 5 · （可选）配课程和首页分组（10 分钟）
+### Step 5 · （可选）配课程和首页呈现（10 分钟）
 
-- **课程**：把 `examples/react-basics/lessons/*.html` 改成你的（可以用 AI 帮你产，见下文进阶）。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
-- **首页分组**：改 `apps/quiz-app/src/lib/topicOrder.ts` 的 `TOPIC_ORDER`，把 `'git-basics', 'linux-commands'` 换成你的主题列表。
+- **课程**：把 `examples/react-basics/lessons/*.html` 改成你的（可以用 AI 帮你产，见下文进阶）。课程入口自动跟随激活主题（`EXAMPLE_THEME`），无需改代码。
+- **首页呈现**：编辑 `examples/react-basics/theme-config.json`——可选文件，控制首页分组顺序（`topicOrder`）、主题中文显示名（`topicLabels`）、考点子主题展开（`subtopics`）、来源徽标（`sourceLabels`）、核心/拓展层（`sourceLayers` + `layerTopics`）、考点深度徽标（`epDepth`）、卡片配色与图标（`topicStyles`）。不配置则优雅回退：显示原始 topic id、按字母序、不展开子主题。完整字段表与示例见 [`docs/theming.md`](docs/theming.md)。
 
 ### Step 6 · 校验（2 分钟）
 

@@ -46,6 +46,7 @@ ai-study-kit/
 │   └── dev-intro/             # 默认示例主题（git + Linux 基础入门）
 │       ├── questions.json     # 题库（schema 见 types.ts）
 │       ├── flashcards.json    # 闪卡
+│       ├── theme-config.json  # 主题显示配置（可选：排序/显示名/子主题/层/样式，见 docs/theming.md）
 │       ├── lessons/*.html     # teach 产出的课程
 │       ├── wrong-questions/   # 错题精讲
 │       ├── assets/styles.css  # 共享样式表
@@ -127,12 +128,12 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 
 ## 红线 / 硬边界（违反会出错）
 
-- **`apps/quiz-app/src/data/questions.json` 和 `flashcards.json` 是同步产物，禁止手编**。它们由 `scripts/sync-examples.mjs` 从 `examples/<theme>/` 同步而来（`pnpm run dev/build/test` 自动跑）。手编的改动下次 sync 会被覆盖。改题源请走 `examples/<theme>/questions.json`。
+- **`apps/quiz-app/src/data/questions.json`、`flashcards.json`、`theme-config.json` 是同步产物，禁止手编**。它们由 `scripts/sync-examples.mjs` 从 `examples/<theme>/` 同步而来（`pnpm run dev/build/test` 自动跑）。手编的改动下次 sync 会被覆盖。改题源请走 `examples/<theme>/questions.json`，改呈现配置（排序/显示名/子主题/层/样式）请走 `examples/<theme>/theme-config.json`（字段语义见 `docs/theming.md`，无配置时优雅回退）。
 - **`apps/quiz-app/progress.json` 是运行期数据，禁止提交、禁止手编**（已在 .gitignore）。已写坏会被 server 当作空进度重置。
   - ⭐ **写 progress.json 的 `submittedAt`/`updatedAt` 必须用真实 `Date.now()`，绝不能用任意固定值或未来时间戳**。`mergeProgress`（progress.ts）按时间戳取新来合并多端写入——未来时间戳会永久压制所有真实时间的写入。
 - **`apps/quiz-app/public/study/` 是 sync 产物**（gitignored），由 `scripts/sync-study.mjs` 从 `examples/<theme>/` 同步，build 时自动重建。改课程请走 `examples/<theme>/lessons/*.html`，别手编 `public/study/`。
 - **官网 sync 产物禁止手编**：`apps/site/src/content/docs/{method,ai,maintain}/` 由 `sync-docs.mjs` 从根 `docs/` 生成；`apps/site/public/demo/` 由 `build-demo.mjs` 生成。改文档走根 `docs/`，改 demo 走 quiz-app。官网部署走 GitHub Actions（`.github/workflows/deploy-site.yml`，push main 自动发布 Pages），不占 pm2。
-- **⭐ 切换示例主题只改 `EXAMPLE_THEME` 环境变量一处**（默认 `dev-intro`）。课程入口 `Courses.tsx` 的 `COURSE_URL` 读 sync 产物 `src/data/theme.json` 自动跟随激活主题（2026-08-18 前需手改两处，已收敛为一处）。首页分组可选改 `src/lib/topicOrder.ts`。
+- **⭐ 切换示例主题只改 `EXAMPLE_THEME` 环境变量一处**（默认 `dev-intro`）。课程入口 `Courses.tsx` 的 `COURSE_URL` 读 sync 产物 `src/data/theme.json` 自动跟随激活主题（2026-08-18 前需手改两处，已收敛为一处）。首页分组顺序、主题显示名等呈现定制走 `examples/<theme>/theme-config.json`（2026-08-25 前需改 `src/lib/topicOrder.ts` 代码，已配置化）。
 - **⭐ 任何发布内容禁止出现真实品牌/企业名**（课程 HTML、闪卡、公开 md 等所有同步到 `apps/quiz-app/public/study/` 的文件）。这是开源协议 MIT 之外的<strong>额外中性化要求</strong>——避免把任何具体企业的商标/品牌带入开源工具。校验用 `pnpm run scan`，命中数必须为 0 才能发布。
   - 必须中性化的词列表见 `scripts/brand-scan.py` 的 `BRAND_PATTERNS` 常量（持续补充）。常见类别：车企、互联网大厂、能源/电信央企、EV 新势力。技术专名（如 Spring Cloud Alibaba 等开源技术栈）作为技术术语保留，扫描时人工确认即可。
   - **校验**：`python3 scripts/brand-scan.py` 扫所有 .html/.md/.json/.ts/.tsx/.py/.mjs，命中即 exit 1。

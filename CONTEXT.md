@@ -27,3 +27,7 @@ _Avoid_: 把 CLI 叫 skill（旧文档的混称，已纠正）
 **主题（theme）**:
 `examples/<theme>/` 下的一套完整学习内容包（MISSION / RESOURCES / questions / flashcards / lessons / wrong-questions）。仓库同一时刻只激活一个主题（`EXAMPLE_THEME`，默认 dev-intro）。
 _Avoid_: 示例（示例主题特指 dev-intro；用户建的主题不是示例）
+
+**主题配置（theme-config）**:
+主题包内可选的 `theme-config.json`——承载该主题的全部呈现层定制（排序/显示名/子主题/来源徽标/学习优先级层/深度徽标/样式）。应用代码不含任何主题数据，sync 时未提供则按字段逐项回退。
+_Avoid_: 皮肤（只管配色）、插件（这是数据配置，不是可执行扩展）

@@ -127,10 +127,10 @@ EXAMPLE_THEME=react-basics pnpm dev
 # обновите страницу — ваши вопросы по React уже внутри
 ```
 
-### Шаг 5 · (Необязательно) Курсы + группировка на главной (10 мин)
+### Шаг 5 · (Необязательно) Курсы + оформление главной (10 мин)
 
-- **Курсы**: замените `examples/react-basics/lessons/*.html` своими (ИИ может помочь — следующий раздел). Заодно укажите `COURSE_URL` в `apps/quiz-app/src/pages/Courses.tsx` на `/study/react-basics/index.html`.
-- **Группировка**: поправьте `TOPIC_ORDER` в `apps/quiz-app/src/lib/topicOrder.ts` — замените `'git-basics', 'linux-commands'` на свои темы.
+- **Курсы**: замените `examples/react-basics/lessons/*.html` своими (ИИ может помочь — следующий раздел). Раздел курсов автоматически следует активной теме (`EXAMPLE_THEME`) — код трогать не нужно.
+- **Оформление**: отредактируйте `examples/react-basics/theme-config.json` — необязательный файл, управляющий порядком группировки на главной (`topicOrder`), отображаемыми именами (`topicLabels`), раскрытием подтем (`subtopics`), значками источников (`sourceLabels`), слоями ядро/дополнительно (`sourceLayers` + `layerTopics`), значками глубины (`epDepth`) и цветами и значками карточек (`topicStyles`). Без него приложение аккуратно откатывается: исходные id тем, алфавитный порядок, без подтем. Полный справочник полей и примеры: [`docs/theming.md`](docs/theming.md).
 
 ### Шаг 6 · Проверка (2 мин)
 

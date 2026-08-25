@@ -127,10 +127,10 @@ EXAMPLE_THEME=react-basics pnpm dev
 # recarga el navegador — tus preguntas de React ya están dentro
 ```
 
-### Paso 5 · (Opcional) Cursos + agrupación del inicio (10 min)
+### Paso 5 · (Opcional) Cursos + presentación del inicio (10 min)
 
-- **Cursos**: reemplaza `examples/react-basics/lessons/*.html` por los tuyos (la IA puede ayudar — ver la sección siguiente). Apunta también `COURSE_URL` en `apps/quiz-app/src/pages/Courses.tsx` a `/study/react-basics/index.html`.
-- **Agrupación**: edita `TOPIC_ORDER` en `apps/quiz-app/src/lib/topicOrder.ts` y cambia `'git-basics', 'linux-commands'` por tus temas.
+- **Cursos**: reemplaza `examples/react-basics/lessons/*.html` por los tuyos (la IA puede ayudar — ver la sección siguiente). La entrada de cursos sigue automáticamente el tema activo (`EXAMPLE_THEME`), sin tocar código.
+- **Presentación**: edita `examples/react-basics/theme-config.json` — un archivo opcional que controla el orden de agrupación del inicio (`topicOrder`), los nombres visibles (`topicLabels`), la expansión de subtemas (`subtopics`), las insignias de origen (`sourceLabels`), las capas núcleo/ampliación (`sourceLayers` + `layerTopics`), las insignias de profundidad (`epDepth`) y los colores e iconos de las tarjetas (`topicStyles`). Sin él, la app retrocede con elegancia: ids de tema crudos, orden alfabético, sin subtemas. Referencia completa de campos y ejemplos: [`docs/theming.md`](docs/theming.md).
 
 ### Paso 6 · Valida (2 min)
 

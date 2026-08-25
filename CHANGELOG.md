@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- **主题显示配置机制（theme-config.json）**：题站呈现层全面配置化——首页排序（`topicOrder`）、主题显示名（`topicLabels`）、考点子主题展开（`subtopics`）、来源徽标（`sourceLabels`）、核心/拓展层（`sourceLayers` + `layerTopics`）、考点深度徽标（`epDepth`）、卡片配色与图标（`topicStyles`）全部住在 `examples/<theme>/theme-config.json`（sync-examples 拷到 `src/data/`，缺省写 `{}`），**换主题不再改任何应用代码**。全字段可选、缺什么回退什么（原始 id / 字母序 / 不展开 / 无层=全计划内 / 默认样式）。字段表与示例见 `docs/theming.md`；dev-intro 带最小示范配置。机制测试（回退语义/中文序号排序/层派生）+ settings LWW 合并测试入列，`pnpm test` 170 项。
+- **题目配图渲染**：`Question.imageRef` 在答题卡渲染 `examples/<theme>/assets/` 的配图（sync:study 已同步到 `public/study/<theme>/assets/`），BASE_URL 前缀拼根绝对路径防二级路由 404；alt 文案四语词典（`q.imageAlt`）。
+- **层筛选 chips（拓展加练开着时）**：练习页全部/核心/拓展三档切换 + URL `&layer=` 直达（首页纯拓展块、上次答到拓展题的链接携带）；开关关着时层概念整体不存在。层作用域由 `layerTopics` 配置，无配置无层。
+- **计划内口径（主进度）**：`computeStats`/`readCount`/首页计数/随机 20 沙盒统一为计划内题（`isPlanned = source 层 ≠ 拓展`，无层来源自动全算），拓展层答题不推主进度但错题照进错题本。
+
+### Changed
+
+- **设置面板措辞**：三项偏好改为「默认值先行」表述（拓展加练：默认关…；答对自动跳题：默认开…；每日新卡配额与闪卡页同步），移除未使用的 `settings.open` 词典键（四语同步）。
+- **本地模式横幅关一次永久关**：localStorage 记忆（此前每次刷新重现）；同步 error 横幅保持会话级——出错每次都该看到能重试。
+- **子主题前缀剥离通用化**：`(BA|IA|指标|CN)·` 岁月正则退役，统一 `stripSubtopicPrefix`（ASCII 标识符前缀 + `·`/`:`/`-` 分隔）。
+
 ## [0.5.0] — 2026-08-23
 
 主题：**进度模型扩展（多主题隔离 + 课程已读）+ study-coach plugin 分发 + 认证内容包实战验证。**（图谱周期 #16「v0.4」；因 v0.4.0 已于 2026-08-17 割出，按 SemVer 本版发 0.5.0。）
