@@ -47,6 +47,9 @@ if (!existsSync(join(SRC, 'SKILL.md'))) {
 
 const DESCRIPTION = 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /ai-study-kit 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。';
 const KEYWORDS = ['study', 'learning', 'flashcards', 'srs', 'spaced-repetition', 'quiz', 'tutor', 'ai-study-kit'];
+// 插件图标：源是仓库根 assets/logo.png（与 quiz-app/官网三端同源）。marketplace 的 icon 走 jsDelivr
+// 绝对 URL（zcode 官方源同款做法；raw.githubusercontent 直连会撞 429/墙，jsDelivr 是 CDN 更稳）。
+const ICON_URL = 'https://cdn.jsdelivr.net/gh/jerryjiao/ai-study-kit@main/assets/logo.png';
 
 const manifest = {
   name: SKILL_NAME,
@@ -88,6 +91,9 @@ for (const rel of tracked) {
 }
 console.log(`[sync-plugin] apps/quiz-app + examples/dev-intro 跟踪面 ${tracked.length} 文件 → plugins/${SKILL_NAME}/kit/`);
 
+// icon.png 拷进插件包根（对照 cloudflare 插件带 logo.svg 的做法，覆盖从插件包找图标的消费方）
+copyFileSync(join(REPO_ROOT, 'assets', 'logo.png'), join(PLUGIN_DIR, 'icon.png'));
+
 // repo 根市集：marketplace.json（zcode/Claude 添加 marketplace 时读这份清单）
 mkdirSync(join(REPO_ROOT, '.claude-plugin'), { recursive: true });
 const marketplace = {
@@ -104,6 +110,7 @@ const marketplace = {
       homepage: manifest.homepage,
       keywords: KEYWORDS,
       category: 'learning',
+      icon: ICON_URL,
     },
   ],
 };

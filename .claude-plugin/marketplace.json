@@ -26,7 +26,8 @@
         "tutor",
         "ai-study-kit"
       ],
-      "category": "learning"
+      "category": "learning",
+      "icon": "https://cdn.jsdelivr.net/gh/jerryjiao/ai-study-kit@main/assets/logo.png"
     }
   ]
 }

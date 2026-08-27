@@ -6,6 +6,7 @@
 
 ### Added
 
+- **插件图标**：marketplace 清单 `icon` 字段（jsDelivr 绝对 URL → 仓库根 `assets/logo.png`，zcode 官方源同款做法；raw.githubusercontent 直连会撞 429/墙）+ 插件包根 `icon.png` 实体文件（对照 cloudflare 插件带 logo.svg）。图标与 quiz-app/官网三端同源（256×256），生成逻辑入 `sync-plugin.mjs`，重跑 `sync:plugin` 跟随。
 - **插件/skill 更名 study-coach → ai-study-kit（v0.7.0，全位置一致）**：市集插件名发布后终身不可改，趁零用户窗口定终名（与仓库名一致、可搜索）。skills/ 与 plugins/ 目录、docs 文档页（原 docs/study-coach.md）、安装脚本、marketplace 清单、README 四语、官网侧栏与手写页全部同步；旧名仅存于本 CHANGELOG 历史条目。
 - **插件=发行形态（装插件零 clone 建站）**：`plugins/ai-study-kit/kit/` 新增迷你仓库快照（apps/quiz-app + examples/dev-intro 的 git 跟踪面）——用户装 ai-study-kit 插件即得完整可构建答题站，skill F1 流从快照拷进用户目录（`~/study-kit/`），全程不碰 GitHub。学习项目与插件升级互不干扰（主题包住 kit 外、进度按题 id 存）。README 四语主入口反转为"装插件开始"，clone 降为开发者路线。版本 0.6.0。
 - **外部主题包（主题目录可住仓库外，ADR 0004）**：`EXAMPLE_THEME` / `--theme` 支持路径形态（含分隔符即外部包，主题名取 basename）——sync-examples / sync-study / teach-generate / grill-wrong 四脚本统一走 `scripts/lib/theme-path.mjs` 解析；`theme.json` 扩为 `{theme, dir?}`（外部形态记源目录，detectTheme 粘滞回退靠它）。消费者可把学习内容放自己的项目目录，套件仓库只当工具。README 四语 make-it-yours 补外部包选项；skill 的状态探测/部署注记同步（plugin 副本已重生成）。
