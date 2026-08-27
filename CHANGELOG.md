@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-08-28
+
+主题：**插件=发行形态（零 clone 建站）+ 更名终名 ai-study-kit + GitHub 站内增长启动（wayfinder 图谱 #24：0★ → 30★；本版含 F1 dogfood 实测零修复走通）。**
+
 ### Added
 
 - **插件图标**：marketplace 清单 `icon` 字段（jsDelivr 绝对 URL → 仓库根 `assets/logo.png`，zcode 官方源同款做法；raw.githubusercontent 直连会撞 429/墙）+ 插件包根 `icon.png` 实体文件（对照 cloudflare 插件带 logo.svg）。图标与 quiz-app/官网三端同源（256×256），生成逻辑入 `sync-plugin.mjs`，重跑 `sync:plugin` 跟随。
