@@ -68,8 +68,13 @@ CP=$([ -s /tmp/coach-progress.json ] && echo /tmp/coach-progress.json || echo ap
 CP="$CP" THEME="$THEME" node -e '
 const fs = require("fs");
 const readIds = (f) => { try { return new Set(JSON.parse(fs.readFileSync(f)).map((x) => x.id)); } catch { return new Set(); } };
-const qIds = readIds(`examples/${process.env.THEME}/questions.json`);
-const fcIds = readIds(`examples/${process.env.THEME}/flashcards.json`);
+// 主题目录两种形态（同 §1/§2）：路径=外部主题包，纯名=examples/<name>；
+// coursesRead 的 "<theme>/<file>" key 一律用 basename（与 theme-path.mjs 口径一致）
+const T = process.env.THEME;
+const D = /[/\\]/.test(T) ? T : `examples/${T}`;
+const NAME = T.split(/[/\\]/).pop();
+const qIds = readIds(`${D}/questions.json`);
+const fcIds = readIds(`${D}/flashcards.json`);
 let p;
 try { p = JSON.parse(fs.readFileSync(process.env.CP, "utf-8")); } catch { p = null; }
 if (!p) { console.log("progress=empty"); process.exit(0); }
@@ -82,8 +87,8 @@ const graded = recs.filter(([, r]) => !r.fromRandom && r.correct !== null);
 const correct = graded.filter(([, r]) => r.correct === true).length;
 const srsDue = Object.entries(p.srs || {}).filter(([id, s]) => !s.deletedAt && fcIds.has(id) && s.due <= now).length;
 // 课程已读：coursesRead 的 "<theme>/<file>" 前缀命中 vs lessons 目录清单
-const lessonFiles = (() => { try { return fs.readdirSync(`examples/${process.env.THEME}/lessons`).filter((f) => f.endsWith(".html")); } catch { return []; } })();
-const readSet = new Set(lessonFiles.filter((f) => (p.coursesRead || {})[`${process.env.THEME}/${f}`] !== undefined));
+const lessonFiles = (() => { try { return fs.readdirSync(`${D}/lessons`).filter((f) => f.endsWith(".html")); } catch { return []; } })();
+const readSet = new Set(lessonFiles.filter((f) => (p.coursesRead || {})[`${NAME}/${f}`] !== undefined));
 console.log(JSON.stringify({
   answered, openWrong: openWrong.length, wrongIds: openWrong.map(([id]) => id),
   accuracy: graded.length ? Math.round((correct / graded.length) * 100) + "%" : "n/a",

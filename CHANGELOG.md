@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **skill 外部主题包收尾（v0.7.1）**：SKILL 硬红线与 flows 改内容纪律不再把内容源写死为 `examples/<theme>/`（外部主题包同受"只改源、不碰同步产物"约束，消除向套件仓库内误指路的歧义）；state.md §3 进度探测脚本按 theme-path.mjs 口径解析主题目录与 coursesRead 的 basename key——原脚本硬编码 `examples/` 前缀，外部主题包形态下题/卡 id 集为空、进度被误报为 0。plugin 副本已重生成。
+
 ## [0.7.0] — 2026-08-28
 
 主题：**插件=发行形态（零 clone 建站）+ 更名终名 ai-study-kit + GitHub 站内增长启动（wayfinder 图谱 #24：0★ → 30★；本版含 F1 dogfood 实测零修复走通）。**
