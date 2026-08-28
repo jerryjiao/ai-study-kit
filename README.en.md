@@ -44,7 +44,7 @@ Install the whole kit into your AI agent (zcode / Claude Code). **No repo clonin
 # install ai-study-kit, then say "I want to learn X" (or /ai-study-kit) in a new session
 ```
 
-Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Nine flows covered end to end: bootstrap, new theme, daily study, wrong-question grilling, podcasts, course generation, verification, deploy — see [`docs/ai-study-kit.md`](docs/ai-study-kit.md).
+Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Ten flows covered end to end: bootstrap, new theme, daily study, wrong-question grilling, podcasts, course generation, live walkthrough, verification, deploy — see [`docs/ai-study-kit.md`](docs/ai-study-kit.md).
 
 Just want to see what it looks like first? Take the clone route below.
 
@@ -76,7 +76,7 @@ pnpm dev
 
 Once the plugin is installed above (or via `pnpm run skill:install` into `~/.agents/skills/`), every study session can start here.
 
-It first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Nine playbooks cover everything from initializing the project to deploying it. (The playbook is written in Chinese; see [`docs/ai-study-kit.md`](docs/ai-study-kit.md).)
+It first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Ten playbooks cover everything from initializing the project to deploying it. (The playbook is written in Chinese; see [`docs/ai-study-kit.md`](docs/ai-study-kit.md).)
 
 ---
 
