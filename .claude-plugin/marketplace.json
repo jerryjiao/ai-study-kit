@@ -10,7 +10,7 @@
       "name": "ai-study-kit",
       "source": "./plugins/ai-study-kit",
       "description": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /ai-study-kit 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。",
-      "version": "0.7.1",
+      "version": "0.8.0",
       "author": {
         "name": "ai-study-kit",
         "url": "https://github.com/jerryjiao/ai-study-kit"

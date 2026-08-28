@@ -8,6 +8,10 @@
 
 - **skill 外部主题包收尾（v0.7.1）**：SKILL 硬红线与 flows 改内容纪律不再把内容源写死为 `examples/<theme>/`（外部主题包同受"只改源、不碰同步产物"约束，消除向套件仓库内误指路的歧义）；state.md §3 进度探测脚本按 theme-path.mjs 口径解析主题目录与 coursesRead 的 basename key——原脚本硬编码 `examples/` 前缀，外部主题包形态下题/卡 id 集为空、进度被误报为 0。plugin 副本已重生成。
 
+### Added
+
+- **F10 现场串讲（walkthrough）flow（v0.8.0）**：对话式入门新主题的教学流程——「知识点一块一块讲、题一道一道答」，区别于 F6 产课（持久 HTML）与 F4 错题串讲。事实核查走 kit 通用概念（MISSION 考点排布表定深度、questions.json 词频定考点、lessons/RESOURCES 做概念权威、/api/progress 看用户状态）；教学纪律为实战提炼：每主题 6-12 考点、一考点一锚点金句、类比+助记标配、每考点 2-3 题一道一道提交、出题零提示、即时判定、变体验证、结束同回合主动固化（learning-records + wrong-questions 页 + 诚实定位覆盖缺口）。SKILL 意图路由与 docs 流程表同步。
+
 ## [0.7.0] — 2026-08-28
 
 主题：**插件=发行形态（零 clone 建站）+ 更名终名 ai-study-kit + GitHub 站内增长启动（wayfinder 图谱 #24：0★ → 30★；本版含 F1 dogfood 实测零修复走通）。**
@@ -23,6 +27,10 @@
 - **题目配图渲染**：`Question.imageRef` 在答题卡渲染 `examples/<theme>/assets/` 的配图（sync:study 已同步到 `public/study/<theme>/assets/`），BASE_URL 前缀拼根绝对路径防二级路由 404；alt 文案四语词典（`q.imageAlt`）。
 - **层筛选 chips（拓展加练开着时）**：练习页全部/核心/拓展三档切换 + URL `&layer=` 直达（首页纯拓展块、上次答到拓展题的链接携带）；开关关着时层概念整体不存在。层作用域由 `layerTopics` 配置，无配置无层。
 - **计划内口径（主进度）**：`computeStats`/`readCount`/首页计数/随机 20 沙盒统一为计划内题（`isPlanned = source 层 ≠ 拓展`，无层来源自动全算），拓展层答题不推主进度但错题照进错题本。
+
+### Fixed
+
+- **skill 外部主题包收尾（v0.7.1）**：SKILL 硬红线与 flows 改内容纪律不再把内容源写死为 `examples/<theme>/`（外部主题包同受"只改源、不碰同步产物"约束，消除向套件仓库内误指路的歧义）；state.md §3 进度探测脚本按 theme-path.mjs 口径解析主题目录与 coursesRead 的 basename key——原脚本硬编码 `examples/` 前缀，外部主题包形态下题/卡 id 集为空、进度被误报为 0。plugin 副本已重生成。
 
 ### Changed
 
