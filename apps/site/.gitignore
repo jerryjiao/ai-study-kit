@@ -9,6 +9,7 @@ public/demo/
 src/content/docs/method/
 src/content/docs/ai/
 src/content/docs/maintain/
+src/content/docs/changelog.md
 
 # 依赖
 node_modules/

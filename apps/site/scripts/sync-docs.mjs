@@ -13,7 +13,7 @@ const repoRoot = resolve(siteRoot, '../..');
 const docsDir = resolve(repoRoot, 'docs');
 const outBase = resolve(siteRoot, 'src/content/docs');
 
-/** 同步清单：源文件 → 目标路径 + sidebar 顺序 + 是否去 EN 摘要 */
+/** 同步清单：源文件 → 目标路径 + sidebar 顺序 + 是否去 EN 摘要；fromRoot=true 源在仓库根（CHANGELOG），title 可覆盖 H1 */
 const SYNC = [
   { src: 'methodology.md', dest: 'method/methodology.md', order: 1, stripEn: true },
   { src: 'four-alignment.md', dest: 'method/four-alignment.md', order: 2, stripEn: true },
@@ -21,6 +21,7 @@ const SYNC = [
   { src: 'ai-study-kit.md', dest: 'ai/ai-study-kit.md', order: 2, stripEn: false },
   { src: 'configuration.md', dest: 'ai/configuration.md', order: 3, stripEn: false },
   { src: 'bidirectional-check.md', dest: 'maintain/bidirectional-check.md', order: 1, stripEn: false },
+  { src: 'CHANGELOG.md', dest: 'changelog.md', fromRoot: true, title: '更新日志', order: 1, stripEn: false },
 ];
 
 /** 文档间交叉链接表：docs/<文件名> → 站内路径（从 SYNC 派生，加文档只需改 SYNC 一处） */
@@ -28,8 +29,8 @@ const LINK_MAP = Object.fromEntries(
   SYNC.map(({ src, dest }) => [src, `${SITE_BASE}/${dest.replace(/\.md$/, '')}/`]),
 );
 
-for (const { src, dest, order, stripEn } of SYNC) {
-  let text = readFileSync(resolve(docsDir, src), 'utf8');
+for (const { src, dest, order, stripEn, fromRoot, title: titleOverride } of SYNC) {
+  let text = readFileSync(fromRoot ? resolve(repoRoot, src) : resolve(docsDir, src), 'utf8');
 
   // 站内交叉链接重写：./xxx.md 或 /xxx.md → 带前缀的站内路径
   text = text.replace(/\(\.?\/([a-z-]+\.md)\)/g, (m, file) =>
@@ -38,7 +39,7 @@ for (const { src, dest, order, stripEn } of SYNC) {
   // 抽 H1 当 title，并从正文移除（Starlight 自己渲染标题头）
   const m = text.match(/^#\s+(.+)\n?/);
   if (!m) throw new Error(`${src}: 找不到首行 H1 标题`);
-  const title = m[1].trim();
+  const title = titleOverride ?? m[1].trim();
   text = text.slice(m[0].length);
 
   // 已英译篇目：去掉紧随标题的英文摘要引用块（官网有完整英文版，摘要冗余）。

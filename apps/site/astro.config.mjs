@@ -5,7 +5,13 @@
 // demo（#12）：构建时把 quiz-app 静态产物拷进 public/demo/（见 scripts/build-demo + CI）。
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
+import { readFileSync } from 'node:fs';
 import { SITE_BASE } from './site.config.mjs';
+
+// kit 版本号（仓库根 package.json）——侧栏「更新日志」标签自动带版本，升版零维护
+const KIT_VERSION = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
+).version;
 
 export default defineConfig({
   site: 'https://jerryjiao.github.io',
@@ -119,6 +125,17 @@ export default defineConfig({
               slug: 'maintain/bidirectional-check',
             },
           ],
+        },
+        // 更新日志：sync-docs 从仓库根 CHANGELOG.md 生成（slug 与 SYNC 清单耦合）；
+        // 中文内容，en/es/ru 走 fallback + 提示条，与 AI 工具/维护两组同策略
+        {
+          label: `更新日志 · v${KIT_VERSION}`,
+          translations: {
+            en: `Changelog · v${KIT_VERSION}`,
+            es: `Registro de cambios · v${KIT_VERSION}`,
+            ru: `Список изменений · v${KIT_VERSION}`,
+          },
+          slug: 'changelog',
         },
       ],
     }),
