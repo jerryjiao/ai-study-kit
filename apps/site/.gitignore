@@ -13,3 +13,7 @@ src/content/docs/changelog.md
 
 # 依赖
 node_modules/
+# docs 四语同步产物：en/es/ru 译本同样由 sync-docs.mjs 从 docs/<name>.<lang>.md 生成
+src/content/docs/*/method/
+src/content/docs/*/ai/
+src/content/docs/*/maintain/

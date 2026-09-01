@@ -1,6 +1,6 @@
-# Four-Alignment Principle · 四对齐原则
+# 四对齐原则
 
-> **EN**: When learning any topic, four artifacts must stay aligned around the same knowledge points: the course (explanation), the quiz (practice), the flashcards (memory anchors), and the wrong-question deep-dive (mistake forensics). Any drift between them creates silent learning gaps.
+**简体中文** · [English](four-alignment.en.md) · [Español](four-alignment.es.md) · [Русский](four-alignment.ru.md)
 
 学任何主题，四个产物必须围绕**同一套知识点**对齐：课程（讲解）、题目（练习）、闪卡（记忆锚点）、错题精讲（错点深挖）。它们是仓库里四份独立的文件，改任何一份，另外三份不会跟着动——不对齐不会报错，只会留下隐性学习漏洞：刷到没学过的题、学完没题练、该记的概念没有卡。
 
@@ -13,7 +13,7 @@
 | 1 | **课程** | `examples/<theme>/lessons/*.html` | 系统讲概念，建立心智模型 |
 | 2 | **题目** | `examples/<theme>/questions.json` | 练习验证，判分收集错题 |
 | 3 | **闪卡** | `examples/<theme>/flashcards.json` | 核心概念做间隔重复记忆锚 |
-| 4 | **错题精讲** | `examples/<theme>/wrong-questions/cluster-*.html` | 高频错点深度展开 |
+| 4 | **错题精讲** | `examples/<theme>/study/wrong-questions/cluster-*.html` | 高频错点深度展开 |
 
 四个产物不是孤立的，围绕同一套考点协同：课程讲一个概念，题考这个概念，闪卡帮记这个概念，错题精讲在你做错时把这个概念的易混点深挖。
 
@@ -85,11 +85,11 @@
 | 知识点 | 课程 | 题 | 闪卡 | 错题精讲 |
 |--------|------|-----|------|----------|
 | **git 三区** | `lessons/git-basics.html` §1-2 | GIT-006 | FC-DEV-01 | — |
-| **git reset vs revert** | `lessons/git-basics.html` §4 | GIT-007 | FC-DEV-03 | `wrong-questions/cluster-01-git-reset-vs-revert.html` |
-| **chmod 权限** | `lessons/linux-basics.html` §3-4 | LNX-002 | FC-DEV-02 | — |
+| **git 提交与撤销** | `lessons/git-basics.html` §4 | GIT-007 | FC-DEV-03 | `study/wrong-questions/cluster-01-git-提交与撤销操作.html` |
+| **chmod 权限** | `lessons/linux-basics.html` §3-4 | LNX-002 | FC-DEV-02 | `study/wrong-questions/cluster-02-linux-权限与路径.html` |
 | **相对路径 `..`** | `lessons/linux-basics.html` §2 | LNX-003 | — | — |
 
-不是每个知识点都必须四个产物全覆盖，但**高频错点**必须四产物齐全（如 git reset vs revert）——这是 grill CLI 的核心产出场景。
+不是每个知识点都必须四个产物全覆盖，但**高频错点**必须四产物齐全（如 git 提交与撤销）——这是 grill CLI 的核心产出场景。
 
 ---
 

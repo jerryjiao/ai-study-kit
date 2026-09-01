@@ -44,7 +44,7 @@ Install the whole kit into your AI agent (zcode / Claude Code). **No repo clonin
 # install ai-study-kit, then say "I want to learn X" (or /ai-study-kit) in a new session
 ```
 
-Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Eleven flows covered end to end, grouped in four lines — teaching (coached tutoring, pre-deadline sprint), practice (daily study, wrong-question grilling, podcasts), content (new theme, course generation, content edits), ops (bootstrap, verification, deploy) — see [`docs/ai-study-kit.md`](docs/ai-study-kit.md).
+Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Eleven flows covered end to end, grouped in four lines — teaching (coached tutoring, pre-deadline sprint), practice (daily study, wrong-question grilling, podcasts), content (new theme, course generation, content edits), ops (bootstrap, verification, deploy) — see [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).
 
 Just want to see what it looks like first? Take the clone route below.
 
@@ -76,7 +76,7 @@ pnpm dev
 
 Once the plugin is installed above (or via `pnpm run skill:install` into `~/.agents/skills/`), every study session can start here.
 
-It first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, lessons completed, tutoring progress, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Eleven playbooks cover everything from initializing the project to deploying it. (The playbook is written in Chinese; see [`docs/ai-study-kit.md`](docs/ai-study-kit.md).)
+It first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, lessons completed, tutoring progress, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Eleven playbooks cover everything from initializing the project to deploying it. (The playbook files the skill executes are written in Chinese; this guide is in English: [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).)
 
 ---
 
@@ -178,7 +178,7 @@ Three AI command-line tools ship with the repo:
 ```bash
 cp .env.example .env
 # edit .env — at minimum LLM_BASE_URL / LLM_API_KEY / LLM_MODEL
-# see docs/configuration.md (Chinese)
+# see docs/configuration.en.md
 ```
 
 ### Running the three CLIs
@@ -209,7 +209,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 6. podcast-generate → review by listening on your commute
 ```
 
-Full CLI usage, parameters and FAQ: [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) (Chinese). Configuration details: [`docs/configuration.md`](docs/configuration.md) (Chinese).
+Full CLI usage, parameters and FAQ: [`docs/ai-cli-guide.en.md`](docs/ai-cli-guide.en.md). Configuration details: [`docs/configuration.en.md`](docs/configuration.en.md).
 
 > 💡 **AI is optional**: the three CLIs are incremental. If all you want is the practice site + flashcards, skip the LLM config entirely — `pnpm dev` is enough.
 
@@ -234,7 +234,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # Russian p
 # or set STUDY_LANG=en in .env as the default (zh/en/es/ru supported)
 ```
 
-`--lang` affects generated content and the fixed strings of generated HTML (nav, footer, `<html lang>`). CLI logs stay in Chinese; the question bank itself is never translated. See the “输出语言” section of [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md).
+`--lang` affects generated content and the fixed strings of generated HTML (nav, footer, `<html lang>`). CLI logs stay in Chinese; the question bank itself is never translated. See the “输出语言” section of [`docs/ai-cli-guide.en.md`](docs/ai-cli-guide.en.md).
 
 > **The language of your questions and flashcards** is decided by your data — whatever you write in `examples/<theme>/*.json` is what gets displayed. Want an all-English study site? Write questions in English and generate courses with `--lang en`. The tool doesn't lock you in.
 
@@ -250,23 +250,24 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # Russian p
 | **PDF / Word question dumps**: read-only — no grading, no accuracy stats | auto-grading, wrong-question book, accuracy stats, SRS scheduling |
 | **Just asking ChatGPT**: scattered knowledge, no learning path | AI structures scattered knowledge into systematic courses + questions + flashcards |
 
-**The core differentiator**: the **four-way alignment loop** — the test points taught in courses, tested by questions, memorized via flashcards, and expanded in wrong-answer deep-dives are all the same set (see [docs/four-alignment.md](docs/four-alignment.md), [English version on the website](https://jerryjiao.github.io/ai-study-kit/en/method/four-alignment/)). Finish a lesson and the matching questions are right there; get one wrong and the deep-dive is one command away.
+**The core differentiator**: the **four-way alignment loop** — the test points taught in courses, tested by questions, memorized via flashcards, and expanded in wrong-answer deep-dives are all the same set (see [docs/four-alignment.en.md](docs/four-alignment.en.md)). Finish a lesson and the matching questions are right there; get one wrong and the deep-dive is one command away.
 
 ---
 
 ## 📚 Documentation
 
-> The repo docs are written in Chinese. The [website](https://jerryjiao.github.io/ai-study-kit/) is available in four languages — Chinese, English, Spanish and Russian — and its homepage auto-opens the version matching your browser; the core pages are translated, the rest fall back to Chinese with a notice bar. Browser translation handles the rest well enough.
+> Every doc exists in four languages — Chinese, English, Spanish and Russian — with a language switcher on top. The [website](https://jerryjiao.github.io/ai-study-kit/) mirrors them all and auto-opens the version matching your browser.
 
 | Doc | What you'll learn |
 |------|-----------|
 | [Quick start](https://jerryjiao.github.io/ai-study-kit/en/get-started/) | 5-minute demo + making it yours (English) |
-| [Methodology](https://jerryjiao.github.io/ai-study-kit/en/method/methodology/) | syllabus → materials → questions (English) |
-| [Four alignment](https://jerryjiao.github.io/ai-study-kit/en/method/four-alignment/) | how courses / questions / cards / deep-dives stay in sync (English) |
-| [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | full usage of the three AI CLIs (Chinese) |
-| [`docs/ai-study-kit.md`](docs/ai-study-kit.md) | `/ai-study-kit`: install, routing, extension (Chinese) |
-| [`docs/configuration.md`](docs/configuration.md) | `.env`: LLM + TTS providers (Chinese) |
-| [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | automated cross-checks, questions ↔ courses ↔ cards (Chinese) |
+| [`docs/methodology.en.md`](docs/methodology.en.md) | syllabus → materials → questions |
+| [`docs/four-alignment.en.md`](docs/four-alignment.en.md) | how courses / questions / cards / deep-dives stay in sync |
+| [`docs/ai-cli-guide.en.md`](docs/ai-cli-guide.en.md) | full usage of the three AI CLIs |
+| [`docs/theming.en.md`](docs/theming.en.md) | presentation config: the theme-config.json field reference |
+| [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md) | `/ai-study-kit`: install, routing, extension |
+| [`docs/configuration.en.md`](docs/configuration.en.md) | `.env`: LLM + TTS providers |
+| [`docs/bidirectional-check.en.md`](docs/bidirectional-check.en.md) | automated cross-checks, questions ↔ courses ↔ cards |
 | [`AGENTS.md`](AGENTS.md) | AI-collaboration conventions: structure / commands / hard rules (Chinese) |
 | [`examples/dev-intro/`](examples/dev-intro/) | complete sample: questions + cards + courses + deep-dives |
 
@@ -314,7 +315,7 @@ PRs and issues are welcome. Please:
 
 1. Run `pnpm run scan` and make sure it's clean
 2. Run `pnpm test` and make sure everything passes
-3. If you changed any artifact (courses / questions / cards / deep-dives), run the [`bidirectional-check`](docs/bidirectional-check.md) as well
+3. If you changed any artifact (courses / questions / cards / deep-dives), run the [`bidirectional-check`](docs/bidirectional-check.en.md) as well
 4. Follow [Conventional Commits](https://www.conventionalcommits.org/)
 
 ---

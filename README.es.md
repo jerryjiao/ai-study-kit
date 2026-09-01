@@ -44,7 +44,7 @@ Instala todo el kit en tu agente de IA (zcode / Claude Code). **Sin clonar el re
 # instala ai-study-kit y dile «quiero aprender X» (o /ai-study-kit) en una nueva sesión
 ```
 
-Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Once flujos cubiertos de principio a fin, agrupados en cuatro líneas — enseñanza (tutoría guiada, sprint de pre-examen), práctica (estudio diario, repaso de errores, pódcast), contenido (tema nuevo, generación de cursos, edición de contenido), operaciones (arranque, verificación, despliegue) — ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).
+Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Once flujos cubiertos de principio a fin, agrupados en cuatro líneas — enseñanza (tutoría guiada, sprint de pre-examen), práctica (estudio diario, repaso de errores, pódcast), contenido (tema nuevo, generación de cursos, edición de contenido), operaciones (arranque, verificación, despliegue) — ver [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).
 
 ¿Solo quieres ver cómo es? Sigue la ruta de clonación de abajo.
 
@@ -76,7 +76,7 @@ pnpm dev
 
 Con el plugin instalado arriba (o con `pnpm run skill:install` en `~/.agents/skills/`), cada sesión de estudio puede empezar aquí.
 
-Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, lecciones completadas, progreso de tutoría, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Once guías cubren desde inicializar el proyecto hasta desplegarlo. (Las guías están escritas en chino; ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).)
+Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, lecciones completadas, progreso de tutoría, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Once guías cubren desde inicializar el proyecto hasta desplegarlo. (Los guiones que ejecuta el skill están en chino; esta guía está en español: [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).)
 
 ---
 
@@ -178,7 +178,7 @@ El repositorio incluye tres herramientas de línea de comandos con IA:
 ```bash
 cp .env.example .env
 # edita .env — como mínimo LLM_BASE_URL / LLM_API_KEY / LLM_MODEL
-# detalles en docs/configuration.md (en chino)
+# detalles en docs/configuration.es.md
 ```
 
 ### Ejecutar los tres CLI
@@ -209,7 +209,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs \
 6. podcast-generate → repasa escuchando en el transporte
 ```
 
-Uso completo de los CLI, parámetros y FAQ en [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) (en chino). Detalles de configuración en [`docs/configuration.md`](docs/configuration.md) (en chino).
+Uso completo de los CLI, parámetros y FAQ en [`docs/ai-cli-guide.es.md`](docs/ai-cli-guide.es.md). Detalles de configuración en [`docs/configuration.es.md`](docs/configuration.es.md).
 
 > 💡 **La IA es opcional**: los tres CLI son capacidades incrementales. Si solo quieres el sitio de práctica + tarjetas, no configures ningún LLM — `pnpm dev` basta.
 
@@ -234,7 +234,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # diálogos
 # o define STUDY_LANG=en en .env como default (admite zh/en/es/ru)
 ```
 
-`--lang` afecta al contenido generado y a los textos fijos del HTML generado (navegación, pie, `<html lang>`). Los registros del CLI siguen en chino; el banco de preguntas nunca se traduce. Ver la sección «输出语言» de [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md).
+`--lang` afecta al contenido generado y a los textos fijos del HTML generado (navegación, pie, `<html lang>`). Los registros del CLI siguen en chino; el banco de preguntas nunca se traduce. Ver la sección «输出语言» de [`docs/ai-cli-guide.es.md`](docs/ai-cli-guide.es.md).
 
 > **El idioma de tus preguntas y tarjetas** lo decide tu data — lo que escribas en `examples/<theme>/*.json` es lo que se muestra. ¿Quieres un sitio 100 % en español? Redacta las preguntas en español y genera los cursos con `--lang es`. La herramienta no te encasilla.
 
@@ -250,23 +250,24 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # diálogos
 | **PDF / Word con preguntas**: solo lectura — sin corrección ni estadísticas | corrección automática, cuaderno de erróneas, estadísticas de precisión, planificación SRS |
 | **Preguntar directo a ChatGPT**: conocimiento disperso, sin ruta de aprendizaje | la IA estructura el conocimiento disperso en cursos + preguntas + tarjetas |
 
-**El diferenciador central**: el **ciclo de alineación cuádruple** — los puntos de examen que enseñan los cursos, que evalúan las preguntas, que fijan las tarjetas y que desarrollan los análisis de erróneas son el mismo conjunto (ver [docs/four-alignment.md](docs/four-alignment.md), [versión en español en la web](https://jerryjiao.github.io/ai-study-kit/es/method/four-alignment/)). Terminas una lección y las preguntas correspondientes ya están ahí; fallas una y el análisis está a un comando de distancia.
+**El diferenciador central**: el **ciclo de alineación cuádruple** — los puntos de examen que enseñan los cursos, que evalúan las preguntas, que fijan las tarjetas y que desarrollan los análisis de erróneas son el mismo conjunto (ver [docs/four-alignment.es.md](docs/four-alignment.es.md)). Terminas una lección y las preguntas correspondientes ya están ahí; fallas una y el análisis está a un comando de distancia.
 
 ---
 
 ## 📚 Documentación
 
-> La documentación del repositorio está escrita en chino. La [web](https://jerryjiao.github.io/ai-study-kit/) está disponible en cuatro idiomas —chino, inglés, español y ruso— y su portada abre automáticamente la versión que coincide con el idioma de tu navegador; las páginas centrales están traducidas y el resto cae al chino con un aviso. La traducción automática del navegador funciona bastante bien con estos documentos.
+> Toda la documentación existe en cuatro idiomas —chino, inglés, español y ruso— con un selector de idioma arriba. La [web](https://jerryjiao.github.io/ai-study-kit/) los reproduce y abre automáticamente la versión que coincide con el idioma de tu navegador.
 
 | Documento | Qué aprenderás |
 |------|-----------|
 | [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/es/get-started/) | demo en 5 minutos + hazlo tuyo |
-| [Methodology](https://jerryjiao.github.io/ai-study-kit/es/method/methodology/) | temario → materiales → preguntas |
-| [Four alignment](https://jerryjiao.github.io/ai-study-kit/es/method/four-alignment/) | cómo se mantienen sincronizados cursos / preguntas / tarjetas / análisis |
-| [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | uso completo de los tres CLI de IA (en chino) |
-| [`docs/ai-study-kit.md`](docs/ai-study-kit.md) | `/ai-study-kit`: instalación, enrutado, extensión (en chino) |
-| [`docs/configuration.md`](docs/configuration.md) | `.env`: proveedores de LLM + TTS (en chino) |
-| [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | verificaciones cruzadas automatizadas (en chino) |
+| [`docs/methodology.es.md`](docs/methodology.es.md) | temario → materiales → preguntas |
+| [`docs/four-alignment.es.md`](docs/four-alignment.es.md) | cómo se mantienen sincronizados cursos / preguntas / tarjetas / análisis |
+| [`docs/ai-cli-guide.es.md`](docs/ai-cli-guide.es.md) | uso completo de los tres CLI de IA |
+| [`docs/theming.es.md`](docs/theming.es.md) | configuración de presentación: referencia de campos de theme-config.json |
+| [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md) | `/ai-study-kit`: instalación, enrutado, extensión |
+| [`docs/configuration.es.md`](docs/configuration.es.md) | `.env`: proveedores de LLM + TTS |
+| [`docs/bidirectional-check.es.md`](docs/bidirectional-check.es.md) | verificaciones cruzadas automatizadas |
 | [`AGENTS.md`](AGENTS.md) | convenciones de colaboración con IA: estructura / comandos / reglas (en chino) |
 | [`examples/dev-intro/`](examples/dev-intro/) | ejemplo completo: preguntas + tarjetas + cursos + análisis |
 
@@ -314,7 +315,7 @@ Los PR y las issues son bienvenidos. Por favor:
 
 1. Ejecuta `pnpm run scan` y verifica que esté limpio
 2. Ejecuta `pnpm test` y verifica que todo pase
-3. Si cambiaste algún artefacto (cursos / preguntas / tarjetas / análisis), corre también el [`bidirectional-check`](docs/bidirectional-check.md)
+3. Si cambiaste algún artefacto (cursos / preguntas / tarjetas / análisis), corre también el [`bidirectional-check`](docs/bidirectional-check.es.md)
 4. Sigue [Conventional Commits](https://www.conventionalcommits.org/)
 
 ---

@@ -37,31 +37,32 @@ ai-study-kit/
 │       └── ecosystem.config.cjs  # pm2 部署配置
 │   └── site/                  # 官网（Astro Starlight，四语 zh/en/es/ru + 根路径按浏览器语言自适应，GitHub Pages）
 │       ├── astro.config.mjs   # zh 在 /、en/es/ru 各挂 /<lang>/，旅程四组侧栏
-│       ├── scripts/sync-docs.mjs   # docs/*.md → 站内页（生成物，勿手编）
+│       ├── scripts/sync-docs.mjs   # docs/*.md 四语 → 站内页（根=中文，en/es/ru 挂 /<lang>/；生成物，勿手编）
 │       ├── scripts/build-demo.mjs  # QUIZ_BASE 构建 quiz-app → public/demo/
 │       ├── scripts/patch-404.mjs   # 根 404.html 注入 demo 深链 SPA 兜底（build 后跑）
 │       ├── scripts/gen-og.py       # OG 分享图（产物 og.png 入库，改视觉时本地重跑）
-│       └── src/content/docs/  # 站内页（method/ai/maintain 为 sync 产物；en/es/ru/ 为手工翻译层）
+│       └── src/content/docs/  # 站内页（method/ai/maintain 及其 en/es/ru 译本均为 sync 产物；各语言 index/get-started 为手工层）
 ├── examples/
 │   └── dev-intro/             # 默认示例主题（git + Linux 基础入门）
 │       ├── questions.json     # 题库（schema 见 types.ts）
 │       ├── flashcards.json    # 闪卡
 │       ├── theme-config.json  # 主题显示配置（可选：排序/显示名/子主题/层/样式，见 docs/theming.md）
 │       ├── lessons/*.html     # teach 产出的课程
-│       ├── wrong-questions/   # 错题精讲
+│       ├── study/             # 学习痕迹伞目录（records 私有 / notes / wrong-questions 错题精讲 / sprint 冲刺包）
 │       ├── assets/styles.css  # 共享样式表
 │       └── MISSION.md / RESOURCES.md
-├── docs/                      # 方法论文档
+├── docs/                      # 方法论文档（四语：中文基准 + .en/.es/.ru 译本，顶部语言栏互链，README 同构）
 │   ├── methodology.md         # 学习方法论
 │   ├── four-alignment.md      # 四对齐原则
 │   ├── bidirectional-check.md # 自动化校验脚本说明
 │   ├── ai-cli-guide.md        # teach/grill/podcast 三个 AI CLI 用法
 │   ├── ai-study-kit.md         # /ai-study-kit 学习教练指令
-│   └── configuration.md       # .env 配置（LLM/TTS provider）
+│   ├── configuration.md       # .env 配置（LLM/TTS provider）
+│   └── theming.md             # theme-config.json 呈现层字段表（不入官网 sync 清单）
 ├── skills/
 │   └── ai-study-kit/           # 学习教练 skill 单一事实源（探测状态 → 推荐 → 带执行）
 │       ├── SKILL.md           # 路由指令本体
-│       └── references/        # state.md 探测协议 + flows.md 九流程 playbook
+│       └── references/        # state.md 探测协议 + flows.md 十一流程 playbook + coach.md 教学法
 ├── plugins/
 │   └── ai-study-kit/           # zcode/Claude plugin（sync 产物，sync-plugin.mjs 生成，勿手编）
 ├── .claude-plugin/
@@ -132,7 +133,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **`apps/quiz-app/progress.json` 是运行期数据，禁止提交、禁止手编**（已在 .gitignore）。已写坏会被 server 当作空进度重置。
   - ⭐ **写 progress.json 的 `submittedAt`/`updatedAt` 必须用真实 `Date.now()`，绝不能用任意固定值或未来时间戳**。`mergeProgress`（progress.ts）按时间戳取新来合并多端写入——未来时间戳会永久压制所有真实时间的写入。
 - **`apps/quiz-app/public/study/` 是 sync 产物**（gitignored），由 `scripts/sync-study.mjs` 从 `examples/<theme>/` 同步，build 时自动重建。改课程请走 `examples/<theme>/lessons/*.html`，别手编 `public/study/`。
-- **官网 sync 产物禁止手编**：`apps/site/src/content/docs/{method,ai,maintain}/` 由 `sync-docs.mjs` 从根 `docs/` 生成；`apps/site/public/demo/` 由 `build-demo.mjs` 生成。改文档走根 `docs/`，改 demo 走 quiz-app。官网部署走 GitHub Actions（`.github/workflows/deploy-site.yml`，push main 自动发布 Pages），不占 pm2。
+- **官网 sync 产物禁止手编**：`apps/site/src/content/docs/{method,ai,maintain}/` 及其 `en/es/ru/` 下的译本目录由 `sync-docs.mjs` 从根 `docs/` 四语生成（中文挂站根、译本挂 `/<lang>/`）；`apps/site/public/demo/` 由 `build-demo.mjs` 生成。改文档走根 `docs/`，改 demo 走 quiz-app。官网部署走 GitHub Actions（`.github/workflows/deploy-site.yml`，push main 自动发布 Pages），不占 pm2。
 - **⭐ 切换示例主题只改 `EXAMPLE_THEME` 环境变量一处**（默认 `dev-intro`）。`EXAMPLE_THEME` 支持两种形态：仓库内主题名，或**外部主题包路径**（含路径分隔符即外部形态，主题目录可住仓库外，解析见 `apps/quiz-app/scripts/lib/theme-path.mjs` 与 ADR 0004；`src/data/theme.json` 对外部形态额外记 `dir` 供粘滞回退）。课程入口 `Courses.tsx` 的 `COURSE_URL` 读 sync 产物 `src/data/theme.json` 自动跟随激活主题（2026-08-18 前需手改两处，已收敛为一处）。首页分组顺序、主题显示名等呈现定制走 `examples/<theme>/theme-config.json`（2026-08-25 前需改 `src/lib/topicOrder.ts` 代码，已配置化）。
 - **⭐ 任何发布内容禁止出现真实品牌/企业名**（课程 HTML、闪卡、公开 md 等所有同步到 `apps/quiz-app/public/study/` 的文件）。这是开源协议 MIT 之外的<strong>额外中性化要求</strong>——避免把任何具体企业的商标/品牌带入开源工具。校验用 `pnpm run scan`，命中数必须为 0 才能发布。
   - 必须中性化的词列表见 `scripts/brand-scan.py` 的 `BRAND_PATTERNS` 常量（持续补充）。常见类别：车企、互联网大厂、能源/电信央企、EV 新势力。技术专名（如 Spring Cloud Alibaba 等开源技术栈）作为技术术语保留，扫描时人工确认即可。
@@ -168,6 +169,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - 全部支持 `--lang zh|en|es|ru`（或 `STUDY_LANG` 环境变量）指定**生成内容**语言；注册表在 `scripts/lib/langs.mjs`，CLI 日志始终中文。
   - 全部需要 `.env` 配 LLM/TTS provider。详见 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md) + [`docs/configuration.md`](./docs/configuration.md)。
 - **⭐ UI 多语言（中/EN/ES/RU）**：词典在 `apps/quiz-app/src/i18n/locales/`（zh 是基准，en/es/ru 以 `Record<TKey, string>` 锚定 key 集）。改/加 UI 文案必须四份词典同步改，`i18n.test.ts` 会校验 key 完整性 + 占位符一致性。**禁止在组件里写死用户可见文案**（题库/闪卡内容除外——那是数据）。语言偏好持久化与 theme 同构：localStorage `ask-lang` + `progress.lang/langUpdatedAt`（LWW）。逻辑里不要用展示文案做比较（如"其他"桶用 `isOther` flag，别比字符串）。**README 同为四语**（README.md 中文基准 + README.en/es/ru.md 完整译本，顶部切换栏互链），改 README 内容必须四份同步改，es/ru 术语以 UI 词典为准（tab 名、功能名与 locale 文件一致）。唯一例外：README.md 中文基准的 tagline blockquote 里带一行英文一句话简介（给国际读者的可发现性），这是有意的不对称，不要同步到 en/es/ru。
+- **⭐ 项目文档（docs/）同为四语**：`docs/<name>.md` 中文基准 + `docs/<name>.en/.es/.ru.md` 完整译本，顶部语言栏互链（与 README 同构）。改任何一篇必须四份同步改，文档间交叉链接用同语言版本（如 `./four-alignment.en.md`）。官网 `sync-docs.mjs` 自动把译本挂到 `/<lang>/` 对应路径，GitHub 语言栏会被站内剥离（Starlight 有自己的语言切换）。es/ru 术语沿用官网既有译本（temario/materiales de referencia、программа/справочные материалы 等）。
 - **学习教练 skill（`/ai-study-kit`）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后输入 `/ai-study-kit` 触发。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/ai-study-kit/references/flows.md` 的 playbook 带执行（初始化/新主题/每日刷题/错题串讲/播客/产课/改内容/校验/部署/陪练教学/考前冲刺，F1-F11）。源文件在 `skills/ai-study-kit/`（**单一事实源**），安装用 `pnpm run skill:install`。
 - **⭐ ai-study-kit plugin 分发（插件=发行形态）**：`plugins/ai-study-kit/` + repo 根 `.claude-plugin/marketplace.json` 是 `scripts/sync-plugin.mjs` 的**committed sync 产物，禁止手编**——改 skill 走 `skills/ai-study-kit/` 源，改完重跑 `pnpm run sync:plugin`（版本跟根 package.json）。**命名史**：skill/插件原名 study-coach，2026-08-25 v0.7.0 全位置改名 ai-study-kit（市集插件名终身不可改，趁零用户窗口定的终名）。插件内容 = skills + **`kit/` 迷你仓库快照**（apps/quiz-app + examples/dev-intro 的 git 跟踪面，"装插件零 clone 建站"的数据基础，skill F1 流从快照拷进用户项目）。用户安装二选一：① zcode / Claude Code 添加 marketplace `https://github.com/jerryjiao/ai-study-kit` 装 ai-study-kit（更新 = marketplace refresh，无需手动重装）；② `pnpm run skill:install`（拷贝到 `~/.agents/skills/`，更新需重跑，适合无 plugin 机制的环境）。
 

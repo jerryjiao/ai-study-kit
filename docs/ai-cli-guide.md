@@ -1,5 +1,7 @@
 # AI CLI Guide · 三个 AI 命令行工具
 
+**简体中文** · [English](ai-cli-guide.en.md) · [Español](ai-cli-guide.es.md) · [Русский](ai-cli-guide.ru.md)
+
 ai-study-kit 内置三个 AI CLI，把学习素材变成闭环里的三样产物：`teach-generate` 产课程、`grill-wrong` 产错题精讲、`podcast-generate` 产复习播客。全部用你自己的 LLM/TTS API key 驱动，支持任何 OpenAI 兼容协议的服务（OpenAI / 智谱 GLM / DeepSeek / Kimi / 通义 / 豆包等）。
 
 三个 CLI 在仓库根都有快捷命令，下文统一用短形式（等价于 `node apps/quiz-app/scripts/<脚本名>.mjs`）：
@@ -7,7 +9,7 @@ ai-study-kit 内置三个 AI CLI，把学习素材变成闭环里的三样产物
 | 快捷命令 | 脚本 | 产物 |
 |----------|------|------|
 | `pnpm run ai:teach` | `teach-generate.mjs` | 课程 HTML（`lessons/*.html`） |
-| `pnpm run ai:grill` | `grill-wrong.mjs` | 错题精讲 HTML（`wrong-questions/*.html`） |
+| `pnpm run ai:grill` | `grill-wrong.mjs` | 错题精讲 HTML（`study/wrong-questions/*.html`） |
 | `pnpm run ai:podcast` | `podcast-generate.mjs` | 播客脚本 + 逐字稿 + 音频（`podcast-out/`） |
 
 ---
@@ -96,8 +98,8 @@ pnpm run ai:teach -- --theme X --lang en     # 课程用英语产
 2. 关联 `examples/<theme>/questions.json` 拿到完整题干
 3. LLM 按"考点"把错题聚类（如"git reset vs revert"3 题、"HTTP 状态码"2 题）
 4. 每簇 LLM 产深度精讲 HTML（核心区别表 + 决策流程图 + 易错警示 + 变体训练）
-5. 写到 `examples/<theme>/wrong-questions/cluster-NN-<slug>.html`
-6. 更新 `examples/<theme>/wrong-questions/index.html` 错题中心主页
+5. 写到 `examples/<theme>/study/wrong-questions/cluster-NN-<slug>.html`（旧位置 `wrong-questions/` 的产物会自动识别迁移）
+6. 更新 `examples/<theme>/study/wrong-questions/index.html` 错题中心主页
 
 ### 用法
 
@@ -156,7 +158,7 @@ pnpm run ai:podcast -- --input examples/dev-intro/questions.json \
 
 # 只产脚本不合成音频（省 TTS 成本）
 pnpm run ai:podcast -- \
-  --input examples/dev-intro/wrong-questions/cluster-01-*.html --no-tts
+  --input examples/dev-intro/study/wrong-questions/cluster-01-*.html --no-tts
 
 # 对白用其他语言产（先 --no-tts 验证脚本，见下方「输出语言」）
 pnpm run ai:podcast -- --input examples/dev-intro/questions.json --lang ru --no-tts

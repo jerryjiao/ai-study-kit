@@ -1,5 +1,7 @@
 # Bidirectional Check · 双向校验脚本
 
+**简体中文** · [English](bidirectional-check.en.md) · [Español](bidirectional-check.es.md) · [Русский](bidirectional-check.ru.md)
+
 四对齐原则要能自动验证才有约束力。仓库内置 [`scripts/bidirectional-check.py`](https://github.com/jerryjiao/ai-study-kit/blob/main/scripts/bidirectional-check.py)，把「题 → 课」「大纲 → 题」「闪卡覆盖」三个方向做成一条命令。语义级的「课讲错了」仍靠人工核对（规则见 [`four-alignment.md`](./four-alignment.md)）。
 
 ---

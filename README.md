@@ -260,6 +260,8 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播
 
 ## 📚 文档导航
 
+每篇文档都是四语（顶部语言栏：简体中文 / English / Español / Русский 互链）。
+
 | 文档 | 看它学什么 |
 |------|-----------|
 | [`docs/methodology.md`](docs/methodology.md) | 学习方法论：大纲 → 材料 → 做题 |
@@ -268,6 +270,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播
 | [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | 三个 AI CLI（teach/grill/podcast）完整用法 |
 | [`docs/ai-study-kit.md`](docs/ai-study-kit.md) | `/ai-study-kit` 学习教练：安装、路由、扩展 |
 | [`docs/configuration.md`](docs/configuration.md) | `.env` 配置：LLM provider + TTS provider |
+| [`docs/theming.md`](docs/theming.md) | 主题呈现配置：theme-config.json 字段表 |
 | [`AGENTS.md`](AGENTS.md) | AI 协作约定（项目结构 / 命令 / 红线） |
 | [`examples/dev-intro/`](examples/dev-intro/) | git+Linux 完整示例：题 + 闪卡 + 课程 + 错题精讲 |
 

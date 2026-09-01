@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **文档全面重写（docs/，v0.9.0 对齐）**：七篇中文文档重写——修正 v0.9.0 后的过时路径（错题精讲 `wrong-questions/` → `study/wrong-questions/`，示例表换新文件名）；方法论补入教练线（F10 陪练教学 / F11 考前冲刺）与学习痕迹 `study/` 伞目录（含隐私边界表）；theming.md 重构为字段表 + 最小示例的易读结构；移除 methodology / four-alignment 文首的英文摘要引用块 hack（四语全版取代）。
+- **文档四语化（zh/en/es/ru）**：新增 21 篇译本 `docs/<name>.en/.es/.ru.md`（README 同构：顶部语言栏互链、交叉链接走同语言版本）；AGENTS.md / README 四语的文档导航与「仓库文档是中文的」说明同步更新，译本 README 的文档链接改指各语言版本。
+- **官网四语同步（sync-docs.mjs 升级）**：中文挂站根、`docs/<name>.<lang>.md` 译本自动挂 `/<lang>/` 对应路径（缺篇跳过、Starlight 回退中文 + 提示条）；站内自动剥离 GitHub 语言栏、`./xxx.<lang>.md` 与裸 `.md` 交叉链接均重写为同语言站内路径；`en/es/ru` 的 method 手工译本层转正为 sync 产物（真源移至 `docs/`，gitignore + 解除跟踪）。官网文档页从「中文 7 页 + 2 篇英西俄」扩为四语各 7 页。
+
 ## [0.9.0] — 2026-09-01
 
 主题：**教学主线成体——F10 陪练教学重写（coach.md 教学法单一事实源 + 五模式考法）+ F11 考前冲刺新增 + study/ 学习痕迹伞目录 + 课已学完显式确认制。**

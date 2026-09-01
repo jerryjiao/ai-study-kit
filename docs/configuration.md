@@ -1,5 +1,7 @@
 # Configuration · 配置指南
 
+**简体中文** · [English](configuration.en.md) · [Español](configuration.es.md) · [Русский](configuration.ru.md)
+
 三个 AI CLI 的 `.env` 配置说明。要配的东西很少：LLM provider 任选一家（OpenAI / GLM / DeepSeek / Kimi / 通义 / 豆包），想做播客再配 TTS（当前仅 GLM-TTS）。全部走 OpenAI 兼容协议，换 provider 只改三个变量。
 
 ---
