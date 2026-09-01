@@ -170,7 +170,11 @@ export const es: Record<TKey, string> = {
     'El contenido viene de examples/<theme>/ — ejecuta pnpm run build (incluye sync:study) para sincronizarlo en public/study/.',
   'courses.frameTitle': 'Sitio del curso',
   'courses.index': 'Índice de lecciones',
-  'courses.readProgress': 'Leídas {read}/{total}',
+  'courses.doneProgress': 'Lecciones completadas {done}/{total}',
+  'courses.markDone': '✓ Lección completada',
+  'courses.undoDone': 'Completada · Deshacer',
+  'courses.undoDoneTitle': 'Quitar la marca de completada de esta lección (abrir una lección nunca cuenta; solo este botón lo hace)',
+  'courses.goPractice': 'Practicar esta lección',
 
   // Aviso de sincronización
   'sync.local': 'Modo demo: el progreso se guarda solo en este navegador, sin sincronización',

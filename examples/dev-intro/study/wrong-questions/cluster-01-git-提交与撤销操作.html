@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错题精讲 · Git 提交与撤销操作</title>
+<link rel="stylesheet" href="../../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>错题精讲 · Git 提交与撤销操作</h1>
+<p class="meta">对应题目：GIT-003、GIT-007　·　<a href="index.html">← 返回错题中心</a>　·　相关课程：<a href="../../lessons/git-basics.html">第 1 课 · git 三区与基础命令</a>、<a href="../../lessons/linux-basics.html">第 2 课 · Linux 目录与权限</a></p>
+
+<div class="quiz-anchor" data-ids="GIT-003,GIT-007" data-points="Git 提交与撤销操作"></div>
+
+<h2>Git 提交与撤销操作精讲</h2>
+
+<p>在做这两道题时，我们触及了 Git 日常工作中最核心的两个动作：<strong>如何把改动存入历史</strong>，以及<strong>如何安全地反悔</strong>。很多初学者容易混淆“本地提交”与“远程推送”的概念，或者在需要撤销时选错了工具，导致代码丢失或团队协作灾难。下面我们结合“三区模型”来彻底搞懂这些命令。</p>
+
+<h3>1. 基础复盘：提交的三区流转（针对 GIT-003）</h3>
+<p>在题目 [GIT-003] 中，你选择了 <code>git push</code>，这是非常典型的误区。我们需要回到 Git 的<strong>三区模型</strong>（工作区、暂存区、版本库）来理解：</p>
+<ul>
+    <li><strong>工作区</strong>：你肉眼看到的文件，正在修改的代码。</li>
+    <li><strong>暂存区</strong>：通过 <code>git add</code> 后，准备提交的文件列表。</li>
+    <li><strong>版本库</strong>：通过 <code>git commit</code> 后，生成了版本快照的地方。</li>
+</ul>
+<p><code>git commit</code> 的作用是将“暂存区”的内容快照永久保存到“版本库”，并附带说明（<code>-m</code>）。而 <code>git push</code> 是将“版本库”的内容同步到“远程仓库”。你选 A 的原因可能是认为“提交”就是上传，但实际上 <strong>Commit 是本地存档，Push 是云端同步</strong>。如果没有先 Commit，Push 是无数据可传的。</p>
+<p><strong>正确命令</strong>：<code>git commit -m "说明"</code>。</p>
+
+<h3>2. 进阶辨析：Reset 与 Revert 的抉择（针对 GIT-007）</h3>
+<p>题目 [GIT-007] 考察的是撤销操作。你漏选了 A 和 D，说明对“重写历史”和“反向提交”的本质区别理解不够透彻。Git 撤销改动的本质只有两种逻辑：</p>
+
+<h4>核心区别/概念表</h4>
+<table>
+    <thead>
+        <tr>
+            <th>维度</th>
+            <th>git reset</th>
+            <th>git revert</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>操作本质</strong></td>
+            <td><strong>回退指针</strong>：移动 HEAD 指针到旧版本，就像时光倒流。</td>
+            <td><strong>新建提交</strong>：创建一个新的“反向提交”来抵消改动。</td>
+        </tr>
+        <tr>
+            <td><strong>历史记录</strong></td>
+            <td><strong>改变历史</strong>：被撤销的提交在当前分支历史中消失（选项 A 正确）。</td>
+            <td><strong>保留历史</strong>：原提交和撤销提交都存在，历史完整（选项 B 正确）。</td>
+        </tr>
+        <tr>
+            <td><strong>安全性</strong></td>
+            <td><strong>危险</strong>：如果 reset 到已经 push 的版本，会导致队友冲突。</td>
+            <td><strong>安全</strong>：不改变已存在的历史，适合公共分支。</td>
+        </tr>
+        <tr>
+            <td><strong>适用场景</strong></td>
+            <td>本地私有分支清理，或尚未 push 的提交。</td>
+            <td>已推送到团队共享分支的紧急修复（选项 D 正确）。</td>
+        </tr>
+    </tbody>
+</table>
+
+<p>关于选项 C，虽然最终代码效果可能一样（文件都变回去了），但它们对版本库的影响截然不同，绝对不能在团队协作分支上互换使用，否则会重写队友的历史。</p>
+
+<h3>3. 决策流程图：我该用哪个命令？</h3>
+<p>当你想要撤销某个提交时，请遵循以下决策树：</p>
+
+<pre><code>开始：想要撤销某个提交？
+│
+├─ 1. 这个提交是否已经 push 到远程仓库？
+│   │
+│   ├─ [YES] 已推送 (队友可能已基于此工作)
+│   │   └─> 必须使用 git revert [commit-hash]
+│   │       (原理：追加一个反向提交，不破坏历史)
+│   │
+│   └─ [NO] 未推送 (仅在你本地可见)
+│       │
+│       ├─ 2. 你想彻底丢弃这次提交的改动吗？
+│       │   │
+│       │   ├─ [YES] 丢弃代码
+│       │   │   └─> 使用 git reset --hard [target-hash]
+│       │       (注意：工作区改动也会丢失！)
+│       │   │
+│       │   └─ [NO] 保留代码，仅撤销提交
+│       │       └─> 使用 git reset --soft [target-hash]
+│       │           (效果：改动回到暂存区，你可以重新修改后 commit)
+│       │
+│       └─ 3. 仅仅修改上一次提交的说明/漏加文件？
+│           └─> 使用 git commit --amend
+</code></pre>
+
+<h3>4. 易错警示</h3>
+<div class="callout callout-warn">
+    <h4>⚠️ 警示 1：混淆 Commit 与 Push</h4>
+    <p>再次强调，<code>git push</code> 是“上传”，不是“存档”。如果题目问的是“提交暂存区到版本库”，永远是 <code>commit</code>。只有当你想把版本库同步给 GitHub/GitLab 时，才用 <code>push</code>。</p>
+</div>
+<div class="callout callout-warn">
+    <h4>⚠️ 警示 2：严禁 Reset 公共分支</h4>
+    <p>如果多人协作的分支（如 <code>main</code> 或 <code>develop</code>）已经被你 push 过了，千万不要用 <code>git reset</code> 去回退版本。这会导致你的本地历史和远程历史分叉，队友下次 pull 时会遭遇巨大的冲突灾难。此时必须老老实实用 <code>git revert</code>。</p>
+</div>
+
+<h3>5. 变体训练</h3>
+<div class="callout">
+    <h4>📝 变体题 1</h4>
+    <p><strong>题干</strong>：小王不小心将包含密码错误的配置文件 <code>config.env</code> 提交并推送到了团队的 <code>master</code> 分支。为了消除这个错误，同时不破坏队友的本地历史，他应该执行下列哪条命令？</p>
+    <p>A. git reset HEAD~1 --hard<br>
+    B. git commit --amend<br>
+    C. git revert HEAD<br>
+    D. git branch -D HEAD</p>
+    <p><strong>解析</strong>：注意关键词“已推送”和“不破坏队友历史”。Reset 会改变历史，Amend 只能改未推送的上一个提交。正确答案是 <strong>C</strong>。</p>
+</div>
+
+<div class="callout">
+    <h4>📝 变体题 2</h4>
+    <p><strong>题干</strong>：你刚刚执行了 <code>git commit -m "fix bug"</code>，但突然发现还有一个文件 <code>patch.js</code> 忘记加进去了。你不想新建一个新的提交，而是想把 <code>patch.js</code> 合并到刚才的提交里，应该怎么操作？</p>
+    <p>A. git add patch.js; git commit -m "fix bug"<br>
+    B. git add patch.js; git commit --amend --no-edit<br>
+    C. git reset --hard HEAD; git add patch.js; git commit<br>
+    D. git push -f</p>
+    <p><strong>解析</strong>：这是修正“最后一次提交”的经典场景。先 add 把文件放入暂存区，然后用 <code>--amend</code> 修改上一次提交。答案 <strong>B</strong>。注意 <code>--no-edit</code> 表示不修改提交信息，如果想改信息可以去掉它。</p>
+</div>
+
+<footer>
+<p>💡 本精讲由 ai-study-kit 的 <code>grill-wrong.mjs</code> 自动生成。如有不清楚，可以让 AI 助手进一步讲解。</p>
+</footer>
+</main>
+</body>
+</html>

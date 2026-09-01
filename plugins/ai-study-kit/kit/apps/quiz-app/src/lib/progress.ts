@@ -252,22 +252,34 @@ export function applySrs(p: Progress, cardId: string, state: SrsState): Progress
   return { ...p, srs: { ...(p.srs ?? {}), [cardId]: state } };
 }
 
-// —— 课程已读（完成边界「课全读」的机读口径）——
+// —— 课已学完（显式确认制，「课全学完」完成边界的机读口径）——
 
-/** 课程已读 key："<theme>/<lesson文件名>"。主题前缀让多主题天然隔离，
+/** 课已学完 key："<theme>/<lesson文件名>"。主题前缀让多主题天然隔离，
  *  与 sync-examples.mjs 产出的 src/data/courses.json 清单（{theme, lessons:[{file}]})对账。 */
 export function courseKey(theme: string, file: string): string {
   return `${theme}/${file}`;
 }
 
-/** 标记一节课已读（重复标记刷新时间戳——merge 取 per-key max，跨设备 LWW）。 */
+/** 标记一节课已学完（用户点「✓ 学完了」才走到这里；重复标记刷新时间戳——merge 取 per-key max，跨设备 LWW）。 */
 export function markCourseRead(p: Progress, theme: string, file: string, now = Date.now()): Progress {
   return { ...p, coursesRead: { ...(p.coursesRead ?? {}), [courseKey(theme, file)]: now } };
 }
 
-/** 一节课是否已读（无记录即未读；本字段无墓碑，不存在"标记后取消"态）。 */
+/** 撤销一节课的学完标记：打墓碑（coursesReadTombstones）而非删 key——
+ *  writeProgress 是 read-merge-write，直接删 key 会被服务器旧快照补回，
+ *  墓碑新于学完时间戳时读端视为未学完（与 read/readTombstones 同构）。
+ *  之后再点「学完了」写入更新的时间戳，自然复活（seen > tomb）。 */
+export function unmarkCourseRead(p: Progress, theme: string, file: string, now = Date.now()): Progress {
+  return { ...p, coursesReadTombstones: { ...(p.coursesReadTombstones ?? {}), [courseKey(theme, file)]: now } };
+}
+
+/** 一节课是否已学完：有学完时间戳，且未被撤销墓碑盖掉（tomb >= seen 视为未学完，含相等——
+ *  同一毫秒的撤销意图优先，防撤销瞬间读端闪回）。旧数据无墓碑 = 已确认保留（迁移兼容）。 */
 export function isCourseRead(p: Progress, theme: string, file: string): boolean {
-  return p.coursesRead?.[courseKey(theme, file)] !== undefined;
+  const seen = p.coursesRead?.[courseKey(theme, file)];
+  if (seen === undefined) return false;
+  const tomb = p.coursesReadTombstones?.[courseKey(theme, file)];
+  return tomb === undefined ? true : seen > tomb;
 }
 
 /** 合并 read 字段：每个题 id 取时间戳较新者 */
@@ -381,8 +393,10 @@ export function mergeProgress(local: Progress, remote: Progress): Progress {
     answers,
     read: mergeRead(local.read, remote.read),
     readTombstones: mergeReadTombstones(local.readTombstones, remote.readTombstones),
-    // 课程已读：与 read 同款 per-key max（LWW）。key 自带主题前缀，多主题互不干扰。
+    // 课已学完：与 read 同款 per-key max（LWW）。key 自带主题前缀，多主题互不干扰；
+    // 撤销墓碑同 readTombstones 取 max，让「撤销学完了」的删除意图穿过同步链持久化。
     coursesRead: mergeRead(local.coursesRead, remote.coursesRead),
+    coursesReadTombstones: mergeReadTombstones(local.coursesReadTombstones, remote.coursesReadTombstones),
     srs: mergeSrs(local.srs, remote.srs),
     srsMeta: mergeSrsMeta(local.srsMeta, remote.srsMeta),
     ...mergeTheme(

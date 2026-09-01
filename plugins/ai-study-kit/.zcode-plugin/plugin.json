@@ -1,10 +1,10 @@
 {
   "name": "ai-study-kit",
-  "version": "0.8.0",
-  "description": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /ai-study-kit 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。",
+  "version": "0.9.0",
+  "description": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy. /ai-study-kit 学习教练：扫描学习状态（含陪练进度与考期），推荐下一步该学什么、做什么。",
   "description_i18n": {
-    "en": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release.",
-    "zh-CN": "ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、课程已读、AI 配置），带你执行每日学习、错题串讲、播客、产课到发版的全流程。"
+    "en": "Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy.",
+    "zh-CN": "ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。"
   },
   "author": {
     "name": "ai-study-kit",

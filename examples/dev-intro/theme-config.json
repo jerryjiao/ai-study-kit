@@ -13,6 +13,10 @@
     "git-basics",
     "linux-commands"
   ],
+  "lessonTopics": {
+    "git-basics.html": "git-basics",
+    "linux-basics.html": "linux-commands"
+  },
   "topicStyles": {
     "git-basics": {
       "cls": "bg-indigo-50 border-indigo-200 text-indigo-800 hover:bg-indigo-100",

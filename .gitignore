@@ -65,3 +65,6 @@ examples/software-designer/
 apps/quiz-app/ecosystem.ruankao.config.cjs
 # 工具临时文件
 *.tmp.*
+
+# grill 生成器的历史备份（瞬态产物，不入库）
+examples/*/study/wrong-questions/.archive/

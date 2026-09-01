@@ -45,7 +45,7 @@ if (!existsSync(join(SRC, 'SKILL.md'))) {
   process.exit(1);
 }
 
-const DESCRIPTION = 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release. /ai-study-kit 学习教练：扫描学习状态，推荐下一步该学什么、带你执行。';
+const DESCRIPTION = 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy. /ai-study-kit 学习教练：扫描学习状态（含陪练进度与考期），推荐下一步该学什么、做什么。';
 const KEYWORDS = ['study', 'learning', 'flashcards', 'srs', 'spaced-repetition', 'quiz', 'tutor', 'ai-study-kit'];
 // 插件图标：源是仓库根 assets/logo.png（与 quiz-app/官网三端同源）。marketplace 的 icon 走 jsDelivr
 // 绝对 URL（zcode 官方源同款做法；raw.githubusercontent 直连会撞 429/墙，jsDelivr 是 CDN 更稳）。
@@ -56,8 +56,8 @@ const manifest = {
   version: VERSION,
   description: DESCRIPTION,
   description_i18n: {
-    en: 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, courses read, AI config) and coaches you through daily study, wrong-question grilling, podcasts, course generation, and release.',
-    'zh-CN': 'ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、课程已读、AI 配置），带你执行每日学习、错题串讲、播客、产课到发版的全流程。',
+    en: 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy.',
+    'zh-CN': 'ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。',
   },
   author: { name: 'ai-study-kit', url: 'https://github.com/jerryjiao/ai-study-kit' },
   homepage: 'https://github.com/jerryjiao/ai-study-kit',
@@ -80,16 +80,28 @@ writeFileSync(join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'), manifestJson);
 // `../../..`（apps/quiz-app/scripts → 仓库根），examples/dev-intro 是无 EXAMPLE_THEME 时的回落主题。
 // skill 的 F1 流把整个 kit/ 拷进用户项目（见 references/flows.md）。
 const KIT_DST = join(PLUGIN_DIR, 'kit');
-const tracked = execFileSync('git', ['ls-files', '--', 'apps/quiz-app', 'examples/dev-intro'], { cwd: REPO_ROOT })
+// ls-files 默认 core.quotePath=true 会把非 ASCII 文件名转成带八进制转义的引号串
+// （"cluster-01-git-\346\217\220…"），按字面 stat 必然「工作树缺失」——中文文件名
+// （如 grill 产出的中文主题 cluster 页）会整批漏出快照。用 -z 按原文拿路径。
+const tracked = execFileSync('git', ['ls-files', '-z', '--', 'apps/quiz-app', 'examples/dev-intro'], { cwd: REPO_ROOT })
   .toString()
-  .split('\n')
+  .split('\0')
   .filter(Boolean);
+// 工作树缺文件（已跟踪但删除未 staged / rm 未 add）跳过并记名：快照取的是工作树现状，
+// 硬拷会 ENOENT 崩掉整个 sync（v0.8→v0.9 期间 wrong-questions/ 迁往 study/ 时踩中）。
+const missing = [];
 for (const rel of tracked) {
+  const src = join(REPO_ROOT, rel);
+  if (!existsSync(src)) {
+    missing.push(rel);
+    continue;
+  }
   const dest = join(KIT_DST, rel);
   mkdirSync(dirname(dest), { recursive: true });
-  copyFileSync(join(REPO_ROOT, rel), dest);
+  copyFileSync(src, dest);
 }
-console.log(`[sync-plugin] apps/quiz-app + examples/dev-intro 跟踪面 ${tracked.length} 文件 → plugins/${SKILL_NAME}/kit/`);
+if (missing.length) console.warn(`[sync-plugin] ⚠ 工作树缺失（删除未 staged？快照不含）：\n  ${missing.join('\n  ')}`);
+console.log(`[sync-plugin] apps/quiz-app + examples/dev-intro 跟踪面 ${tracked.length - missing.length} 文件 → plugins/${SKILL_NAME}/kit/`);
 
 // icon.png 拷进插件包根（对照 cloudflare 插件带 logo.svg 的做法，覆盖从插件包找图标的消费方）
 copyFileSync(join(REPO_ROOT, 'assets', 'logo.png'), join(PLUGIN_DIR, 'icon.png'));

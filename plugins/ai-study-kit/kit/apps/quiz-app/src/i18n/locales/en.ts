@@ -170,7 +170,11 @@ export const en: Record<TKey, string> = {
     'Course content comes from examples/<theme>/ — run pnpm run build (includes sync:study) to sync it into public/study/.',
   'courses.frameTitle': 'Course site',
   'courses.index': 'Lesson index',
-  'courses.readProgress': 'Read {read}/{total}',
+  'courses.doneProgress': 'Lessons completed {done}/{total}',
+  'courses.markDone': '✓ Lesson done',
+  'courses.undoDone': 'Completed · Undo',
+  'courses.undoDoneTitle': 'Undo the completed mark for this lesson (opening a lesson never counts — only this button does)',
+  'courses.goPractice': "Practice this lesson's questions",
 
   // Sync banner
   'sync.local': 'Demo mode: progress is saved in this browser only — no server sync',

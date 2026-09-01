@@ -191,8 +191,10 @@ ${courseContext}
 export function wrapClusterHTML({ mainContent, topic, ids, lessonLinks = [], lang = 'zh' }) {
   const conf = langConf(lang);
   const idList = ids.join('、');
+  // 相对链接前缀：产物在 <主题包>/study/wrong-questions/ 下，主题资产（assets/、lessons/、
+  // index.html）在主题包根，故上溯两级 ../../（目录从根级 wrong-questions/ 迁入 study/ 后加深一层）。
   const lessonBlock = lessonLinks.length
-    ? `　·　${conf.ui.relatedLessons}` + lessonLinks.map((l) => `<a href="../lessons/${l.file}">${escapeHTML(l.title)}</a>`).join('、')
+    ? `　·　${conf.ui.relatedLessons}` + lessonLinks.map((l) => `<a href="../../lessons/${l.file}">${escapeHTML(l.title)}</a>`).join('、')
     : '';
   return `<!DOCTYPE html>
 <html lang="${conf.htmlLang}">
@@ -200,7 +202,7 @@ export function wrapClusterHTML({ mainContent, topic, ids, lessonLinks = [], lan
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${conf.ui.wrongTitle} · ${escapeHTML(topic)}</title>
-<link rel="stylesheet" href="../assets/styles.css">
+<link rel="stylesheet" href="../../assets/styles.css">
 </head>
 <body>
 <main>
@@ -241,7 +243,7 @@ export function wrapIndexHTML(clusters, themeName, lang = 'zh') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${conf.ui.indexTitle} · ${escapeHTML(themeName)}</title>
-<link rel="stylesheet" href="../assets/styles.css">
+<link rel="stylesheet" href="../../assets/styles.css">
 <style>
   .layer-card {
     display: block; border: 1px solid var(--rule); border-radius: 10px;
@@ -258,7 +260,7 @@ export function wrapIndexHTML(clusters, themeName, lang = 'zh') {
 <body>
 <main>
 <h1>${conf.ui.indexTitle} · ${escapeHTML(themeName)}</h1>
-<p class="meta">${conf.ui.indexAuto}　·　<a href="../index.html">${conf.ui.backToCourseHome}</a></p>
+<p class="meta">${conf.ui.indexAuto}　·　<a href="../../index.html">${conf.ui.backToCourseHome}</a></p>
 
 <p class="lead">${conf.ui.indexLead}</p>
 

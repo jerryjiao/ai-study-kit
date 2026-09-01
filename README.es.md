@@ -44,7 +44,7 @@ Instala todo el kit en tu agente de IA (zcode / Claude Code). **Sin clonar el re
 # instala ai-study-kit y dile «quiero aprender X» (o /ai-study-kit) en una nueva sesión
 ```
 
-Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Diez flujos cubiertos de principio a fin: arranque, tema nuevo, estudio diario, repaso de errores, pódcast, generación de cursos, repaso guiado en vivo, verificación y despliegue — ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).
+Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Once flujos cubiertos de principio a fin, agrupados en cuatro líneas — enseñanza (tutoría guiada, sprint de pre-examen), práctica (estudio diario, repaso de errores, pódcast), contenido (tema nuevo, generación de cursos, edición de contenido), operaciones (arranque, verificación, despliegue) — ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).
 
 ¿Solo quieres ver cómo es? Sigue la ruta de clonación de abajo.
 
@@ -76,7 +76,7 @@ pnpm dev
 
 Con el plugin instalado arriba (o con `pnpm run skill:install` en `~/.agents/skills/`), cada sesión de estudio puede empezar aquí.
 
-Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Diez guías cubren desde inicializar el proyecto hasta desplegarlo. (Las guías están escritas en chino; ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).)
+Primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, lecciones completadas, progreso de tutoría, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Once guías cubren desde inicializar el proyecto hasta desplegarlo. (Las guías están escritas en chino; ver [`docs/ai-study-kit.md`](docs/ai-study-kit.md).)
 
 ---
 

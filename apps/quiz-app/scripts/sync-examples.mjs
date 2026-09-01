@@ -85,9 +85,16 @@ writeFileSync(
 console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME}${EXTERNAL ? ' · 外部主题包' : ''})`);
 
 // 课程清单：examples/<theme>/lessons/*.html → src/data/courses.json。
-// Courses 页据此渲染课程目录 + 已读进度；ai-study-kit skill / CLI 据此对账「课全读」
-// 完成边界（coursesRead 的 "<theme>/<file>" key 命中清单全集 = 课全读）。
+// Courses 页据此渲染课程目录 + 学完进度；ai-study-kit skill / CLI 据此对账「课全学完」
+// 完成边界（coursesRead 的 "<theme>/<file>" key 命中清单全集 = 课全学完）。
 // title 取 lesson 的 <title>（teach 产出必有），取不到时退回文件名。
+// topic（可选）：theme-config.json 的 lessonTopics（"<lesson文件名>" → 题库 topic id）命中时带入——
+// 课程页「已学完 → 去刷这课的题」按它直达对应题集；未配置则缺省，课程页按文件名同名约定回退。
+const lessonTopics = (() => {
+  try {
+    return existsSync(themeConfigSrc) ? (JSON.parse(readFileSync(themeConfigSrc, 'utf-8')).lessonTopics ?? {}) : {};
+  } catch { return {}; } // theme-config 损坏：无映射，等同未配置
+})();
 const lessonsDir = join(EXAMPLE_DIR, 'lessons');
 if (existsSync(lessonsDir)) {
   const lessons = readdirSync(lessonsDir)
@@ -96,7 +103,8 @@ if (existsSync(lessonsDir)) {
     .map((file) => {
       const html = readFileSync(join(lessonsDir, file), 'utf-8');
       const m = html.match(/<title>([^<]*)<\/title>/i);
-      return { file, title: (m?.[1] ?? file).trim() };
+      const title = (m?.[1] ?? file).trim();
+      return lessonTopics[file] ? { file, title, topic: lessonTopics[file] } : { file, title };
     });
   writeFileSync(join(DATA_DIR, 'courses.json'), JSON.stringify({ theme: EXAMPLE_THEME, lessons }, null, 2) + '\n');
   console.log(`[sync-examples] → src/data/courses.json  (${lessons.length} lessons)`);

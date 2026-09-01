@@ -170,7 +170,11 @@ export const ru: Record<TKey, string> = {
     'Содержимое курсов берётся из examples/<theme>/ — выполните pnpm run build (включает sync:study), чтобы синхронизировать его в public/study/.',
   'courses.frameTitle': 'Учебный сайт',
   'courses.index': 'Оглавление уроков',
-  'courses.readProgress': 'Прочитано {read}/{total}',
+  'courses.doneProgress': 'Пройдено уроков {done}/{total}',
+  'courses.markDone': '✓ Урок пройден',
+  'courses.undoDone': 'Пройден · Отменить',
+  'courses.undoDoneTitle': 'Снять отметку «пройден» с этого урока (просмотр урока не засчитывается — только эта кнопка)',
+  'courses.goPractice': 'Тренироваться по этому уроку',
 
   // Баннер синхронизации
   'sync.local': 'Демо-режим: прогресс хранится только в этом браузере, без синхронизации',

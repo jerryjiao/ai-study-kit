@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Progress, AnswerRecord, SrsState, SyncStatus, UiLang, LearnSettings } from '../types';
-import { emptyProgress, applyAnswer, applySrs, markRead as markReadFn, nextStreak, nextWrongCount, streakToPass, resetWrong as resetWrongFn, resetRead as resetReadFn, resetAnswersByIds as resetAnswersByIdsFn, resetReadByIds as resetReadByIdsFn, resetSrs as resetSrsFn, noteNewCard, markCourseRead as markCourseReadFn } from '../lib/progress';
+import { emptyProgress, applyAnswer, applySrs, markRead as markReadFn, nextStreak, nextWrongCount, streakToPass, resetWrong as resetWrongFn, resetRead as resetReadFn, resetAnswersByIds as resetAnswersByIdsFn, resetReadByIds as resetReadByIdsFn, resetSrs as resetSrsFn, noteNewCard } from '../lib/progress';
+import { applyCourseEvent, type CourseEvent } from '../lib/courseProgress';
 import type { ThemeMode } from '../lib/theme';
 import { isNew } from '../lib/srs';
 import { loadProgress, saveProgress, setSyncListener, flushPending } from '../api/progressClient';
@@ -16,8 +17,10 @@ interface ProgressCtxValue {
   retrySync: () => Promise<void>; // 手动重试 flush pending 队列（点击 banner 时调）
   submitAnswer: (id: string, rec: AnswerRecord) => void;
   markRead: (id: string) => void;
-  /** 标记一节课已读（课程页 iframe 加载命中清单时调）。key 自带主题前缀，多主题隔离。 */
-  markCourseRead: (theme: string, file: string) => void;
+  /** 课程页事件分发（显式确认制，语义见 lib/courseProgress）：
+   *  doneToggle = 点「学完了」mark / 再点撤销 unmark（置 dirty 走同步）；
+   *  open = 打开/课站内链导航，恒等零写入——不置 dirty、不发 POST。 */
+  dispatchCourseEvent: (ev: CourseEvent) => void;
   reviewCard: (cardId: string, state: SrsState) => void;
   reset: () => Promise<void>;
   /** ids 可选：多主题隔离——传激活主题的题/卡 id 集时只清命中的，不误伤其他主题进度。 */
@@ -93,8 +96,14 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     dirtyRef.current = true;
   }, []);
 
-  const markCourseRead = useCallback((theme: string, file: string) => {
-    setProgress((prev) => markCourseReadFn(prev, theme, file));
+  /** 课程页事件唯一入口（policy 在 lib/courseProgress.applyCourseEvent）。
+   *  用 progressRef 现算而非 setProgress updater：要先知道「数据有没有变」再决定
+   *  是否置 dirty——「仅打开」返回同一引用时连 POST 都不发（零写入分水岭）。 */
+  const dispatchCourseEvent = useCallback((ev: CourseEvent) => {
+    const prev = progressRef.current;
+    const next = applyCourseEvent(prev, ev);
+    if (next === prev) return; // 仅打开：零变化，no-op
+    setProgress(next);
     dirtyRef.current = true;
   }, []);
 
@@ -205,8 +214,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<ProgressCtxValue>(
-    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings }),
-    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, markCourseRead, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings]
+    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, dispatchCourseEvent, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings }),
+    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, dispatchCourseEvent, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings]
   );
 
   return <ProgressCtx.Provider value={value}>{children}</ProgressCtx.Provider>;

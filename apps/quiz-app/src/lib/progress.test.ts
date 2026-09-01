@@ -570,7 +570,8 @@ describe('progress', () => {
     expect(isCardDeleted(p.srs?.['FC-DEV-001'])).toBe(true);
   });
 
-  // —— 课程已读（v0.4 痛点 #3）：完成边界「课全读」的机读口径 ——
+  // —— 课已学完（显式确认制）：完成边界「课全学完」的机读口径。
+  //    三断言（点击记入/再点撤销/仅打开零变化）与墓碑合并见 courseProgress.test.ts ——
   it('markCourseRead/isCourseRead: key 带主题前缀，多主题天然隔离', () => {
     let p = markCourseRead(emptyProgress(), 'dev-intro', 'git-basics.html', 100);
     expect(isCourseRead(p, 'dev-intro', 'git-basics.html')).toBe(true);

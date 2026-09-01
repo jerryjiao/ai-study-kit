@@ -58,12 +58,14 @@ test('requireLlmConfig: 用 import 形式，全配时返回对象', async () => 
 });
 
 test('requireLlmConfig: 缺 API_KEY 时 exit(1) 并打印提示', () => {
+  // 缺失项显式传空串：dotenv 不覆盖已存在的环境变量，空串在
+  // requireLlmConfig 里按缺失处理——这样用例不被开发机上的真实 .env 干扰。
   const r = runIsolated(
     `import('./llm.mjs').then(m=>m.requireLlmConfig())`,
     {
       LLM_BASE_URL: 'https://api.example.com/v1',
       LLM_MODEL: 'test-model',
-      // 缺 LLM_API_KEY
+      LLM_API_KEY: '',
     }
   );
   assert.equal(r.code, 1);
@@ -74,7 +76,7 @@ test('requireLlmConfig: 缺 API_KEY 时 exit(1) 并打印提示', () => {
 test('requireLlmConfig: 全缺时 exit(1)', () => {
   const r = runIsolated(
     `import('./llm.mjs').then(m=>m.requireLlmConfig())`,
-    {}  // 啥都不配
+    { LLM_BASE_URL: '', LLM_API_KEY: '', LLM_MODEL: '' }  // 同上：密封，防真实 .env 注入
   );
   assert.equal(r.code, 1);
   assert.match(r.stderr, /LLM 配置不完整/);

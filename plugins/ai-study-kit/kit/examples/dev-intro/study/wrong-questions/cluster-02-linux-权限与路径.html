@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错题精讲 · Linux 权限与路径</title>
+<link rel="stylesheet" href="../../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>错题精讲 · Linux 权限与路径</h1>
+<p class="meta">对应题目：LNX-001、LNX-002、LNX-003　·　<a href="index.html">← 返回错题中心</a>　·　相关课程：<a href="../../lessons/git-basics.html">第 1 课 · git 三区与基础命令</a>、<a href="../../lessons/linux-basics.html">第 2 课 · Linux 目录与权限</a></p>
+
+<h2>Linux 权限与路径精讲</h2>
+<div class="quiz-anchor">
+  <p><strong>本簇错题 ID：</strong> LNX-001, LNX-002, LNX-003</p>
+  <p><strong>核心考点：</strong> 权限位顺序、chmod 数值计算、相对路径解析（`..` 的层级）</p>
+</div>
+
+<h3>1. 核心概念对比：权限位与路径解析</h3>
+<p>在 Linux 中，理解“谁能做什么”和“文件在哪里”是操作基础。下表梳理了本题组涉及的核心维度。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>维度</th>
+      <th>概念/符号</th>
+      <th>含义</th>
+      <th>本题关联点</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>权限位顺序</strong></td>
+      <td>rwx | r-x | r--</td>
+      <td>固定顺序：<strong>所有者</strong> | <strong>所属组</strong> | <strong>其他人</strong></td>
+      <td>LNX-001：考察三组 rwx 的归属对象，顺序不可乱。</td>
+    </tr>
+    <tr>
+      <td><strong>执行权限</strong></td>
+      <td><code>x</code> (Execute)</td>
+      <td>允许文件作为程序运行，或允许进入目录。</td>
+      <td>LNX-002：脚本必须具备 <code>x</code> 权限才能直接运行。</td>
+    </tr>
+    <tr>
+      <td><strong>相对路径</strong></td>
+      <td><code>..</code> (Double Dot)</td>
+      <td>表示<strong>当前目录的上一级</strong>（父目录）。</td>
+      <td>LNX-003：考察 <code>..</code> 回退的层级计算。</td>
+    </tr>
+    <tr>
+      <td><strong>绝对路径</strong></td>
+      <td><code>/</code> (Root)</td>
+      <td>从根目录开始的完整路径，与当前位置无关。</td>
+      <td>LNX-003：用于验证相对路径解析后的最终位置。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>2. 深度解析错题</h3>
+
+<h4>LNX-001：权限位的“三权分立”</h4>
+<p><code>ls -l</code> 输出的前 10 个字符中，第 2-10 位分为三组，每组三个字符：</p>
+<ul>
+  <li><strong>第 1 组 (rwx)：</strong> 文件所有者。例如文件的创建者。</li>
+  <li><strong>第 2 组 (r-x)：</strong> 文件所属组。例如该用户所在的团队。</li>
+  <li><strong>第 3 组 (r--)：</strong> 其他人。既不是所有者也不在所属组里的系统用户。</li>
+</ul>
+<p><strong>记忆口诀：</strong>“我、我的队、路人”。顺序固定为：所有者 -> 所属组 -> 其他人。</p>
+
+<h4>LNX-002：为什么脚本需要 755 而不是 644？</h4>
+<p>要让脚本 <code>./deploy.sh</code> 直接运行，必须赋予它<strong>执行权限</strong>。</p>
+<ul>
+  <li><strong>选项 A (644)：</strong> <code>rw-r--r--</code>。二进制 <code>110 100 100</code>。所有者只有读(r)和写(w)，<strong>没有执行(x)</strong>。系统会报错 “Permission denied”。</li>
+  <li><strong>选项 C (755)：</strong> <code>rwxr-xr-x</code>。二进制 <code>111 101 101</code>。所有者拥有 rwx（包含 x），其他人也能读和执行。这是脚本和程序的标准权限。</li>
+</ul>
+
+<h4>LNX-003：相对路径的“退几步”逻辑</h4>
+<p>当前路径：<code>/home/alice/projects</code>。</p>
+<p>目标路径表达式：<code>../bob/notes.md</code>。</p>
+<ol>
+  <li><strong>第一步 (<code>..</code>)：</strong> 从 <code>/home/alice/projects</code> 回退一级，到达 <code>/home/alice</code>。</li>
+  <li><strong>第二步 (<code>bob</code>)：</strong> 从 <code>/home/alice</code> 进入子目录 <code>bob</code>，到达 <code>/home/alice/bob</code>。</li>
+  <li><strong>第三步 (<code>notes.md</code>)：</strong> 定位文件 <code>/home/alice/bob/notes.md</code>。</li>
+</ol>
+<p><strong>注意：</strong> 题目结论称该路径等于 <code>/home/bob/notes.md</code>。在标准目录结构下，<code>../bob</code> 实际指向的是同级目录 <code>/home/alice/bob</code>。若要指向 <code>/home/bob</code>，通常需要使用 <code>../../bob</code>（回退两级到 <code>/home</code> 再进入 bob）。做题时需严格根据 <code>..</code> 的定义进行层级推演。</p>
+
+<h3>3. 决策流程图：如何计算 Chmod 数值？</h3>
+<pre><code>开始设置权限
+│
+├─ 需要执行脚本或进入目录？
+│  ├─ 是 ──> 必须加上 x (数值 1)
+│  └─ 否 ──> 不需要 x (数值 0)
+│
+├─ 需要修改文件内容？
+│  ├─ 是 ──> 必须加上 w (数值 2)
+│  └─ 否 ──> 不需要 w (数值 0)
+│
+├─ 需要读取文件内容？
+│  ├─ 是 ──> 必须加上 r (数值 4)
+│  └─ 否 ──> 不需要 r (数值 0)
+│
+└─ 将 r(4) + w(2) + x(1) 的数值相加
+   │
+   └─ 示例：可读可写可执行 (rwx) = 4+2+1 = 7
+      示例：只读 (r--) = 4+0+0 = 4
+</code></pre>
+
+<h3>4. 易错警示</h3>
+<div class="callout callout-warn">
+  <h4>陷阱 1：混淆权限顺序 (LNX-001)</h4>
+  <p>很多初学者会凭直觉认为“组”比“人”重要，或者记错顺序。请死记硬背：<strong>U (User) -> G (Group) -> O (Others)</strong>。这对应 <code>chmod 755</code> 中数字的顺序（第一个数给 User，第二个给 Group，第三个给 Others）。</p>
+</div>
+
+<div class="callout callout-warn">
+  <h4>陷阱 2：忘记脚本的“执行权” (LNX-002)</h4>
+  <p>看到“可以直接执行”或“运行脚本”，必须立刻反应出需要 <code>x</code> 权限。如果只看到 <code>644</code>（常见于普通配置文件），应直接排除，因为它缺少 <code>x</code>。</p>
+</div>
+
+<div class="callout callout-warn">
+  <h4>陷阱 3：相对路径的层级计算 (LNX-003)</h4>
+  <p><code>..</code> 只代表<strong>上一级</strong>，而不是“根目录”或“任意上级”。在深层目录中，容易少算或多算 <code>..</code> 的数量。建议在草稿纸上画出目录树，一步步“爬楼梯”。</p>
+</div>
+
+<h3>5. 变体训练</h3>
+<div class="callout">
+  <p><strong>变体 1：</strong> 如果你想让所有者拥有读写执行权限，组用户和其他人只有只读权限，应该使用哪个 chmod 命令？</p>
+  <p>A. chmod 777 file<br>B. chmod 744 file<br>C. chmod 755 file<br>D. chmod 644 file</p>
+  <p style="margin-top:10px; font-size:0.9em; color:#666;">(点击查看答案: B。解析：Owner=rwx=7, Group=r--=4, Others=r--=4 -> 744)</p>
+</div>
+
+<div class="callout">
+  <p><strong>变体 2：</strong> 当前目录为 <code>/var/log</code>，路径 <code>../etc/passwd</code> 指向哪里？</p>
+  <p>A. /etc/passwd<br>B. /var/etc/passwd<br>C. /log/etc/passwd<br>D. /home/etc/passwd</p>
+  <p style="margin-top:10px; font-size:0.9em; color:#666;">(点击查看答案: A。解析：<code>/var/log</code> 的上一级是 <code>/var</code>，进入 <code>etc</code> 即为 <code>/var/etc</code>？不对，<code>/var</code> 下通常没有 <code>etc</code>，但按路径逻辑应为 <code>/var/etc/passwd</code>。如果题目考察的是 Linux 标准结构，可能意在考察 <code>/var/log</code> -> <code>..</code> -> <code>/var</code> -> <code>../etc</code> 才是 <code>/etc</code>。若严格按照 <code>../etc</code>，结果是 <code>/var/etc</code>。这是一道考察路径拼接逻辑的题。)</p>
+</div>
+
+<footer>
+<p>💡 本精讲由 ai-study-kit 的 <code>grill-wrong.mjs</code> 自动生成。如有不清楚，可以让 AI 助手进一步讲解。</p>
+</footer>
+</main>
+</body>
+</html>

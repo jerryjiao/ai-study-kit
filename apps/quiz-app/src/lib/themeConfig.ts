@@ -48,6 +48,11 @@ export interface ThemeConfig {
   topicStyles?: Record<string, { cls: string; childCls: string; icon: string }>;
   /** 有层概念的大类清单（练习页层 chips / 首页深度徽标的作用域）；缺省 = 无 */
   layerTopics?: string[];
+  /** 课 → 题集直达映射（可选）："<lesson文件名>" → 题库 topic id。
+   *  sync-examples 把命中项写进 courses.json 每节课的 topic 字段；课程页学完一课后
+   *  「去刷这课的题」按它直达对应题集。缺省时课程页回退「文件名与 topic 同名」约定，
+   *  再解析不出就不渲染跳转（见 lib/courseProgress.practiceTopicForLesson）。 */
+  lessonTopics?: Record<string, string>;
 }
 
 export const themeConfig = raw as ThemeConfig;

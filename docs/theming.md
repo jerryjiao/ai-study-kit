@@ -16,6 +16,7 @@
 | `sourceLabels` | `{source: 短名}` | 答题卡来源徽标的显示名 | 原样显示 source |
 | `sourceLayers` | `{source: 核心\|拓展}` | 来源→学习优先级层的映射 | 无层概念（`layerOf` 返回 null） |
 | `layerTopics` | `[topicId]` | 哪些大类有层概念（练习页层 chips / 首页深度徽标的作用域） | 无任何主题有层 |
+| `lessonTopics` | `{"<lesson文件名>": topicId}` | 课 → 题集直达映射：课程页学完一课后「去刷这课的题」按钮按它跳到对应题集 | 文件名（去 `.html`）恰与题库 topic 同名时直连，否则不渲染跳转 |
 | `epDepth` | `{考点base名: 掌握\|理解\|了解}` | 子主题的考点深度徽标；查表前先剥分块后缀（`线性表一`→`线性表`） | 无徽标 |
 | `topicStyles` | `{topicId: {cls, childCls, icon}}` | 大类卡片配色（Tailwind class 串）+ 图标名 | 默认样式 |
 

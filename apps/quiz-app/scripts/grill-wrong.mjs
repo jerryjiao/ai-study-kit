@@ -7,7 +7,7 @@
  *   2. joinWrongQuestions：把错题 id 关联 questions.json 拿到完整题干
  *   3. LLM 聚类：按考点把错题分簇
  *   4. 每簇 LLM 产深度精讲 HTML
- *   5. 写到 examples/<theme>/wrong-questions/cluster-NN-*.html + 更新 index.html
+ *   5. 写到 examples/<theme>/study/wrong-questions/cluster-NN-*.html + 更新 index.html
  *
  * 用法：
  *   node apps/quiz-app/scripts/grill-wrong.mjs                       # 默认 dev-intro
@@ -105,7 +105,7 @@ async function main() {
   console.log('');
 
   // 5. 准备输出目录（备份旧 cluster-*.html 到 .archive/，避免用户手写内容被无声覆盖）
-  const outDir = join(THEME_DIR, 'wrong-questions');
+  const outDir = join(THEME_DIR, 'study', 'wrong-questions');
   mkdirSync(outDir, { recursive: true });
   const oldClusters = readdirSync(outDir).filter((f) => f.startsWith('cluster-') && f.endsWith('.html'));
   if (oldClusters.length > 0) {
@@ -116,7 +116,7 @@ async function main() {
       const dst = join(backupDir, old);
       renameSync(src, dst);
     }
-    console.log(`📦 备份了 ${oldClusters.length} 个旧 cluster HTML 到 wrong-questions/.archive/`);
+    console.log(`📦 备份了 ${oldClusters.length} 个旧 cluster HTML 到 study/wrong-questions/.archive/`);
   }
 
   // 6. 逐簇生成精讲
@@ -144,7 +144,7 @@ async function main() {
   console.log(`   ✓ index.html`);
 
   console.log('');
-  console.log(`✅ 共生成 ${clusters.length} 篇精讲到 examples/${THEME}/wrong-questions/`);
+  console.log(`✅ 共生成 ${clusters.length} 篇精讲到 examples/${THEME}/study/wrong-questions/`);
   console.log('');
   console.log('下一步：');
   console.log(`  pnpm dev                                        # 看效果`);

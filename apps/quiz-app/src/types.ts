@@ -96,11 +96,16 @@ export interface Progress {
   readTombstones?: Record<string, number>;
   srs?: Record<string, SrsState>;         // 闪卡 SRS 进度：key=卡id(FC-NNN)
   srsMeta?: SrsMeta;                       // 闪卡全局元数据（今日新卡计数等）
-  /** 课程已读记录：key="<theme>/<lesson文件名>"（如 "dev-intro/git-basics.html"），
-   *  value=已读时间戳（Date.now()）。key 自带主题前缀——多主题天然隔离，切主题互不干扰。
-   *  merge 走 per-key max（同 read 字段）。只标记不取消（完成边界是自我追踪口径，无墓碑）。
-   *  「课全读」边界 = coursesRead 命中 src/data/courses.json 清单的全部 lesson。 */
+  /** 课已学完记录（显式确认制）：key="<theme>/<lesson文件名>"（如 "dev-intro/git-basics.html"），
+   *  value=学完时间戳（Date.now()）。key 自带主题前缀——多主题天然隔离，切主题互不干扰。
+   *  merge 走 per-key max（同 read 字段）。只有用户点「✓ 学完了」才写入（打开课程页不算）；
+   *  旧版「打开即自动记已读」产生的数据视为已确认保留，不清零。
+   *  「课全学完」边界 = isCourseRead 命中 src/data/courses.json 清单的全部 lesson。 */
   coursesRead?: Record<string, number>;
+  /** 课已学完墓碑：key 同 coursesRead，value=撤销时间戳。点「撤销」时打上而非删 key——
+   *  writeProgress 是 read-merge-write，直接删 key 会被服务器旧快照补回（机制同 readTombstones）。
+   *  读端 isCourseRead 在 tomb >= seen 时视为未学完；merge 两侧墓碑取 max。 */
+  coursesReadTombstones?: Record<string, number>;
   /** UI 主题偏好（非学习进度）：'light' | 'dark' | 'system'。
    *  跨设备同步走 mergeProgress（按 themeUpdatedAt 取新，同 srs/newToday 模式）。
    *  本地另有独立的 'ask-theme' key 供内联脚本秒读（见 index.html）。 */
