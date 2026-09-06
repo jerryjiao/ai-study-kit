@@ -187,6 +187,7 @@ ${conf.directive}
 - 代码或命令用 <pre><code>...</code></pre> 包裹
 - 对照/比较用 <div class="compare"><div><h4>A</h4><p>...</p></div><div><h4>B</h4><p>...</p></div></div>
 - 表格用标准 <table><thead><tbody>
+- 核心机制示意图：每课至少 1 张，用内联 <svg>（设 viewBox，style="width:100%;height:auto" 自适应）；节点 + 箭头表达流转/层次/对比，图大字少、只画机制不画装饰，图内文字用本课输出语言；禁止外链图片、禁止 emoji 拼贴
 - 末尾加 <div class="quiz-anchor">对应考点关键词列表</div> 标注本课对应的核心考点（用于四对齐校验）
 - 长度：800-1500 字之间（非中文按同等信息量折算）
 - 风格：口语化、有具体例子、避免空洞术语堆砌

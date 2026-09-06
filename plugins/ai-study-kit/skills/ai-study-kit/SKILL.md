@@ -77,6 +77,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 | 校验 / 检查 / 能不能发布 | F8 | — |
 | 部署 / 上线 / 服务器 / pm2 | F9 | 本地 build 通过（先走 F8） |
 | 继续学习 / 接着学 / 陪我练 / 学透 X / 学一下 X / 讲讲 X（对话式教懂 + 当场考） | F10 | 主题源目录存在（MISSION.md / questions.json） |
+| 大白话讲 X / 画个图 / 文字看不懂（图解降维重讲） | F10 | 主题源目录存在（MISSION.md / questions.json） |
 | 冲刺 / 考前 / 突击 | F11 | MISSION.md frontmatter `deadline`（缺失先引导补，绝不瞎猜倒计时） |
 | 不同步 / 进度丢了 / 页面坏了 | 诊断 | — |
 
