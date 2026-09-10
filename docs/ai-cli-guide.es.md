@@ -74,6 +74,7 @@ Convierte la especificación del tema (mission + resources + audience) en un cur
 
 - cada lección es HTML autónomo (comparten `../assets/styles.css` por enlace)
 - estructura: h1 + meta + lead + varios h2 + callouts (punto clave / aviso / truco) + quiz-anchor
+- diagrama de mecanismo: mínimo un SVG en línea por lección — imagen grande, poco texto, solo el mecanismo (nodos + flechas para flujo / jerarquía / contraste)
 - enlaces prev/next que encadenan las lecciones
 
 ### Uso

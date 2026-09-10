@@ -74,6 +74,7 @@ pnpm run ai:podcast -- --input examples/dev-intro/lessons/git-basics.html
 
 - 每节自包含 HTML（链接共享 `../assets/styles.css`）
 - 结构：h1 + meta + lead + 多个 h2 + callouts（重点/警示/技巧）+ quiz-anchor
+- 核心机制示意图：每课至少 1 张内联 SVG，图大字少、只画机制（节点+箭头表达流转/层次/对比）
 - prev/next 链接互链
 
 ### 用法

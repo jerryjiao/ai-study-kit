@@ -74,6 +74,7 @@ Turns a theme spec (mission + resources + audience) into a multi-lesson, self-co
 
 - each lesson is self-contained HTML (sharing `../assets/styles.css`)
 - structure: h1 + meta + lead + multiple h2 + callouts (key point / warning / tip) + quiz-anchor
+- mechanism diagram: at least one inline SVG per lesson — big picture, few words, mechanism only (nodes + arrows for flow / hierarchy / contrast)
 - prev/next links chain lessons together
 
 ### Usage
