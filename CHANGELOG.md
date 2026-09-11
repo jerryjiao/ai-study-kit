@@ -7,6 +7,7 @@
 ### Changed
 
 - **文档同步（docs/，四语）**：`ai-cli-guide.md` teach-generate 输出结构补「核心机制示意图（每课 ≥1 张内联 SVG，图大字少、只画机制）」条目——0.10.0 产课视觉条款的文档面；en/es/ru 译本同步。
+- **各处 description 统一中文为主（默认语言收口）**：GitHub About、根 `package.json`、市集清单（`marketplace.json` + 双 manifest）与 SKILL frontmatter 的 description 从英文/英文为主改为中文为主（英文降为尾缀一句，沿用 README tagline 的不对称先例；manifest 全文双语仍走 `description_i18n` 不变）——与 README/官网 root/docs 的中文基准对齐。源：`scripts/sync-plugin.mjs` DESCRIPTION 常量 + `skills/ai-study-kit/SKILL.md`，已重跑 sync:plugin。
 
 ## [0.10.0] — 2026-09-06
 

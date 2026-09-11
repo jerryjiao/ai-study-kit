@@ -45,7 +45,9 @@ if (!existsSync(join(SRC, 'SKILL.md'))) {
   process.exit(1);
 }
 
-const DESCRIPTION = 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy. /ai-study-kit 学习教练：扫描学习状态（含陪练进度与考期），推荐下一步该学什么、做什么。';
+// 主 description 中文为主（与 README/官网默认语言一致），尾缀一句英文给国际市集可发现性；
+// en/zh-CN 全文分存在 description_i18n（zcode 客户端按 locale 取）。
+const DESCRIPTION = '/ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.';
 const KEYWORDS = ['study', 'learning', 'flashcards', 'srs', 'spaced-repetition', 'quiz', 'tutor', 'ai-study-kit'];
 // 插件图标：源是仓库根 assets/logo.png（与 quiz-app/官网三端同源）。marketplace 的 icon 走 jsDelivr
 // 绝对 URL（zcode 官方源同款做法；raw.githubusercontent 直连会撞 429/墙，jsDelivr 是 CDN 更稳）。
@@ -110,7 +112,7 @@ copyFileSync(join(REPO_ROOT, 'assets', 'logo.png'), join(PLUGIN_DIR, 'icon.png')
 mkdirSync(join(REPO_ROOT, '.claude-plugin'), { recursive: true });
 const marketplace = {
   name: 'ai-study-kit',
-  description: 'ai-study-kit plugin marketplace: the /ai-study-kit learning coach skill.',
+  description: 'ai-study-kit 插件市集：/ai-study-kit 学习教练 skill。',
   owner: { name: 'ai-study-kit', url: 'https://github.com/jerryjiao/ai-study-kit' },
   plugins: [
     {
