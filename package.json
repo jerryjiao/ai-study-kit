@@ -1,7 +1,7 @@
 {
   "name": "ai-study-kit",
   "private": true,
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "AI 辅助学习工具脚手架——把任意主题的题库变成完整学习闭环：课程、闪卡、错题精讲、间隔重复。",
   "license": "MIT",
   "scripts": {
@@ -14,6 +14,7 @@
     "ai:teach": "node apps/quiz-app/scripts/teach-generate.mjs",
     "ai:grill": "node apps/quiz-app/scripts/grill-wrong.mjs",
     "ai:podcast": "node apps/quiz-app/scripts/podcast-generate.mjs",
+    "mastery": "node apps/quiz-app/scripts/mastery-report.mjs",
     "check:alignment": "python3 scripts/bidirectional-check.py",
     "sync:plugin": "node scripts/sync-plugin.mjs",
     "skill:install": "bash scripts/install-skill.sh",

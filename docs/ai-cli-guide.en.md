@@ -101,6 +101,7 @@ Pulls your wrong answers from the server, clusters them by exam point with an LL
 4. per cluster the LLM writes a deep-dive HTML (core-differences table + decision flowchart + pitfall warnings + variant drills)
 5. written to `examples/<theme>/study/wrong-questions/cluster-NN-<slug>.html` (output in the legacy `wrong-questions/` location is recognized and migrated automatically)
 6. updates `examples/<theme>/study/wrong-questions/index.html`, the wrong-question hub
+7. **also writes a learner profile**: the LLM additionally records per-exam-point wrong reasons (wrongReasons / advice) into `examples/<theme>/study/records/profile.json` (machine-readable; clusters sharing any question id merge into the same point and accumulate). The profile is private learner data and never ships with the build; the next `mastery-report` run or `/ai-study-kit` probe picks it up automatically, so recommendations get specific — "EP-03 missed twice, reason: unfamiliar with permission-bit combinations".
 
 ### Usage
 
@@ -121,6 +122,35 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # pull wrong answers from a
 | 1 | 1 correct answer | new wrong question; one correct answer removes it |
 | 2 | 2 correct answers | missed twice; needs 2 consecutive correct answers to graduate |
 | 3+ | 3 correct answers | high-frequency; needs 3 consecutive correct answers to graduate |
+
+---
+
+## mastery-report — exam-point mastery report (no AI)
+
+Companion tool to grill: **deterministically derives** each exam point's mastery (a question's `examPoint`, EP-NN) from the question bank + answer progress — no LLM involved. Shared by humans and agents: humans read the table, agents consume `--json` (the `/ai-study-kit` probe's "weak points" snapshot line comes from here).
+
+### Criteria (four states)
+
+| State | Criterion |
+|-------|-----------|
+| mastered | all questions in the point answered, all correct on the latest attempt, no ungraduated wrong questions |
+| weak | has ungraduated wrong questions, or a wrong answer on the latest attempt |
+| in progress | partially answered with no negative evidence |
+| untouched | nothing answered yet |
+
+The report joins the learner profile (`study/records/profile.json`, written by grill) — each point's row carries its wrong reasons and advice. Point names are parsed from the MISSION.md layout table.
+
+### Usage
+
+```bash
+pnpm run mastery                                # human-readable table (defaults to dev-intro)
+pnpm run mastery -- --theme react-basics       # select a theme (external theme-pack paths work too)
+pnpm run mastery -- --json                     # machine-readable (for agent probing)
+pnpm run mastery -- --progress /tmp/p.json     # select a progress file (default apps/quiz-app/progress.json;
+                                               #  for server progress first run curl -sf $SERVER/api/progress -o /tmp/p.json)
+```
+
+A missing progress file simply means empty progress (everything untouched) — not an error.
 
 ---
 

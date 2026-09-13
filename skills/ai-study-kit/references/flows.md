@@ -127,12 +127,14 @@
 **前置**：① 后端在线（离线先 `pnpm run server` 后台起）；② 快照 `openWrong ≥ 1`（0 就别跑，白调 LLM）；③ CLI 路径需 `.env` LLM 三项配齐（agent 直产路径不需要）。
 
 **路径选择**（双路径，agent 直产为主推——2026-08-20 复盘拍板）：
-- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/study/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。
-- **独立终端 / 无 agent 环境**：跑下方 CLI。
+- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/study/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。**同时更新学习者档案** `examples/<theme>/study/records/profile.json`（考点级错因，机器可读）：按下方「档案契约」合并写入——下次探测/推荐就靠它点名弱考点。
+- **独立终端 / 无 agent 环境**：跑下方 CLI（第 1 步会自动顺产/合并档案，无需手动）。
+
+**档案契约**（`study/records/profile.json`，学习者私有不上站）：`{ version:1, theme, updatedAt, grillRuns, examPoints:[{ name, questionIds, wrongReasons[], advice, timesGrilled, lastSeen }], globalPatterns[] }`。合并规则：新旧考点有任意题 id 重叠视为同一考点——timesGrilled+1、wrongReasons 去重合并、questionIds 取并集、name/advice 取新；无重叠追加新条目。错因要落到具体概念（「权限位组合不熟」），不写「粗心」。CLI 路径的合并实现在 `lib/grill-utils.mjs` 的 `mergeProfile`（有单测），agent 直产照同语义手写即可。
 
 **步骤**：
 
-1. 生成串讲（LLM 按 考点聚类 → 每簇产深度 HTML）：
+1. 生成串讲（LLM 按 考点聚类 → 每簇产深度 HTML；CLI 路径顺产学习者档案）：
 
    ```bash
    node apps/quiz-app/scripts/grill-wrong.mjs --theme <theme>
@@ -141,7 +143,7 @@
    ```
 
 2. 产物在 `examples/<theme>/study/wrong-questions/cluster-NN-*.html`（根级 `wrong-questions/` 是旧布局，不再写入）+ 更新的 `index.html`。**让用户真的读**：在浏览器课程入口或直接打开文件读，每簇 = 核心区别表 + 决策流程 + 易错警示 + 变体训练。
-3. 读完后回 app **重做错题集**（F3 第 4 步），把读到的东西用做题验证掉。
+3. 读完后回 app **重做错题集**（F3 第 4 步），把读到的东西用做题验证掉。下次会话探测会自动带上档案里的弱考点与错因（mastery-report join），不用手动衔接。
 
 **完成标志**：串讲已读 + 涉及的错题全部毕业。剩余错题 <3 时不再重复生成（性价比低），直接重练。
 

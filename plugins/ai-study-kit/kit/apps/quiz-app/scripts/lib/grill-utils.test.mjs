@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   escapeHTML, extractWrongAnswers, joinWrongQuestions, clusterFileName,
-  wrapClusterHTML, wrapIndexHTML,
+  wrapClusterHTML, wrapIndexHTML, buildProfilePrompt, mergeProfile,
 } from './grill-utils.mjs';
 
 // ── escapeHTML ────────────────────────────────────────────
@@ -159,4 +159,79 @@ test('wrapIndexHTML: 有 cluster 时渲染卡片', () => {
 test('wrapIndexHTML: 无 cluster 时显示提示', () => {
   const html = wrapIndexHTML([], 'test');
   assert.match(html, /暂无错题/);
+});
+
+// ── 学习者档案（profile）──────────────────────────────────
+
+const META = { theme: 'dev-intro', now: 1757700000000 };
+
+test('mergeProfile: 旧档案为 null 时新建', () => {
+  const out = mergeProfile(null, {
+    examPoints: [{ name: '暂存区', questionIds: ['GIT-001'], wrongReasons: ['混淆 add 与 commit'], advice: '重画三区图' }],
+    globalPatterns: ['多选题漏选'],
+  }, META);
+  assert.equal(out.version, 1);
+  assert.equal(out.theme, 'dev-intro');
+  assert.equal(out.grillRuns, 1);
+  assert.equal(out.examPoints.length, 1);
+  assert.equal(out.examPoints[0].timesGrilled, 1);
+  assert.deepEqual(out.globalPatterns, ['多选题漏选']);
+});
+
+test('mergeProfile: 题 id 重叠即同考点，timesGrilled 递增、错因去重合并、id 取并集', () => {
+  const existing = {
+    version: 1, theme: 'dev-intro', updatedAt: 1, grillRuns: 2,
+    examPoints: [{
+      name: 'git 分支', questionIds: ['GIT-003', 'GIT-007'],
+      wrongReasons: ['混淆 merge 与 rebase'], advice: '旧建议', timesGrilled: 2, lastSeen: 1,
+    }],
+    globalPatterns: ['多选题漏选'],
+  };
+  const out = mergeProfile(existing, {
+    examPoints: [
+      // 簇名变了但题 id 重叠 → 同一考点
+      { name: '分支与合并', questionIds: ['GIT-007', 'GIT-009'], wrongReasons: ['混淆 merge 与 rebase', '忘了 rebase 改写历史'], advice: '新建议' },
+    ],
+    globalPatterns: ['多选题漏选', 'judge 题凭直觉'],
+  }, META);
+  assert.equal(out.grillRuns, 3);
+  assert.equal(out.examPoints.length, 1);
+  const ep = out.examPoints[0];
+  assert.equal(ep.name, '分支与合并');            // 名字取最新
+  assert.deepEqual([...ep.questionIds].sort(), ['GIT-003', 'GIT-007', 'GIT-009']);
+  assert.deepEqual(ep.wrongReasons, ['混淆 merge 与 rebase', '忘了 rebase 改写历史']); // 去重
+  assert.equal(ep.advice, '新建议');
+  assert.equal(ep.timesGrilled, 3);
+  assert.equal(ep.lastSeen, META.now);
+  assert.deepEqual(out.globalPatterns, ['多选题漏选', 'judge 题凭直觉']);
+  // 原对象不被原地修改
+  assert.equal(existing.examPoints[0].timesGrilled, 2);
+  assert.deepEqual(existing.globalPatterns, ['多选题漏选']);
+});
+
+test('mergeProfile: 无重叠新簇追加，空 questionIds 条目丢弃', () => {
+  const existing = {
+    version: 1, theme: 'dev-intro', updatedAt: 1, grillRuns: 1,
+    examPoints: [{ name: 'a', questionIds: ['A-1'], wrongReasons: [], advice: '', timesGrilled: 1, lastSeen: 1 }],
+    globalPatterns: [],
+  };
+  const out = mergeProfile(existing, {
+    examPoints: [
+      { name: 'b', questionIds: ['B-1'], wrongReasons: ['r'], advice: '' },
+      { name: '空的', questionIds: [], wrongReasons: ['r'], advice: '' },
+    ],
+    globalPatterns: [],
+  }, META);
+  assert.equal(out.examPoints.length, 2);
+  assert.ok(out.examPoints.some((e) => e.name === 'b' && e.timesGrilled === 1));
+});
+
+test('buildProfilePrompt: prompt 含题 id、用户选与正确答案', () => {
+  const wrongWithQ = [
+    { id: 'GIT-003', record: { selected: ['A'], wrongCount: 2 }, question: { id: 'GIT-003', question: 'q', answer: ['B'], options: {} } },
+  ];
+  const p = buildProfilePrompt([{ topic: '暂存区', ids: ['GIT-003'] }], wrongWithQ, 'zh');
+  assert.ok(p.system.includes('严格 JSON'));
+  assert.ok(p.user.includes('GIT-003'));
+  assert.ok(p.user.includes('选 A / 正确 B'));
 });

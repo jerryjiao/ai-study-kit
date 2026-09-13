@@ -68,3 +68,5 @@ apps/quiz-app/ecosystem.ruankao.config.cjs
 
 # grill 生成器的历史备份（瞬态产物，不入库）
 examples/*/study/wrong-questions/.archive/
+# 学习者私有数据（进度档案/学习者档案 profile.json，与 sync-study 的 LOCAL_ONLY 同边界）
+examples/*/study/records/

@@ -2,7 +2,16 @@
 
 本仓库的版本日志。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [0.11.0] — 2026-09-13
+
+主题：**数据闭环——串讲与推荐之间补上机器层（借鉴 DeepTutor「tutoring as a data loop」论点：交互痕迹 → 学习者事实 → 反哺推荐），推荐理由从「错题多」具体到「EP-03 连错 2 次，错因：权限位组合不熟」。**
+
+### Added
+
+- **学习者档案（`study/records/profile.json`）**：grill-wrong 串讲顺产的机器可读错因档案——LLM 在聚类精讲之外多一次小调用，把考点级 wrongReasons / advice / 串讲次数落盘。合并语义：新旧考点有任意题 id 重叠即同一考点（簇名漂移不影响累积），timesGrilled 递增、错因去重合并、题 id 取并集（`lib/grill-utils.mjs` 的 `mergeProfile`，纯函数有单测）。**学习者私有**：随 `study/records/` 被 sync-study 排除不上站，新增 .gitignore 条目不提交。agent 直产路径（F4 主推）在 flows.md 档案契约里同语义手写。
+- **考点掌握度（`lib/mastery.mjs` + `mastery-report.mjs`，`pnpm run mastery`）**：确定性派生、零 LLM——考点（题 `examPoint` EP-NN）四态：掌握（题全答对且无未毕业错题）/ 弱 / 进行中 / 未开始；判据与 progress.ts 的 streakToPass 毕业口径一致，考点名从 MISSION 排布表解析。`--json` 给 agent 消费，人类读表格；报告自动 join 学习者档案带出错因。刻意不含闪卡毕业（闪卡与考点无映射，硬凑是假判据，边界写进 CONTEXT 词条）。判据 13 个单测（node:test，随 pnpm test 跑）。
+- **skill 数据闭环消费（SKILL.md / state.md / flows.md）**：探测协议八字段扩为九——新增「弱考点」（mastery-report 派生 + 档案错因）；快照模板加弱考点行；推荐算法第 6 条点名最弱考点并引用档案错因；意图路由新增「掌握度 / 弱考点 / 哪里最弱 / 考点报告」入口；F4 双路径都覆盖档案产出（CLI 自动顺产 + agent 直产照契约手写），串讲完下次探测自动衔接。AI 配置探测升级为分项就绪矩阵（teach=LLM；grill=LLM+后端；podcast=LLM+TTS 可选）。
+- **文档**：`docs/ai-cli-guide.md` 四语——grill 流程补档案产出条目 + 新增 mastery-report 章节（无 AI 伴生工具）；CONTEXT.md 新增「考点掌握度」「学习者档案」词条。
 
 ### Changed
 

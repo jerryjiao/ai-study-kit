@@ -101,6 +101,7 @@ Tus respuestas erróneas del servidor, agrupadas por punto de examen con un LLM 
 4. por clúster, el LLM produce un HTML de análisis profundo (tabla de diferencias clave + diagrama de decisión + avisos de errores frecuentes + entrenamiento con variantes)
 5. se escribe en `examples/<theme>/study/wrong-questions/cluster-NN-<slug>.html` (lo producido en la ubicación antigua `wrong-questions/` se reconoce y migra automáticamente)
 6. se actualiza `examples/<theme>/study/wrong-questions/index.html`, la portada del centro de erróneas
+7. **también produce el perfil del aprendiz**: el LLM registra además, por punto de examen, las causas de error (wrongReasons / advice) en `examples/<theme>/study/records/profile.json` (legible por máquinas; los clústeres que compartan algún id de pregunta se fusionan en el mismo punto y se acumulan). El perfil es un dato privado del aprendiz y nunca se publica con el build; la próxima ejecución de `mastery-report` o la sonda de `/ai-study-kit` lo recogen automáticamente, de modo que la recomendación se concreta: «EP-03 fallado 2 veces, causa: poca soltura combinando bits de permisos».
 
 ### Uso
 
@@ -121,6 +122,37 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 | 1 | 1 acierto | errónea nueva; con un acierto se saca de la lista |
 | 2 | 2 aciertos | fallada dos veces; necesita 2 aciertos consecutivos para graduarse |
 | 3+ | 3 aciertos | errónea de alta frecuencia; necesita 3 aciertos consecutivos para graduarse |
+
+---
+
+## mastery-report — informe de dominio por punto de examen (sin IA)
+
+Herramienta complementaria de grill: **deriva de forma determinista** el dominio de cada punto de examen (el `examPoint` de las preguntas, EP-NN) a partir del banco de preguntas + el progreso de respuestas, sin LLM. La comparten personas y agentes: las personas leen la tabla, los agentes consumen `--json` (la línea «puntos débiles» de la sonda de `/ai-study-kit` sale de aquí).
+
+### Criterios (cuatro estados)
+
+| Estado | Criterio |
+|--------|----------|
+| dominado | todas las preguntas del punto respondidas, todas correctas en el último intento, sin erróneas sin graduar |
+| débil | tiene erróneas sin graduar, o algún fallo en el último intento |
+| en curso | respondido parcialmente y sin evidencia negativa |
+| sin empezar | ninguna pregunta respondida |
+
+El informe se une con el perfil del aprendiz (`study/records/profile.json`, producido por grill): cada fila de punto lleva sus causas de error y el consejo. Los nombres de los puntos se analizan de la tabla de reparto de MISSION.md.
+
+### Uso
+
+```bash
+pnpm run mastery                                # tabla legible por humanos (por defecto dev-intro)
+pnpm run mastery -- --theme react-basics       # elegir tema (también admite rutas de paquetes externos)
+pnpm run mastery -- --json                     # legible por máquinas (sonda de agentes)
+pnpm run mastery -- --progress /tmp/p.json     # elegir archivo de progreso (por defecto apps/quiz-app/progress.json;
+                                               #  para el progreso del servidor, antes curl -sf $SERVER/api/progress -o /tmp/p.json)
+```
+
+Que no exista el archivo de progreso simplemente significa progreso vacío (todo sin empezar); no es un error.
+
+---
 
 ---
 

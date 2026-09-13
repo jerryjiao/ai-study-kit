@@ -286,3 +286,118 @@ export function clusterFileName(idx, topic) {
     .slice(0, 40) || 'cluster';
   return `cluster-${String(idx).padStart(2, '0')}-${slug}.html`;
 }
+
+/**
+ * 构建学习者档案（study/records/profile.json）的 LLM prompt。
+ * 与精讲 HTML 独立的一次小调用：只提炼机器可读的考点级错因，供下次探测/推荐消费。
+ *
+ * @param {Array} clusters  聚类结果 [{ topic, ids }]
+ * @param {Array} wrongWithQ  完整错题列表
+ * @param {string} [lang='zh']  错因文案的输出语言
+ */
+export function buildProfilePrompt(clusters, wrongWithQ, lang = 'zh') {
+  const conf = langConf(lang);
+  const byId = new Map(wrongWithQ.map((w) => [w.id, w]));
+  const clusterBlock = clusters
+    .map((c, i) => {
+      const lines = c.ids
+        .map((id) => {
+          const w = byId.get(id);
+          if (!w) return '';
+          const ans = Array.isArray(w.question.answer) ? w.question.answer.join(',') : w.question.answer;
+          const userAns = Array.isArray(w.record.selected) ? w.record.selected.join(',') : '(未答)';
+          return `    [${id}] 选 ${userAns} / 正确 ${ans}（错 ${w.record.wrongCount ?? 1} 次）`;
+        })
+        .filter(Boolean)
+        .join('\n');
+      return `  ${i + 1}. 簇「${c.topic}」\n${lines}`;
+    })
+    .join('\n');
+
+  return {
+    system: `你是一位学习诊断专家。基于用户的错题聚类，提炼一份机器可读的学习者档案——只写从错题里能证据到的结论，不推测没出现的问题。
+
+## 输出语言
+${conf.directive}（只翻译你的输出文案，题 id 保持原样）
+
+## 输出格式
+严格 JSON，不要 markdown 代码块，不要任何解释：
+{
+  "examPoints": [
+    {
+      "name": "考点名（与簇 topic 一致）",
+      "questionIds": ["题id1", "题id2"],
+      "wrongReasons": ["具体错因，一句话一条，说清混淆了什么/漏了什么"],
+      "advice": "下一步最该做的一件事（20 字内）"
+    }
+  ],
+  "globalPatterns": ["跨考点的共性模式，如多选题系统性漏选；没有就给空数组"]
+}
+
+## 规则
+- 每个簇至少对应一条 examPoints 记录
+- wrongReasons 2-4 条，必须落到具体概念/操作，不写"粗心"这类不可行动的归因
+- globalPatterns 只在有跨簇共同时出现`,
+    user: `用户的错题聚类（共 ${clusters.length} 簇）：
+${clusterBlock}
+
+请输出学习者档案 JSON。`,
+  };
+}
+
+/**
+ * 合并新档案进旧档案（append + consolidate，纯函数）。
+ * 匹配规则：新考点与旧考点有任意一题 id 重叠即视为同一考点（LLM 给的簇名两次可能不同，
+ * 用题 id 重叠比名字匹配稳）；命中则 timesGrilled+1、错因去重合并、题 id 取并集，
+ * 未命中的追加为新条目。
+ *
+ * @param {object|null} existing  旧档案（可 null）
+ * @param {object} fresh  本次 LLM 产出的档案 { examPoints, globalPatterns }
+ * @param {object} meta  { theme, now }（now 毫秒时间戳）
+ * @returns {object} 合并后的完整档案
+ */
+export function mergeProfile(existing, fresh, { theme, now }) {
+  const prev = existing || { version: 1, theme, examPoints: [], globalPatterns: [], grillRuns: 0 };
+  const dedupePush = (arr, items) => {
+    for (const it of items || []) {
+      if (it && !arr.includes(it)) arr.push(it);
+    }
+  };
+
+  const merged = prev.examPoints.map((e) => ({ ...e, questionIds: [...(e.questionIds || [])] }));
+  for (const f of fresh.examPoints || []) {
+    const ids = (f.questionIds || []).filter(Boolean);
+    if (!ids.length) continue;
+    const hit = merged.find((e) => (e.questionIds || []).some((id) => ids.includes(id)));
+    if (hit) {
+      hit.name = f.name || hit.name;
+      hit.questionIds = [...new Set([...hit.questionIds, ...ids])];
+      hit.wrongReasons = [...(hit.wrongReasons || [])];
+      dedupePush(hit.wrongReasons, f.wrongReasons);
+      if (f.advice) hit.advice = f.advice;
+      hit.timesGrilled = (hit.timesGrilled || 1) + 1;
+      hit.lastSeen = now;
+    } else {
+      merged.push({
+        name: f.name || '未命名考点',
+        questionIds: ids,
+        wrongReasons: [...(f.wrongReasons || [])],
+        advice: f.advice || '',
+        timesGrilled: 1,
+        lastSeen: now,
+      });
+    }
+  }
+
+  const globalPatterns = [...(prev.globalPatterns || [])];
+  dedupePush(globalPatterns, fresh.globalPatterns);
+
+  return {
+    version: 1,
+    theme,
+    updatedAt: now,
+    grillRuns: (prev.grillRuns || 0) + 1,
+    examPoints: merged,
+    globalPatterns,
+  };
+}

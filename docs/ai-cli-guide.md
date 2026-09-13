@@ -101,6 +101,7 @@ pnpm run ai:teach -- --theme X --lang en     # 课程用英语产
 4. 每簇 LLM 产深度精讲 HTML（核心区别表 + 决策流程图 + 易错警示 + 变体训练）
 5. 写到 `examples/<theme>/study/wrong-questions/cluster-NN-<slug>.html`（旧位置 `wrong-questions/` 的产物会自动识别迁移）
 6. 更新 `examples/<theme>/study/wrong-questions/index.html` 错题中心主页
+7. **顺产学习者档案**：LLM 同时把考点级错因（wrongReasons / advice）写进 `examples/<theme>/study/records/profile.json`（机器可读，题 id 重叠即同考点合并累积）。档案是学习者私有数据，不随 build 上站；下次跑 `mastery-report` 或 `/ai-study-kit` 探测时自动带出，让推荐理由具体到「EP-03 连错 2 次，错因：权限位组合不熟」。
 
 ### 用法
 
@@ -121,6 +122,35 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 | 1 | 答对 1 次 | 新错题，一次答对就移出 |
 | 2 | 答对 2 次 | 错过 2 次，要连续答对 2 次才毕业 |
 | 3+ | 答对 3 次 | 高频错题，要连续答对 3 次才毕业 |
+
+---
+
+## mastery-report — 考点掌握报告（无 AI）
+
+串讲的伴生工具：从题库 + 答题进度**确定性派生**每个考点（题的 `examPoint`，EP-NN）的掌握度，不需要 LLM。人和 agent 共用——人看表格，agent 吃 `--json`（`/ai-study-kit` 探测快照的「弱考点」行就来自它）。
+
+### 判据（四态）
+
+| 状态 | 判据 |
+|------|------|
+| 掌握 | 考点下全部题已答、最近一次全对、无未毕业错题 |
+| 弱 | 有未毕业错题，或最近一次有答错 |
+| 进行中 | 部分作答且无负面证据 |
+| 未开始 | 一题未答 |
+
+报告会 join 学习者档案（`study/records/profile.json`，grill 顺产）——考点行上带出错因与建议。考点名从 MISSION.md 排布表解析。
+
+### 用法
+
+```bash
+pnpm run mastery                                # 人类可读表格（默认 dev-intro）
+pnpm run mastery -- --theme react-basics       # 指定主题（支持外部主题包路径）
+pnpm run mastery -- --json                     # 机器可读（agent 探测用）
+pnpm run mastery -- --progress /tmp/p.json     # 指定进度文件（默认 apps/quiz-app/progress.json；
+                                               #  看线上进度先 curl -sf $SERVER/api/progress -o /tmp/p.json）
+```
+
+进度文件不存在 = 空进度（全部未开始），不是故障。
 
 ---
 

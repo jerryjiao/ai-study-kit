@@ -23,6 +23,7 @@ import { chat, chatJson, requireLlmConfig } from './lib/llm.mjs';
 import {
   extractWrongAnswers, joinWrongQuestions, buildClusterPrompt,
   buildClusterGrillPrompt, wrapClusterHTML, wrapIndexHTML, clusterFileName,
+  buildProfilePrompt, mergeProfile,
 } from './lib/grill-utils.mjs';
 import { resolveLang, langConf } from './lib/langs.mjs';
 import { resolveThemeDir } from './lib/theme-path.mjs';
@@ -143,12 +144,21 @@ async function main() {
   writeFileSync(indexPath, wrapIndexHTML(indexEntries, THEME, LANG), 'utf-8');
   console.log(`   ✓ index.html`);
 
+  // 8. 顺产学习者档案（study/records/profile.json，机器可读错因，供 skill 探测/mastery-report 消费）。
+  //    best-effort：精讲 HTML 已落盘，档案失败只告警不退出。
+  try {
+    await writeProfile(clusters, wrongWithQ, LANG);
+  } catch (e) {
+    console.warn(`⚠ 学习者档案生成失败（不影响已产出的精讲）：${e.message}`);
+  }
+
   console.log('');
   console.log(`✅ 共生成 ${clusters.length} 篇精讲到 examples/${THEME}/study/wrong-questions/`);
   console.log('');
   console.log('下一步：');
   console.log(`  pnpm dev                                        # 看效果`);
   console.log(`  node apps/quiz-app/scripts/sync-study.mjs       # 同步到 public/study/`);
+  console.log(`  node apps/quiz-app/scripts/mastery-report.mjs --theme ${THEME}  # 看考点掌握报告`);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -231,6 +241,28 @@ async function generateClusterContent(cluster, wrongWithQ, lessons, lang) {
     .replace(/\s*<\/main>\s*$/i, '')
     .replace(/^\s*<h1[^>]*>.*?<\/h1>\s*/is, '');
   return raw;
+}
+
+/** LLM 提炼档案并合并落盘（学习者私有数据，住 study/records/，不随 sync-study 上站）。 */
+async function writeProfile(clusters, wrongWithQ, lang) {
+  const p = buildProfilePrompt(clusters, wrongWithQ, lang);
+  const fresh = await chatJson(
+    [{ role: 'system', content: p.system }, { role: 'user', content: p.user }],
+    { temperature: 0.3 }
+  );
+  if (!Array.isArray(fresh.examPoints)) {
+    throw new Error(`LLM 档案输出格式错误：期望 { examPoints: [...] }，收到：${JSON.stringify(fresh).slice(0, 200)}`);
+  }
+
+  const profilePath = join(THEME_DIR, 'study', 'records', 'profile.json');
+  let existing = null;
+  if (existsSync(profilePath)) {
+    try { existing = JSON.parse(readFileSync(profilePath, 'utf-8')); } catch { existing = null; }
+  }
+  const merged = mergeProfile(existing, fresh, { theme: THEME, now: Date.now() });
+  mkdirSync(dirname(profilePath), { recursive: true });
+  writeFileSync(profilePath, JSON.stringify(merged, null, 2), 'utf-8');
+  console.log(`👤 学习者档案已更新：study/records/profile.json（考点档案 ${merged.examPoints.length} 条 · 第 ${merged.grillRuns} 次串讲）`);
 }
 
 main().catch((err) => {

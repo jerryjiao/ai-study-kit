@@ -107,6 +107,16 @@ console.log(JSON.stringify({
 
 `progress=empty` 是正常态（新用户/刚重置），不是故障，别进诊断流程。
 
+**弱考点（考点掌握度，快照第 5 行）**：进度统计之外再跑一条——确定性派生，无 AI：
+
+```bash
+node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" --json
+```
+
+- 判据：考点（题库 `examPoint`，EP-NN）下题全答对且无未毕业错题 = 掌握；有未毕业错题或当前答错 = 弱；部分作答无负面 = 进行中。考点名从 MISSION 排布表解析。
+- `--progress` 文件不存在 = 空进度全部 untouched，不是故障；`--theme` 两种形态都认（同 §1）。
+- 输出消费：`summary.weak` 与 `weakRanked`（弱点排序：未毕业多者先）进快照「弱考点」行；`points[].profile` 带 grill 串讲记下的错因（来自 `study/records/profile.json`，学习者私有不上站，目录语义见 §7）——推荐时点名引用，让理由从「错题多」变成「EP-03 连错 2 次，错因：权限位组合不熟」。
+
 ## 4. AI 配置（只报配齐与否，绝不回显值）
 
 ```bash
@@ -114,7 +124,15 @@ test -f .env && grep -cE '^(LLM_BASE_URL|LLM_API_KEY|LLM_MODEL)=..' .env   # =3 
 grep -cE '^TTS_PROVIDER=..' .env 2>/dev/null                                # TTS 有无（播客合成音频用）
 ```
 
-`.env` 不存在或计数 < 3 → AI 缺配。三个 AI 流程（teach/grill/podcast 的 LLM 部分）都跑不了；答题站/闪卡不受影响。补配走 `cp .env.example .env` 后填三项（细节见仓库 `docs/configuration.md`）。
+`.env` 不存在或计数 < 3 → AI 缺配。分项就绪矩阵（哪个流程还差什么，一眼可见）：
+
+| 能力 | LLM 三项 | 还需要 |
+|------|----------|--------|
+| F6 产课（teach） | 必需 | — |
+| F4 串讲（grill CLI 路径） | 必需 | 后端在线（拉 `/api/progress`） |
+| F5 播客（podcast） | 必需 | TTS 可选——缺则 `--no-tts` 只出逐字稿，不算阻塞 |
+
+答题站/闪卡/考点掌握报告（mastery-report）不受影响（零 LLM）。补配走 `cp .env.example .env` 后填三项（细节见仓库 `docs/configuration.md`）。
 
 ## 5. 服务
 
