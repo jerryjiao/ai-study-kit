@@ -44,6 +44,8 @@ pnpm run ai:grill -- --theme dev-intro
 pnpm run ai:podcast -- --input examples/dev-intro/lessons/git-basics.html
 ```
 
+All three AI CLIs support `--json`: human-readable logs drop to stderr and stdout carries a single result JSON (a manifest of produced-file paths) for other agents / script pipelines to consume (same convention as `mastery-report --json`). No-op paths (e.g. no wrong questions right now) also emit JSON (`status: "noop"`) so pipelines can branch on it.
+
 ---
 
 ## teach-generate — generate a course
@@ -75,6 +77,7 @@ Turns a theme spec (mission + resources + audience) into a multi-lesson, self-co
 - each lesson is self-contained HTML (sharing `../assets/styles.css`)
 - structure: h1 + meta + lead + multiple h2 + callouts (key point / warning / tip) + quiz-anchor
 - mechanism diagram: at least one inline SVG per lesson — big picture, few words, mechanism only (nodes + arrows for flow / hierarchy / contrast)
+- source backlinks: every lesson ends with a `📚 Sources` block listing authoritative links — resources = `course-spec.json`'s `resources` merged with the theme's `RESOURCES.md` (the teach-workflow's authoritative resource list), deduplicated by URL; the merged list feeds both the LLM's prep references and the footer display (the artifact side of the "concepts come from reference materials" principle)
 - prev/next links chain lessons together
 
 ### Usage
@@ -83,6 +86,7 @@ Turns a theme spec (mission + resources + audience) into a multi-lesson, self-co
 pnpm run ai:teach -- --theme react-basics
 pnpm run ai:teach -- --theme X --lessons 5   # override lessonsCount
 pnpm run ai:teach -- --theme X --lang en     # produce the course in English
+pnpm run ai:teach -- --theme X --json        # machine-readable output (agent consumption)
 ```
 
 `--theme` defaults to `dev-intro`. Reference: [`examples/dev-intro/course-spec.json`](https://github.com/jerryjiao/ai-study-kit/blob/main/examples/dev-intro/course-spec.json).
@@ -112,6 +116,7 @@ pnpm run server  # another terminal
 pnpm run ai:grill -- --theme react-basics
 pnpm run ai:grill -- --max-clusters 5                # at most 5 clusters
 pnpm run ai:grill -- --lang es                       # deep-dives in Spanish
+pnpm run ai:grill -- --json                          # machine-readable output (agent consumption)
 SERVER=http://my-server:8787 pnpm run ai:grill       # pull wrong answers from a remote server
 ```
 
@@ -133,10 +138,12 @@ Companion tool to grill: **deterministically derives** each exam point's mastery
 
 | State | Criterion |
 |-------|-----------|
-| mastered | all questions in the point answered, all correct on the latest attempt, no ungraduated wrong questions |
+| mastered | all questions in the point answered, all correct on the latest attempt, no ungraduated wrong questions, and all mapped flashcards graduated |
 | weak | has ungraduated wrong questions, or a wrong answer on the latest attempt |
-| in progress | partially answered with no negative evidence |
+| in progress | partially answered with no negative evidence, or all-correct but mapped flashcards not yet all graduated |
 | untouched | nothing answered yet |
+
+Flashcard graduation component: cards in `flashcards.json` may carry an optional `examPoint` (EP-NN, the same namespace as questions); for a mapped point, mastery additionally requires those cards to be graduated in SRS (`phase = review`). Unmapped points are unaffected — the criteria simply fall back to questions only. The web app's home "exam-point mastery" panel shows the same criteria live (`src/lib/mastery.ts`).
 
 The report joins the learner profile (`study/records/profile.json`, written by grill) — each point's row carries its wrong reasons and advice. Point names are parsed from the MISSION.md layout table.
 
@@ -193,6 +200,9 @@ pnpm run ai:podcast -- \
 
 # produce the dialogue in another language (verify the script first with --no-tts, see "Output language")
 pnpm run ai:podcast -- --input examples/dev-intro/questions.json --lang ru --no-tts
+
+# machine-readable output (agent consumption)
+pnpm run ai:podcast -- --input examples/dev-intro/questions.json --no-tts --json
 ```
 
 ### Style options (`--style`)

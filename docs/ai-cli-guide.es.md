@@ -44,6 +44,8 @@ pnpm run ai:grill -- --theme dev-intro
 pnpm run ai:podcast -- --input examples/dev-intro/lessons/git-basics.html
 ```
 
+Los tres CLI de IA admiten `--json`: los registros legibles por humanos bajan a stderr y stdout entrega un único JSON de resultado (manifiesto de rutas de productos), pensado para que otros agentes / canalizaciones de scripts lo consuman (misma convención que `mastery-report --json`). Los caminos noop (p. ej. ahora no hay erróneas) también emiten JSON (`status: "noop"`), para que la canalización pueda ramificar.
+
 ---
 
 ## teach-generate — genera un curso
@@ -75,6 +77,7 @@ Convierte la especificación del tema (mission + resources + audience) en un cur
 - cada lección es HTML autónomo (comparten `../assets/styles.css` por enlace)
 - estructura: h1 + meta + lead + varios h2 + callouts (punto clave / aviso / truco) + quiz-anchor
 - diagrama de mecanismo: mínimo un SVG en línea por lección — imagen grande, poco texto, solo el mecanismo (nodos + flechas para flujo / jerarquía / contraste)
+- retroenlaces de fuentes: cada lección cierra con un bloque `📚 Fuentes` que enumera los enlaces autorizados — los recursos = los `resources` de `course-spec.json` fusionados con el `RESOURCES.md` del tema (la lista de recursos autorizados que conviene mantener en el flujo de teach), deduplicados por URL; la lista fusionada alimenta tanto las referencias de preparación del LLM como el pie de página (la cara de artefacto del principio «los conceptos se construyen con material de referencia»)
 - enlaces prev/next que encadenan las lecciones
 
 ### Uso
@@ -83,6 +86,7 @@ Convierte la especificación del tema (mission + resources + audience) en un cur
 pnpm run ai:teach -- --theme react-basics
 pnpm run ai:teach -- --theme X --lessons 5   # 覆盖 lessonsCount
 pnpm run ai:teach -- --theme X --lang en     # 课程用英语产
+pnpm run ai:teach -- --theme X --json        # 机器可读输出（agent 消费）
 ```
 
 Sin `--theme`, el valor por defecto es `dev-intro`. Referencia: [`examples/dev-intro/course-spec.json`](https://github.com/jerryjiao/ai-study-kit/blob/main/examples/dev-intro/course-spec.json).
@@ -112,6 +116,7 @@ pnpm run server  # 另一个终端
 pnpm run ai:grill -- --theme react-basics
 pnpm run ai:grill -- --max-clusters 5                # 最多分 5 簇
 pnpm run ai:grill -- --lang es                       # 精讲用西语产
+pnpm run ai:grill -- --json                          # 机器可读输出（agent 消费）
 SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 ```
 
@@ -133,10 +138,12 @@ Herramienta complementaria de grill: **deriva de forma determinista** el dominio
 
 | Estado | Criterio |
 |--------|----------|
-| dominado | todas las preguntas del punto respondidas, todas correctas en el último intento, sin erróneas sin graduar |
+| dominado | todas las preguntas del punto respondidas, todas correctas en el último intento, sin erróneas sin graduar, y todas las tarjetas mapeadas graduadas |
 | débil | tiene erróneas sin graduar, o algún fallo en el último intento |
-| en curso | respondido parcialmente y sin evidencia negativa |
+| en curso | respondido parcialmente y sin evidencia negativa, o todo correcto pero con tarjetas mapeadas aún sin graduar |
 | sin empezar | ninguna pregunta respondida |
+
+Componente de graduación de tarjetas: las tarjetas de `flashcards.json` pueden llevar un `examPoint` opcional (EP-NN, el mismo espacio de nombres que las preguntas); en un punto mapeado, el dominio exige además que esas tarjetas estén graduadas en el SRS (`phase = review`). Los puntos sin mapeo no se ven afectados: el criterio retrocede a preguntas solamente. El panel «dominio por punto de examen» de la página principal de la web app muestra en vivo estos mismos criterios (`src/lib/mastery.ts`).
 
 El informe se une con el perfil del aprendiz (`study/records/profile.json`, producido por grill): cada fila de punto lleva sus causas de error y el consejo. Los nombres de los puntos se analizan de la tabla de reparto de MISSION.md.
 
@@ -195,6 +202,9 @@ pnpm run ai:podcast -- \
 
 # 对白用其他语言产（先 --no-tts 验证脚本，见下方「输出语言」）
 pnpm run ai:podcast -- --input examples/dev-intro/questions.json --lang ru --no-tts
+
+# 机器可读输出（agent 消费）
+pnpm run ai:podcast -- --input examples/dev-intro/questions.json --no-tts --json
 ```
 
 ### Opciones de estilo (`--style`)

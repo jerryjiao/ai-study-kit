@@ -44,6 +44,16 @@ export const es: Record<TKey, string> = {
   'home.confirmResetAll':
     '¿Vaciar TODO el progreso (respuestas + erróneas + lecturas)? No se puede deshacer y se sincronizará con todos tus dispositivos.',
 
+  // Panel de dominio por punto de examen (canal doble preguntas + tarjetas, ver src/lib/mastery.ts)
+  'home.masteryTitle': 'Dominio por punto de examen (preguntas + tarjetas)',
+  'home.masterySummary': 'Dominados {mastered} · Débiles {weak} · En curso {inProgress} · Sin empezar {untouched}',
+  'home.masteryChipMastered': 'Dominado',
+  'home.masteryChipWeak': 'Débil',
+  'home.masteryChipInProgress': 'En curso',
+  'home.masteryChipUntouched': 'Sin empezar',
+  'home.masteryFlashOpen': '{n} tarjeta(s) sin graduar',
+  'home.masteryNoEp': 'Este banco de preguntas no tiene puntos de examen marcados (examPoint): no se puede derivar el dominio.',
+
   // Práctica
   'practice.readMode': 'Modo lectura',
   'practice.layerAll': 'Todos',

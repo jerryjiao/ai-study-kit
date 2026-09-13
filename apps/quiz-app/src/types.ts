@@ -76,6 +76,10 @@ export interface Flashcard {
   source: string;
   topic: string;
   fromQuestionId?: string;  // 可选软关联：源自某道题
+  /** 可选考点映射（EP-NN，与题库 examPoint 同一命名空间）。有映射时掌握度判据把
+   *  闪卡毕业（SRS phase = review）计入该考点的 mastered 条件（见 src/lib/mastery.ts）；
+   *  无映射的卡不参与考点判据（按主题复习照常）。 */
+  examPoint?: string;
 }
 
 export interface SrsMeta {

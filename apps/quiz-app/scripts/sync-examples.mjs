@@ -14,6 +14,7 @@ import { copyFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, readFi
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
+import { epNameMap } from './lib/mastery.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
@@ -78,11 +79,20 @@ if (existsSync(themeConfigSrc)) {
 // 记录激活主题：Courses 页据此拼课程 URL（study/<theme>/），保证内容与课程永远同主题，
 // 也让「切换主题」只需改 EXAMPLE_THEME 一处（原需同步手改 Courses.tsx 的 COURSE_URL）。
 // 外部主题包额外记 dir（绝对路径）——detectTheme 粘滞回退靠它，不靠裸名字。
+// examPoints（可选）：MISSION.md 排布表解析出的考点名映射（EP-NN → 考点名），
+// 首页掌握度面板用它做考点显示名（UI 不重复解析 markdown）。无 MISSION/无排布表 = 空映射。
+const missionPath = join(EXAMPLE_DIR, 'MISSION.md');
+const examPoints = existsSync(missionPath)
+  ? epNameMap(readFileSync(missionPath, 'utf-8'))
+  : {};
 writeFileSync(
   join(DATA_DIR, 'theme.json'),
-  JSON.stringify({ theme: EXAMPLE_THEME, ...(EXTERNAL ? { dir: EXAMPLE_DIR } : {}) }, null, 2) + '\n'
+  JSON.stringify(
+    { theme: EXAMPLE_THEME, ...(EXTERNAL ? { dir: EXAMPLE_DIR } : {}), examPoints },
+    null, 2
+  ) + '\n'
 );
-console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME}${EXTERNAL ? ' · 外部主题包' : ''})`);
+console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME}${EXTERNAL ? ' · 外部主题包' : ''}${Object.keys(examPoints).length ? ` · 考点 ${Object.keys(examPoints).length} 个` : ''})`);
 
 // 课程清单：examples/<theme>/lessons/*.html → src/data/courses.json。
 // Courses 页据此渲染课程目录 + 学完进度；ai-study-kit skill / CLI 据此对账「课全学完」

@@ -5,7 +5,8 @@
  * 从主题题库 + 答题进度派生每个考点（EP-NN）的掌握度，并 join 学习者档案
  * （study/records/profile.json，grill 串讲顺产的错因记录，存在才带上）。
  *
- * 判据（v1，题维度）：mastered = 考点下题全答对且无未毕业错题；详见 lib/mastery.mjs 头注。
+ * 判据（v1.1，题 + 闪卡双通道）：mastered = 考点下题全答对、无未毕业错题，
+ * 且映射闪卡（flashcards[].examPoint）全部毕业（SRS phase = review）；详见 lib/mastery.mjs 头注。
  *
  * 用法：
  *   node apps/quiz-app/scripts/mastery-report.mjs                    # 默认 dev-intro，人类可读
@@ -55,6 +56,14 @@ if (existsSync(PROGRESS_PATH) && PROGRESS_PATH) {
   try { progress = JSON.parse(readFileSync(PROGRESS_PATH, 'utf-8')); } catch { progress = null; }
 }
 const answers = (progress && progress.answers) || {};
+const srs = (progress && progress.srs) || {};
+
+// 闪卡（可选）：examPoint 有映射的卡参与掌握度判据的闪卡毕业组件
+const flashcardsPath = join(THEME_DIR, 'flashcards.json');
+let flashcards = [];
+if (existsSync(flashcardsPath)) {
+  try { flashcards = JSON.parse(readFileSync(flashcardsPath, 'utf-8')); } catch { flashcards = []; }
+}
 
 // 学习者档案（可选）：按 questionIds 与考点求交，把 grill 记下的错因/建议贴到对应考点
 const profilePath = join(THEME_DIR, 'study', 'records', 'profile.json');
@@ -64,7 +73,7 @@ if (existsSync(profilePath)) {
 }
 
 // ── 派生 ──────────────────────────────────────────────────
-const { points, untracked } = masteryByExamPoint({ questions, answers, epNames });
+const { points, untracked } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs });
 const weak = rankWeakness(points);
 const byStatus = (s) => points.filter((p) => p.status === s).length;
 
@@ -106,7 +115,8 @@ if (AS_JSON) {
   console.log('');
   for (const p of points) {
     const wrong = p.openWrongIds.length ? `，未毕业错题 ${p.openWrongIds.length}（${p.openWrongIds.join(',')}）` : '';
-    console.log(`  ${mark[p.status]}  ${p.ep} ${p.name}：${p.correctNow}/${p.total} 对${wrong}`);
+    const flash = p.flashOpenIds.length ? `，闪卡未毕业 ${p.flashOpenIds.length}（${p.flashOpenIds.join(',')}）` : '';
+    console.log(`  ${mark[p.status]}  ${p.ep} ${p.name}：${p.correctNow}/${p.total} 对${wrong}${flash}`);
     if (p.profile && p.profile.wrongReasons.length) {
       console.log(`        档案错因：${p.profile.wrongReasons.join('；')}${p.profile.advice ? `（建议：${p.profile.advice}）` : ''}`);
     }

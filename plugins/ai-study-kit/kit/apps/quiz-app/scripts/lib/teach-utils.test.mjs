@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { escapeHTML, slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline } from './teach-utils.mjs';
+import { escapeHTML, slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline, parseResourcesMd, mergeResources } from './teach-utils.mjs';
 
 // ── escapeHTML ────────────────────────────────────────────
 
@@ -202,4 +202,63 @@ test('normalizeOutline: 元素转 string', () => {
 test('normalizeOutline: 非数组抛错', () => {
   assert.throws(() => normalizeOutline('not array', 3), /不是数组/);
   assert.throws(() => normalizeOutline(null, 3), /不是数组/);
+});
+
+// ── RESOURCES.md 出处回链（解析 + 合并）──────────────────────
+
+test('parseResourcesMd: 认加粗标题+冒号+URL 形态（本仓库 RESOURCES.md 写法）', () => {
+  const md = [
+    '# Resources · dev-intro 示例',
+    '',
+    '- **Pro Git Book**（官方，免费）：https://git-scm.com/book/zh/v2',
+    '  - 中文版，完整覆盖 git 全部概念。', // 子说明行不带 URL，不产出
+    '- **Linux man pages**：终端里 `man ls` / `man chmod`', // 无 URL，不产出
+    '- **Learn Git Branching**（交互式）：https://learngitbranching.js.org/?locale=zh_CN',
+  ].join('\n');
+  assert.deepEqual(parseResourcesMd(md), [
+    { title: 'Pro Git Book', url: 'https://git-scm.com/book/zh/v2' },
+    { title: 'Learn Git Branching', url: 'https://learngitbranching.js.org/?locale=zh_CN' },
+  ]);
+});
+
+test('parseResourcesMd: 认 markdown 链接形态；空/无匹配回空数组', () => {
+  const md = '看 [官方文档](https://example.com/docs) 和 [教程](https://t.example.com)';
+  assert.deepEqual(parseResourcesMd(md), [
+    { title: '官方文档', url: 'https://example.com/docs' },
+    { title: '教程', url: 'https://t.example.com' },
+  ]);
+  assert.deepEqual(parseResourcesMd(''), []);
+  assert.deepEqual(parseResourcesMd('# 没有链接的文档'), []);
+});
+
+test('mergeResources: URL 去重 spec 在前保序；缺字段条目丢弃', () => {
+  const specRes = [
+    { title: 'Pro Git Book（中文版，官方免费）', url: 'https://git-scm.com/book/zh/v2' },
+    { title: 'git 官方文档', url: 'https://git-scm.com/docs' },
+  ];
+  const mdRes = [
+    { title: 'Pro Git Book', url: 'https://git-scm.com/book/zh/v2' }, // 与 spec 同 URL，去重
+    { title: 'Linux 命令大全（runoob）', url: 'https://www.runoob.com/linux/linux-command-manual.html' },
+    { title: '残缺条目' }, // 无 url 丢弃
+  ];
+  assert.deepEqual(mergeResources(specRes, mdRes), [
+    { title: 'Pro Git Book（中文版，官方免费）', url: 'https://git-scm.com/book/zh/v2' },
+    { title: 'git 官方文档', url: 'https://git-scm.com/docs' },
+    { title: 'Linux 命令大全（runoob）', url: 'https://www.runoob.com/linux/linux-command-manual.html' },
+  ]);
+});
+
+test('wrapLessonHTML: 传 sources 时页脚前渲染出处块，不传时无该块', () => {
+  const base = { mainContent: '<h2>x</h2><p>y</p>', title: 'T', lessonNum: 1, total: 2 };
+  const withSrc = wrapLessonHTML({ ...base, sources: [{ title: 'Docs', url: 'https://e.com/d?a=1&b=2' }] });
+  assert.match(withSrc, /<aside class="sources">/);
+  assert.match(withSrc, /📚 出处：/);
+  assert.match(withSrc, /<a href="https:\/\/e\.com\/d\?a=1&amp;b=2" target="_blank" rel="noopener">Docs<\/a>/);
+  const withoutSrc = wrapLessonHTML(base);
+  assert.doesNotMatch(withoutSrc, /class="sources"/);
+  // 出处块在正文之后、<footer> 之前
+  const idxBody = withSrc.indexOf('<p>y</p>');
+  const idxSrc = withSrc.indexOf('<aside class="sources">');
+  const idxFooter = withSrc.indexOf('<footer>');
+  assert.ok(idxBody < idxSrc && idxSrc < idxFooter);
 });

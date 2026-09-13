@@ -44,6 +44,8 @@ pnpm run ai:grill -- --theme dev-intro
 pnpm run ai:podcast -- --input examples/dev-intro/lessons/git-basics.html
 ```
 
+三个 AI CLI 都支持 `--json`：人读日志降级到 stderr，stdout 只出一份结果 JSON（产物路径清单），供其他 agent / 脚本管道消费（与 `mastery-report --json` 同一约定）。noop 路径（如当前无错题）也出 JSON（`status: "noop"`），便于管道分支判断。
+
 ---
 
 ## teach-generate — 生成课程
@@ -75,6 +77,7 @@ pnpm run ai:podcast -- --input examples/dev-intro/lessons/git-basics.html
 - 每节自包含 HTML（链接共享 `../assets/styles.css`）
 - 结构：h1 + meta + lead + 多个 h2 + callouts（重点/警示/技巧）+ quiz-anchor
 - 核心机制示意图：每课至少 1 张内联 SVG，图大字少、只画机制（节点+箭头表达流转/层次/对比）
+- 出处回链：每课页尾 `📚 出处` 块列出权威来源链接——资源 = `course-spec.json` 的 `resources` 与主题目录 `RESOURCES.md`（teach 工作流约定的权威资源清单）按 URL 去重合并，既进 LLM 备课参考也进页尾展示（「以参考材料建概念」原则的产物面）
 - prev/next 链接互链
 
 ### 用法
@@ -83,6 +86,7 @@ pnpm run ai:podcast -- --input examples/dev-intro/lessons/git-basics.html
 pnpm run ai:teach -- --theme react-basics
 pnpm run ai:teach -- --theme X --lessons 5   # 覆盖 lessonsCount
 pnpm run ai:teach -- --theme X --lang en     # 课程用英语产
+pnpm run ai:teach -- --theme X --json        # 机器可读输出（agent 消费）
 ```
 
 不传 `--theme` 时默认 `dev-intro`。参考：[`examples/dev-intro/course-spec.json`](https://github.com/jerryjiao/ai-study-kit/blob/main/examples/dev-intro/course-spec.json)。
@@ -112,6 +116,7 @@ pnpm run server  # 另一个终端
 pnpm run ai:grill -- --theme react-basics
 pnpm run ai:grill -- --max-clusters 5                # 最多分 5 簇
 pnpm run ai:grill -- --lang es                       # 精讲用西语产
+pnpm run ai:grill -- --json                          # 机器可读输出（agent 消费）
 SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 ```
 
@@ -133,10 +138,12 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 
 | 状态 | 判据 |
 |------|------|
-| 掌握 | 考点下全部题已答、最近一次全对、无未毕业错题 |
+| 掌握 | 考点下全部题已答、最近一次全对、无未毕业错题，且映射闪卡全部毕业 |
 | 弱 | 有未毕业错题，或最近一次有答错 |
-| 进行中 | 部分作答且无负面证据 |
+| 进行中 | 部分作答且无负面证据，或题已全对但映射闪卡未全部毕业 |
 | 未开始 | 一题未答 |
+
+闪卡毕业组件：`flashcards.json` 的卡可带可选 `examPoint`（EP-NN，与题库同一命名空间）；有映射的考点，掌握判据还要求这些卡在 SRS 里毕业（`phase = review`）。无映射的考点不受影响——判据自然退回纯题维度。Web app 首页「考点掌握度」面板用同一判据实时展示（`src/lib/mastery.ts`）。
 
 报告会 join 学习者档案（`study/records/profile.json`，grill 顺产）——考点行上带出错因与建议。考点名从 MISSION.md 排布表解析。
 
@@ -193,6 +200,9 @@ pnpm run ai:podcast -- \
 
 # 对白用其他语言产（先 --no-tts 验证脚本，见下方「输出语言」）
 pnpm run ai:podcast -- --input examples/dev-intro/questions.json --lang ru --no-tts
+
+# 机器可读输出（agent 消费）
+pnpm run ai:podcast -- --input examples/dev-intro/questions.json --no-tts --json
 ```
 
 ### 风格选项（`--style`）

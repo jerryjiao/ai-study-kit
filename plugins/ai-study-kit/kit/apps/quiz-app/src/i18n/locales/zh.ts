@@ -44,6 +44,16 @@ export const zh = {
   'home.resetAll': '清空全部进度',
   'home.confirmResetAll': '清空全部进度（答题 + 错题 + 看题）？此操作不可恢复，且会同步到所有设备。',
 
+  // 考点掌握度面板（题 + 闪卡双通道判据，见 src/lib/mastery.ts）
+  'home.masteryTitle': '考点掌握度（题 + 闪卡双通道）',
+  'home.masterySummary': '掌握 {mastered} · 弱 {weak} · 进行中 {inProgress} · 未开始 {untouched}',
+  'home.masteryChipMastered': '掌握',
+  'home.masteryChipWeak': '弱',
+  'home.masteryChipInProgress': '进行中',
+  'home.masteryChipUntouched': '未开始',
+  'home.masteryFlashOpen': '闪卡未毕业 {n}',
+  'home.masteryNoEp': '当前题库没有考点标记（examPoint），无法派生掌握度。',
+
   // 练习页
   'practice.readMode': '看题模式',
   'practice.layerAll': '全部',

@@ -113,9 +113,9 @@ console.log(JSON.stringify({
 node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" --json
 ```
 
-- 判据：考点（题库 `examPoint`，EP-NN）下题全答对且无未毕业错题 = 掌握；有未毕业错题或当前答错 = 弱；部分作答无负面 = 进行中。考点名从 MISSION 排布表解析。
+- 判据（v1.1 双通道）：考点（题库 `examPoint`，EP-NN）下题全答对、无未毕业错题，且映射闪卡（`flashcards.json` 可选 `examPoint`）全部毕业（SRS phase=review）= 掌握；有未毕业错题或当前答错 = 弱；部分作答无负面、或题全对但映射闪卡未全毕业 = 进行中。无映射闪卡的考点退回纯题维度。考点名从 MISSION 排布表解析。
 - `--progress` 文件不存在 = 空进度全部 untouched，不是故障；`--theme` 两种形态都认（同 §1）。
-- 输出消费：`summary.weak` 与 `weakRanked`（弱点排序：未毕业多者先）进快照「弱考点」行；`points[].profile` 带 grill 串讲记下的错因（来自 `study/records/profile.json`，学习者私有不上站，目录语义见 §7）——推荐时点名引用，让理由从「错题多」变成「EP-03 连错 2 次，错因：权限位组合不熟」。
+- 输出消费：`summary.weak` 与 `weakRanked`（弱点排序：未毕业多者先）进快照「弱考点」行；`points[].profile` 带 grill 串讲记下的错因（来自 `study/records/profile.json`，学习者私有不上站，目录语义见 §7）——推荐时点名引用，让理由从「错题多」变成「EP-03 连错 2 次，错因：权限位组合不熟」。`points[].flashOpenIds` 列出该考点未毕业的闪卡（推荐刷闪卡时点名）；判据与 web 首页「考点掌握度」面板同口径。
 
 ## 4. AI 配置（只报配齐与否，绝不回显值）
 

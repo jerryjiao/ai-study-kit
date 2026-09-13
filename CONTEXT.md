@@ -29,7 +29,7 @@ _Avoid_: 把 CLI 叫 skill（旧文档的混称，已纠正）
 _Avoid_: 示例（示例主题特指 dev-intro；用户建的主题不是示例）
 
 **考点掌握度（exam-point mastery）**:
-从答题进度对每个考点（EP-NN）确定性派生的四态：掌握（考点下题全答对且无未毕业错题）/ 弱（有未毕业错题或当前答错）/ 进行中（部分作答且无负面证据）/ 未开始。派生逻辑在 `scripts/lib/mastery.mjs`，报告入口 `scripts/mastery-report.mjs`，无 LLM。判据刻意不含闪卡毕业——闪卡与考点暂无映射，硬凑是假判据。
+从答题进度（+ 闪卡 SRS）对每个考点（EP-NN）确定性派生的四态：掌握（考点下题全答对、无未毕业错题，且映射闪卡全部毕业）/ 弱（有未毕业错题或当前答错）/ 进行中（部分作答无负面，或题已全对但映射闪卡未全毕业）/ 未开始。派生逻辑在 `scripts/lib/mastery.mjs`（报告入口 `scripts/mastery-report.mjs`）与其 TS 移植 `src/lib/mastery.ts`（首页掌握度面板，判据两边同步），无 LLM。闪卡经 `flashcards.json` 的可选 `examPoint` 映射参与判据（SRS phase=review 即毕业）；无映射考点退回纯题维度，不硬凑。
 _Avoid_: 及格率、正确率（那是全题库口径，不是考点口径）
 
 **学习者档案（learner profile）**:

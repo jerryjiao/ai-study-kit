@@ -2,6 +2,22 @@
 
 本仓库的版本日志。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.12.0] — 2026-09-13
+
+主题：**掌握度补完——DeepTutor 对标遗留清单四项落地（课程出处回链 / 三 CLI `--json` / 闪卡 EP 映射 / 掌握度进 UI），数据闭环从命令行走进答题站。**
+
+### Added
+
+- **闪卡 examPoint 映射 + 掌握度判据 v1.1（题 + 闪卡双通道）**：`flashcards.json` 的卡可带可选 `examPoint`（EP-NN，与题库同一命名空间），`types.ts` 的 `Flashcard` 同步扩字段。有映射的考点，mastered 判据还要求映射闪卡全部毕业（SRS `phase = review`，墓碑=已重置算未毕业）——只差闪卡时是「进行中」不是「弱」（不掩盖负面证据，也不虚报掌握）。无映射考点判据自然退回纯题维度，不硬凑。判据两侧实现（`scripts/lib/mastery.mjs` + TS 移植 `src/lib/mastery.ts`，复用 progress.ts 的 streakToPass）注释互指、必须同步改；单测两侧都有（node:test + vitest）。mastery-report 文本行带「闪卡未毕业 N（ids）」、`--json` 的 points 带 `flashMapped/flashGraduated/flashOpenIds`。
+- **掌握度进 web app（首页「考点掌握度」面板）**：首页新增折叠面板——按考点列四态 chip + 对题进度 + 「闪卡未毕业 N」徽标；考点显示名由 sync-examples.mjs 从 MISSION 排布表解析产进 `src/data/theme.json` 的 `examPoints`（UI 不重复解析 markdown）。与 mastery-report / skill 探测同判据同口径，多主题读端过滤照旧。无考点标记的主题优雅降级为提示行。i18n 四语词典同步。
+- **三 AI CLI 加 `--json`（agent 管道消费）**：teach / grill / podcast 全部支持机器可读输出——人读日志降级 stderr，stdout 只出一份结果 JSON（产物路径清单；grill 无错题等 noop 路径出 `status: "noop"`），与 mastery-report `--json` 同约定（DeepTutor CLI 的 `--format json` 同构先例）。
+- **teach 出处回链（「以参考材料建概念」的产物面）**：主题目录有 `RESOURCES.md` 时解析其链接（`**标题**（说明）：URL` 与 markdown 链接两种形态，纯函数 `parseResourcesMd`/`mergeResources` 有单测），与 course-spec.resources 按 URL 去重合并——既进 LLM 备课参考，也进每课页尾「📚 出处」块（四语文案进 langs.mjs `ui.sources`，`.sources` 样式进共享 styles.css）。dev-intro 两课已手工注入同款块（与模板输出逐字节一致）。
+
+### Changed
+
+- **文档同步（docs/，四语）**：`ai-cli-guide.md` teach 输出结构补出处回链条目、三 CLI 用法补 `--json`、mastery 判据表更新为双通道口径并注明 Web 面板同判据；en/es/ru 译本同步。
+- **口径文档与 skill 源**：CONTEXT.md「考点掌握度」词条改判据 v1.1（双实现互指）；AGENTS.md 数据闭环条目与 AI CLI 条目（`--json` 约定、RESOURCES 合并）同步；skill `state.md` §3 判据行更新、`flashOpenIds` 进输出消费说明。skill 源已改，`sync:plugin` 随发版重跑。
+
 ## [0.11.0] — 2026-09-13
 
 主题：**数据闭环——串讲与推荐之间补上机器层（借鉴 DeepTutor「tutoring as a data loop」论点：交互痕迹 → 学习者事实 → 反哺推荐），推荐理由从「错题多」具体到「EP-03 连错 2 次，错因：权限位组合不熟」。**

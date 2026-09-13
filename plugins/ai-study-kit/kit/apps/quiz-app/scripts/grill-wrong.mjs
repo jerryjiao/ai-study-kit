@@ -14,7 +14,11 @@
  *   node apps/quiz-app/scripts/grill-wrong.mjs --theme react-basics
  *   node apps/quiz-app/scripts/grill-wrong.mjs --theme X --max-clusters 5
  *   node apps/quiz-app/scripts/grill-wrong.mjs --lang en             # 精讲用英语产（zh/en/es/ru）
+ *   node apps/quiz-app/scripts/grill-wrong.mjs --json                # 机器可读输出（agent 消费）
  *   SERVER=http://my-server:8787 node apps/quiz-app/scripts/grill-wrong.mjs
+ *
+ * --json 下人读日志走 stderr、stdout 只出一份结果 JSON（簇/产物路径/档案路径）；
+ * 无错题等 noop 路径也出 JSON（status: 'noop'），供 agent 管道分支判断。
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -51,27 +55,33 @@ try {
   console.error(`❌ ${err.message}`);
   process.exit(1);
 }
+// --json：机器可读模式——人读日志降级到 stderr，stdout 只出结果 JSON（与 mastery-report --json 同约定）
+const AS_JSON = args.includes('--json');
+const say = AS_JSON ? (...a) => console.error(...a) : console.log;
 
 // ── 主流程 ────────────────────────────────────────────────
 async function main() {
   requireLlmConfig();
 
-  console.log('🔥 grill-wrong');
-  console.log(`   主题：${THEME}`);
-  console.log(`   后端：${SERVER}`);
-  console.log(`   最多分 ${MAX_CLUSTERS} 簇`);
-  console.log(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
-  console.log('');
+  say('🔥 grill-wrong');
+  say(`   主题：${THEME}`);
+  say(`   后端：${SERVER}`);
+  say(`   最多分 ${MAX_CLUSTERS} 簇`);
+  say(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
+  say('');
 
   // 1. 拉进度
-  console.log('📡 拉取答题进度...');
+  say('📡 拉取答题进度...');
   const progress = await fetchProgress(SERVER);
   const wrong = extractWrongAnswers(progress);
-  console.log(`   错题数：${wrong.length}`);
+  say(`   错题数：${wrong.length}`);
   if (wrong.length === 0) {
-    console.log('');
-    console.log('✅ 当前没有错题，无需生成精讲。');
-    console.log('   多刷几道题、答错几道后再跑本脚本。');
+    if (AS_JSON) console.log(JSON.stringify({ tool: 'grill', theme: THEME, status: 'noop', reason: 'no-wrong-questions' }, null, 2));
+    else {
+      console.log('');
+      console.log('✅ 当前没有错题，无需生成精讲。');
+      console.log('   多刷几道题、答错几道后再跑本脚本。');
+    }
     return;
   }
 
@@ -83,32 +93,34 @@ async function main() {
   }
   const questions = JSON.parse(readFileSync(questionsPath, 'utf-8'));
   const wrongWithQ = joinWrongQuestions(wrong, questions);
-  console.log(`   关联题库后有效错题：${wrongWithQ.length}（${wrong.length - wrongWithQ.length} 道题库已移除）`);
+  say(`   关联题库后有效错题：${wrongWithQ.length}（${wrong.length - wrongWithQ.length} 道题库已移除）`);
   if (wrongWithQ.length === 0) {
-    console.log('   所有错题都已不在当前题库，无需精讲。');
+    if (AS_JSON) console.log(JSON.stringify({ tool: 'grill', theme: THEME, status: 'noop', reason: 'wrong-questions-not-in-bank' }, null, 2));
+    else console.log('   所有错题都已不在当前题库，无需精讲。');
     return;
   }
-  console.log('');
+  say('');
 
   // 3. 读课程（用于精讲参照）
   const lessons = loadLessonSnippets(THEME_DIR);
   if (lessons.length) {
-    console.log(`📚 加载了 ${lessons.length} 节课程作为精讲参照`);
+    say(`📚 加载了 ${lessons.length} 节课程作为精讲参照`);
   }
 
   // 4. LLM 聚类
-  console.log('🤖 LLM 聚类错题...');
+  say('🤖 LLM 聚类错题...');
   const clusters = await clusterWrong(wrongWithQ, MAX_CLUSTERS, LANG);
-  console.log(`   分成 ${clusters.length} 簇：`);
+  say(`   分成 ${clusters.length} 簇：`);
   clusters.forEach((c, i) => {
-    console.log(`     ${i + 1}. ${c.topic}（${c.ids.length} 题）`);
+    say(`     ${i + 1}. ${c.topic}（${c.ids.length} 题）`);
   });
-  console.log('');
+  say('');
 
   // 5. 准备输出目录（备份旧 cluster-*.html 到 .archive/，避免用户手写内容被无声覆盖）
   const outDir = join(THEME_DIR, 'study', 'wrong-questions');
   mkdirSync(outDir, { recursive: true });
   const oldClusters = readdirSync(outDir).filter((f) => f.startsWith('cluster-') && f.endsWith('.html'));
+  let archivedTo = null;
   if (oldClusters.length > 0) {
     const backupDir = join(outDir, '.archive', new Date().toISOString().replace(/[:.]/g, '-'));
     mkdirSync(backupDir, { recursive: true });
@@ -117,7 +129,8 @@ async function main() {
       const dst = join(backupDir, old);
       renameSync(src, dst);
     }
-    console.log(`📦 备份了 ${oldClusters.length} 个旧 cluster HTML 到 study/wrong-questions/.archive/`);
+    archivedTo = backupDir;
+    say(`📦 备份了 ${oldClusters.length} 个旧 cluster HTML 到 study/wrong-questions/.archive/`);
   }
 
   // 6. 逐簇生成精讲
@@ -125,7 +138,7 @@ async function main() {
   for (let i = 0; i < clusters.length; i++) {
     const c = clusters[i];
     const file = clusterFileName(i + 1, c.topic);
-    console.log(`📝 [${i + 1}/${clusters.length}] 生成「${c.topic}」精讲...`);
+    say(`📝 [${i + 1}/${clusters.length}] 生成「${c.topic}」精讲...`);
     const mainHTML = await generateClusterContent(c, wrongWithQ, lessons, LANG);
     const html = wrapClusterHTML({
       mainContent: mainHTML,
@@ -135,23 +148,43 @@ async function main() {
       lang: LANG,
     });
     writeFileSync(join(outDir, file), html, 'utf-8');
-    console.log(`   ✓ ${file}`);
-    indexEntries.push({ topic: c.topic, file, count: c.ids.length });
+    say(`   ✓ ${file}`);
+    indexEntries.push({ topic: c.topic, file, count: c.ids.length, ids: c.ids });
   }
 
   // 7. 写 index.html
   const indexPath = join(outDir, 'index.html');
-  writeFileSync(indexPath, wrapIndexHTML(indexEntries, THEME, LANG), 'utf-8');
-  console.log(`   ✓ index.html`);
+  writeFileSync(indexPath, wrapIndexHTML(indexEntries.map(({ topic, file, count }) => ({ topic, file, count })), THEME, LANG), 'utf-8');
+  say(`   ✓ index.html`);
 
   // 8. 顺产学习者档案（study/records/profile.json，机器可读错因，供 skill 探测/mastery-report 消费）。
   //    best-effort：精讲 HTML 已落盘，档案失败只告警不退出。
+  const profilePath = join(THEME_DIR, 'study', 'records', 'profile.json');
+  let profileWritten = false;
   try {
     await writeProfile(clusters, wrongWithQ, LANG);
+    profileWritten = true;
   } catch (e) {
     console.warn(`⚠ 学习者档案生成失败（不影响已产出的精讲）：${e.message}`);
   }
 
+  // 结果输出：--json 给 agent（stdout 纯 JSON），否则人类可读收尾
+  if (AS_JSON) {
+    console.log(JSON.stringify({
+      tool: 'grill',
+      theme: THEME,
+      lang: LANG,
+      status: 'ok',
+      wrongCount: wrong.length,
+      effectiveWrongCount: wrongWithQ.length,
+      outDir,
+      clusters: indexEntries,
+      index: indexPath,
+      profile: profileWritten ? profilePath : null,
+      ...(archivedTo ? { archivedTo } : {}),
+    }, null, 2));
+    return;
+  }
   console.log('');
   console.log(`✅ 共生成 ${clusters.length} 篇精讲到 examples/${THEME}/study/wrong-questions/`);
   console.log('');

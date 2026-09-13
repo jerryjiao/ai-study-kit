@@ -44,6 +44,16 @@ export const en: Record<TKey, string> = {
   'home.confirmResetAll':
     'Clear ALL progress (answers + wrong + reading)? This cannot be undone and will sync to all your devices.',
 
+  // Exam-point mastery panel (question + flashcard dual channel, see src/lib/mastery.ts)
+  'home.masteryTitle': 'Exam-point mastery (questions + flashcards)',
+  'home.masterySummary': 'Mastered {mastered} · Weak {weak} · In progress {inProgress} · Not started {untouched}',
+  'home.masteryChipMastered': 'Mastered',
+  'home.masteryChipWeak': 'Weak',
+  'home.masteryChipInProgress': 'In progress',
+  'home.masteryChipUntouched': 'Not started',
+  'home.masteryFlashOpen': '{n} flashcard(s) not graduated',
+  'home.masteryNoEp': 'This question bank has no exam-point tags (examPoint) — mastery cannot be derived.',
+
   // Practice
   'practice.readMode': 'Reading mode',
   'practice.layerAll': 'All',

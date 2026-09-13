@@ -17,6 +17,9 @@
  *   node apps/quiz-app/scripts/podcast-generate.mjs --input X.html --style interview
  *   node apps/quiz-app/scripts/podcast-generate.mjs --input X.html --lang en        # 对白用英语产
  *   node apps/quiz-app/scripts/podcast-generate.mjs --input X.html --no-tts  # 只产脚本不合成
+ *   node apps/quiz-app/scripts/podcast-generate.mjs --input X.html --json   # 机器可读输出（agent 消费）
+ *
+ * --json 下人读日志走 stderr、stdout 只出一份结果 JSON（标题/脚本/逐字稿/音频路径）。
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve, basename } from 'node:path';
@@ -61,8 +64,13 @@ if (!INPUT) {
   console.error('  --style     风格：conversational / lecture / interview（默认 conversational）');
   console.error('  --lang      对白输出语言：zh / en / es / ru（默认 zh，也可用 STUDY_LANG 环境变量）');
   console.error('  --no-tts    只产脚本+逐字稿，不调 TTS（省 TTS 成本）');
+  console.error('  --json      机器可读输出：人读日志走 stderr，stdout 只出结果 JSON');
   process.exit(1);
 }
+
+// --json：机器可读模式——人读日志降级到 stderr，stdout 只出结果 JSON（与 mastery-report --json 同约定）
+const AS_JSON = args.includes('--json');
+const say = AS_JSON ? (...a) => console.error(...a) : console.log;
 
 // ── 主流程 ────────────────────────────────────────────────
 async function main() {
@@ -75,25 +83,25 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('🎙  podcast-generate');
-  console.log(`   输入：${inputPath}`);
-  console.log(`   段数：${TARGET_SEGMENTS}`);
-  console.log(`   风格：${STYLE}`);
-  console.log(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
-  console.log(`   TTS：${NO_TTS ? '跳过（--no-tts）' : '启用'}`);
-  console.log('');
+  say('🎙  podcast-generate');
+  say(`   输入：${inputPath}`);
+  say(`   段数：${TARGET_SEGMENTS}`);
+  say(`   风格：${STYLE}`);
+  say(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
+  say(`   TTS：${NO_TTS ? '跳过（--no-tts）' : '启用'}`);
+  say('');
 
   // 1. 读 + 解析输入
   const raw = readFileSync(inputPath, 'utf-8');
   const { sourceText, sourceTitle, sourceType } = parseInputSource(inputPath, raw);
-  console.log(`📄 解析输入：${sourceType}（${sourceText.length} 字符，标题：${sourceTitle}）`);
+  say(`📄 解析输入：${sourceType}（${sourceText.length} 字符，标题：${sourceTitle}）`);
   if (sourceText.length < 100) {
     console.warn('   ⚠️ 输入文本较短（< 100 字），播客内容可能不够充实');
   }
-  console.log('');
+  say('');
 
   // 2. LLM 产对话脚本
-  console.log('🤖 LLM 编写对话脚本...');
+  say('🤖 LLM 编写对话脚本...');
   const prompt = buildPodcastPrompt(sourceText, sourceTitle, {
     targetSegments: TARGET_SEGMENTS,
     style: STYLE,
@@ -113,9 +121,9 @@ async function main() {
     throw new Error(`LLM 对话脚本校验失败：${v.error}`);
   }
   const script = v.script;
-  console.log(`   ✓ 标题：${parsed.title}`);
-  console.log(`   ✓ 共 ${script.length} 段对话`);
-  console.log('');
+  say(`   ✓ 标题：${parsed.title}`);
+  say(`   ✓ 共 ${script.length} 段对话`);
+  say('');
 
   // 4. 准备输出
   const outDir = join(REPO_ROOT, 'podcast-out');
@@ -132,23 +140,24 @@ async function main() {
     generatedAt: new Date().toISOString(),
     script,
   }, null, 2), 'utf-8');
-  console.log(`💾 ${scriptPath}`);
+  say(`💾 ${scriptPath}`);
 
   // 6. 写逐字稿 Markdown
   writeFileSync(transcriptPath, renderTranscript(script, parsed.title, LANG), 'utf-8');
-  console.log(`💾 ${transcriptPath}`);
+  say(`💾 ${transcriptPath}`);
 
   // 7. TTS 合成（除非 --no-tts）
+  let audioBytes = null;
   if (!NO_TTS) {
     requireTtsConfig();
-    console.log('');
-    console.log(`🔊 TTS 合成（共 ${script.length} 段，逐段调 GLM-TTS）...`);
+    say('');
+    say(`🔊 TTS 合成（共 ${script.length} 段，逐段调 GLM-TTS）...`);
     const parts = [];
     for (let i = 0; i < script.length; i++) {
       const seg = script[i];
       const emoji = seg.speaker === 'female' ? '👩' : '👨';
       const preview = seg.text.slice(0, 30).replace(/\n/g, ' ');
-      console.log(`   [${i + 1}/${script.length}] ${emoji} ${preview}...`);
+      say(`   [${i + 1}/${script.length}] ${emoji} ${preview}...`);
       const { audio } = await synthesize({
         text: seg.text,
         gender: seg.speaker,
@@ -157,9 +166,26 @@ async function main() {
     }
     const combined = Buffer.concat(parts);
     writeFileSync(audioPath, combined);
-    console.log(`💾 ${audioPath}（${(combined.length / 1024 / 1024).toFixed(2)} MB）`);
+    audioBytes = combined.length;
+    say(`💾 ${audioPath}（${(combined.length / 1024 / 1024).toFixed(2)} MB）`);
   }
 
+  // 结果输出：--json 给 agent（stdout 纯 JSON），否则人类可读收尾
+  if (AS_JSON) {
+    console.log(JSON.stringify({
+      tool: 'podcast',
+      lang: LANG,
+      style: STYLE,
+      title: parsed.title,
+      input: inputPath,
+      segments: script.length,
+      scriptPath,
+      transcriptPath,
+      tts: !NO_TTS,
+      ...(audioBytes !== null ? { audioPath, audioBytes } : {}),
+    }, null, 2));
+    return;
+  }
   console.log('');
   console.log('✅ 播客生成完成！');
   console.log('');

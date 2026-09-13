@@ -21,12 +21,20 @@
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme D:/x/theme/react-basics   # 外部主题包路径
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics --lessons 5
  *   node apps/quiz-app/scripts/teach-generate.mjs --lang en            # 课程用英语产（zh/en/es/ru）
+ *   node apps/quiz-app/scripts/teach-generate.mjs --json               # 机器可读输出（agent 消费）
+ *
+ * 资源合并：主题目录有 RESOURCES.md 时解析其链接，与 course-spec.resources 按 URL 去重合并
+ * （spec 在前）——既进 LLM 备课参考，也进每课页尾的「出处」回链块（以参考材料建概念）。
+ * --json 下人读日志走 stderr、stdout 只出一份结果 JSON（产物路径清单），供 agent 管道消费。
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chat, requireLlmConfig } from './lib/llm.mjs';
-import { slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline } from './lib/teach-utils.mjs';
+import {
+  slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline,
+  parseResourcesMd, mergeResources,
+} from './lib/teach-utils.mjs';
 import { resolveLang, langConf } from './lib/langs.mjs';
 import { resolveThemeDir } from './lib/theme-path.mjs';
 
@@ -52,6 +60,9 @@ try {
   console.error(`❌ ${err.message}`);
   process.exit(1);
 }
+// --json：机器可读模式——人读日志降级到 stderr，stdout 只出结果 JSON（与 mastery-report --json 同约定）
+const AS_JSON = args.includes('--json');
+const say = AS_JSON ? (...a) => console.error(...a) : console.log;
 
 // ── 主流程 ────────────────────────────────────────────────
 async function main() {
@@ -72,26 +83,33 @@ async function main() {
   }
 
   const lessonsCount = LESSONS_OVERRIDE || spec.lessonsCount || 3;
-  console.log(`📚 teach-generate`);
-  console.log(`   主题：${spec.theme || THEME}`);
-  console.log(`   目标：${spec.mission}`);
-  console.log(`   受众：${spec.audience}`);
-  console.log(`   深度：${spec.depth}`);
-  console.log(`   课程数：${lessonsCount}`);
-  console.log(`   资源数：${spec.resources?.length || 0}`);
-  console.log(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
-  console.log('');
+  // RESOURCES.md（teach 工作流约定的权威资源清单）存在则并入：URL 去重、spec 在前。
+  // 合并结果同时喂给 LLM（备课参考）和页脚出处回链块。
+  const resourcesMdPath = join(THEME_DIR, 'RESOURCES.md');
+  const resources = existsSync(resourcesMdPath)
+    ? mergeResources(spec.resources, parseResourcesMd(readFileSync(resourcesMdPath, 'utf-8')))
+    : (spec.resources || []);
+  say(`📚 teach-generate`);
+  say(`   主题：${spec.theme || THEME}`);
+  say(`   目标：${spec.mission}`);
+  say(`   受众：${spec.audience}`);
+  say(`   深度：${spec.depth}`);
+  say(`   课程数：${lessonsCount}`);
+  say(`   资源数：${resources.length}${existsSync(resourcesMdPath) ? '（含 RESOURCES.md 合并）' : ''}`);
+  say(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
+  say('');
 
   // 触发配置校验（缺配置会清晰退出）
   requireLlmConfig();
 
   // 生成大纲（如果 spec 没给完整 outline，让 LLM 先拆）
+  const specWithResources = { ...spec, resources };
   let outline = spec.outline;
   if (!outline || outline.length !== lessonsCount) {
-    console.log('🤖 生成课程大纲...');
-    outline = await generateOutline(spec, lessonsCount, LANG);
-    console.log(`   大纲：${outline.join(' / ')}`);
-    console.log('');
+    say('🤖 生成课程大纲...');
+    outline = await generateOutline(specWithResources, lessonsCount, LANG);
+    say(`   大纲：${outline.join(' / ')}`);
+    say('');
   }
 
   // 准备输出目录
@@ -110,9 +128,9 @@ async function main() {
     const meta = fileMeta[i];
     const prev = i > 0 ? fileMeta[i - 1] : null;
     const next = i < outline.length - 1 ? fileMeta[i + 1] : null;
-    console.log(`📝 [${meta.num}/${outline.length}] 生成「${meta.topic}」...`);
+    say(`📝 [${meta.num}/${outline.length}] 生成「${meta.topic}」...`);
 
-    const mainContent = await generateLessonMain({ spec, topic: meta.topic, lessonNum: meta.num, total: outline.length, outline, lang: LANG });
+    const mainContent = await generateLessonMain({ spec: specWithResources, topic: meta.topic, lessonNum: meta.num, total: outline.length, outline, lang: LANG });
     const html = wrapLessonHTML({
       mainContent,
       title: `第 ${meta.num} 课 · ${meta.topic}`,
@@ -122,11 +140,25 @@ async function main() {
       nextFile: next?.file,
       nextTitle: next?.topic,
       lang: LANG,
+      sources,
     });
     writeFileSync(join(lessonsDir, meta.file), html, 'utf-8');
-    console.log(`   ✓ ${meta.file}`);
+    say(`   ✓ ${meta.file}`);
   }
 
+  // 结果输出：--json 给 agent（stdout 纯 JSON），否则人类可读收尾
+  const result = {
+    tool: 'teach',
+    theme: THEME,
+    lang: LANG,
+    lessonsDir,
+    resources: resources.map((r) => r.title),
+    lessons: fileMeta.map((m) => ({ num: m.num, topic: m.topic, file: m.file })),
+  };
+  if (AS_JSON) {
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
   console.log('');
   console.log(`✅ 共生成 ${outline.length} 节课程到 examples/${THEME}/lessons/`);
   console.log('');

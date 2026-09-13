@@ -44,6 +44,16 @@ export const ru: Record<TKey, string> = {
   'home.confirmResetAll':
     'Очистить ВЕСЬ прогресс (ответы + ошибки + чтение)? Отменить нельзя, изменение синхронизируется на все устройства.',
 
+  // Панель освоения по пунктам экзамена (вопросы + карточки, см. src/lib/mastery.ts)
+  'home.masteryTitle': 'Освоение по пунктам экзамена (вопросы + карточки)',
+  'home.masterySummary': 'Освоено {mastered} · Слабо {weak} · В процессе {inProgress} · Не начато {untouched}',
+  'home.masteryChipMastered': 'Освоено',
+  'home.masteryChipWeak': 'Слабо',
+  'home.masteryChipInProgress': 'В процессе',
+  'home.masteryChipUntouched': 'Не начато',
+  'home.masteryFlashOpen': 'Не выпущено карточек: {n}',
+  'home.masteryNoEp': 'В этом банке вопросов нет меток пунктов экзамена (examPoint) — освоение недоступно.',
+
   // Тренировка
   'practice.readMode': 'Режим чтения',
   'practice.layerAll': 'Все',

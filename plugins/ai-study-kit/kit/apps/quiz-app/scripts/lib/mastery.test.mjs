@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  streakToPass, isOpenWrong, epNameMap, masteryByExamPoint, rankWeakness,
+  streakToPass, isOpenWrong, epNameMap, masteryByExamPoint, rankWeakness, isFlashGraduated,
 } from './mastery.mjs';
 
 const qs = (eps) => eps.flatMap(([ep, ids]) => ids.map((id) => ({ id, examPoint: ep })));
@@ -39,6 +39,64 @@ test('mastered：全答对且无未毕业错题', () => {
     answers: { A: rec(), B: rec({ streak: 1, wrongCount: 1 }) }, // B 曾错已毕业
   });
   assert.equal(r.points[0].status, 'mastered');
+});
+
+// ── 闪卡毕业组件（v1.1）──────────────────────────────────────
+const fcs = (pairs) => pairs.map(([id, ep]) => ({ id, examPoint: ep }));
+const srsRec = (extra = {}) => ({ phase: 'review', ...extra });
+
+test('isFlashGraduated：review 毕业learning/无记录/墓碑不毕业', () => {
+  assert.equal(isFlashGraduated(srsRec()), true);
+  assert.equal(isFlashGraduated(srsRec({ phase: 'learning' })), false);
+  assert.equal(isFlashGraduated(srsRec({ phase: 'relearning' })), false);
+  assert.equal(isFlashGraduated(undefined), false);
+  assert.equal(isFlashGraduated(srsRec({ deletedAt: 123 })), false); // 重置墓碑 = 未毕业
+});
+
+test('mastered 判据补闪卡毕业：题全对但映射闪卡未毕业 → inProgress', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-1', 'EP-01']]),
+    srs: { 'FC-1': srsRec({ phase: 'learning' }) },
+  });
+  assert.equal(r.points[0].status, 'inProgress');
+  assert.deepEqual(r.points[0].flashOpenIds, ['FC-1']);
+  assert.equal(r.points[0].flashMapped, 1);
+  assert.equal(r.points[0].flashGraduated, 0);
+});
+
+test('映射闪卡全部毕业（review）→ mastered 成立', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-1', 'EP-01'], ['FC-2', 'EP-01']]),
+    srs: { 'FC-1': srsRec(), 'FC-2': srsRec() },
+  });
+  assert.equal(r.points[0].status, 'mastered');
+  assert.equal(r.points[0].flashGraduated, 2);
+});
+
+test('闪卡映射按考点隔离：别的考点的卡不影响本考点，无 examPoint 的卡不参与', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A']], ['EP-02', ['B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-x', 'EP-02'], ['FC-bare', undefined]]),
+    srs: { 'FC-x': srsRec({ phase: 'learning' }) }, // EP-02 的卡没毕业
+  });
+  assert.equal(r.points[0].status, 'mastered'); // EP-01 无映射卡，不受影响
+  assert.equal(r.points[1].status, 'inProgress'); // EP-02 差闪卡
+  assert.equal(r.points[0].flashMapped, 0);
+});
+
+test('闪卡组件不掩盖负面证据：题有错 + 闪卡毕业了也还是 weak', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec({ correct: false, streak: 0, wrongCount: 1 }) },
+    flashcards: fcs([['FC-1', 'EP-01']]),
+    srs: { 'FC-1': srsRec() },
+  });
+  assert.equal(r.points[0].status, 'weak');
 });
 
 test('weak：毕业中（streak 未达阈值）即使最近一次答对', () => {
