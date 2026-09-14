@@ -44,7 +44,7 @@ Install the whole kit into your AI agent (zcode / Claude Code). **No repo clonin
 # install ai-study-kit, then say "I want to learn X" (or /ask-coach) in a new session
 ```
 
-Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Twelve flows covered end to end, grouped in four lines — teaching (coached tutoring, pre-deadline sprint), practice (daily study, wrong-question grilling, podcasts), content (new theme, course generation, content edits), ops (bootstrap, verification, deploy, graph projection) — see [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).
+Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Thirteen flows covered end to end, grouped in four lines — teaching (coached tutoring, pre-deadline sprint), practice (daily study, wrong-question grilling, podcasts), content (new theme, course generation, content edits), ops (bootstrap, upgrade, verification, deploy, graph projection) — see [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).
 
 Just want to see what it looks like first? Take the clone route below.
 
@@ -78,7 +78,7 @@ Once the plugin is installed above (or via `pnpm run skill:install` into `~/.age
 
 **The command names are the menu** — four in total: `/ask-coach` asks the coach what to do (state snapshot + recommendation + guided execution), `/coach` jumps straight into a tutoring session, `/study-doctor` runs a one-stop health check (quality gates + environment probes), `/study-recap` jumps straight into a wrong-question deep-dive; everything else goes through the router.
 
-`/ask-coach` first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, lessons completed, tutoring progress, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Twelve playbooks cover everything from initializing the project to deploying it. (The playbook files the skill executes are written in Chinese; this guide is in English: [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).)
+`/ask-coach` first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, lessons completed, tutoring progress, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Thirteen playbooks cover everything from initializing the project to deploying it. (The playbook files the skill executes are written in Chinese; this guide is in English: [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).)
 
 ---
 

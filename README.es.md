@@ -44,7 +44,7 @@ Instala todo el kit en tu agente de IA (zcode / Claude Code). **Sin clonar el re
 # instala ai-study-kit y dile «quiero aprender X» (o /ask-coach) en una nueva sesión
 ```
 
-Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Doce flujos cubiertos de principio a fin, agrupados en cuatro líneas — enseñanza (tutoría guiada, sprint de pre-examen), práctica (estudio diario, repaso de errores, pódcast), contenido (tema nuevo, generación de cursos, edición de contenido), operaciones (arranque, verificación, despliegue, proyección del grafo) — ver [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).
+Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Trece flujos cubiertos de principio a fin, agrupados en cuatro líneas — enseñanza (tutoría guiada, sprint de pre-examen), práctica (estudio diario, repaso de errores, pódcast), contenido (tema nuevo, generación de cursos, edición de contenido), operaciones (arranque, actualización, verificación, despliegue, proyección del grafo) — ver [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).
 
 ¿Solo quieres ver cómo es? Sigue la ruta de clonación de abajo.
 
@@ -78,7 +78,7 @@ Con el plugin instalado arriba (o con `pnpm run skill:install` en `~/.agents/ski
 
 **Los nombres de los comandos son el menú** — cuatro en total: `/ask-coach` pregunta al coach qué hacer (instantánea + recomendación + ejecución guiada), `/coach` entra directo a una sesión de tutoría, `/study-doctor` corre un chequeo integral (puertas de calidad + sondas de entorno), `/study-recap` entra directo al análisis de erróneas; el resto pasa por el enrutador.
 
-`/ask-coach` primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, lecciones completadas, progreso de tutoría, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Once guías cubren desde inicializar el proyecto hasta desplegarlo. (Los guiones que ejecuta el skill están en chino; esta guía está en español: [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).)
+`/ask-coach` primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, lecciones completadas, progreso de tutoría, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Trece guías cubren desde inicializar el proyecto hasta desplegarlo. (Los guiones que ejecuta el skill están en chino; esta guía está en español: [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).)
 
 ---
 
