@@ -64,7 +64,7 @@ if (!skillDirs.includes(MAIN_SKILL)) {
 
 // 主 description 中文为主（与 README/官网默认语言一致），尾缀一句英文给国际市集可发现性；
 // en/zh-CN 全文分存在 description_i18n（zcode 客户端按 locale 取）。
-const DESCRIPTION = '/ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.';
+const DESCRIPTION = '/ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置、kit 版本漂移），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署、升级。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.';
 const KEYWORDS = ['study', 'learning', 'flashcards', 'srs', 'spaced-repetition', 'quiz', 'tutor', 'ai-study-kit'];
 // 插件图标：源是仓库根 assets/logo.png（与 quiz-app/官网三端同源）。marketplace 的 icon 走 jsDelivr
 // 绝对 URL（zcode 官方源同款做法；raw.githubusercontent 直连会撞 429/墙，jsDelivr 是 CDN 更稳）。
@@ -75,8 +75,8 @@ const manifest = {
   version: VERSION,
   description: DESCRIPTION,
   description_i18n: {
-    en: 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy.',
-    'zh-CN': 'ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。',
+    en: 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config, kit version drift) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy, upgrade.',
+    'zh-CN': 'ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置、kit 版本漂移），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署、升级。',
   },
   author: { name: 'ai-study-kit', url: 'https://github.com/jerryjiao/ai-study-kit' },
   homepage: 'https://github.com/jerryjiao/ai-study-kit',
@@ -123,6 +123,16 @@ for (const rel of tracked) {
 }
 if (missing.length) console.warn(`[sync-plugin] ⚠ 工作树缺失（删除未 staged？快照不含）：\n  ${missing.join('\n  ')}`);
 console.log(`[sync-plugin] apps/quiz-app + examples/dev-intro 跟踪面 ${tracked.length - missing.length} 文件 → plugins/${PLUGIN_NAME}/kit/`);
+
+// kit-version.json：kit 快照的版本标记（ADR-0006）——每个装出去/拷出去的 kit 由此「自报版本」。
+// F1 拷贝自然带进用户项目；skill 读用户项目与插件快照两处 diff 判版本漂移；
+// 存量项目无此文件 = 版本未知，按最老处理。打包断言见
+// apps/quiz-app/scripts/lib/kit-version.test.mjs（node:test 带）。
+writeFileSync(
+  join(KIT_DST, 'kit-version.json'),
+  JSON.stringify({ version: VERSION }, null, 2) + '\n'
+);
+console.log(`[sync-plugin] → kit/kit-version.json  (v${VERSION})`);
 
 // icon.png 拷进插件包根（对照 cloudflare 插件带 logo.svg 的做法，覆盖从插件包找图标的消费方）
 copyFileSync(join(REPO_ROOT, 'assets', 'logo.png'), join(PLUGIN_DIR, 'icon.png'));
