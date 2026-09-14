@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor } from './graph-bridge.mjs';
+import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor, classifyRelation, buildPrereqSignals, orderEpsByPrereqs } from './graph-bridge.mjs';
 
 // ── loadGraphMap ───────────────────────────────────────────
 
@@ -177,4 +177,79 @@ test('fixture: lib/fixtures/mastery-projection.fixture.json 与判据一致（�
   });
   const committed = JSON.parse(readFileSync(new URL('./fixtures/mastery-projection.fixture.json', import.meta.url), 'utf-8'));
   assert.deepEqual(pr, committed);
+});
+
+// ── 前置关系：分类 / 前置链 / 推荐排序 ──────────────────
+
+test('classifyRelation: 前置类词表命中 prerequisite；其余与缺省 related', () => {
+  for (const label of ['前置', '来源', '引用', '依据', '使用', '属于', '衍生', '依赖', '数据来源']) {
+    assert.equal(classifyRelation(label), 'prerequisite', label);
+  }
+  for (const label of ['相关', '对比', '姊妹', '链接', '', undefined, null]) {
+    assert.equal(classifyRelation(label), 'related', String(label));
+  }
+});
+
+const PREREQ_GRAPH = {
+  nodes: [
+    { id: 'concepts/a.md', label: 'A概念' },
+    { id: 'concepts/b.md', label: 'B概念' },
+    { id: 'concepts/c.md', label: 'C概念' },   // 未映射的前置节点
+    { id: 'concepts/d.md', label: 'D概念' },
+  ],
+  edges: [
+    { from: 'concepts/a.md', to: 'concepts/b.md', relation: '前置' },   // A 依赖 B → B 先学
+    { from: 'concepts/b.md', to: 'concepts/c.md', relation: '前置' },   // B 依赖 C（未映射）
+    { from: 'concepts/d.md', to: 'concepts/a.md', relation: '相关' },   // 关联边不参与
+  ],
+};
+const PREREQ_MAP = {
+  version: 1,
+  byNode: new Map([
+    ['concepts/a.md', { node: 'concepts/a.md', ep: 'EP-01', label: 'A概念' }],
+    ['concepts/b.md', { node: 'concepts/b.md', ep: 'EP-02', label: 'B概念' }],
+    ['concepts/d.md', { node: 'concepts/d.md', ep: 'EP-03', label: 'D概念' }],
+  ]),
+  byLabel: new Map(), byEp: new Map(),
+};
+const PREREQ_POINTS = [
+  { ep: 'EP-01', status: 'weak' },
+  { ep: 'EP-02', status: 'mastered' },
+  { ep: 'EP-03', status: 'inProgress' },
+];
+
+test('prereqSignals: EP 级前置边 + 弱项前置链（未映射前置节点 mastery=null）', () => {
+  const s = buildPrereqSignals({ graph: PREREQ_GRAPH, graphMap: PREREQ_MAP, points: PREREQ_POINTS });
+  assert.equal(s.prereqEdges, 2);
+  assert.equal(s.relatedEdges, 1);
+  assert.deepEqual([...s.prereqByEp.get('EP-01')], ['EP-02']);       // EP-01 的前置是 EP-02
+  assert.equal(s.prereqByEp.has('EP-03'), false);                     // 关联边不进排序
+  const chain1 = s.chainByEp.get('EP-01');
+  assert.deepEqual(chain1.map((x) => [x.kind, x.id, x.mastery]), [
+    ['ep', 'EP-02', 'mastered'],      // 映射前置带题库四态
+  ]);
+  const chain2 = s.chainByEp.get('EP-02');
+  assert.deepEqual(chain2.map((x) => [x.kind, x.id, x.mastery]), [
+    ['node', 'concepts/c.md', null],  // 未映射前置 = 未验证（挂在 B 的 EP 上）
+  ]);
+  assert.equal(s.chainByEp.has('EP-03'), false);  // 无前置边的考点无链
+});
+
+test('prereqSignals: 无图 / 无映射 / 无前置边 → 静默降级', () => {
+  assert.equal(buildPrereqSignals({ graph: null, graphMap: PREREQ_MAP, points: [] }), null);
+  assert.equal(buildPrereqSignals({ graph: PREREQ_GRAPH, graphMap: null, points: [] }), null);
+  const empty = buildPrereqSignals({ graph: { nodes: [], edges: [] }, graphMap: PREREQ_MAP, points: [] });
+  assert.deepEqual(empty, { prereqEdges: 0, relatedEdges: 0, prereqByEp: new Map(), chainByEp: new Map() });
+});
+
+test('orderEpsByPrereqs: 前置排前（含传递）、非前置保持稳定、环不死循环', () => {
+  const map = new Map([
+    ['EP-A', new Set(['EP-B'])],
+    ['EP-B', new Set(['EP-C'])],
+  ]);
+  assert.deepEqual(orderEpsByPrereqs(['EP-A', 'EP-B', 'EP-C'], map), ['EP-C', 'EP-B', 'EP-A']);
+  assert.deepEqual(orderEpsByPrereqs(['EP-C', 'EP-A'], map), ['EP-C', 'EP-A']);  // 无约束保稳定
+  const cycle = new Map([['EP-A', new Set(['EP-B'])], ['EP-B', new Set(['EP-A'])]]);
+  assert.deepEqual(orderEpsByPrereqs(['EP-A', 'EP-B'], cycle), ['EP-B', 'EP-A']);
+  assert.deepEqual(orderEpsByPrereqs(['EP-A', 'EP-B'], null), ['EP-A', 'EP-B']); // 无图原样
 });

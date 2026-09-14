@@ -171,6 +171,9 @@ pnpm run mastery -- --graph /ruta/knowflow/graph/graph.json --write-projection
 
 El campo `graph` de `--json` aporta las señales del grafo: cuatro estados por nodo (nodos mapeados = estado del canal de preguntas fusionado con el oral, evidencia negativa primero; nodos sin mapear = canal puramente oral), recuentos mapeados y el resultado de la proyección. **Sin grafo / sin mapeo = degradación silenciosa** a la vista pura de puntos de examen (`graph.loaded = false`): no es un error; graph.json y las páginas de conocimiento jamás se modifican ni se les escribe de vuelta (el puente de proyección de ADR-0005).
 
+**Prerrequisitos y orden de recomendación (`graph.weakPrereqs` / `graph.weakOrdered`)**: cuando las aristas del grafo llevan etiquetas de relación (vocabulario del etiquetador de relaciones de knowflow), el informe mapea las relaciones de clase prerrequisito (prerrequisito/dependencia/fuente/referencia/base/uso/parte-de/derivación) al orden de aprendizaje «aprender `to` primero» — `weakPrereqs` da la cadena de prerrequisitos de cada punto débil (con el estado de dominio de cada prerrequisito) y `weakOrdered` da un orden de recomendación que respeta los prerrequisitos (primero los prerrequisitos, de forma transitiva; los ciclos y las aristas sin etiqueta no participan). Los motivos de recomendación pasan de «practica EP-12» a «el prerrequisito EP-01 sigue débil, repásalo primero». Sin grafo / sin mapeo / sin aristas de prerrequisito → estos campos no aparecen, degradación silenciosa.
+
+
 
 
 ### Uso

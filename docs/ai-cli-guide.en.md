@@ -171,6 +171,9 @@ pnpm run mastery -- --graph /path/to/knowflow/graph/graph.json --write-projectio
 
 The `graph` field of `--json` carries the graph signals: per-node four-states (mapped nodes = question-channel state merged with the oral channel, negative evidence first; unmapped nodes = pure oral channel), mapped counts, and the projection result. **No graph / no mapping = silent degradation** to the pure exam-point view (`graph.loaded = false`) — not an error; graph.json itself and knowledge pages are never touched, and the knowledge base is never written back (the ADR-0005 projection bridge).
 
+**Prerequisites and recommendation order (`graph.weakPrereqs` / `graph.weakOrdered`)**: when graph edges carry relation labels (knowflow relation-labeler vocabulary), the report maps prerequisite-class relations (prerequisite/dependency/source/reference/basis/usage/part-of/derivation) to the learning order "learn `to` first" — `weakPrereqs` gives each weak exam point's prerequisite chain (including each prerequisite's mastery state) and `weakOrdered` gives a recommendation order that respects prerequisites (prerequisites first, transitively; cycles and edges without a relation label don't participate). Recommendation reasons become "the prerequisite EP-01 is still weak, shore it up first" instead of "drill EP-12". No graph / no mapping / no prerequisite edges → these fields are absent, silent degradation.
+
+
 
 
 ### Usage

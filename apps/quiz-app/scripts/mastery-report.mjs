@@ -39,7 +39,7 @@ import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mas
 import { buildPanorama } from './lib/panorama.mjs';
 import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
 import { readOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath, graphNodeIndex } from './lib/oral.mjs';
-import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor } from './lib/graph-bridge.mjs';
+import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor, buildPrereqSignals, orderEpsByPrereqs } from './lib/graph-bridge.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -187,6 +187,17 @@ if (graph) {
     hasGraphMap: !!graphMap,
     nodes: projection.nodes,   // 节点四态 + 口头统计（agent 探测消费）
   };
+  // 前置关系信号（v0.14）：弱项的前置链 + 尊重前置顺序的推荐序
+  // （推荐理由从「刷 EP-12」具体到「前置概念 X 还弱，先补它」；无图/无映射 = 无此字段，静默降级）
+  const prereq = buildPrereqSignals({ graph, graphMap, points });
+  if (prereq) {
+    graphSignal.prereqEdges = prereq.prereqEdges;
+    graphSignal.relatedEdges = prereq.relatedEdges;
+    graphSignal.weakPrereqs = Object.fromEntries(
+      weak.filter((p) => prereq.chainByEp.has(p.ep)).map((p) => [p.ep, prereq.chainByEp.get(p.ep)])
+    );
+    graphSignal.weakOrdered = orderEpsByPrereqs(weak.map((p) => p.ep), prereq.prereqByEp);
+  }
   if (WRITE_PROJECTION) {
     const outPath = projectionPathFor(GRAPH_PATH);
     writeFileSync(outPath, JSON.stringify(projection, null, 2) + '\n');
@@ -257,8 +268,12 @@ if (AS_JSON) {
     }
   }
   if (graphSignal.loaded) {
+    const prereqNote = graphSignal.prereqEdges !== undefined ? ` · 前置边 ${graphSignal.prereqEdges}` : '';
+    const orderNote = graphSignal.weakOrdered && graphSignal.weakOrdered.length && weak.length >= 2
+      ? `\n  👉 推荐序（前置先学）：${graphSignal.weakOrdered.slice(0, 5).join(' → ')}`
+      : '';
     console.log('');
-    console.log(`  🕸️ 知识图：${graphSignal.nodeCount} 节点 · ${graphSignal.edgeCount} 边 · 映射 ${graphSignal.mappedCount}${projectionResult ? ` · 投影已产出 ${projectionResult.path}` : '（加 --write-projection 产出投影文件）'}`);
+    console.log(`  🕸️ 知识图：${graphSignal.nodeCount} 节点 · ${graphSignal.edgeCount} 边 · 映射 ${graphSignal.mappedCount}${prereqNote}${projectionResult ? ` · 投影已产出 ${projectionResult.path}` : '（加 --write-projection 产出投影文件）'}${orderNote}`);
   }
   if (report.globalPatterns.length) {
     console.log('');

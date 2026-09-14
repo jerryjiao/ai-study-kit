@@ -142,3 +142,123 @@ export function buildProjection({ graph, graphMap = null, points = [], oralAttem
 export function projectionPathFor(graphPath) {
   return join(dirname(graphPath), PROJECTION_FILENAME);
 }
+
+// ── 前置关系（教练推荐用） ────────────────────────────────────────────
+//
+// 图边 → 学习语义的映射规则（沿 knowflow graph_relation_labeler 的 relation 词汇）：
+//   前置类（prerequisite）：边 from→to 表示「from 的成立以 to 为前提」——学习顺序 to 在前。
+//     词表：前置 / 依赖 / 来源 / 引用 / 依据 / 使用 / 属于 / 衍生（笔记语境「X 衍生自 Y」
+//     远多于反向，按启发式归前置；方向存疑时宁可少排序也不误排序——见只报事实原则）。
+//   其余 / 缺 relation 字段（labeler 未跑过）→ 关联（related），不参与排序，只作展示。
+
+/** 前置类关系词表（子串匹配；knowflow 标签器词汇的超集收敛）。 */
+export const PREREQ_RELATIONS = ['前置', '依赖', '来源', '引用', '依据', '使用', '属于', '衍生'];
+
+/** 关系标签 → 学习语义：'prerequisite'（to 要先学）| 'related'。 */
+export function classifyRelation(label) {
+  if (typeof label === 'string' && PREREQ_RELATIONS.some((r) => label.includes(r))) return 'prerequisite';
+  return 'related';
+}
+
+/**
+ * 图信号：前置链 + 弱项推荐排序（纯函数，无图/无映射返回 null——静默降级）。
+ *
+ * 节点级前置：prereqByNode[from] = [to...]（classifyRelation = prerequisite 的边）。
+ * EP 级投影：两端都有 EP 映射的边 → prereqByEp；单端映射 → 弱项的 EP 挂未映射前置节点。
+ * mastery 标注：映射前置节点取题库四态（v1.1），未映射前置 = null（未验证）。
+ * 消费方（skill 推荐/陪练开场）据此把「前置未掌握」排到被依赖项之前。
+ *
+ * @param {object} p
+ * @param {object} p.graph     loadKnowledgeGraph 输出
+ * @param {object|null} p.graphMap loadGraphMap 输出
+ * @param {Array}  p.points    masteryByExamPoint 输出（题库四态 v1.1）
+ * @returns {{
+ *   prereqEdges: number, relatedEdges: number,
+ *   prereqByEp: Map<ep, Set<prereqEp>>,                    // EP 级前置边（排序用）
+ *   chainByEp: Map<ep, Array<{kind:'ep'|'node', id, name, mastery}>>,  // 弱项前置链（展示用）
+ * }}
+ */
+export function buildPrereqSignals({ graph, graphMap, points = [] }) {
+  if (!graph || !graphMap || graphMap.byNode.size === 0) return null;
+  const epStatus = new Map(points.map((p) => [p.ep, p.status]));
+
+  const prereqByNode = new Map();
+  let relatedEdges = 0;
+  for (const e of graph.edges) {
+    if (classifyRelation(e.relation) !== 'prerequisite') { relatedEdges++; continue; }
+    if (!prereqByNode.has(e.from)) prereqByNode.set(e.from, []);
+    prereqByNode.get(e.from).push(e.to);
+  }
+  const prereqEdges = [...prereqByNode.values()].reduce((s, l) => s + l.length, 0);
+
+  const nodeEntry = (id) => {
+    const mapped = graphMap.byNode.get(id);
+    if (mapped) return { kind: 'ep', id: mapped.ep, name: mapped.label || id, node: id, mastery: epStatus.get(mapped.ep) ?? 'untouched' };
+    const label = graph.nodes.find((n) => n.id === id)?.label;
+    return { kind: 'node', id, name: label || id, node: id, mastery: null };
+  };
+
+  const prereqByEp = new Map();
+  const chainByEp = new Map();
+  for (const [from, tos] of prereqByNode) {
+    const fromEntry = nodeEntry(from);
+    if (fromEntry.kind !== 'ep') continue;          // 前置链挂在有 EP 映射的考点上
+    for (const to of tos) {
+      const toEntry = nodeEntry(to);
+      if (toEntry.id === fromEntry.id) continue;    // 自引用跳过
+      // EP 级排序边：前置端也是考点
+      if (toEntry.kind === 'ep' && toEntry.id !== fromEntry.id) {
+        if (!prereqByEp.has(fromEntry.id)) prereqByEp.set(fromEntry.id, new Set());
+        prereqByEp.get(fromEntry.id).add(toEntry.id);
+      }
+      // 展示链：同考点去重
+      if (!chainByEp.has(fromEntry.id)) chainByEp.set(fromEntry.id, []);
+      const chain = chainByEp.get(fromEntry.id);
+      if (!chain.some((x) => x.kind === toEntry.kind && x.id === toEntry.id)) {
+        chain.push({ kind: toEntry.kind, id: toEntry.id, name: toEntry.name, mastery: toEntry.mastery });
+      }
+    }
+  }
+  return { prereqEdges, relatedEdges, prereqByEp, chainByEp };
+}
+
+/**
+ * 弱考点排序尊重前置顺序（稳定拓扑）：若 A 是 B 的前置（含传递）且都在清单里，A 排前。
+ * 环上边忽略（宁可退回原顺序也不死循环）；无前置关系的保持原相对顺序（稳定）。
+ * @param {Array} eps 弱考点 EP 清单（如 mastery-report 的 weakRanked）
+ * @param {Map|null} prereqByEp buildPrereqSignals 的 prereqByEp
+ * @returns {Array} 排序后的 EP 清单
+ */
+export function orderEpsByPrereqs(eps = [], prereqByEp = null) {
+  if (!prereqByEp || prereqByEp.size === 0) return eps;
+  // 传递前置（后序展开：最深的先出来）；环靠 seen 打断
+  const closure = (ep) => {
+    const out = [];
+    const seen = new Set();
+    const visit = (e) => {
+      seen.add(e);                                    // 起点自身也标记——环上不自收
+      for (const p of prereqByEp.get(e) ?? []) {
+        if (seen.has(p)) continue;
+        visit(p);
+        out.push(p);
+      }
+    };
+    visit(ep);
+    return out;
+  };
+  const out = [];
+  const placed = new Set();
+  for (const ep of eps) {
+    for (const pre of closure(ep)) {
+      if (eps.includes(pre) && !placed.has(pre)) {   // 前置也在弱清单里 → 先排前置
+        out.push(pre);
+        placed.add(pre);
+      }
+    }
+    if (!placed.has(ep)) {
+      out.push(ep);
+      placed.add(ep);
+    }
+  }
+  return out;
+}

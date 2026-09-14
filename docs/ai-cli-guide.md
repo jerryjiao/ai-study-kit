@@ -173,6 +173,9 @@ pnpm run mastery -- --graph /path/to/knowflow/graph/graph.json --write-projectio
 
 `--json` 的 `graph` 字段带图信号：节点四态（映射节点 = 题库四态 ∪ 口头四态合流；未映射节点 = 纯口头通道）、映射计数、投影产出结果。**无图 / 无映射 = 静默降级**为纯考点口径（`graph.loaded = false`），不是故障；graph.json 本体与知识页零改动，知识库永不回写（ADR-0005 投影桥）。
 
+**前置关系与推荐序（`graph.weakPrereqs` / `graph.weakOrdered`）**：图边带关系标签（knowflow 关系标签器口径）时，报告把前置类关系（前置/依赖/来源/引用/依据/使用/属于/衍生）映射为「to 要先学」的学习顺序——`weakPrereqs` 给每个弱考点的前置链（含前置的掌握状态），`weakOrdered` 给尊重前置顺序的推荐序（前置先学，含传递；环与缺 relation 的边不参与排序）。推荐理由由此从「刷 EP-12」具体到「前置概念 EP-01 还弱，先补它」。无图 / 无映射 / 无前置边 → 无这些字段，静默降级。
+
+
 ### 用法
 
 ```bash
