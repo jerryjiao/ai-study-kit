@@ -156,6 +156,11 @@ pnpm run mastery -- --theme react-basics       # elegir tema (también admite ru
 pnpm run mastery -- --json                     # legible por máquinas (sonda de agentes)
 pnpm run mastery -- --progress /tmp/p.json     # elegir archivo de progreso (por defecto apps/quiz-app/progress.json;
                                                #  para el progreso del servidor, antes curl -sf $SERVER/api/progress -o /tmp/p.json)
+pnpm run mastery -- --panorama                  # panorama de puntos (v0.13): señales visto/practicado/dominado
+                                               #  agrupadas por day + líneas de resumen (visto = registros de estudio
+                                               #  ∪ lecciones completadas; practicado = respuestas o conteo oral;
+                                               #  dominado = criterio de cuatro estados). Añade --json para agentes;
+                                               #  la tarjeta «reportar progreso» del skill sale de aquí
 ```
 
 Que no exista el archivo de progreso simplemente significa progreso vacío (todo sin empezar); no es un error.

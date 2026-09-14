@@ -156,6 +156,11 @@ pnpm run mastery -- --theme react-basics       # select a theme (external theme-
 pnpm run mastery -- --json                     # machine-readable (for agent probing)
 pnpm run mastery -- --progress /tmp/p.json     # select a progress file (default apps/quiz-app/progress.json;
                                                #  for server progress first run curl -sf $SERVER/api/progress -o /tmp/p.json)
+pnpm run mastery -- --panorama                  # exam-point panorama (v0.13): taught/practiced/mastered
+                                               #  signals grouped by day + summary lines (taught = study records
+                                               #  ∪ lessons completed; practiced = answers or oral counts;
+                                               #  mastered = the four-state criteria). Add --json for agents;
+                                               #  the skill's "report progress" card consumes it
 ```
 
 A missing progress file simply means empty progress (everything untouched) — not an error.
