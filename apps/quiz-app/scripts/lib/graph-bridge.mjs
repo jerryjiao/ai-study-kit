@@ -223,6 +223,30 @@ export function buildPrereqSignals({ graph, graphMap, points = [] }) {
 }
 
 /**
+ * 图边 → EP 级边投影（web 全景连线用）：两端都有 EP 映射的边收进
+ * [{ from: ep, to: ep, prerequisite }]，同 EP 对去重；单端/无映射的边不投影。
+ * 超出 maxEdges（可读阈值）→ 返回 null（web 回退现有分组清单，绝不硬渲染）。
+ */
+export const EP_EDGES_MAX = 200;
+
+export function projectEdgesToEps(graph, graphMap, { maxEdges = EP_EDGES_MAX } = {}) {
+  if (!graph || !graphMap || graphMap.byNode.size === 0) return null;
+  const seen = new Set();
+  const edges = [];
+  for (const e of graph.edges) {
+    const from = graphMap.byNode.get(e.from);
+    const to = graphMap.byNode.get(e.to);
+    if (!from || !to || from.ep === to.ep) continue;
+    const key = `${from.ep}->${to.ep}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    edges.push({ from: from.ep, to: to.ep, prerequisite: classifyRelation(e.relation) === 'prerequisite' });
+  }
+  if (edges.length === 0 || edges.length > maxEdges) return null;
+  return edges;
+}
+
+/**
  * 弱考点排序尊重前置顺序（稳定拓扑）：若 A 是 B 的前置（含传递）且都在清单里，A 排前。
  * 环上边忽略（宁可退回原顺序也不死循环）；无前置关系的保持原相对顺序（稳定）。
  * @param {Array} eps 弱考点 EP 清单（如 mastery-report 的 weakRanked）

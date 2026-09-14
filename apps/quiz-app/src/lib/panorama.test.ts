@@ -1,7 +1,7 @@
 // panorama.test.ts — 考点全景 web 侧聚合单测（与 scripts/lib/panorama.test.mjs 同口径镜像，
 // 双实现纪律：判据两边同步改、测试两边都有——沿 mastery 双实现先例）。
 import { describe, it, expect } from 'vitest';
-import { buildPanorama, UNSCHEDULED_DAY, type CoverageSnapshot } from './panorama';
+import { buildPanorama, UNSCHEDULED_DAY, shouldRenderGraph, type CoverageSnapshot } from './panorama';
 import type { AnswerRecord, Question } from '../types';
 
 const qs = (pairs: [string, string[]][]): Question[] =>
@@ -64,5 +64,26 @@ describe('buildPanorama 三信号（与脚本侧同口径）', () => {
     expect(r.groups[0].summary).toEqual({ total: 1, taught: 0, practiced: 1, mastered: 1 });
     expect(r.groups[2].points[0].ep).toBe('EP-04');
     expect(days['EP-04']).toBe('——'); // 排布表占位符（文档性断言：sync 侧负责不输出它）
+  });
+});
+
+describe('shouldRenderGraph 连线渲染判据（v0.14，无图/超限回退清单）', () => {
+  const edges = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({ from: `EP-${i}`, to: `EP-${i + 1}`, prerequisite: true }));
+
+  it('有边且不超阈值 → 渲染', () => {
+    expect(shouldRenderGraph(4, edges(3))).toBe(true);
+  });
+
+  it('无图 / 空边 / null → 回退现有分组清单（回退语义，不报错）', () => {
+    expect(shouldRenderGraph(4, null)).toBe(false);
+    expect(shouldRenderGraph(4, undefined)).toBe(false);
+    expect(shouldRenderGraph(4, [])).toBe(false);
+  });
+
+  it('超可读阈值（边数 / 节点数上限）→ 回退', () => {
+    expect(shouldRenderGraph(4, edges(201))).toBe(false);
+    expect(shouldRenderGraph(81, edges(3))).toBe(false);
+    expect(shouldRenderGraph(80, edges(200))).toBe(true);
   });
 });

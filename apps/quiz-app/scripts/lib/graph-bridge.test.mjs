@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor, classifyRelation, buildPrereqSignals, orderEpsByPrereqs } from './graph-bridge.mjs';
+import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor, classifyRelation, buildPrereqSignals, orderEpsByPrereqs, projectEdgesToEps } from './graph-bridge.mjs';
 
 // ── loadGraphMap ───────────────────────────────────────────
 
@@ -252,4 +252,40 @@ test('orderEpsByPrereqs: 前置排前（含传递）、非前置保持稳定、�
   const cycle = new Map([['EP-A', new Set(['EP-B'])], ['EP-B', new Set(['EP-A'])]]);
   assert.deepEqual(orderEpsByPrereqs(['EP-A', 'EP-B'], cycle), ['EP-B', 'EP-A']);
   assert.deepEqual(orderEpsByPrereqs(['EP-A', 'EP-B'], null), ['EP-A', 'EP-B']); // 无图原样
+});
+
+// ── EP 边投影（web 全景连线数据面） ──────────────────────────
+
+test('projectEdgesToEps: 两端有映射的边投成 EP 对并去重；前置语义随 relation 分类', () => {
+  const graph = {
+    nodes: [
+      { id: 'concepts/a.md', label: 'A' }, { id: 'concepts/b.md', label: 'B' },
+      { id: 'concepts/c.md', label: 'C' }, { id: 'entities/e.md', label: 'E' },
+    ],
+    edges: [
+      { from: 'concepts/a.md', to: 'concepts/b.md', relation: '前置' },
+      { from: 'concepts/a.md', to: 'concepts/b.md', relation: '来源' },   // 同 EP 对去重（先到先得）
+      { from: 'concepts/c.md', to: 'entities/e.md', relation: '相关' },   // c 无映射 → 丢
+      { from: 'concepts/b.md', to: 'concepts/a.md', relation: '关联' },   // 反向 EP 对保留
+    ],
+  };
+  const gm = { byNode: new Map([
+    ['concepts/a.md', { node: 'concepts/a.md', ep: 'EP-01', label: 'A' }],
+    ['concepts/b.md', { node: 'concepts/b.md', ep: 'EP-02', label: 'B' }],
+    ['concepts/c.md', { node: 'concepts/c.md', ep: 'EP-03', label: 'C' }],
+  ]), byLabel: new Map(), byEp: new Map() };
+  const edges = projectEdgesToEps(graph, gm);
+  assert.deepEqual(edges, [
+    { from: 'EP-01', to: 'EP-02', prerequisite: true },
+    { from: 'EP-02', to: 'EP-01', prerequisite: false },
+  ]);
+});
+
+test('projectEdgesToEps: 无图 / 无映射 / 零边 / 超阈值 → null（web 回退清单）', () => {
+  const gm = { byNode: new Map([['a.md', { node: 'a.md', ep: 'EP-01', label: 'A' }]]), byLabel: new Map(), byEp: new Map() };
+  assert.equal(projectEdgesToEps(null, gm), null);
+  assert.equal(projectEdgesToEps({ nodes: [], edges: [] }, null), null);
+  assert.equal(projectEdgesToEps({ nodes: [], edges: [] }, gm), null);
+  const many = { nodes: [], edges: Array.from({ length: 201 }, (_, i) => ({ from: 'x', to: 'y', relation: '相关' })) };
+  assert.equal(projectEdgesToEps(many, gm, { maxEdges: 200 }), null);
 });

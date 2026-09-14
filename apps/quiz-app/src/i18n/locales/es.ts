@@ -54,6 +54,11 @@ export const es: Record<TKey, string> = {
   'home.panoramaOral': 'Orales {correct}/{asked}',
   'home.panoramaWrong': 'Sin graduar {n}',
   'home.panoramaStale': 'Las señales de visto/oral corresponden al último build; respuestas y dominio son en vivo.',
+  'home.panoramaGraphHint': 'Las conexiones vienen de la proyección del grafo de conocimiento: flechas continuas = prerrequisito (aprender primero), discontinuas = relación; puntos = cuatro estados de dominio.',
+  'home.panoramaDotMastered': 'Dominado',
+  'home.panoramaDotWeak': 'Débil',
+  'home.panoramaDotInProgress': 'En progreso',
+  'home.panoramaDotUntouched': 'Sin empezar',
   'home.masteryNoEp': 'Este banco de preguntas no tiene puntos de examen marcados (examPoint): no se puede derivar el dominio.',
 
   // Práctica

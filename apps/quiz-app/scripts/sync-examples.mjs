@@ -18,6 +18,7 @@ import { epNameMap, epDayMap } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { buildCoverageSnapshot, readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
 import { readOralAttempts } from './lib/oral.mjs';
+import { loadGraphMap, loadKnowledgeGraph, projectEdgesToEps } from './lib/graph-bridge.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
@@ -141,6 +142,18 @@ let progressForCoverage = null;
 if (existsSync(progressPath)) {
   try { progressForCoverage = JSON.parse(readFileSync(progressPath, 'utf-8')); } catch { progressForCoverage = null; }
 }
+// 考点连线（v0.14，可选）：knowflow 图（位置同 mastery-report：KNOWFLOW_GRAPH_JSON）
+// + 考点节点映射 → EP 级边进覆盖快照（仍只含 EP id + 前置布尔，个人叙述不出本地）。
+// 无图 / 无映射 / 超阈值 = null，快照不带 graph 键，web 回退现有分组清单（静默降级）。
+const graphEpsEdges = (() => {
+  const graphPath = process.env.KNOWFLOW_GRAPH_JSON || null;
+  if (!graphPath) return null;
+  const graph = loadKnowledgeGraph(graphPath);
+  const graphMap = loadGraphMap(EXAMPLE_DIR);
+  const edges = graph && graphMap ? projectEdgesToEps(graph, graphMap) : null;
+  if (edges) console.log(`[sync-examples] 考点连线：${edges.length} 条（来自 ${graphPath}）`);
+  return edges;
+})();
 const coverage = buildCoverageSnapshot(buildPanorama({
   questions: questionsForCoverage,
   answers: (progressForCoverage && progressForCoverage.answers) || {},
@@ -151,7 +164,7 @@ const coverage = buildCoverageSnapshot(buildPanorama({
   records: readSessionRecords(EXAMPLE_DIR),
   oralAttempts: readOralAttempts(EXAMPLE_DIR),
   coursesRead: lessonsReadState(EXAMPLE_DIR, EXAMPLE_THEME, progressForCoverage),
-}));
+}), graphEpsEdges);
 writeFileSync(
   join(DATA_DIR, 'coverage.json'),
   JSON.stringify({ theme: EXAMPLE_THEME, ...coverage }, null, 2) + '\n'

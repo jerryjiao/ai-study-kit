@@ -25,7 +25,7 @@ skill 指装进 agent 环境、给 AI 执行的指令包——仓库内共四个
 _Avoid_: 把 CLI 叫 skill（旧文档的混称，已纠正）、把插件名 ai-study-kit 当命令名（命令是 ask-coach 一族）
 
 **考点全景（exam-point panorama）**:
-每考点三信号的分组全貌视图：**讲过**（契约二学习记录覆盖的考点 ∪ 课已学完——全部课读完才点亮课程通道）、**练过**（该考点有答题记录，口头题计数作弱信号）、**掌握**（掌握度四态判据不变），按 MISSION 排布表 day 列分学程块。数据层双实现：`scripts/lib/panorama.mjs`（`mastery-report --panorama`，聊天层永远现算）与 TS 移植 `src/lib/panorama.ts`（web 首页面板）。web 的「讲过/口头」信号走 build 时产出的**内容无关覆盖快照** `src/data/coverage.json`（只含考点 id/布尔/计数，个人叙述不出本地——学习者档案同款隐私边界）。
+每考点三信号的分组全貌视图：**讲过**（契约二学习记录覆盖的考点 ∪ 课已学完——全部课读完才点亮课程通道）、**练过**（该考点有答题记录，口头题计数作弱信号）、**掌握**（掌握度四态判据不变），按 MISSION 排布表 day 列分学程块。数据层双实现：`scripts/lib/panorama.mjs`（`mastery-report --panorama`，聊天层永远现算）与 TS 移植 `src/lib/panorama.ts`（web 首页面板）。web 的「讲过/口头」信号走 build 时产出的**内容无关覆盖快照** `src/data/coverage.json`（只含考点 id/布尔/计数，个人叙述不出本地——学习者档案同款隐私边界）。v0.14 起快照可带 `graph.edges`（知识图谱投影投到 EP 级的考点连线，实线箭头=前置、虚线=关联，节点圆点=掌握四态）——无图/超阈值回退分组清单，没装 knowflow 看不到任何变化。
 _Avoid_: 进度条（那是答题完成率，不是三信号）、把快照当原始记录（记录私有不上站，快照是派生布尔）
 
 **主题（theme）**:
