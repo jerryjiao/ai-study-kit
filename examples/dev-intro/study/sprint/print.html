@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>冲刺速记（打印版）· dev-intro</title>
+<style>
+  /* 自包含打印版：CSS 全内联，不依赖 styles.css、无导航无外链（纸上没有可点的东西）。
+     屏显即纸样（白底 A4 比例），浏览器 Ctrl/Cmd+P 直接存 PDF 或打印——不引入 PDF 生成依赖。 */
+  :root { --ink: #1a1a1a; --ink-soft: #444; --line: #bbb; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0 auto; padding: 32px 28px; max-width: 700px;
+    background: #fff; color: var(--ink);
+    font: 12pt/1.65 Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  }
+  header { border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 16px; }
+  h1 { font-size: 16pt; margin: 0 0 4px; }
+  .meta { font-size: 9pt; color: var(--ink-soft); }
+  h2 {
+    font-size: 12.5pt; margin: 18px 0 8px; padding-left: 6px;
+    border-left: 4px solid var(--ink); page-break-after: avoid;
+  }
+  ul, ol { margin: 0 0 8px; padding-left: 1.4em; }
+  li { margin: 3px 0; page-break-inside: avoid; }
+  code { font: 10.5pt/1.4 "SF Mono", Menlo, Consolas, monospace; }
+  .quote { font-weight: bold; }
+  .check { list-style: none; padding-left: 0.2em; }
+  .check li::before { content: "☐  "; }
+  footer { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 6px; font-size: 9pt; color: var(--ink-soft); }
+
+  /* 打印：去一切屏显装饰；章节连续排版（页越少越好），只防行内截断与标题孤行 */
+  @media print {
+    body { max-width: none; padding: 0; font-size: 11pt; }
+    h2 { page-break-after: avoid; }
+    li { page-break-inside: avoid; }
+    section.checklist { page-break-inside: avoid; }  /* 勾选清单整块不跨页，方便整页勾 */
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>冲刺速记 · dev-intro</h1>
+  <p class="meta">金句速记 / 易错警示 / 必背清单 / 最后一天自查——四件合一，考前拿纸背。</p>
+</header>
+
+<section>
+  <h2>金句速记表</h2>
+  <ul>
+    <li><span class="quote">改历史用 reset，补历史用 revert。</span></li>
+    <li><span class="quote">add 进暂存，commit 进版本库，status 看全局。</span></li>
+    <li><span class="quote">权限三组：属主、属组、其他人；三位：读、写、执行。</span></li>
+    <li><span class="quote">相对路径从当前目录出发，不从主目录出发。</span></li>
+  </ul>
+</section>
+
+<section>
+  <h2>易错警示 TOP 3</h2>
+  <ol>
+    <li>以为 <code>git commit</code> 会写暂存区——不会，它只消费暂存区。</li>
+    <li>共享历史上用 <code>git reset</code>——会让协作者的历史分叉，用 <code>git revert</code>。</li>
+    <li>把 <code>../bob/</code> 解析成「主目录下的 bob」——基准是当前目录。</li>
+  </ol>
+</section>
+
+<section>
+  <h2>必背清单</h2>
+  <ul>
+    <li>git 三区改动流向：工作区 → 暂存区 → 版本库</li>
+    <li><code>git log --oneline -5</code>：最近 5 条提交的短列表</li>
+    <li><code>chmod +x</code> 与 <code>chmod 755</code> 的含义</li>
+    <li>权限字段三组三位的读法</li>
+  </ul>
+</section>
+
+<section class="checklist">
+  <h2>最后一天自查清单</h2>
+  <ul class="check">
+    <li>金句速记表能逐条默写</li>
+    <li>易错警示每条能说出「错在哪」</li>
+    <li>必背清单全部过一遍，生疏项回课程重读</li>
+    <li>错题中心的簇页面全部复看一遍</li>
+  </ul>
+</section>
+
+<footer>dev-intro 示例冲刺包 · 内容收割自学习档案，考前一晚过纸面一遍。</footer>
+</body>
+</html>
