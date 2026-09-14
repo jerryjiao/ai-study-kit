@@ -2,6 +2,27 @@
 
 本仓库的版本日志。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.13.0] — 2026-09-14
+
+主题：**聊天层优先——把主学习方式（跟 agent 聊天陪练）撑成一等公民：教练纪律 / 考点全景图（讲·练·掌三信号）/ 案例大题陪练 / 命令面收敛四件（/ask-coach + /coach /doctor /recap），外加 teach 抓参考正文与冲刺包打印版。**
+
+### Added
+
+- **教练开场纪律三条（F10 第 0 步）**：①开场先跑全景报告浓缩版报「今天最该练 + 为什么」——建议基于数据不基于印象（推荐算法 10 条链不推翻，只把执行时机提前到陪练开场）；②弱考点没清**软坚持**先清再讲新内容，不硬锁——用户执意跳过则在当站记录留痕「跳过未清：<EP>（原因）——下一站开场再清」；③`srsDue > 0` 先口头抽背 2-3 张到期卡（答错记错点+排待办）。倒计时只消费 MISSION 声明的 deadline，不自设催办节奏。
+- **考点全景图（讲 / 练 / 掌三信号）**：每考点**讲过**（契约二学习记录覆盖 ∪ 课已学完——全部课读完才点亮课程通道，部分读完不归因宁少报不虚报）、**练过**（有答题记录，口头题计数作弱信号）、**掌握**（四态判据不变），按 MISSION 排布表 day 列分学程块 + 组头汇总行（已讲 X/N · 已练 Y/N · 已掌握 Z/N）。数据层 `lib/panorama.mjs`（`mastery-report --panorama [--json]`，聊天层永远现算）；skill 加「报进度」意图入口 + 全景卡模板（state.md §3）。web 首页面板升级为全景（TS 移植 `src/lib/panorama.ts` 同口径，双实现纪律沿掌握度先例）：「讲过/口头」信号走 build 时产出的**内容无关覆盖快照** `src/data/coverage.json`（sync-examples 产，只含考点 id/三信号布尔/计数——个人叙述不出本地，内容断言测试有金句/错点原文即红）；面板新鲜度 = 上次 build，聊天层现算，两端口径一致。
+- **契约二口头题计数**：学习记录（`study/records/*.md`）新增「## 口头题计数」节——每站按考点记「问 N 对 M」（考点名可带 EP 前缀，同名行改数字不堆历史行）。解析器 `lib/records.mjs` 的 `parseSessionRecord` 纯函数：frontmatter + 已过考点/错的点/待办/口头题计数四节，旧格式无计数节、无 frontmatter、frontmatter 残缺均不抛错字段缺省（沿「只报事实、不要求补格式」兼容原则）。
+- **案例大题陪练（coach.md §6.7）**：对排布表里的案例型考点（DFD/ER/UML/算法/设计模式一类）出**真题风格原创大题**（品牌中性化与题库同规），按**解题范式四步**带练（读题拆问题 → 定方法 → 逐步作答 → 对照评分点），评分点全中才过（补答后全中也算），判定进契约二口头题计数；解题范式卡沉淀 `study/notes/`（随 build 上站）。案例题**不进 questions.json**、不扰动客观题库与四对齐校验。
+- **体检（`/doctor` + skill 意图入口）**：一句话聚合串跑既有四门校验（品牌扫描/题库 QA/单测/四对齐）+ 环境探测（.env LLM 三项、TTS、`:8787` 后端、EXAMPLE_THEME 解析、sync 产物新鲜度），输出过/红汇总报告 + 固定修复顺序（sync 不新鲜最前——先排除假信号）。零新校验逻辑，只做编排聚合；与 F8 分工：体检是诊断视图不跑 build。
+- **命令面收敛为四件**：主 skill 更名 **ask-coach**（`/ask-coach`，SKILL 开篇哲学「**命令名即菜单**」；原命令名 /ai-study-kit，插件名 ai-study-kit 终身不变——市集名不可改）；薄命令三件 `/coach`（陪练直入 F10）/`/doctor`（体检）/`/recap`（错题串讲 F4，命名避开与已装生态撞名的 grill/teach/learn），各自十几行 SKILL.md、共享主入口 references/、先探测再进流程。基建：`sync-plugin.mjs` 多 skill 化（循环 skills/ 目录打包）、安装脚本多 skill 安装/卸载（bash 3.2 兼容）。
+- **teach 抓参考正文进备课上下文**：产课时把 RESOURCES.md 与 course-spec resources 的链接**页面正文**抓进 LLM 备课 prompt（「以参考材料建概念」从引用层落到内容层，备课第一依据）。`lib/resource-fetch.mjs` 的 `fetchResources`：本地缓存按 URL 去重（`node_modules/.cache/teach-resources/`）重跑不重抓；单源失败降级回 URL 清单引用，产课不中断；prompt 构建抽 `teach-utils.buildLessonPrompt` 纯函数（dry-run 单测断言参考正文进 prompt）。
+- **冲刺包打印版（F11 第 5 件）**：产包时附带单文件 `study/sprint/print.html`——四件套按「金句 → 警示 → 必背 → checklist」合并，自包含内联 CSS、无导航外链，`@media print` 去背景 11-12pt 衬线字号、章节连续排版只防行内截断、checklist ☐ 勾选形态；浏览器 Ctrl/Cmd+P 即存 PDF 或打印，**不引入 PDF 生成依赖**。
+
+### Changed
+
+- **文档同步（四语）**：README 命令入口改 `/ask-coach` + 四命令清单（「命令名即菜单」）；`docs/ai-study-kit` 四语更新安装路径（skills/ask-coach + 多 skill 安装）、命令面表、更名史、体检/打印版入流程表；`docs/ai-cli-guide` 四语补 teach 参考正文抓取行为；CONTEXT.md skill 词条改四命令面 + 新增「考点全景」词条；AGENTS.md 结构树/约定/分发段同步。
+- **修复**：teach-generate 调用 `wrapLessonHTML` 处 `sources` 未定义（ReferenceError，v0.12 引入的回归）；dotenv 17 的 tip 横幅打进 stdout 污染三个 CLI 的 `--json` 约定（`quiet: true`）。
+- **装载器去重**：`mastery-report --panorama` 与 sync-examples 的覆盖快照共用 `lib/coverage.mjs` 的 `readSessionRecords` / `lessonsReadState`（课已学完口径与 progress.ts isCourseRead 同构）。
+
 ## [0.12.0] — 2026-09-13
 
 主题：**掌握度补完——DeepTutor 对标遗留清单四项落地（课程出处回链 / 三 CLI `--json` / 闪卡 EP 映射 / 掌握度进 UI），数据闭环从命令行走进答题站。**
