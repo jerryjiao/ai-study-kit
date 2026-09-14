@@ -1,22 +1,31 @@
-# Study Coach · `/ai-study-kit` 学习教练指令
+# Study Coach · `/ask-coach` 学习教练指令
 
 **简体中文** · [English](ai-study-kit.en.md) · [Español](ai-study-kit.es.md) · [Русский](ai-study-kit.ru.md)
 
-ai-study-kit 的功能多——答题站、课程、闪卡、错题串讲、播客、部署，但对学习者来说这反而成了负担：**今天到底该干嘛？** `/ai-study-kit` 就是回答这个问题的。它是仓库自带的路由 skill：装一次，每次学习从它开始，由它扫状态、给推荐、带你执行，不用背工具链。
+ai-study-kit 的功能多——答题站、课程、闪卡、错题串讲、播客、部署，但对学习者来说这反而成了负担：**今天到底该干嘛？** `/ask-coach` 就是回答这个问题的。它是仓库自带的主入口 skill：装一次，每次学习从它开始，由它扫状态、给推荐、带你执行，不用背工具链。
+
+**命令名即菜单**，插件 ai-study-kit（名字终身不变）装出来共四个命令：
+
+| 命令 | 干什么 |
+|------|--------|
+| `/ask-coach` | 问教练：状态快照 + 推荐 + 带执行（主入口，其余流程走路由） |
+| `/coach` | 坐下就学：陪练直入（F10 进站/续站，开场报「今天最该练+为什么」） |
+| `/doctor` | 一键体检：四门校验 + 环境探测，过红报告 + 修复顺序 |
+| `/recap` | 错题串讲直入（F4，前置齐了直接深挖） |
 
 ---
 
 ## 安装
 
-skill 源文件在仓库 `skills/ai-study-kit/`（单一事实源）。两条安装路径：
+skill 源文件在仓库 `skills/` 下（单一事实源：`ask-coach` 主入口 + `coach` / `doctor` / `recap` 三个薄命令，薄命令共享主入口的 `references/`）。两条安装路径：
 
-**① plugin 市集（zcode / Claude Code，推荐）**：仓库自带 marketplace 清单（`.claude-plugin/marketplace.json`，由 `scripts/sync-plugin.mjs` 从源生成 `plugins/ai-study-kit/`）。在客户端里添加 marketplace `https://github.com/jerryjiao/ai-study-kit`，安装 `ai-study-kit` 插件——后续 skill 更新随市集刷新到达，**无需手动重装**（版本跟仓库 release）。
+**① plugin 市集（zcode / Claude Code，推荐）**：仓库自带 marketplace 清单（`.claude-plugin/marketplace.json`，由 `scripts/sync-plugin.mjs` 从源生成 `plugins/ai-study-kit/`）。在客户端里添加 marketplace `https://github.com/jerryjiao/ai-study-kit`，安装 `ai-study-kit` 插件——后续 skill 更新随市集刷新到达，**无需手动重装**（版本跟仓库 release）。**插件名终身 ai-study-kit，命令名是 ask-coach 一族**（2026-09 v0.13 由 `/ai-study-kit` 更名，市集名不可改所以插件名不动）。
 
 **② 手动安装（任何认 `~/.agents/skills/` 的客户端）**：
 
 ```bash
-# 在 ai-study-kit 仓库根目录
-pnpm run skill:install          # 复制安装到 ~/.agents/skills/ai-study-kit
+# 在 ai-study-kit 仓库根目录（四个 skill 全装，薄命令依赖主入口的 references/）
+pnpm run skill:install          # 复制安装到 ~/.agents/skills/{ask-coach,coach,doctor,recap}
 pnpm run skill:install -- --link   # 符号链接版（随仓库 git pull 自动更新）
 
 # 其他客户端：自定义目标目录
@@ -26,7 +35,7 @@ bash scripts/install-skill.sh --dest ~/.claude/skills
 pnpm run skill:uninstall
 ```
 
-装完重启 CLI（或开新会话），输入 `/ai-study-kit` 即可。不装也能用：直接让 agent 读 `skills/ai-study-kit/SKILL.md` 照做。
+装完重启 CLI（或开新会话），输入 `/ask-coach` 即可。不装也能用：直接让 agent 读 `skills/ask-coach/SKILL.md` 照做。
 
 ---
 
@@ -36,9 +45,9 @@ pnpm run skill:uninstall
 
 1. **探测状态**（只读，≤1 分钟）——主题、题/卡/课/串讲库存、答题进度、未毕业错题、到期闪卡、课已学完、陪练站与考期、AI 配置、后端在线与否。
 2. **汇报 + 推荐**——一张快照表 + 一个带理由的推荐动作 + 编号菜单。
-3. **带你执行**——选定后按 `skills/ai-study-kit/references/flows.md` 的 playbook 逐步做，做完对照「完成标志」验收。
+3. **带你执行**——选定后按 `skills/ask-coach/references/flows.md` 的 playbook 逐步做，做完对照「完成标志」验收。
 
-没有明确意图时，推荐按顺序取第一个命中的（完整版见 `skills/ai-study-kit/SKILL.md`）。头部三条的顺序是「闪卡 → 冲刺 → 续站」：复习是每天都欠的账，冲刺是考期前一周的收割窗口，续站随时能续：
+没有明确意图时，推荐按顺序取第一个命中的（完整版见 `skills/ask-coach/SKILL.md`）。头部三条的顺序是「闪卡 → 冲刺 → 续站」：复习是每天都欠的账，冲刺是考期前一周的收割窗口，续站随时能续：
 
 | 顺序 | 条件 | 推荐 |
 |------|------|------|
@@ -67,21 +76,21 @@ pnpm run skill:uninstall
 | F8 | 校验发布 | 发布前质量门 | `pnpm run scan` / `test` / `build` + `scripts/bidirectional-check.py` |
 | F9 | 部署 | 上线云服务器 | pm2（从 `apps/quiz-app/` 启动） |
 | F10 | 陪练教学 | 对话式逐考点教懂 + 当场考 + 跨天续站 | 排布表圈最少必要考点 → 三段式讲透 + 锚点金句 → 按模式考 → 逐考点落盘 `study/records/` → 交棒 F3 |
-| F11 | 考前冲刺 | 距考期 ≤ 7 天，或用户喊「冲刺/考前/突击」 | 收割 records 金句 + 错题档案 → 冲刺包四件套落 `study/sprint/` → 交棒 F3 模考 |
+| F11 | 考前冲刺 | 距考期 ≤ 7 天，或用户喊「冲刺/考前/突击」 | 收割 records 金句 + 错题档案 → 冲刺包四件套 + 打印版落 `study/sprint/` → 交棒 F3 模考 |
 
-外加**诊断**入口：进度不同步、课程 404、CLI 报配置错、scan 命中……症状 → 根因 → 处置的速查表。
+外加**体检**（`/doctor`，四门校验 + 环境探测的一站式编排）与**诊断**两个运维入口：前者出过红报告与修复顺序，后者是进度不同步、课程 404、CLI 报配置错、scan 命中……症状 → 根因 → 处置的速查表。
 
 ---
 
 ## 设计说明
 
 - **路由式 skill，不是又一个 CLI**：它不引入新运行时，只是把「读状态 → 推荐 → 执行已有命令/流程」编码成 agent 可循的指令。所有底层能力都是仓库既有的（三个 AI CLI、同步脚本、校验门）。
-- **状态先于建议**：教练禁止凭感觉推荐——每个快照字段都有探测命令（`skills/ai-study-kit/references/state.md`），进度统计口径与 `apps/quiz-app/src/lib/progress.ts` 完全一致（墓碑过滤、随机沙盒不进主进度、错题毕业阈值、SRS 到期）。
+- **状态先于建议**：教练禁止凭感觉推荐——每个快照字段都有探测命令（`skills/ask-coach/references/state.md`），进度统计口径与 `apps/quiz-app/src/lib/progress.ts` 完全一致（墓碑过滤、随机沙盒不进主进度、错题毕业阈值、SRS 到期）。
 - **方法论内嵌**：推荐算法的顺序就是 [`methodology.md`](./methodology.md) 的「大纲 → 材料 → 做题」落地；F2 流程强制先写 MISSION（含考点排布表）/RESOURCES 再允许产课产题——产题不是裸写 JSON，是照排布表逐考点直产 + 三门（qa/scan/四对齐）全绿收口。
 
 ## 扩展
 
-加一个新流程：在 `skills/ai-study-kit/references/flows.md` 加一节 playbook（目的/前置/步骤/完成标志），并在 `SKILL.md` 的菜单和意图路由表里加一行。改完 `pnpm run sync:plugin` 重新生成 plugin 产物（手动安装用户另跑 `pnpm run skill:install` 重新分发）。
+加一个新流程：在 `skills/ask-coach/references/flows.md` 加一节 playbook（目的/前置/步骤/完成标志），并在 `SKILL.md` 的菜单和意图路由表里加一行。改完 `pnpm run sync:plugin` 重新生成 plugin 产物（手动安装用户另跑 `pnpm run skill:install` 重新分发）。加一个薄命令：在 `skills/` 下建新目录写薄 SKILL.md（十几行、共享 `../ask-coach/references/`），sync-plugin 自动带进产物。
 
 ## FAQ
 

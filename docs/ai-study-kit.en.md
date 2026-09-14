@@ -1,22 +1,31 @@
-# Study Coach · the `/ai-study-kit` command
+# Study Coach · the `/ask-coach` command
 
 [简体中文](ai-study-kit.md) · **English** · [Español](ai-study-kit.es.md) · [Русский](ai-study-kit.ru.md)
 
-ai-study-kit has many features — quiz app, courses, flashcards, wrong-question grilling, podcasts, deployment — which itself becomes a burden for a learner: **what exactly should I do today?** `/ai-study-kit` answers that. It's the repo's built-in routing skill: install it once, start every study session from it, and let it scan your state, recommend, and execute with you — no need to memorize the toolchain.
+ai-study-kit has many features — quiz app, courses, flashcards, wrong-question grilling, podcasts, deployment — which itself becomes a burden for a learner: **what exactly should I do today?** `/ask-coach` answers that. It's the repo's built-in main-entry skill: install it once, start every study session from it, and let it scan your state, recommend, and execute with you — no need to memorize the toolchain.
+
+**The command names are the menu** — the ai-study-kit plugin (name is permanent) installs four commands:
+
+| Command | What it does |
+|---------|--------------|
+| `/ask-coach` | Ask the coach: state snapshot + recommendation + guided execution (main entry; everything else routes from here) |
+| `/coach` | Sit down and study: direct tutoring entry (F10 open/resume; opening reports "what to practice today + why") |
+| `/doctor` | One-stop health check: four quality gates + environment probes, pass/fail report + fix order |
+| `/recap` | Direct wrong-question deep-dive entry (F4, once prerequisites check out) |
 
 ---
 
 ## Installation
 
-The skill source lives in the repo at `skills/ai-study-kit/` (single source of truth). Two install paths:
+The skill sources live in the repo under `skills/` (single source of truth: the `ask-coach` main entry + three thin commands `coach` / `doctor` / `recap` that share the main entry's `references/`). Two install paths:
 
-**① Plugin marketplace (zcode / Claude Code, recommended)**: the repo ships its own marketplace manifest (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` generates `plugins/ai-study-kit/` from the source). Add the marketplace `https://github.com/jerryjiao/ai-study-kit` in your client and install the `ai-study-kit` plugin — skill updates arrive with marketplace refreshes, **no manual reinstall** (versions follow repo releases).
+**① Plugin marketplace (zcode / Claude Code, recommended)**: the repo ships its own marketplace manifest (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` generates `plugins/ai-study-kit/` from the source). Add the marketplace `https://github.com/jerryjiao/ai-study-kit` in your client and install the `ai-study-kit` plugin — skill updates arrive with marketplace refreshes, **no manual reinstall** (versions follow repo releases). **The plugin name is ai-study-kit for life; the commands are the ask-coach family** (renamed from `/ai-study-kit` in v0.13, Sept 2026 — marketplace names are permanent, so the plugin name stays).
 
 **② Manual install (any client honoring `~/.agents/skills/`)**:
 
 ```bash
-# from the ai-study-kit repo root
-pnpm run skill:install          # copies to ~/.agents/skills/ai-study-kit
+# from the ai-study-kit repo root (installs all four skills; thin commands rely on the main entry's references/)
+pnpm run skill:install          # copies to ~/.agents/skills/{ask-coach,coach,doctor,recap}
 pnpm run skill:install -- --link   # symlink variant (auto-updates with git pull)
 
 # other clients: custom destination
@@ -26,7 +35,7 @@ bash scripts/install-skill.sh --dest ~/.claude/skills
 pnpm run skill:uninstall
 ```
 
-After installing, restart the CLI (or open a new session) and type `/ai-study-kit`. It also works uninstalled: just tell your agent to read `skills/ai-study-kit/SKILL.md` and follow it.
+After installing, restart the CLI (or open a new session) and type `/ask-coach`. It also works uninstalled: just tell your agent to read `skills/ask-coach/SKILL.md` and follow it.
 
 ---
 
@@ -36,9 +45,9 @@ Every invocation runs the same three steps:
 
 1. **Scan state** (read-only, ≤1 min) — theme, question/card/course/deep-dive inventory, answering progress, ungraduated wrong questions, due flashcards, lessons completed, tutoring sessions and exam deadline, AI config, backend online or not.
 2. **Report + recommend** — one snapshot table + one recommended action with a reason + a numbered menu.
-3. **Execute with you** — once you pick, it follows the playbook in `skills/ai-study-kit/references/flows.md` step by step, then checks the "done" criteria.
+3. **Execute with you** — once you pick, it follows the playbook in `skills/ask-coach/references/flows.md` step by step, then checks the "done" criteria.
 
-Without an explicit intent, the recommendation takes the first hit in order (full version in `skills/ai-study-kit/SKILL.md`). The top three run "flashcards → sprint → resume tutoring": reviews are debt that accrues daily, the sprint is the harvest window within a week of the exam, and tutoring can resume anytime:
+Without an explicit intent, the recommendation takes the first hit in order (full version in `skills/ask-coach/SKILL.md`). The top three run "flashcards → sprint → resume tutoring": reviews are debt that accrues daily, the sprint is the harvest window within a week of the exam, and tutoring can resume anytime:
 
 | Order | Condition | Recommendation |
 |-------|-----------|----------------|
@@ -67,21 +76,21 @@ Without an explicit intent, the recommendation takes the first hit in order (ful
 | F8 | Verify & release | Pre-release quality gate | `pnpm run scan` / `test` / `build` + `scripts/bidirectional-check.py` |
 | F9 | Deploy | Put it on a cloud server | pm2 (start from `apps/quiz-app/`) |
 | F10 | Coached tutoring | Teach each exam point through dialogue + quiz on the spot + resume across days | minimal exam-point set from the table → three-part explanation + anchor phrase → quiz by mode → persist per point into `study/records/` → hand over to F3 |
-| F11 | Pre-deadline sprint | ≤ 7 days to the exam, or you say "sprint / pre-exam / cram" | harvest records phrases + wrong-question archives → four-piece sprint package into `study/sprint/` → hand over to F3 mock exam |
+| F11 | Pre-deadline sprint | ≤ 7 days to the exam, or you say "sprint / pre-exam / cram" | harvest records phrases + wrong-question archives → four-piece sprint package + print version into `study/sprint/` → hand over to F3 mock exam |
 
-Plus a **diagnostics** entry: progress not syncing, course 404, CLI config errors, scan hits… a symptom → root cause → action lookup table.
+Plus two ops entries: **health check** (`/doctor` — one-stop orchestration of the four quality gates + environment probes, with a pass/fail report and fix order) and **diagnostics** (progress not syncing, course 404, CLI config errors, scan hits… a symptom → root cause → action lookup table).
 
 ---
 
 ## Design notes
 
 - **A routing skill, not another CLI**: it introduces no new runtime — it encodes "read state → recommend → run existing commands/flows" as agent-followable instructions. All underlying capabilities already exist in the repo (three AI CLIs, sync scripts, verification gates).
-- **State before advice**: the coach is forbidden from recommending on vibes — every snapshot field has a probe command (`skills/ai-study-kit/references/state.md`), and progress statistics match `apps/quiz-app/src/lib/progress.ts` exactly (tombstone filtering, random-sandbox exclusion, wrong-graduation thresholds, SRS due).
+- **State before advice**: the coach is forbidden from recommending on vibes — every snapshot field has a probe command (`skills/ask-coach/references/state.md`), and progress statistics match `apps/quiz-app/src/lib/progress.ts` exactly (tombstone filtering, random-sandbox exclusion, wrong-graduation thresholds, SRS due).
 - **Methodology embedded**: the recommendation order is [`methodology.en.md`](./methodology.en.md) "syllabus → materials → quizzes" made executable; the F2 flow forces MISSION (with the exam-point table) / RESOURCES before any course or question generation — authoring isn't free-form JSON writing, it's point-by-point production against the table, closed out by three green gates (qa / scan / four-alignment).
 
 ## Extending
 
-To add a flow: add a playbook section (purpose / prerequisites / steps / done criteria) in `skills/ai-study-kit/references/flows.md`, plus a row in `SKILL.md`'s menu and intent-routing table. Then run `pnpm run sync:plugin` to regenerate the plugin artifacts (manual-install users additionally rerun `pnpm run skill:install`).
+To add a flow: add a playbook section (purpose / prerequisites / steps / done criteria) in `skills/ask-coach/references/flows.md`, plus a row in `SKILL.md`'s menu and intent-routing table. Then run `pnpm run sync:plugin` to regenerate the plugin artifacts (manual-install users additionally rerun `pnpm run skill:install`). To add a thin command: create a new directory under `skills/` with a thin SKILL.md (~15 lines, sharing `../ask-coach/references/`) — sync-plugin picks it up automatically.
 
 ## FAQ
 

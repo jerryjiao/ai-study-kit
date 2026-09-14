@@ -1,22 +1,31 @@
-# Coach de estudio · el comando `/ai-study-kit`
+# Coach de estudio · el comando `/ask-coach`
 
 [简体中文](ai-study-kit.md) · [English](ai-study-kit.en.md) · **Español** · [Русский](ai-study-kit.ru.md)
 
-ai-study-kit tiene muchas funciones — app de práctica, cursos, tarjetas, repaso a fondo de erróneas, podcasts, despliegue — y eso, para quien estudia, se convierte en una carga: **¿qué toca hacer exactamente hoy?** `/ai-study-kit` existe para responder a eso. Es el skill de enrutamiento que trae el propio repositorio: lo instalas una vez, empiezas cada sesión de estudio desde él, y dejas que escanee tu estado, te recomiende y ejecute contigo — sin memorizar la cadena de herramientas.
+ai-study-kit tiene muchas funciones — app de práctica, cursos, tarjetas, repaso a fondo de erróneas, podcasts, despliegue — y eso, para quien estudia, se convierte en una carga: **¿qué toca hacer exactamente hoy?** `/ask-coach` existe para responder a eso. Es el skill de entrada principal que trae el propio repositorio: lo instalas una vez, empiezas cada sesión de estudio desde él, y dejas que escanee tu estado, te recomiende y ejecute contigo — sin memorizar la cadena de herramientas.
+
+**Los nombres de los comandos son el menú** — el plugin ai-study-kit (nombre permanente) instala cuatro comandos:
+
+| Comando | Qué hace |
+|---------|----------|
+| `/ask-coach` | Preguntar al coach: instantánea de estado + recomendación + ejecución guiada (entrada principal; el resto se enruta desde aquí) |
+| `/coach` | Sentarse a estudiar: entrada directa a la tutoría (F10 abrir/reanudar; al abrir reporta «qué tocar hoy y por qué») |
+| `/doctor` | Chequeo integral: cuatro puertas de calidad + sondas de entorno, informe de estado y orden de reparación |
+| `/recap` | Entrada directa al análisis de erróneas (F4, cuando los prerrequisitos están) |
 
 ---
 
 ## Instalación
 
-El código fuente del skill vive en el repositorio, en `skills/ai-study-kit/` (fuente única de verdad). Dos rutas de instalación:
+Los códigos fuente de los skills viven en el repositorio bajo `skills/` (fuente única de verdad: la entrada principal `ask-coach` + tres comandos finos `coach` / `doctor` / `recap` que comparten los `references/` de la entrada principal). Dos rutas de instalación:
 
-**① Marketplace de plugins (zcode / Claude Code, recomendado)**: el repositorio trae su propio manifiesto de marketplace (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` genera `plugins/ai-study-kit/` a partir del código fuente). Añade el marketplace `https://github.com/jerryjiao/ai-study-kit` en tu cliente e instala el plugin `ai-study-kit` — las actualizaciones del skill llegan con cada refresco del marketplace, **sin reinstalación manual** (las versiones siguen los releases del repositorio).
+**① Marketplace de plugins (zcode / Claude Code, recomendado)**: el repositorio trae su propio manifiesto de marketplace (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` genera `plugins/ai-study-kit/` a partir del código fuente). Añade el marketplace `https://github.com/jerryjiao/ai-study-kit` en tu cliente e instala el plugin `ai-study-kit` — las actualizaciones del skill llegan con cada refresco del marketplace, **sin reinstalación manual** (las versiones siguen los releases del repositorio). **El nombre del plugin es ai-study-kit de por vida; los comandos son la familia ask-coach** (renombrado desde `/ai-study-kit` en v0.13, septiembre de 2026 — los nombres de marketplace son permanentes, así que el del plugin no cambia).
 
 **② Instalación manual (cualquier cliente que respete `~/.agents/skills/`)**:
 
 ```bash
-# 在 ai-study-kit 仓库根目录
-pnpm run skill:install          # 复制安装到 ~/.agents/skills/ai-study-kit
+# 从 ai-study-kit 仓库根目录（装全部四个 skill； los comandos finos dependen de los references/ de la entrada principal）
+pnpm run skill:install          # copia a ~/.agents/skills/{ask-coach,coach,doctor,recap}
 pnpm run skill:install -- --link   # 符号链接版（随仓库 git pull 自动更新）
 
 # 其他客户端：自定义目标目录
@@ -26,7 +35,7 @@ bash scripts/install-skill.sh --dest ~/.claude/skills
 pnpm run skill:uninstall
 ```
 
-Tras instalar, reinicia el CLI (o abre una sesión nueva) y escribe `/ai-study-kit`. También funciona sin instalar: pídele directamente a tu agente que lea `skills/ai-study-kit/SKILL.md` y lo siga.
+Tras instalar, reinicia el CLI (o abre una sesión nueva) y escribe `/ask-coach`. También funciona sin instalar: pídele directamente a tu agente que lea `skills/ask-coach/SKILL.md` y lo siga.
 
 ---
 
@@ -36,9 +45,9 @@ Cada invocación sigue siempre tres pasos:
 
 1. **Sondeo del estado** (solo lectura, ≤1 min) — tema, inventario de preguntas/tarjetas/cursos/análisis, progreso de respuestas, erróneas sin graduarse, tarjetas vencidas, lecciones completadas, sesiones de tutoría y fecha del examen, configuración de IA, backend en línea o no.
 2. **Informe + recomendación** — una tabla de instantánea + una acción recomendada con su razón + un menú numerado.
-3. **Ejecución acompañada** — una vez elegida la opción, sigue el playbook de `skills/ai-study-kit/references/flows.md` paso a paso y, al terminar, verifica contra los «criterios de cierre».
+3. **Ejecución acompañada** — una vez elegida la opción, sigue el playbook de `skills/ask-coach/references/flows.md` paso a paso y, al terminar, verifica contra los «criterios de cierre».
 
-Sin una intención explícita, la recomendación toma el primer acierto en orden (versión completa en `skills/ai-study-kit/SKILL.md`). El orden de los tres primeros es «tarjetas → sprint → retomar tutoría»: el repaso es una deuda que se acumula a diario, el sprint es la ventana de cosecha de la semana previa al examen, y la tutoría se puede retomar en cualquier momento:
+Sin una intención explícita, la recomendación toma el primer acierto en orden (versión completa en `skills/ask-coach/SKILL.md`). El orden de los tres primeros es «tarjetas → sprint → retomar tutoría»: el repaso es una deuda que se acumula a diario, el sprint es la ventana de cosecha de la semana previa al examen, y la tutoría se puede retomar en cualquier momento:
 
 | Orden | Condición | Recomendación |
 |-------|-----------|---------------|
@@ -67,21 +76,21 @@ Sin una intención explícita, la recomendación toma el primer acierto en orden
 | F8 | Verificar y publicar | puerta de calidad previa al release | `pnpm run scan` / `test` / `build` + `scripts/bidirectional-check.py` |
 | F9 | Desplegar | subir al servidor en la nube | pm2 (arrancar desde `apps/quiz-app/`) |
 | F10 | Tutoría acompañada | enseñar cada punto por diálogo hasta dominarlo + evaluar en el momento + continuar entre días | conjunto mínimo de puntos desde la tabla → explicación en tres partes + frases ancla → evaluar por modo → guardar punto por punto en `study/records/` → pasar el testigo a F3 |
-| F11 | Sprint preexamen | ≤ 7 días para el examen, o pides «sprint / preexamen / intensivo» | cosechar frases de records + archivo de erróneas → paquete de sprint de cuatro piezas en `study/sprint/` → pasar el testigo al simulacro de F3 |
+| F11 | Sprint preexamen | ≤ 7 días para el examen, o pides «sprint / preexamen / intensivo» | cosechar frases de records + archivo de erróneas → paquete de sprint de cuatro piezas + versión imprimible en `study/sprint/` → pasar el testigo al simulacro de F3 |
 
-Además, una entrada de **diagnóstico**: progreso que no sincroniza, 404 de cursos, errores de configuración del CLI, aciertos del scan… una tabla de consulta rápida síntoma → causa raíz → solución.
+Además, dos entradas de operaciones: el **chequeo** (`/doctor` — orquestación integral de las cuatro puertas de calidad + sondas de entorno, con informe de estado y orden de reparación) y el **diagnóstico** (progreso que no sincroniza, 404 de cursos, errores de configuración del CLI, aciertos del scan… una tabla de consulta rápida síntoma → causa raíz → solución).
 
 ---
 
 ## Notas de diseño
 
 - **Un skill de enrutamiento, no otro CLI más**: no introduce ningún runtime nuevo; solo codifica «leer estado → recomendar → ejecutar comandos/flujos existentes» como instrucciones que un agente puede seguir. Todas las capacidades subyacentes ya existen en el repositorio (los tres CLI de IA, los scripts de sincronización, las puertas de verificación).
-- **El estado antes del consejo**: el coach tiene prohibido recomendar por intuición — cada campo de la instantánea tiene su comando de sondeo (`skills/ai-study-kit/references/state.md`) y los criterios estadísticos del progreso coinciden exactamente con `apps/quiz-app/src/lib/progress.ts` (filtrado de tombstones, la caja de arena aleatoria fuera del progreso principal, umbrales de graduación de erróneas, vencimiento SRS).
+- **El estado antes del consejo**: el coach tiene prohibido recomendar por intuición — cada campo de la instantánea tiene su comando de sondeo (`skills/ask-coach/references/state.md`) y los criterios estadísticos del progreso coinciden exactamente con `apps/quiz-app/src/lib/progress.ts` (filtrado de tombstones, la caja de arena aleatoria fuera del progreso principal, umbrales de graduación de erróneas, vencimiento SRS).
 - **Metodología embebida**: el orden del algoritmo de recomendación es la puesta en práctica del «temario → materiales → preguntas» de [`methodology.es.md`](./methodology.es.md); el flujo F2 obliga a escribir primero MISSION (con la tabla de distribución de puntos) y RESOURCES antes de permitir generar cursos y preguntas — producir preguntas no es escribir JSON a pelo, es producirlas punto por punto contra la tabla y cerrar con las tres puertas (qa / scan / cuatro alineaciones) en verde.
 
 ## Extensión
 
-Para añadir un flujo nuevo: añade una sección de playbook (propósito / prerrequisitos / pasos / criterios de cierre) en `skills/ai-study-kit/references/flows.md`, más una fila en el menú y en la tabla de enrutamiento por intención de `SKILL.md`. Al terminar, ejecuta `pnpm run sync:plugin` para regenerar los artefactos del plugin (quienes lo instalaron manualmente deben además correr `pnpm run skill:install` para redistribuirlo).
+Para añadir un flujo nuevo: añade una sección de playbook (propósito / prerrequisitos / pasos / criterios de cierre) en `skills/ask-coach/references/flows.md`, más una fila en el menú y en la tabla de enrutamiento por intención de `SKILL.md`. Al terminar, ejecuta `pnpm run sync:plugin` para regenerar los artefactos del plugin (quienes lo instalaron manualmente deben además correr `pnpm run skill:install` para redistribuirlo). Para añadir un comando fino: crea un directorio nuevo en `skills/` con un SKILL.md corto (~15 líneas, comparte `../ask-coach/references/`) — sync:plugin lo incorpora automáticamente.
 
 ## Preguntas frecuentes
 

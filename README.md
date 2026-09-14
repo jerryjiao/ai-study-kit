@@ -43,7 +43,7 @@
 
 ```
 /plugin marketplace add https://github.com/jerryjiao/ai-study-kit
-# 安装 ai-study-kit，然后新会话里说「我想学 X」或 /ai-study-kit
+# 安装 ai-study-kit，然后新会话里说「我想学 X」或 /ask-coach
 ```
 
 学习项目（答题站 + 你的主题包）全部住你自己的目录，与插件升级互不干扰。教学线（陪练教学、考前冲刺）、应试线（每日刷题、错题串讲、播客）、内容线（开新主题、产课加课、改内容）、运维线（初始化、校验、部署）十一个流程全覆盖，详见 [`docs/ai-study-kit.md`](docs/ai-study-kit.md)。
@@ -74,11 +74,13 @@ pnpm dev
 
 ---
 
-## 🧭 不知道下一步学什么？`/ai-study-kit`
+## 🧭 不知道下一步学什么？`/ask-coach`
 
 上面装好插件（或 `pnpm run skill:install` 装进 `~/.agents/skills/`）后，每次学习从它开始。
 
-它会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、课已学完、陪练进度、AI 配置），然后**推荐你现在最该做的一件事**——是开新主题、复习到期闪卡、刷题、还是把攒下的错题做成串讲——选定后**带着你一步步执行**。从初始化整个项目到部署上线，十一个流程全覆盖。
+**命令名即菜单**，总共四个：`/ask-coach` 问教练该干嘛（快照 + 推荐 + 带执行）、`/coach` 坐下就学（陪练直入）、`/doctor` 一键体检（校验 + 环境探测）、`/recap` 错题串讲直入——其余流程走路由。
+
+`/ask-coach` 会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、课已学完、陪练进度、AI 配置），然后**推荐你现在最该做的一件事**——是开新主题、复习到期闪卡、刷题、还是把攒下的错题做成串讲——选定后**带着你一步步执行**。从初始化整个项目到部署上线，十一个流程全覆盖。
 
 详见 [`docs/ai-study-kit.md`](docs/ai-study-kit.md)。
 
@@ -159,7 +161,7 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 
 ### 让 AI agent 替你产题（可选）
 
-不想手写 JSON？装好 `/ai-study-kit`（见上文「🧭 不知道下一步学什么」一节）后直接说「帮我给 react-basics 产一套题库」。agent 的流程是纪律化的：先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡——你确认后照表逐考点产题、产卡，最后自动跑 `qa` / `scan` / 四对齐三门质量校验，全绿才交付。手工路径永远是主路；两条路的产物同构，排布表就是人机之间的契约。
+不想手写 JSON？装好 `/ask-coach`（见上文「🧭 不知道下一步学什么」一节）后直接说「帮我给 react-basics 产一套题库」。agent 的流程是纪律化的：先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡——你确认后照表逐考点产题、产卡，最后自动跑 `qa` / `scan` / 四对齐三门质量校验，全绿才交付。手工路径永远是主路；两条路的产物同构，排布表就是人机之间的契约。
 
 ---
 
@@ -268,7 +270,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播
 | [`docs/four-alignment.md`](docs/four-alignment.md) | 四对齐原则：课程 / 题 / 闪卡 / 错题怎么协同 |
 | [`docs/bidirectional-check.md`](docs/bidirectional-check.md) | 自动化校验脚本（题 ↔ 课 ↔ 闪卡 互查） |
 | [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) | 三个 AI CLI（teach/grill/podcast）完整用法 |
-| [`docs/ai-study-kit.md`](docs/ai-study-kit.md) | `/ai-study-kit` 学习教练：安装、路由、扩展 |
+| [`docs/ai-study-kit.md`](docs/ai-study-kit.md) | `/ask-coach` 学习教练：安装、命令面、路由、扩展 |
 | [`docs/configuration.md`](docs/configuration.md) | `.env` 配置：LLM provider + TTS provider |
 | [`docs/theming.md`](docs/theming.md) | 主题呈现配置：theme-config.json 字段表 |
 | [`AGENTS.md`](AGENTS.md) | AI 协作约定（项目结构 / 命令 / 红线） |
@@ -287,7 +289,7 @@ pnpm test             # 跑 5 个测试文件（130 个用例）
 pnpm run scan         # 零泄露扫描
 pnpm run server       # 单独起后端
 pnpm start            # build + server
-pnpm run skill:install    # 安装 /ai-study-kit 学习教练指令
+pnpm run skill:install    # 安装学习教练指令（/ask-coach 主入口 + 薄命令）
 pnpm run check:alignment  # 四对齐校验（默认扫 dev-intro，可传主题目录）
 
 # 在 apps/quiz-app/ 下

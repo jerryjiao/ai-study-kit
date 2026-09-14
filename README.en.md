@@ -41,7 +41,7 @@ Install the whole kit into your AI agent (zcode / Claude Code). **No repo clonin
 
 ```
 /plugin marketplace add https://github.com/jerryjiao/ai-study-kit
-# install ai-study-kit, then say "I want to learn X" (or /ai-study-kit) in a new session
+# install ai-study-kit, then say "I want to learn X" (or /ask-coach) in a new session
 ```
 
 Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Eleven flows covered end to end, grouped in four lines — teaching (coached tutoring, pre-deadline sprint), practice (daily study, wrong-question grilling, podcasts), content (new theme, course generation, content edits), ops (bootstrap, verification, deploy) — see [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).
@@ -72,11 +72,13 @@ pnpm dev
 
 ---
 
-## 🧭 Not sure what to do next? `/ai-study-kit`
+## 🧭 Not sure what to do next? `/ask-coach`
 
 Once the plugin is installed above (or via `pnpm run skill:install` into `~/.agents/skills/`), every study session can start here.
 
-It first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, lessons completed, tutoring progress, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Eleven playbooks cover everything from initializing the project to deploying it. (The playbook files the skill executes are written in Chinese; this guide is in English: [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).)
+**The command names are the menu** — four in total: `/ask-coach` asks the coach what to do (state snapshot + recommendation + guided execution), `/coach` jumps straight into a tutoring session, `/doctor` runs a one-stop health check (quality gates + environment probes), `/recap` jumps straight into a wrong-question deep-dive; everything else goes through the router.
+
+`/ask-coach` first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, lessons completed, tutoring progress, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Eleven playbooks cover everything from initializing the project to deploying it. (The playbook files the skill executes are written in Chinese; this guide is in English: [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).)
 
 ---
 
@@ -155,7 +157,7 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # four-way alignm
 
 ### Let an AI agent write the questions for you (optional)
 
-Don't want to hand-write JSON? Install `/ai-study-kit` (the "🧭 Not sure what to do next?" section above), then just ask it to generate a question bank for react-basics. The agent follows a disciplined flow: it first aligns an **exam-point table** with you in MISSION.md — what to examine, how deep, how many of each question type, how many flashcards — then writes questions and flashcards point by point, and finishes by running the `qa` / `scan` / four-way-alignment quality gates; nothing is delivered until they're all green. The manual path stays the primary one — both paths produce the same artifacts, and the exam-point table is the contract between you and the agent.
+Don't want to hand-write JSON? Install `/ask-coach` (the "🧭 Not sure what to do next?" section above), then just ask it to generate a question bank for react-basics. The agent follows a disciplined flow: it first aligns an **exam-point table** with you in MISSION.md — what to examine, how deep, how many of each question type, how many flashcards — then writes questions and flashcards point by point, and finishes by running the `qa` / `scan` / four-way-alignment quality gates; nothing is delivered until they're all green. The manual path stays the primary one — both paths produce the same artifacts, and the exam-point table is the contract between you and the agent.
 
 ---
 
@@ -265,7 +267,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # Russian p
 | [`docs/four-alignment.en.md`](docs/four-alignment.en.md) | how courses / questions / cards / deep-dives stay in sync |
 | [`docs/ai-cli-guide.en.md`](docs/ai-cli-guide.en.md) | full usage of the three AI CLIs |
 | [`docs/theming.en.md`](docs/theming.en.md) | presentation config: the theme-config.json field reference |
-| [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md) | `/ai-study-kit`: install, routing, extension |
+| [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md) | `/ask-coach`: install, command surface, routing, extension |
 | [`docs/configuration.en.md`](docs/configuration.en.md) | `.env`: LLM + TTS providers |
 | [`docs/bidirectional-check.en.md`](docs/bidirectional-check.en.md) | automated cross-checks, questions ↔ courses ↔ cards |
 | [`AGENTS.md`](AGENTS.md) | AI-collaboration conventions: structure / commands / hard rules (Chinese) |
@@ -284,7 +286,7 @@ pnpm test             # run the 5 test files (130 cases)
 pnpm run scan         # brand-leak scan
 pnpm run server       # start the backend alone
 pnpm start            # build + server
-pnpm run skill:install    # install the /ai-study-kit command
+pnpm run skill:install    # install the coach commands (/ask-coach + thin ones)
 pnpm run check:alignment  # four-way alignment check (defaults to dev-intro; pass a theme dir)
 
 # inside apps/quiz-app/
