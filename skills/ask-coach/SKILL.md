@@ -1,12 +1,12 @@
 ---
-name: ai-study-kit
-description: /ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.
+name: ask-coach
+description: /ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.
 disable-model-invocation: true
 ---
 
-# ai-study-kit 学习教练
+# /ask-coach 学习教练
 
-ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / 错题精讲 / 播客 / 部署），但**没人该为了学习去记命令**。本指令就是教练：先看状态，再给建议，最后带你执行。
+ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / 错题精讲 / 播客 / 部署），但工具全不等于知道「现在该干嘛」。**命令名即菜单**——敲 `/ask-coach` 就是问教练；本指令是主入口：先看状态，再给建议，最后带你执行。常用动作另有直入命令（陪练 `/coach`、体检 `/doctor`、错题串讲 `/recap`），其余走这里路由。
 
 每次执行固定三步，不要跳步：
 
@@ -47,7 +47,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
   教学线: F10 陪练教学 · F11 考前冲刺
   应试线: F3 每日刷题 · F4 错题串讲 · F5 播客
   内容线: F2 开新主题 · F6 产课/加课 · F7 改内容
-  运维线: F1 初始化 · F8 校验发布 · F9 部署 · 诊断 · 重扫
+  运维线: F1 初始化 · F8 校验发布 · 体检 · F9 部署 · 诊断 · 重扫
 ```
 
 ### 推荐算法（用户没有明确意图时，按顺序取第一个命中的）
@@ -78,6 +78,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 | 产课 / 加课 / 讲义 / 教我 X | F6 | `course-spec.json` + AI 配齐 |
 | 改题 / 改课 / 改卡 / 改日程 | F7 | — |
 | 校验 / 检查 / 能不能发布 | F8 | — |
+| 体检 / 一键检查 / 全量校验 / 哪里出问题 | 体检 | — |
 | 部署 / 上线 / 服务器 / pm2 | F9 | 本地 build 通过（先走 F8） |
 | 继续学习 / 接着学 / 陪我练 / 学透 X / 学一下 X / 讲讲 X（对话式教懂 + 当场考） | F10 | 主题源目录存在（MISSION.md / questions.json） |
 | 大白话讲 X / 画个图 / 文字看不懂（图解降维重讲） | F10 | 主题源目录存在（MISSION.md / questions.json） |

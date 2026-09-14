@@ -1,12 +1,12 @@
 ---
-name: ai-study-kit
-description: /ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.
+name: ask-coach
+description: /ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.
 disable-model-invocation: true
 ---
 
-# ai-study-kit 学习教练
+# /ask-coach 学习教练
 
-ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / 错题精讲 / 播客 / 部署），但**没人该为了学习去记命令**。本指令就是教练：先看状态，再给建议，最后带你执行。
+ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / 错题精讲 / 播客 / 部署），但工具全不等于知道「现在该干嘛」。**命令名即菜单**——敲 `/ask-coach` 就是问教练；本指令是主入口：先看状态，再给建议，最后带你执行。常用动作另有直入命令（陪练 `/coach`、体检 `/doctor`、错题串讲 `/recap`），其余走这里路由。
 
 每次执行固定三步，不要跳步：
 

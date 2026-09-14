@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { escapeHTML, slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline, parseResourcesMd, mergeResources } from './teach-utils.mjs';
+import { escapeHTML, slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, buildLessonPrompt, normalizeOutline, parseResourcesMd, mergeResources } from './teach-utils.mjs';
 
 // ── escapeHTML ────────────────────────────────────────────
 
@@ -261,4 +261,28 @@ test('wrapLessonHTML: 传 sources 时页脚前渲染出处块，不传时无该�
   const idxSrc = withSrc.indexOf('<aside class="sources">');
   const idxFooter = withSrc.indexOf('<footer>');
   assert.ok(idxBody < idxSrc && idxSrc < idxFooter);
+});
+
+// ── buildLessonPrompt（v0.13 参考正文进备课上下文）──────────────────
+test('buildLessonPrompt: 带参考正文块时 prompt 含正文与「备课第一依据」口径（dry-run 断言）', () => {
+  const spec = {
+    mission: '学会 git 基础', audience: '新手', depth: 'beginner',
+    resources: [{ title: 'Pro Git', url: 'https://git-scm.com/book' }],
+  };
+  const refBlock = '### Pro Git\n（来源：https://git-scm.com/book）\n第 1 章讲了版本控制的基本概念……';
+  const msgs = buildLessonPrompt({ spec, topic: '暂存区', lessonNum: 1, total: 3, outline: ['暂存区', 'x', 'y'], referenceTextBlock: refBlock });
+  const user = msgs[1].content;
+  assert.match(user, /## 参考材料正文（抓取自上述链接，备课第一依据；材料未覆盖的内容才可用你的通用知识）/);
+  assert.match(user, /第 1 章讲了版本控制的基本概念/);   // 正文内容真的进 prompt
+  assert.match(user, /- Pro Git \(https:\/\/git-scm\.com\/book\)/); // URL 清单仍在
+});
+
+test('buildLessonPrompt: 无参考正文（空串）时退回纯 URL 清单，无正文节', () => {
+  const spec = {
+    mission: 'm', audience: 'a', depth: 'beginner',
+    resources: [{ title: 'R', url: 'https://r.example' }],
+  };
+  const msgs = buildLessonPrompt({ spec, topic: 't', lessonNum: 1, total: 1, outline: ['t'] });
+  assert.doesNotMatch(msgs[1].content, /参考材料正文/);
+  assert.match(msgs[1].content, /- R \(https:\/\/r\.example\)/);
 });

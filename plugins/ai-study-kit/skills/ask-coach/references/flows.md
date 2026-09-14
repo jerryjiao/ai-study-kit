@@ -10,7 +10,7 @@
 
 **目的**：从零到「浏览器里看到答题站」。**用户不需要 GitHub、不需要 clone 仓库**——插件自带完整可构建快照。
 
-**定位插件里的快照**：本文件位于 `<插件根>/skills/ai-study-kit/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
+**定位插件里的快照**：本文件位于 `<插件根>/skills/ask-coach/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
 
 **步骤**：
 
@@ -127,7 +127,7 @@
 **前置**：① 后端在线（离线先 `pnpm run server` 后台起）；② 快照 `openWrong ≥ 1`（0 就别跑，白调 LLM）；③ CLI 路径需 `.env` LLM 三项配齐（agent 直产路径不需要）。
 
 **路径选择**（双路径，agent 直产为主推——2026-08-20 复盘拍板）：
-- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/study/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。**同时更新学习者档案** `examples/<theme>/study/records/profile.json`（考点级错因，机器可读）：按下方「档案契约」合并写入——下次探测/推荐就靠它点名弱考点。
+- **在 agent 会话里（zcode + /ask-coach）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/study/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。**同时更新学习者档案** `examples/<theme>/study/records/profile.json`（考点级错因，机器可读）：按下方「档案契约」合并写入——下次探测/推荐就靠它点名弱考点。
 - **独立终端 / 无 agent 环境**：跑下方 CLI（第 1 步会自动顺产/合并档案，无需手动）。
 
 **档案契约**（`study/records/profile.json`，学习者私有不上站）：`{ version:1, theme, updatedAt, grillRuns, examPoints:[{ name, questionIds, wrongReasons[], advice, timesGrilled, lastSeen }], globalPatterns[] }`。合并规则：新旧考点有任意题 id 重叠视为同一考点——timesGrilled+1、wrongReasons 去重合并、questionIds 取并集、name/advice 取新；无重叠追加新条目。错因要落到具体概念（「权限位组合不熟」），不写「粗心」。CLI 路径的合并实现在 `lib/grill-utils.mjs` 的 `mergeProfile`（有单测），agent 直产照同语义手写即可。
@@ -181,7 +181,7 @@
 **前置**：`examples/<theme>/course-spec.json` 存在；CLI 路径需 `.env` LLM 配齐（agent 直产路径不需要）。没有 spec 先按 F2 第 1-2 步补大纲和材料——**没有权威材料的课不许产**。
 
 **路径选择**（双路径，agent 直产为主推——2026-08-20 复盘拍板）：
-- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 照 spec + RESOURCES.md 直产 `examples/<theme>/lessons/*.html`（版式参照既有 lessons 与 `scripts/lib/teach-utils.mjs` 的 wrap 模板），产完过 scan/对齐门禁再 build。验证轮 #5/#7 已实证质量达标。
+- **在 agent 会话里（zcode + /ask-coach）**：走 agent 直产，不跑 CLI。让 agent 照 spec + RESOURCES.md 直产 `examples/<theme>/lessons/*.html`（版式参照既有 lessons 与 `scripts/lib/teach-utils.mjs` 的 wrap 模板），产完过 scan/对齐门禁再 build。验证轮 #5/#7 已实证质量达标。
 - **独立终端 / 无 agent 环境**：跑下方 CLI。
 
 **步骤**：

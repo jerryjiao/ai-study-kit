@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
-# install-skill.sh — install the /ai-study-kit skill into your AI CLI's skills directory.
+# install-skill.sh — install the ai-study-kit skills (ask-coach + thin commands) into your AI CLI's skills directory.
 #
-# Default target: ~/.agents/skills/ai-study-kit  (zcode / agents convention)
+# Default target: ~/.agents/skills/<skill-name>  (zcode / agents convention; one dir per skill under skills/)
 # Other CLIs:     pass --dest, e.g.  --dest ~/.claude/skills
 #
 # Usage:
-#   bash scripts/install-skill.sh                  # copy-install to ~/.agents/skills
+#   bash scripts/install-skill.sh                  # copy-install all skills to ~/.agents/skills
 #   bash scripts/install-skill.sh --link           # symlink instead of copy (auto-updates with repo)
-#   bash scripts/install-skill.sh --dest DIR       # install into DIR/ai-study-kit
+#   bash scripts/install-skill.sh --dest DIR       # install into DIR/<skill-name>
 #   bash scripts/install-skill.sh --uninstall      # remove from default dest
 #   bash scripts/install-skill.sh --uninstall --dest DIR
 set -euo pipefail
 
-SKILL_NAME="ai-study-kit"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC_DIR="$REPO_ROOT/skills/$SKILL_NAME"
+SRC_BASE="$REPO_ROOT/skills"
 DEST_BASE="${HOME}/.agents/skills"
 MODE="copy"
 ACTION="install"
@@ -29,34 +28,49 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-DEST_DIR="$DEST_BASE/$SKILL_NAME"
-
-if [[ "$ACTION" == "uninstall" ]]; then
-  if [[ -e "$DEST_DIR" || -L "$DEST_DIR" ]]; then
-    rm -rf "$DEST_DIR"
-    echo "✅ uninstalled: $DEST_DIR"
-  else
-    echo "nothing to uninstall at $DEST_DIR"
-  fi
-  exit 0
-fi
-
-if [[ ! -f "$SRC_DIR/SKILL.md" ]]; then
-  echo "error: $SRC_DIR/SKILL.md not found — run this script from an ai-study-kit checkout" >&2
+# 多 skill 源发现：skills/ 下每个含 SKILL.md 的目录（ask-coach 主入口 + coach/doctor/recap 薄命令）。
+# 不用 mapfile（bash 4+，macOS 自带 bash 3.2 没有）：while-read 进数组，3.2 兼容。
+SKILLS=()
+while IFS= read -r dir; do
+  SKILLS+=("$dir")
+done < <(find "$SRC_BASE" -mindepth 1 -maxdepth 1 -type d -exec test -f '{}/SKILL.md' ';' -print | sort)
+if [[ ${#SKILLS[@]} -eq 0 ]]; then
+  echo "error: no skills found under $SRC_BASE — run this script from an ai-study-kit checkout" >&2
   exit 1
 fi
 
-mkdir -p "$DEST_BASE"
-rm -rf "$DEST_DIR"
-
-if [[ "$MODE" == "link" ]]; then
-  ln -s "$SRC_DIR" "$DEST_DIR"
-  echo "✅ linked: $DEST_DIR -> $SRC_DIR"
-else
-  cp -R "$SRC_DIR" "$DEST_DIR"
-  echo "✅ installed: $DEST_DIR"
+if [[ "$ACTION" == "uninstall" ]]; then
+  for src in "${SKILLS[@]}"; do
+    name="$(basename "$src")"
+    dest="$DEST_BASE/$name"
+    if [[ -e "$dest" || -L "$dest" ]]; then
+      rm -rf "$dest"
+      echo "✅ uninstalled: $dest"
+    else
+      echo "nothing to uninstall at $dest"
+    fi
+  done
+  exit 0
 fi
 
+mkdir -p "$DEST_BASE"
+
+installed=()
+for src in "${SKILLS[@]}"; do
+  name="$(basename "$src")"
+  dest="$DEST_BASE/$name"
+  rm -rf "$dest"
+  if [[ "$MODE" == "link" ]]; then
+    ln -s "$src" "$dest"
+    echo "✅ linked: $dest -> $src"
+  else
+    cp -R "$src" "$dest"
+    echo "✅ installed: $dest"
+  fi
+  installed+=("/$name")
+done
+
 echo
-echo "Next: restart your AI CLI (or start a new session), then type /$SKILL_NAME"
+echo "Installed ${#installed[@]} skills: ${installed[*]}"
+echo "Main entry: /ask-coach  (status snapshot → recommendation → guided execution)"
 echo "Update later by re-running this script; remove with --uninstall"

@@ -10,7 +10,7 @@
 
 **目的**：从零到「浏览器里看到答题站」。**用户不需要 GitHub、不需要 clone 仓库**——插件自带完整可构建快照。
 
-**定位插件里的快照**：本文件位于 `<插件根>/skills/ai-study-kit/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
+**定位插件里的快照**：本文件位于 `<插件根>/skills/ask-coach/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
 
 **步骤**：
 
@@ -127,7 +127,7 @@
 **前置**：① 后端在线（离线先 `pnpm run server` 后台起）；② 快照 `openWrong ≥ 1`（0 就别跑，白调 LLM）；③ CLI 路径需 `.env` LLM 三项配齐（agent 直产路径不需要）。
 
 **路径选择**（双路径，agent 直产为主推——2026-08-20 复盘拍板）：
-- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/study/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。**同时更新学习者档案** `examples/<theme>/study/records/profile.json`（考点级错因，机器可读）：按下方「档案契约」合并写入——下次探测/推荐就靠它点名弱考点。
+- **在 agent 会话里（zcode + /ask-coach）**：走 agent 直产，不跑 CLI。让 agent 读题库错题 + 对应课程口径，照 `grill-wrong.mjs` 的簇结构直产 `examples/<theme>/study/wrong-questions/cluster-NN-*.html`（核心区别表 + 决策流程 + 易错警示 + 变体训练）+ 更新 index.html，产完过 `pnpm run scan` 门禁再 build。验证轮 #7 已实证质量达标。**同时更新学习者档案** `examples/<theme>/study/records/profile.json`（考点级错因，机器可读）：按下方「档案契约」合并写入——下次探测/推荐就靠它点名弱考点。
 - **独立终端 / 无 agent 环境**：跑下方 CLI（第 1 步会自动顺产/合并档案，无需手动）。
 
 **档案契约**（`study/records/profile.json`，学习者私有不上站）：`{ version:1, theme, updatedAt, grillRuns, examPoints:[{ name, questionIds, wrongReasons[], advice, timesGrilled, lastSeen }], globalPatterns[] }`。合并规则：新旧考点有任意题 id 重叠视为同一考点——timesGrilled+1、wrongReasons 去重合并、questionIds 取并集、name/advice 取新；无重叠追加新条目。错因要落到具体概念（「权限位组合不熟」），不写「粗心」。CLI 路径的合并实现在 `lib/grill-utils.mjs` 的 `mergeProfile`（有单测），agent 直产照同语义手写即可。
@@ -181,7 +181,7 @@
 **前置**：`examples/<theme>/course-spec.json` 存在；CLI 路径需 `.env` LLM 配齐（agent 直产路径不需要）。没有 spec 先按 F2 第 1-2 步补大纲和材料——**没有权威材料的课不许产**。
 
 **路径选择**（双路径，agent 直产为主推——2026-08-20 复盘拍板）：
-- **在 agent 会话里（zcode + /ai-study-kit）**：走 agent 直产，不跑 CLI。让 agent 照 spec + RESOURCES.md 直产 `examples/<theme>/lessons/*.html`（版式参照既有 lessons 与 `scripts/lib/teach-utils.mjs` 的 wrap 模板），产完过 scan/对齐门禁再 build。验证轮 #5/#7 已实证质量达标。
+- **在 agent 会话里（zcode + /ask-coach）**：走 agent 直产，不跑 CLI。让 agent 照 spec + RESOURCES.md 直产 `examples/<theme>/lessons/*.html`（版式参照既有 lessons 与 `scripts/lib/teach-utils.mjs` 的 wrap 模板），产完过 scan/对齐门禁再 build。验证轮 #5/#7 已实证质量达标。
 - **独立终端 / 无 agent 环境**：跑下方 CLI。
 
 **步骤**：
@@ -400,9 +400,20 @@ status: in-progress    # in-progress | done
 - [x] 家族划分
 - [x] 3xx 重定向
 - [ ] 4xx 具体码辨析
+
+## 口头题计数
+- EP-01 状态码家族划分：问 3 对 2
+- 3xx 重定向辨析：问 2 对 2
 ```
 
-**旧格式兼容（只报事实，不要求补格式）**：无 frontmatter 的旧记录，按文件名带 `-in-progress` 后缀、或正文含「待办」节，识别为进行中站，照常续。
+**口头题计数写入口径**（v0.13 起，机器可读——考点全景图的「练过」信号吃它）：
+
+- 每站按考点累计「问 N 对 M」：N = 本站该考点口头问答次数，M = 其中判对的次数。复述判定、开场抽背、案例大题按评分点判定，都算口头题。
+- 考点名可带 EP 前缀（`EP-01 状态码家族划分`，全景报告按它 join 排布表；只写关键词也行，按名字回退匹配）。**同一考点一行改数字，不堆历史行。**
+- 与「已过考点」同节奏增量写盘：一轮考完就更新，不等收站。
+- 解析器：`apps/quiz-app/scripts/lib/records.mjs` 的 `parseSessionRecord`（纯函数，有单测）。
+
+**旧格式兼容（只报事实，不要求补格式）**：无 frontmatter 的旧记录，按文件名带 `-in-progress` 后缀、或正文含「待办」节，识别为进行中站，照常续；无「口头题计数」节的旧记录照常解析，计数缺省为空。
 
 **完成标志**：本站考点全过 + 记录 `status: done` +（含复述/造的模式）`study/notes/` 笔记落盘且 scan 零命中 + 已交棒 F3。
 
@@ -429,7 +440,7 @@ status: in-progress    # in-progress | done
 
 读 MISSION.md frontmatter 的 `deadline: YYYY-MM-DD`。**没有就先引导用户补**（F2 开主题时问过一次，这里补问：「考核是哪天？」），写进 frontmatter 才继续；定不了日子就先不冲刺，回 F10/F3 主线。为什么绝不瞎猜：7 天阈值的一切判断都建立在真日期上——猜早了透支冲刺，猜晚了临考才发现来不及。快照对缺失 deadline 亮 ⚠，就是为了在这一刻被硬前置拦下、当场引导，而不是静默跳过。
 
-### 第 2 步 · 产冲刺包四件套（`study/sprint/`，html，过 scan 随 build 上站）
+### 第 2 步 · 产冲刺包四件套 + 打印版（`study/sprint/`，html，过 scan 随 build 上站）
 
 数据只从**两处既有档案**收割，抽取口径沿用 F10 契约二的记录格式，**不重造格式**：
 
@@ -437,6 +448,12 @@ status: in-progress    # in-progress | done
 2. **易错警示 TOP N**：两路聚合——各站记录「错的点」节的每一条 + F4 串讲簇（`study/wrong-questions/`）里的易错警示，按复发与严重度排序，N 不写死、取一屏能扫完的量（扫不完的警示等于没有），**一行一句、不展开讲解**。为什么不再讲：冲刺期是提醒不是教学，警示行的任务是让用户扫一眼想起「这里我错过」——真要重讲，那是 F4/F10 的活。
 3. **必背清单**：MISSION.md「## 考点排布表」全部**记忆型/符号型考点**，判型按 coach.md §4 三问（约定还是推理、定义还是推导、再认还是推演）——§4 那句「判型在这一步做对，考前收割才有得收」在此兑现。
 4. **考前最后一天 checklist**：可勾选的行动清单，内容保持通用——金句速记表从头到尾过一遍、警示行扫一遍、清掉到期的闪卡复习、必背清单里还生疏的再看一眼、睡够。最后一条不是玩笑：临场提取靠状态，不靠熬夜。
+
+5. **单文件打印版 `print.html`**（v0.13 起，考前一晚/通勤拿纸背的载体）：四件套按「金句 → 警示 → 必背 → checklist」顺序合并进一个自包含 HTML，规约：
+   - **自包含**：CSS 全内联，不依赖 `assets/styles.css`、不带任何导航/返回链接/外链按钮——纸上没有可点的东西；
+   - **打印 CSS**：`@media print` 去背景色、正文 11-12pt 衬线友好字号；**章节连续排版不强制分页**（要背的材料页越少越好），只防截断——金句行/警示行 `page-break-inside: avoid`、节标题 `page-break-after: avoid` 不与首行分离、最后一天 checklist 整块不跨页（方便整页勾选）；
+   - **屏显即纸样**：不打印时也按纸面排版（白底、A4 比例宽 ~700px、一屏可扫），浏览器 Ctrl/Cmd+P 直接存 PDF 或打印——**不引入任何 PDF 生成依赖**（pandoc/weasyprint 一类明确不用）；
+   - checklist 用 `☐` 可勾选框形态；同款内容随包过 `pnpm run scan`。
 
 产完跑 `pnpm run scan`，零命中才随 build 上站——与 notes / wrong-questions 同一道发布门。
 
@@ -446,14 +463,69 @@ status: in-progress    # in-progress | done
 
 ### 第 4 步 · 交棒 F3 模考
 
-冲刺包背熟（金句能脱口而出、警示行扫过、必背清单过完）→ **交棒 F3**：用题库做一次**限时整卷演练（模考）**——收割的成色用模考验收，不用「感觉背下来了」验收。不在冲刺对话里补课、不替用户背：背是用户的动作，包只是载体。
+冲刺包背熟（金句能脱口而出、警示行扫过、必背清单过完）→ **交棒 F3**：用题库做一次**限时整卷演练（模考）**——收割的成色用模考验收，不用「感觉背下来了」验收。不在冲刺对话里补课、不替用户背：背是用户的动作，包只是载体。交棒时提一句：**冲刺包有打印版**（`study/sprint/print.html`，浏览器打开 Ctrl/Cmd+P 即可存 PDF 打印）——考前一晚和通勤路上拿纸背。
 
 ### 只干 / 绝不干
 
-- **只干**：收割两处档案成四件套、缺口标记「回 F10 补」、交棒 F3 模考。
-- **绝不干**：**不补课、不开新站**（教新知识只有 F10 一条路）；**不重造记录格式**（抽取口径认契约二）；**不排每日冲刺日程**（只产包 + 交棒模考，冲刺节奏是用户自己的事）；**不在冲刺对话里刷题**（成组做题是 F3 的活）。
+- **只干**：收割两处档案成四件套 + 打印版、缺口标记「回 F10 补」、交棒 F3 模考。
+- **绝不干**：**不补课、不开新站**（教新知识只有 F10 一条路）；**不重造记录格式**（抽取口径认契约二）；**不排每日冲刺日程**（只产包 + 交棒模考，冲刺节奏是用户自己的事）；**不在冲刺对话里刷题**（成组做题是 F3 的活）；**不引 PDF 生成依赖**（打印版就是自包含 HTML，浏览器打印即得）。
 
-**完成标志**：四件套落盘 `study/sprint/` + `pnpm run scan` 零命中 + 缺口已标记「回 F10 补」+ 已交棒 F3 模考。
+**完成标志**：四件套 + 打印版落盘 `study/sprint/` + `pnpm run scan` 零命中 + 缺口已标记「回 F10 补」+ 已交棒 F3 模考。
+
+---
+
+## 体检（doctor）
+
+**目的**：一句话把**全部校验门 + 环境探测**串成一份汇总报告——每项过/红 + 建议修复顺序。零新校验逻辑：四门校验跑的是 F8 既有命令（去掉最慢的 build），环境探测跑的是 state.md 既有探测命令，体检只做编排聚合。新主题建站后、出问题时、发布前想快速确认状态，都从这儿进。
+
+**与 F8 的分工**：F8 是发布质量门（五门含 build，红了不许发布）；体检是**诊断视图**——不跑 build（慢且写盘），多探一层环境（LLM/TTS/后端/主题/sync 新鲜度），红项给修复顺序。
+
+**步骤**（命令原样串跑，逐项记 ✅/❌）：
+
+1. **四门校验**（红一个都别发布）：
+
+   ```bash
+   pnpm run scan                                        # ① 品牌零泄露
+   cd apps/quiz-app && npm run qa && cd ../..           # ② 题库质量
+   pnpm test                                            # ③ 单测
+   pnpm run check:alignment                             # ④ 四对齐（默认主题；外部主题包传目录）
+   ```
+
+2. **环境探测**（只读；缺什么补什么，不拦发布）：
+
+   ```bash
+   test -f .env && grep -cE '^(LLM_BASE_URL|LLM_API_KEY|LLM_MODEL)=..' .env   # LLM 三项，=3 配齐
+   grep -cE '^TTS_PROVIDER=..' .env 2>/dev/null                                # TTS 有无（播客用，可缺）
+   curl -sf localhost:8787/api/health                                          # 后端在线
+   # 主题解析 + sync 新鲜度（state.md §1 同款）：
+   echo "theme=${EXAMPLE_THEME:-dev-intro}"
+   diff -q apps/quiz-app/src/data/questions.json "<主题源>/questions.json"     # 源与产物一致 = 新鲜
+   diff -q apps/quiz-app/src/data/flashcards.json "<主题源>/flashcards.json"
+   ```
+
+   sync 不新鲜的表现：diff 报差异或 `src/data/*.json` 不存在——源改了没重跑 `pnpm dev/build`（内含 sync）。
+
+3. **按模板输出报告**（数字全部来自实测）：
+
+   ```
+   🩺 体检报告
+   校验门（红一个都别发布）：
+     ① 品牌扫描 … ✅ 零命中 / ❌ 命中 N（按行号中性化后重跑）
+     ② 题库质量 … ✅ / ❌ <哪条约束红>
+     ③ 单测 … ✅ 全过 / ❌ fail N（读报错修源文件）
+     ④ 四对齐 … ✅ / ❌ <哪个方向>（处置见 F8 失败处理）
+   环境（缺什么补什么）：
+     LLM 三项 … 配齐 ✅ / 缺（影响 F6 产课、F4 CLI、F5；补法 docs/configuration.md）
+     TTS … 有 / 无（F5 可 --no-tts 只出逐字稿，不算阻塞）
+     后端 :8787 … 在线 ✅ / 离线（要 F4 拉错题先 pnpm run server）
+     主题 … <theme>（dir ok / MISSING / 外部主题包路径）
+     sync 新鲜度 … ✅ / ❌（重跑 pnpm build——常连带解掉假红）
+   建议修复顺序：<只列红项，按下面的固定优先级>
+   ```
+
+4. **修复顺序**（固定优先级，只报红项）：**sync 不新鲜 → 校验门红**（先重跑 `pnpm build` 再复检——产物落后会造成假红）→ **.env 缺项** → **后端离线**。为什么 sync 在最前：它是「环境在说谎」的那一类，先排除假信号再修真问题。
+
+**完成标志**：报告已输出（全绿加一句「可发布，发布前再走 F8 过 build 门」；有红则修复顺序已给出）。修复后重跑体检确认转绿。
 
 ---
 
