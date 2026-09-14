@@ -43,6 +43,21 @@ export function epNameMap(missionText) {
   return map;
 }
 
+/**
+ * 从 MISSION.md 考点排布表解析 EP-NN → day 学程块 映射（考点全景图按它分组）。
+ * 表格式：`| EP-01 | 暂存区 | 掌握 | 题型 | D1 | 1 |`——day 是第 5 列。
+ * 宽容解析：缺表/缺 day 列返回空映射，考点归「未排程」组。
+ */
+export function epDayMap(missionText) {
+  const map = {};
+  if (!missionText) return map;
+  for (const m of missionText.matchAll(/^\|\s*(EP-\d+)\s*\|[^|]*\|[^|]*\|[^|]*\|\s*([^|]*?)\s*\|/gm)) {
+    const day = m[2].trim();
+    if (day && !/^[—\-–~]+$/.test(day)) map[m[1]] = day;  // —— / - 等占位 = 未排程
+  }
+  return map;
+}
+
 /** 闪卡是否已毕业：有 SRS 记录、无墓碑、进入 review 阶段（SM-2 长期间隔）。 */
 export function isFlashGraduated(s) {
   return !!s && s.deletedAt === undefined && s.phase === 'review';

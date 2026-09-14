@@ -13,16 +13,24 @@
  *   node apps/quiz-app/scripts/mastery-report.mjs --theme X          # 指定主题（支持外部主题包路径）
  *   node apps/quiz-app/scripts/mastery-report.mjs --json             # 机器可读（agent 探测用）
  *   node apps/quiz-app/scripts/mastery-report.mjs --progress /tmp/p.json   # 指定进度文件
+ *   node apps/quiz-app/scripts/mastery-report.mjs --panorama [--json]      # 考点全景（讲/练/掌三信号，v0.13）
  *
  * 进度来源：--progress 指定的文件，默认 apps/quiz-app/progress.json（本地文件口径；
  * 要看线上进度先 `curl -sf $SERVER/api/progress -o /tmp/p.json` 再传进来，与 skill state.md 同模式）。
  * 文件不存在 = 空进度（全部 untouched），不是故障。
+ *
+ * --panorama（v0.13）：考点全景图——每考点三信号（讲过=契约二学习记录 ∪ 课已学完 /
+ * 练过=有答题或口头题计数 / 掌握=四态判据不变），按排布表 day 分组 + 汇总行。
+ * 学习记录来自 study/records/*.md（契约二，parseSessionRecord 解析；records 学习者私有不上站，
+ * 本命令在本地读它们派生信号）。消费方：skill「报进度」全景卡、web 覆盖快照（同判据）。
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
-import { epNameMap, masteryByExamPoint, rankWeakness } from './lib/mastery.mjs';
+import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mastery.mjs';
+import { buildPanorama } from './lib/panorama.mjs';
+import { parseSessionRecord } from './lib/records.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -38,6 +46,7 @@ const { dir: THEME_DIR, name: THEME } = resolveThemeDir(
   REPO_ROOT
 );
 const AS_JSON = args.includes('--json');
+const AS_PANORAMA = args.includes('--panorama');
 const PROGRESS_PATH = take('--progress') || join(REPO_ROOT, 'apps', 'quiz-app', 'progress.json');
 
 // ── 数据装载 ──────────────────────────────────────────────
@@ -70,6 +79,61 @@ const profilePath = join(THEME_DIR, 'study', 'records', 'profile.json');
 let profile = null;
 if (existsSync(profilePath)) {
   try { profile = JSON.parse(readFileSync(profilePath, 'utf-8')); } catch { profile = null; }
+}
+
+// ── 考点全景（--panorama，v0.13）：三信号 + day 分组，与掌握报告同数据源另派生一路 ──
+if (AS_PANORAMA) {
+  // 契约二学习记录（学习者私有，本地读取派生信号）：现行 study/records/ + 旧布局 learning-records/
+  const records = [];
+  for (const dir of ['study/records', 'learning-records']) {
+    const recDir = join(THEME_DIR, dir);
+    if (!existsSync(recDir)) continue;
+    for (const f of readdirSync(recDir).filter((x) => x.endsWith('.md')).sort()) {
+      try { records.push(parseSessionRecord(readFileSync(join(recDir, f), 'utf-8'))); } catch { /* 单文件坏不拖垮全景 */ }
+    }
+  }
+  // 课已学完（显式确认制，与 state.md §3 / progress.ts isCourseRead 同口径：tomb >= seen = 已撤销）
+  const lessonsDir = join(THEME_DIR, 'lessons');
+  const lessonFiles = existsSync(lessonsDir) ? readdirSync(lessonsDir).filter((f) => f.endsWith('.html')) : [];
+  const lessonsDone = lessonFiles.filter((f) => {
+    const seen = (progress?.coursesRead || {})[`${THEME}/${f}`];
+    if (seen === undefined) return false;
+    const tomb = (progress?.coursesReadTombstones || {})[`${THEME}/${f}`];
+    return tomb === undefined ? true : seen > tomb;
+  }).length;
+
+  const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
+  const panorama = {
+    tool: 'mastery-panorama',
+    theme: THEME,
+    generatedAt: new Date().toISOString(),
+    progressSource: existsSync(PROGRESS_PATH) ? PROGRESS_PATH : '(空进度，全部未开始)',
+    ...buildPanorama({
+      questions, answers, srs, flashcards,
+      epNames, epDays: epDayMap(missionText), records,
+      coursesRead: { lessonsTotal: lessonFiles.length, lessonsDone },
+    }),
+  };
+
+  if (AS_JSON) {
+    console.log(JSON.stringify(panorama, null, 2));
+  } else {
+    const s = panorama.summary;
+    const flag = (b) => (b ? '✓' : '·');
+    console.log(`🗺️ 考点全景 · ${THEME}`);
+    console.log(`   进度源：${panorama.progressSource} · 记录 ${records.length} 份 · 课已学完 ${lessonsDone}/${lessonFiles.length}${panorama.courseTaughtAll ? '（课程通道：全部考点记讲过）' : ''}`);
+    console.log(`   总览：已讲 ${s.taught}/${s.examPoints} · 已练 ${s.practiced}/${s.examPoints} · 已掌握 ${s.mastered}/${s.examPoints}`);
+    console.log('');
+    for (const g of panorama.groups) {
+      console.log(`  ${g.day}｜已讲 ${g.summary.taught}/${g.summary.total} · 已练 ${g.summary.practiced}/${g.summary.total} · 已掌握 ${g.summary.mastered}/${g.summary.total}`);
+      for (const p of g.points) {
+        const oral = p.oral ? ` · 口头 ${p.oral.correct}/${p.oral.asked}` : '';
+        const wrong = p.openWrong ? ` · 未毕业错题 ${p.openWrong}` : '';
+        console.log(`    ${flag(p.taught)}讲 ${flag(p.practiced)}练 ${flag(p.mastered)}掌  ${p.ep} ${p.name}（答 ${p.answered}/${p.total}${oral}${wrong}）`);
+      }
+    }
+  }
+  process.exit(0); // 全景模式到此为止，不输出掌握报告
 }
 
 // ── 派生 ──────────────────────────────────────────────────

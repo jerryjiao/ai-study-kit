@@ -74,6 +74,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 | 学什么 / 复习 / 今天刷什么 | F3 | 应用能跑（`pnpm dev`） |
 | 错题 / 串讲 / 精讲 / 为什么错 | F4 | 后端在线 + 有错题 + AI 配齐 |
 | 掌握度 / 弱考点 / 哪里最弱 / 考点报告 | 快照延伸（直接跑 `mastery-report`，报告 + 顺势推荐 F4/F10） | 题库有 `examPoint` 标记（progress 为空只报全部未开始） |
+| 报进度 / 全景 / 学到哪了 / 我在哪 | 快照延伸（跑 `mastery-report --panorama --json`，按 state.md §3 模板出全景卡） | 题库有 `examPoint` 标记（无 records/课进度时三信号只报客观侧，不虚报） |
 | 播客 / 音频 / 通勤听 | F5 | AI 配齐；TTS 没配可 `--no-tts` 只出逐字稿 |
 | 产课 / 加课 / 讲义 / 教我 X | F6 | `course-spec.json` + AI 配齐 |
 | 改题 / 改课 / 改卡 / 改日程 | F7 | — |
