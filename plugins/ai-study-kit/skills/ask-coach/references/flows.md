@@ -581,13 +581,26 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
    progress 是运行期数据，升级全程**不解析、不合并、不改写**——只备份与原样保留。
 
-3. **重拷 kit（保 progress 拷回）**：主题包住 kit 外（F2 建议形态），重拷不碰它——多主题用户的所有主题包均不受影响，升级只动 kit 代码与契约映射。
+3. **重拷 kit（保运行期文件拷回）**：主题包住 kit 外（F2 建议形态），重拷不碰它——多主题用户的所有主题包均不受影响，升级只动 kit 代码与契约映射。**快照只含 git 跟踪面**，kit 里三类运行期/本地文件不在快照内、重拷前必须先挪出（漏挪 = 粘滞主题丢/LLM 配置丢）：
 
    ```bash
-   # 先挪走 progress（下面会清掉整个 kit 目录）：
-   mv <项目>/kit/apps/quiz-app/progress.json /tmp/progress-keep.json
+   # 挪出运行期文件（progress 必保；theme.json 是粘滞主题记录——漏挪则升级后首次
+   # 裸 build 静默回落 dev-intro；.env 是 LLM/TTS 配置，用户配过才存在）：
+   mkdir -p /tmp/kit-keep
+   cp <项目>/kit/apps/quiz-app/progress.json /tmp/kit-keep/    # ① 进度（唯一必保数据，先备份再挪）
+   test -f <项目>/kit/apps/quiz-app/src/data/theme.json && \
+     cp <项目>/kit/apps/quiz-app/src/data/theme.json /tmp/kit-keep/   # ② 粘滞主题记录
+   test -f <项目>/kit/apps/quiz-app/.env && \
+     cp <项目>/kit/apps/quiz-app/.env /tmp/kit-keep/                  # ③ AI 配置（有才挪）
    rm -rf <项目>/kit && cp -r <插件根>/kit <项目>/kit
-   mv /tmp/progress-keep.json <项目>/kit/apps/quiz-app/progress.json
+   # 拷回运行期文件：
+   cp /tmp/kit-keep/progress.json <项目>/kit/apps/quiz-app/progress.json
+   test -f /tmp/kit-keep/theme.json && \
+     cp /tmp/kit-keep/theme.json <项目>/kit/apps/quiz-app/src/data/ 2>/dev/null || \
+     (mkdir -p <项目>/kit/apps/quiz-app/src/data && cp /tmp/kit-keep/theme.json <项目>/kit/apps/quiz-app/src/data/)
+   test -f /tmp/kit-keep/.env && cp /tmp/kit-keep/.env <项目>/kit/apps/quiz-app/
+   # 依赖随新 package.json 重装（node_modules 不在快照里）：
+   cd <项目>/kit/apps/quiz-app && npm install
    # 验版本 + 验无嵌套：
    cat <项目>/kit/kit-version.json   # = 快照版本
    test ! -d <项目>/kit/kit && echo "no-nesting=ok"
