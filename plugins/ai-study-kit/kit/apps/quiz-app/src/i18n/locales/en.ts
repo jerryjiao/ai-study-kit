@@ -54,6 +54,11 @@ export const en: Record<TKey, string> = {
   'home.panoramaOral': 'Oral {correct}/{asked}',
   'home.panoramaWrong': 'Not graduated {n}',
   'home.panoramaStale': 'Taught/oral signals as of the last build; answers and mastery are live.',
+  'home.panoramaGraphHint': 'Edges come from the knowledge-graph projection: solid arrows = prerequisite (learn first), dashed = related; dots = mastery four-state.',
+  'home.panoramaDotMastered': 'Mastered',
+  'home.panoramaDotWeak': 'Weak',
+  'home.panoramaDotInProgress': 'In progress',
+  'home.panoramaDotUntouched': 'Untouched',
   'home.masteryNoEp': 'This question bank has no exam-point tags (examPoint) — mastery cannot be derived.',
 
   // Practice

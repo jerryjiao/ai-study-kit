@@ -16,26 +16,35 @@ const ORAL_KEYS = ['asked', 'correct'];
 /**
  * 全景（buildPanorama 输出）→ 内容无关覆盖快照（纯函数）。
  * 只保留 id/布尔/计数；剥掉 name（web 从 theme.json examPoints 取显示名）与一切叙述性字段。
+ * graphEdges（可选，projectEdgesToEps 输出）→ graph.edges：考点间连线只有 EP id + 前置布尔，
+ * 仍是派生布尔面（无任何节点叙述）；无图 / null = 不带 graph 键（web 回退清单）。
  * @param {object} panorama buildPanorama 的输出
- * @returns {{generatedAt: string, courseTaughtAll: boolean, points: Array}}
+ * @param {Array|null} [graphEdges] EP 级边（EP-NN 对 + prerequisite 布尔）
+ * @returns {{generatedAt: string, courseTaughtAll: boolean, points: Array, graph?: object}}
  */
-export function buildCoverageSnapshot(panorama) {
-  return {
+export function buildCoverageSnapshot(panorama, graphEdges = null) {
+  const out = {
     generatedAt: new Date().toISOString(),
     courseTaughtAll: !!panorama.courseTaughtAll,
     points: (panorama.groups ?? []).flatMap((g) => (g.points ?? []).map((p) => {
-      const out = {
+      const pt = {
         ep: p.ep,
         taught: !!p.taught,
         practiced: !!p.practiced,
         mastered: !!p.mastered,
         oral: p.oral ? { asked: p.oral.asked, correct: p.oral.correct } : null,
       };
-      for (const k of Object.keys(out)) if (!POINT_KEYS.includes(k)) delete out[k];
-      if (out.oral) for (const k of Object.keys(out.oral)) if (!ORAL_KEYS.includes(k)) delete out.oral[k];
-      return out;
+      for (const k of Object.keys(pt)) if (!POINT_KEYS.includes(k)) delete pt[k];
+      if (pt.oral) for (const k of Object.keys(pt.oral)) if (!ORAL_KEYS.includes(k)) delete pt.oral[k];
+      return pt;
     })),
   };
+  if (Array.isArray(graphEdges) && graphEdges.length > 0) {
+    out.graph = {
+      edges: graphEdges.map((e) => ({ from: e.from, to: e.to, prerequisite: !!e.prerequisite })),
+    };
+  }
+  return out;
 }
 
 /** 读契约二学习记录（现行 study/records/ + 旧布局 learning-records/），坏文件跳过不拖垮。 */

@@ -2,6 +2,24 @@
 
 本仓库的版本日志。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.14.0] — 2026-09-14
+
+主题：**知识图谱投影桥（ADR-0005 落地）——口头答题流水 / 口头掌握四态 / knowflow 图着色 / 前置关系推荐 / 全景连线，聊天新学的无题知识也有可信的掌握信号，知识结构连成图看见。**
+
+### Added
+
+- **口头答题流水（`study/records/oral-attempts.json`，唯一真源）**：聊天陪练的每次口头问答记一条明细（目标引用 / 对错布尔 / 真实 `Date.now()` 时间戳 / 来源三值 recall 抽背 · recite 复述 · case 案例评分点）。追加式 + 写前重读写回 + 消费端按时间戳取信去重，多会话并发安全；契约二「口头题计数」节 v0.14 起停写（总数从流水派生，解析器兼容旧记录照读合并，历史不丢）；全景「练过/口头」信号切到流水。`lib/oral.mjs` 纯函数（宽容解析 / 四元组去重合并 / 目标解析三级优先 EP 前缀→映射反查→图节点直引→裸考点名，聚合 EP 优先单主桶两视图不重复计）。
+- **口头掌握四态（无题知识点也可判掌握）**：近期加权正确率（近 5 次权重 0.5/0.7/0.85/0.95/1.0 按权重和归一）+ 置信度封顶（1 次封 0.5、2 次封 0.8，防一次蒙对）；四态与既有词汇对齐（空流水=未开始 / 最近判错或加权 <0.5=弱 / 加权 ≥0.85=掌握 / 其余进行中）。`mastery-report --json` 增 `oral` 字段：排布表全部考点 ∪ 流水裸知识点的四态与「问 N 对 M」统计 + `oral.weakRanked` 口头弱项点名；既有考点四态判据 v1.1 一字不动，两通道合流负面证据优先（任一弱即弱；题没刷过口头最多推到进行中——验效果靠做题）。
+- **考点节点映射 + 投影文件（唯一跨仓契约）**：`study/records/graph-map.json`（knowflow 节点 ↔ EP 的个人映射，agent 提议、学习者逐条确认，守 ADR-0002 不上站不提交）；`lib/graph-bridge.mjs` 装载图与映射、构建只读投影（`{version:1, generatedAt, source, nodes:[{id, mastery, oral}]}`）；`mastery-report --graph <path> --write-projection` 产出投影到 graph.json 同目录（位置参数 / `KNOWFLOW_GRAPH_JSON` 环境变量，同进度文件模式），无图无映射静默降级绝不报错。跨仓契约基物 `lib/fixtures/mastery-projection.fixture.json` 入库且测试断言可由判据原样重建（防漂移），knowflow 仓直接消费双向验证。skill 新增 F12 图谱投影流程（找图→映射提议确认→产出投影，绝不回写知识页）。
+- **knowflow 图着色（跨仓，knowflow 0.6.0）**：`knowflow graph` 检测投影文件（graph.json 同目录或 `KNOWFLOW_MASTERY_PROJECTION`）后按掌握四态给节点着色（绿=掌握 / 琥珀=进行中 / 红=弱 / 灰=未开始）+ 注入「🎯 Mastery」图例——叠加只改 graph.html 渲染数据，graph.json 逐字节不变（其他消费方零感知）、知识页零回写；无投影 / version 无法识别（中性色降级）= 现状行为。标签器补「前置」语境词（前置/先学/依赖 → relation「前置」）。
+- **前置关系推荐**：图边关系标签 → 学习语义映射（前置/依赖/来源/引用/依据/使用/属于/衍生 = 「to 要先学」；缺 relation 只算关联不排序）；`graph.weakPrereqs` 给每个弱考点的前置链（含前置掌握状态）、`graph.weakOrdered` 给尊重前置顺序的推荐序（稳定拓扑含传递，环安全）。推荐理由从「刷 EP-12」具体到「前置概念 EP-01 还弱，先补它」——依赖顺序优先于清单顺序（F10 开场纪律 + coach.md 讲前查前置链）。
+- **web 全景连线可视化**：覆盖快照扩展 `graph.edges`（图边投成 EP 级连线，仍是派生布尔面隐私边界不变）；首页全景面板自绘 SVG 叠加连线（零新依赖，沿 day 分组布局，实线箭头=前置、虚线=关联、近同列侧向弓弯防重叠）+ 节点掌握四态圆点；`shouldRenderGraph` 可读阈值（无图/空边/超 200 边/超 80 考点回退现有分组清单）——没装 knowflow 的用户看不到任何变化。i18n 四语同步。
+
+### Changed
+
+- **文档同步（四语）**：`docs/ai-cli-guide` 四语补口头四态判据表、知识图投影与前置推荐章节、全景口径改口头流水；skill 三参考（flows.md 契约二停写条款 + F12、coach.md §3.4/§6.7、state.md 口头弱项与图信号）；CONTEXT.md 考点全景词条补连线层；AGENTS.md 数据闭环与流程面（F1-F12）。
+- **发版随带**：plugin 双 manifest 与市集清单随版（sync:plugin，kit 快照字节契约复验）。
+
 ## [0.13.1] — 2026-09-14
 
 主题：**命令改名避撞——薄命令 `/doctor`、`/recap` 与 Claude Code 内置命令硬撞名（内置优先于插件 skill），加 `study-` 前缀成为 `/study-doctor`、`/study-recap`；命令面其余不动（/ask-coach /coach 经查无撞名）。**

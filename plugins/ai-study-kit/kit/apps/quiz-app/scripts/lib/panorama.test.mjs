@@ -150,3 +150,43 @@ status: done
   });
   assert.equal(r.summary.taught, 0);   // 「暂存  区」≠「暂存区」，不虚报
 });
+
+// v0.14 口头答题流水：唯一真源；旧记录计数节照读合并（旧值不丢）
+test('口头流水点亮练过信号：零答题零记录的考点靠 ledger 计数点亮', () => {
+  const r = buildPanorama({
+    questions, answers: {}, epNames, epDays,
+    oralAttempts: [
+      { target: 'EP-02 revert', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-02 revert', correct: true, at: 2000, source: 'recite' },
+      { target: 'revert', correct: false, at: 3000, source: 'recall' },  // 裸名也命中
+    ],
+  });
+  const p2 = r.groups.flatMap((g) => g.points).find((p) => p.ep === 'EP-02');
+  assert.equal(p2.practiced, true);
+  assert.deepEqual(p2.oral, { asked: 3, correct: 2 });
+});
+
+test('流水与旧记录计数混用：两路相加旧值不丢', () => {
+  const r = buildPanorama({
+    questions, answers: {}, epNames, epDays,
+    records: [RECORD_1],               // 旧手写：EP-01 问 3 对 2
+    oralAttempts: [
+      { target: 'EP-01 暂存区', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-01 暂存区', correct: false, at: 2000, source: 'case' },
+    ],                                  // 流水：问 2 对 1
+  });
+  const p1 = r.groups.flatMap((g) => g.points).find((p) => p.ep === 'EP-01');
+  assert.deepEqual(p1.oral, { asked: 5, correct: 3 });
+  assert.equal(p1.practiced, true);
+});
+
+test('流水未解析目标（图上概念/ typo）不影响任何考点信号，不抛错', () => {
+  const r = buildPanorama({
+    questions, answers: {}, epNames, epDays,
+    oralAttempts: [
+      { target: 'concepts/不知道.md', correct: true, at: 1000, source: 'recall' },
+      { target: '', correct: true, at: 2000, source: 'recall' },
+    ],
+  });
+  assert.deepEqual(r.summary, { examPoints: 4, taught: 0, practiced: 0, mastered: 0 });
+});

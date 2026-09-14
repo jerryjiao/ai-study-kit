@@ -54,6 +54,11 @@ export const ru: Record<TKey, string> = {
   'home.panoramaOral': 'Устно {correct}/{asked}',
   'home.panoramaWrong': 'Не закрыто {n}',
   'home.panoramaStale': 'Сигналы «изучено/устно» — на момент последней сборки; ответы и освоение — в реальном времени.',
+  'home.panoramaGraphHint': 'Связи из проекции графа знаний: сплошные стрелки = предпосылка (изучить сначала), пунктир = связность; точки = четыре состояния освоения.',
+  'home.panoramaDotMastered': 'Освоено',
+  'home.panoramaDotWeak': 'Слабое',
+  'home.panoramaDotInProgress': 'В процессе',
+  'home.panoramaDotUntouched': 'Не начато',
   'home.masteryNoEp': 'В этом банке вопросов нет меток пунктов экзамена (examPoint) — освоение недоступно.',
 
   // Тренировка

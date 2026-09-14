@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-14",
+  "mappings": [
+    { "node": "concepts/staging.md", "ep": "EP-01", "label": "暂存区" },
+    { "node": "concepts/revert.md", "ep": "EP-02", "label": "revert" },
+    { "node": "concepts/branch.md", "ep": "EP-03", "label": "分支" }
+  ]
+}

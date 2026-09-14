@@ -14,6 +14,13 @@ import { masteryByExamPoint, type ExamPointMastery, type MasteryStatus } from '.
 
 export interface OralCount { asked: number; correct: number }
 
+/** 考点间连线（build 时快照 graph.edges：EP id 对 + 前置布尔——派生布尔面，无叙述）。 */
+export interface PanoramaGraphEdge { from: string; to: string; prerequisite: boolean }
+
+/** 可读阈值：超限（或无数据）→ 全景回退现有分组清单，绝不硬渲染连线。 */
+export const GRAPH_MAX_EDGES = 200;
+export const GRAPH_MAX_POINTS = 80;
+
 /** 覆盖快照单点（sync-examples 产 src/data/coverage.json；内容无关——无个人叙述）。 */
 export interface CoveragePoint {
   ep: string;
@@ -28,6 +35,17 @@ export interface CoverageSnapshot {
   generatedAt: string;
   courseTaughtAll: boolean;
   points: CoveragePoint[];
+  graph?: { edges: PanoramaGraphEdge[] } | null;
+}
+
+/** 连线渲染判据（纯函数）：有边且不超阈值才画；无图/超限回退清单（v0.14 回退语义）。 */
+export function shouldRenderGraph(
+  pointCount: number,
+  edges: PanoramaGraphEdge[] | null | undefined,
+): boolean {
+  return !!edges && edges.length > 0
+    && edges.length <= GRAPH_MAX_EDGES
+    && pointCount <= GRAPH_MAX_POINTS;
 }
 
 export interface PanoramaPoint {

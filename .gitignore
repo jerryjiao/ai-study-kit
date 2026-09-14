@@ -71,3 +71,5 @@ examples/*/study/wrong-questions/.archive/
 # 学习者私有数据（进度档案/学习者档案 profile.json，与 sync-study 的 LOCAL_ONLY 同边界）
 examples/*/study/records/
 apps/quiz-app/src/data/coverage.json
+# 投影文件是 --write-projection 的生成产物（含 generatedAt 逐次漂移），fixture 目录只留输入面
+apps/quiz-app/scripts/lib/fixtures/projection/wiki/graph/mastery-projection.json

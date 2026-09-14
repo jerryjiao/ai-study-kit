@@ -54,6 +54,11 @@ export const zh = {
   'home.panoramaOral': '口头 {correct}/{asked}',
   'home.panoramaWrong': '未毕业 {n}',
   'home.panoramaStale': '「讲过 / 口头」信号截至上次构建；答题与掌握实时。',
+  'home.panoramaGraphHint': '连线来自知识图谱投影：实线箭头=前置（先学），虚线=关联；圆点=掌握四态。',
+  'home.panoramaDotMastered': '掌握',
+  'home.panoramaDotWeak': '弱',
+  'home.panoramaDotInProgress': '进行中',
+  'home.panoramaDotUntouched': '未开始',
   'home.masteryNoEp': '当前题库没有考点标记（examPoint），无法派生掌握度。',
 
   // 练习页
