@@ -468,6 +468,61 @@ status: in-progress    # in-progress | done
 
 ---
 
+## 体检（doctor）
+
+**目的**：一句话把**全部校验门 + 环境探测**串成一份汇总报告——每项过/红 + 建议修复顺序。零新校验逻辑：四门校验跑的是 F8 既有命令（去掉最慢的 build），环境探测跑的是 state.md 既有探测命令，体检只做编排聚合。新主题建站后、出问题时、发布前想快速确认状态，都从这儿进。
+
+**与 F8 的分工**：F8 是发布质量门（五门含 build，红了不许发布）；体检是**诊断视图**——不跑 build（慢且写盘），多探一层环境（LLM/TTS/后端/主题/sync 新鲜度），红项给修复顺序。
+
+**步骤**（命令原样串跑，逐项记 ✅/❌）：
+
+1. **四门校验**（红一个都别发布）：
+
+   ```bash
+   pnpm run scan                                        # ① 品牌零泄露
+   cd apps/quiz-app && npm run qa && cd ../..           # ② 题库质量
+   pnpm test                                            # ③ 单测
+   pnpm run check:alignment                             # ④ 四对齐（默认主题；外部主题包传目录）
+   ```
+
+2. **环境探测**（只读；缺什么补什么，不拦发布）：
+
+   ```bash
+   test -f .env && grep -cE '^(LLM_BASE_URL|LLM_API_KEY|LLM_MODEL)=..' .env   # LLM 三项，=3 配齐
+   grep -cE '^TTS_PROVIDER=..' .env 2>/dev/null                                # TTS 有无（播客用，可缺）
+   curl -sf localhost:8787/api/health                                          # 后端在线
+   # 主题解析 + sync 新鲜度（state.md §1 同款）：
+   echo "theme=${EXAMPLE_THEME:-dev-intro}"
+   diff -q apps/quiz-app/src/data/questions.json "<主题源>/questions.json"     # 源与产物一致 = 新鲜
+   diff -q apps/quiz-app/src/data/flashcards.json "<主题源>/flashcards.json"
+   ```
+
+   sync 不新鲜的表现：diff 报差异或 `src/data/*.json` 不存在——源改了没重跑 `pnpm dev/build`（内含 sync）。
+
+3. **按模板输出报告**（数字全部来自实测）：
+
+   ```
+   🩺 体检报告
+   校验门（红一个都别发布）：
+     ① 品牌扫描 … ✅ 零命中 / ❌ 命中 N（按行号中性化后重跑）
+     ② 题库质量 … ✅ / ❌ <哪条约束红>
+     ③ 单测 … ✅ 全过 / ❌ fail N（读报错修源文件）
+     ④ 四对齐 … ✅ / ❌ <哪个方向>（处置见 F8 失败处理）
+   环境（缺什么补什么）：
+     LLM 三项 … 配齐 ✅ / 缺（影响 F6 产课、F4 CLI、F5；补法 docs/configuration.md）
+     TTS … 有 / 无（F5 可 --no-tts 只出逐字稿，不算阻塞）
+     后端 :8787 … 在线 ✅ / 离线（要 F4 拉错题先 pnpm run server）
+     主题 … <theme>（dir ok / MISSING / 外部主题包路径）
+     sync 新鲜度 … ✅ / ❌（重跑 pnpm build——常连带解掉假红）
+   建议修复顺序：<只列红项，按下面的固定优先级>
+   ```
+
+4. **修复顺序**（固定优先级，只报红项）：**sync 不新鲜 → 校验门红**（先重跑 `pnpm build` 再复检——产物落后会造成假红）→ **.env 缺项** → **后端离线**。为什么 sync 在最前：它是「环境在说谎」的那一类，先排除假信号再修真问题。
+
+**完成标志**：报告已输出（全绿加一句「可发布，发布前再走 F8 过 build 门」；有红则修复顺序已给出）。修复后重跑体检确认转绿。
+
+---
+
 ## 诊断（troubleshoot）
 
 | 症状 | 根因 | 处置 |
