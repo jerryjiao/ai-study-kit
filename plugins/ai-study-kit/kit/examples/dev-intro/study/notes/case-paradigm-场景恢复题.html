@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>解题范式卡 · 场景恢复类案例题（暂存区）</title>
+<link rel="stylesheet" href="../../assets/styles.css">
+</head>
+<body>
+<main>
+<h1>解题范式卡 · 场景恢复类案例题</h1>
+<p class="meta">案例陪练沉淀的解题范式　·　考点：EP-01 暂存区　·　<a href="index.html">← 返回笔记列表</a></p>
+
+<p class="lead">考前翻这张卡看的是<strong>怎么拆题</strong>，不是背答案——同类题（git / Linux 场景恢复）都按这四步走。</p>
+
+<h2>范式四步</h2>
+<ol>
+<li><strong>读题拆问题</strong>：把题干拆成三栏——已知条件（此刻各区有什么）、要求产物（命令 / 状态描述）、限制约束（不许删文件、还没 commit）。漏读限制是这类题第一大失分源。</li>
+<li><strong>定方法</strong>：场景恢复题的方法 = 三区模型（工作区 → 暂存区 → 版本库）+ 每两区之间的搬运/撤销命令族。说一句为什么：所有恢复动作的本质都是「把某区的内容回退或前移一格」。</li>
+<li><strong>逐步作答</strong>：每个小问对应一条（或一组）命令，答完自查它动了哪个区、没动哪个区。</li>
+<li><strong>对照评分点</strong>：命令选型、状态描述、副作用边界逐条对照——尤其「有没有顺手删掉工作区文件」。</li>
+</ol>
+
+<h2>一题示范（本题浓缩）</h2>
+<p>题干：五个文件已 <code>git add .</code> 进暂存区，其中两个不该进；另三个文件还在工作区；尚未 commit。要求：移出误加文件（不删工作区文件）、送入正确文件并说明每步状态变化。</p>
+<div class="callout">
+<p><strong>满分答案骨架（按评分点）</strong>：</p>
+<p>① 三区现状：暂存区=五文件快照；工作区=三文件改动未入暂存；版本库=上次提交。<br>
+② 移出误加：<code>git restore --staged debug.log tmp-notes.md</code>（只动暂存区，工作区文件保留）。<br>
+③ 不用 <code>git rm --cached</code>——它的语义是「取消跟踪」，删除动作会进下次提交，不是撤出暂存。<br>
+④ 送入版本库：<code>git add a.ts b.ts c.ts</code> → 暂存区含三文件；<code>git commit -m "…"</code> → 版本库新增提交、暂存区清空。</p>
+</div>
+<div class="callout callout-warn">
+<p><strong>易错警示</strong>：把「撤出暂存」和「取消跟踪」混为一谈；恢复类命令先问「它动哪个区」，再敲。</p>
+</div>
+</main>
+</body>
+</html>
