@@ -147,6 +147,19 @@ Herramienta complementaria de grill: **deriva de forma determinista** el dominio
 Componente de graduación de tarjetas: las tarjetas de `flashcards.json` pueden llevar un `examPoint` opcional (EP-NN, el mismo espacio de nombres que las preguntas); en un punto mapeado, el dominio exige además que esas tarjetas estén graduadas en el SRS (`phase = review`). Los puntos sin mapeo no se ven afectados: el criterio retrocede a preguntas solamente. El panel «dominio por punto de examen» de la página principal de la web app muestra en vivo estos mismos criterios (`src/lib/mastery.ts`).
 
 El informe se une con el perfil del aprendiz (`study/records/profile.json`, producido por grill): cada fila de punto lleva sus causas de error y el consejo. Los nombres de los puntos se analizan de la tabla de reparto de MISSION.md.
+### Cuatro estados orales (v0.14, campo `oral` de `--json`)
+
+Cada objetivo oral del registro de intentos orales (`study/records/oral-attempts.json`, detalle por pregunta añadido por la capa de chat) — todos los puntos de la tabla de reparto ∪ los puntos desnudos que aparezcan en el registro (conceptos nuevos aprendidos en chat, aún sin preguntas) — recibe un cuatro estados de **canal puramente oral**, calculado sin LLM:
+
+| Estado | Criterio |
+|--------|----------|
+| Dominado | precisión ponderada reciente ≥ 0.85 (últimos 5 intentos con pesos 0.5/0.7/0.85/0.95/1.0, normalizados por la suma de pesos; los topes de 0.5/0.8 tras 1/2 respuestas lo hacen inalcanzable — un acierto por suerte no demuestra nada) |
+| Débil | el intento más reciente falló (evidencia negativa primero), o puntuación ponderada < 0.5 |
+| En progreso | hay respuestas, sin negativos, puntuación por debajo de la línea de dominio (p. ej. 2/2 correctas = 0.8) |
+| Sin empezar | sin entradas en el registro |
+
+`oral.weakRanked` permite al agente nombrar los objetivos orales débiles; al fusionar con el canal de preguntas manda la **evidencia negativa** (cualquier débil → débil), el canal de preguntas decide cuando tiene datos, y sin respuestas el canal oral como mucho eleva el punto a «en progreso» (la verificación llega resolviendo preguntas). El criterio existente de puntos de examen (tabla anterior) no cambia.
+
 
 ### Uso
 

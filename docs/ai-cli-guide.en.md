@@ -147,6 +147,19 @@ Companion tool to grill: **deterministically derives** each exam point's mastery
 Flashcard graduation component: cards in `flashcards.json` may carry an optional `examPoint` (EP-NN, the same namespace as questions); for a mapped point, mastery additionally requires those cards to be graduated in SRS (`phase = review`). Unmapped points are unaffected — the criteria simply fall back to questions only. The web app's home "exam-point mastery" panel shows the same criteria live (`src/lib/mastery.ts`).
 
 The report joins the learner profile (`study/records/profile.json`, written by grill) — each point's row carries its wrong reasons and advice. Point names are parsed from the MISSION.md layout table.
+### Oral four states (v0.14, the `oral` field of `--json`)
+
+Every oral target in the oral attempts ledger (`study/records/oral-attempts.json`, per-QA details appended by the chat layer) — all layout-table exam points ∪ bare knowledge points appearing in the ledger (new concepts learned in chat that have no questions yet) — gets a **pure oral-channel** four-state, judged with zero LLM:
+
+| Status | Criteria |
+|--------|----------|
+| Mastered | recent weighted accuracy ≥ 0.85 (last 5 attempts weighted 0.5/0.7/0.85/0.95/1.0, normalized by weight sum; caps of 0.5/0.8 after 1/2 answers make it unreachable — one lucky guess proves nothing) |
+| Weak | most recent attempt wrong (negative evidence first), or weighted score < 0.5 |
+| In progress | has attempts, no negatives, weighted score below the mastery line (e.g. 2/2 correct = 0.8) |
+| Untouched | no ledger entries |
+
+`oral.weakRanked` lets agents name weak oral targets; when merged with the question-channel four-state, **negative evidence wins** (any weak → weak), the question channel rules once it has data, and with no answers yet the oral channel can lift a point to at most "in progress" (verification happens by answering questions). The existing exam-point criteria (table above) are unchanged.
+
 
 ### Usage
 

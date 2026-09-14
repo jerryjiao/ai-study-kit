@@ -15,6 +15,11 @@
  *   node apps/quiz-app/scripts/mastery-report.mjs --progress /tmp/p.json   # 指定进度文件
  *   node apps/quiz-app/scripts/mastery-report.mjs --panorama [--json]      # 考点全景（讲/练/掌三信号，v0.13）
  *
+ * 口头四态（v0.14）：--json 的 oral 字段输出每个口头目标（题库考点 ∪ 流水裸知识点）的
+ * 四态与「问 N 对 M」统计——近期加权正确率（近 5 次权重 0.5/0.7/0.85/0.95/1.0）+
+ * 置信度封顶（1 次封 0.5、2 次封 0.8），零 LLM；无流水目标 = 未开始。
+ * 既有考点四态判据（v1.1 题+闪卡双通道）一字不动。
+ *
  * 进度来源：--progress 指定的文件，默认 apps/quiz-app/progress.json（本地文件口径；
  * 要看线上进度先 `curl -sf $SERVER/api/progress -o /tmp/p.json` 再传进来，与 skill state.md 同模式）。
  * 文件不存在 = 空进度（全部 untouched），不是故障。
@@ -33,7 +38,7 @@ import { resolveThemeDir } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
-import { readOralAttempts } from './lib/oral.mjs';
+import { readOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath } from './lib/oral.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -84,11 +89,16 @@ if (existsSync(profilePath)) {
   try { profile = JSON.parse(readFileSync(profilePath, 'utf-8')); } catch { profile = null; }
 }
 
+// 口头答题流水（v0.14，可选）：口头计数的唯一真源（旧记录手写计数节的合并展示走 --panorama）。
+// 本报告给每个口头目标（题库考点 ∪ 流水里出现过的裸知识点）判口头四态——
+// 近期加权正确率 + 置信度封顶，范式照搬 DeepTutor compute_mastery，确定性零 LLM；
+// 既有考点四态判据（v1.1）一字不动，两通道合流规则见 lib/oral.mjs mergeMastery。
+const oralAttempts = readOralAttempts(THEME_DIR);
+
 // ── 考点全景（--panorama，v0.13）：三信号 + day 分组，与掌握报告同数据源另派生一路 ──
 if (AS_PANORAMA) {
-  // 契约二学习记录 + 口头答题流水 + 课已学完：与 sync-examples 的覆盖快照共用同一组装载器
+  // 契约二学习记录 + 课已学完：与 sync-examples 的覆盖快照共用同一组装载器
   const records = readSessionRecords(THEME_DIR);
-  const oralAttempts = readOralAttempts(THEME_DIR);
   const { lessonsTotal, lessonsDone } = lessonsReadState(THEME_DIR, THEME, progress);
 
   const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
@@ -130,6 +140,21 @@ const { points, untracked } = masteryByExamPoint({ questions, answers, epNames, 
 const weak = rankWeakness(points);
 const byStatus = (s) => points.filter((p) => p.status === s).length;
 
+// 口头四态（v0.14）：排布表全部考点（无流水 = 未开始）∪ 流水里的裸知识点（无题新知识）。
+// EP 目标的 status 是纯口头通道判据；与题库四态的合流（负面证据优先）在消费方做（mergeMastery）。
+const oralGroups = groupOralAttempts(oralAttempts, { epNames });
+const oralTargets = [
+  ...Object.entries(epNames).map(([ep, name]) => {
+    const m = oralMastery(oralGroups.byEp.get(ep) ?? []);
+    return { target: ep, kind: 'ep', name, ep, node: null, ...m };
+  }),
+  ...[...oralGroups.byName.keys()].map((name) => {
+    const m = oralMastery(oralGroups.byName.get(name));
+    return { target: name, kind: 'name', name, ep: null, node: null, ...m };
+  }),
+];
+const oralWeak = rankOralWeakness(oralTargets);
+
 const joinProfile = (p) => {
   if (!profile || !Array.isArray(profile.examPoints)) return undefined;
   const hit = profile.examPoints.find((e) =>
@@ -155,6 +180,12 @@ const report = {
   points: points.map((p) => ({ ...p, profile: joinProfile(p) })),
   weakRanked: weak.map((p) => p.ep),
   globalPatterns: (profile && profile.globalPatterns) || [],
+  oral: {
+    source: existsSync(oralAttemptsPath(THEME_DIR)) ? oralAttemptsPath(THEME_DIR) : '(无流水，口头目标全部未开始)',
+    askedTotal: oralAttempts.length,
+    targets: oralTargets,
+    weakRanked: oralWeak.map((t) => t.target),
+  },
 };
 
 // ── 输出 ──────────────────────────────────────────────────
@@ -172,6 +203,17 @@ if (AS_JSON) {
     console.log(`  ${mark[p.status]}  ${p.ep} ${p.name}：${p.correctNow}/${p.total} 对${wrong}${flash}`);
     if (p.profile && p.profile.wrongReasons.length) {
       console.log(`        档案错因：${p.profile.wrongReasons.join('；')}${p.profile.advice ? `（建议：${p.profile.advice}）` : ''}`);
+    }
+  }
+  if (oralTargets.length) {
+    console.log('');
+    console.log(`  🗣️ 口头抽背（流水 ${oralAttempts.length} 条 · 口径：近 5 次加权 + 置信度封顶）`);
+    for (const t of oralTargets) {
+      const score = t.score === null ? '' : ` · 加权 ${t.score}`;
+      console.log(`    ${mark[t.status]}  ${t.kind === 'ep' ? `${t.ep} ${t.name}` : `${t.name}（无题知识点）`}：问 ${t.asked} 对 ${t.correct}${score}`);
+    }
+    if (oralWeak.length) {
+      console.log(`  👉 口头弱项：${oralWeak.slice(0, 3).map((t) => (t.kind === 'ep' ? `${t.ep} ${t.name}` : t.name)).join('、')}`);
     }
   }
   if (report.globalPatterns.length) {

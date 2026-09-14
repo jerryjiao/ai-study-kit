@@ -170,6 +170,44 @@ export function mergeMastery(epStatus, oralStatus) {
   return epStatus;
 }
 
+/**
+ * 按解析目标把流水明细分组（保留时序——oralMastery 需要每组完整作答序列算加权）。
+ * @returns {{ byEp: Map<string,Array>, byNode: Map<string,Array>, byName: Map<string,Array> }}
+ */
+export function groupOralAttempts(attempts = [], opts = {}) {
+  const byEp = new Map();
+  const byNode = new Map();
+  const byName = new Map();
+  for (const a of attempts) {
+    const r = resolveOralTarget(a.target, opts);
+    if (r.via === 'ep' || (r.via === 'name' && r.ep)) {
+      if (!byEp.has(r.ep)) byEp.set(r.ep, []);
+      byEp.get(r.ep).push(a);
+    } else if (r.via === 'node') {
+      if (!byNode.has(r.node)) byNode.set(r.node, []);
+      byNode.get(r.node).push(a);
+    } else {
+      if (!byName.has(r.name)) byName.set(r.name, []);
+      byName.get(r.name).push(a);
+    }
+  }
+  return { byEp, byNode, byName };
+}
+
+/**
+ * 口头弱项排序：weak 在前（加权分低者先，无分排最后），再 inProgress（同为加权分升序）。
+ * untouched 不进榜（没有行动价值）。供 skill 探测快照「口头弱项」行与推荐点名。
+ */
+export function rankOralWeakness(targets = []) {
+  const rank = (t) => (t.status === 'weak' ? 0 : 1);
+  return targets
+    .filter((t) => t.status === 'weak' || t.status === 'inProgress')
+    .sort((a, b) =>
+      (rank(a) - rank(b))
+      || ((a.score ?? 2) - (b.score ?? 2))
+      || (b.asked - a.asked));
+}
+
 // ── 装载器（唯一 IO；坏文件 = 空流水，不拖垮消费方） ──────────────────
 
 import { existsSync, readFileSync } from 'node:fs';
