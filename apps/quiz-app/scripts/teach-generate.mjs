@@ -25,6 +25,9 @@
  *
  * 资源合并：主题目录有 RESOURCES.md 时解析其链接，与 course-spec.resources 按 URL 去重合并
  * （spec 在前）——既进 LLM 备课参考，也进每课页尾的「出处」回链块（以参考材料建概念）。
+ * 参考正文抓取（v0.13）：合并后的链接逐源抓页面正文进备课上下文（内容层，不止引用层）；
+ * 本地缓存按 URL 去重（apps/quiz-app/node_modules/.cache/teach-resources/），重跑不重抓；
+ * 个别源失败降级回 URL 清单引用，产课不中断（lib/resource-fetch.mjs）。
  * --json 下人读日志走 stderr、stdout 只出一份结果 JSON（产物路径清单），供 agent 管道消费。
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -32,9 +35,10 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chat, requireLlmConfig } from './lib/llm.mjs';
 import {
-  slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, normalizeOutline,
+  slugify, validateCourseSpec, wrapLessonHTML, buildOutlinePrompt, buildLessonPrompt, normalizeOutline,
   parseResourcesMd, mergeResources,
 } from './lib/teach-utils.mjs';
+import { fetchResources } from './lib/resource-fetch.mjs';
 import { resolveLang, langConf } from './lib/langs.mjs';
 import { resolveThemeDir } from './lib/theme-path.mjs';
 
@@ -89,6 +93,11 @@ async function main() {
   const resources = existsSync(resourcesMdPath)
     ? mergeResources(spec.resources, parseResourcesMd(readFileSync(resourcesMdPath, 'utf-8')))
     : (spec.resources || []);
+
+  // 参考正文抓取（v0.13）：把链接页面正文抓进备课上下文——「以参考材料建概念」落到内容层。
+  // 缓存按 URL 去重（重跑不重抓）；单源失败降级为 URL 清单引用，产课不中断。
+  const CACHE_DIR = join(__dirname, '..', 'node_modules', '.cache', 'teach-resources');
+
   say(`📚 teach-generate`);
   say(`   主题：${spec.theme || THEME}`);
   say(`   目标：${spec.mission}`);
@@ -96,8 +105,18 @@ async function main() {
   say(`   深度：${spec.depth}`);
   say(`   课程数：${lessonsCount}`);
   say(`   资源数：${resources.length}${existsSync(resourcesMdPath) ? '（含 RESOURCES.md 合并）' : ''}`);
+  const { fetched, failed } = await fetchResources(resources, { cacheDir: CACHE_DIR });
+  const cached = fetched.filter((r) => r.fromCache).length;
+  if (fetched.length || failed.length) {
+    say(`   参考正文：抓到 ${fetched.length} 篇（缓存命中 ${cached}）${failed.length ? ` · 失败 ${failed.length} 篇（降级为 URL 清单）：${failed.map((r) => r.title).join('、')}` : ''}`);
+  }
   say(`   语言：${langConf(LANG).native}（--lang ${LANG}）`);
   say('');
+
+  // 备课参考块：抓到正文的按「标题 + 正文」给；失败/未抓的留在 resourcesBlock 的 URL 清单里
+  const referenceTextBlock = fetched.length
+    ? fetched.map((r) => `### ${r.title}\n（来源：${r.url}）\n${r.text}`).join('\n\n')
+    : '';
 
   // 触发配置校验（缺配置会清晰退出）
   requireLlmConfig();
@@ -130,7 +149,7 @@ async function main() {
     const next = i < outline.length - 1 ? fileMeta[i + 1] : null;
     say(`📝 [${meta.num}/${outline.length}] 生成「${meta.topic}」...`);
 
-    const mainContent = await generateLessonMain({ spec: specWithResources, topic: meta.topic, lessonNum: meta.num, total: outline.length, outline, lang: LANG });
+    const mainContent = await generateLessonMain({ spec: specWithResources, topic: meta.topic, lessonNum: meta.num, total: outline.length, outline, lang: LANG, referenceTextBlock });
     const html = wrapLessonHTML({
       mainContent,
       title: `第 ${meta.num} 课 · ${meta.topic}`,
@@ -140,7 +159,7 @@ async function main() {
       nextFile: next?.file,
       nextTitle: next?.topic,
       lang: LANG,
-      sources,
+      sources: resources,
     });
     writeFileSync(join(lessonsDir, meta.file), html, 'utf-8');
     say(`   ✓ ${meta.file}`);
@@ -153,6 +172,7 @@ async function main() {
     lang: LANG,
     lessonsDir,
     resources: resources.map((r) => r.title),
+    resourceFetch: { fetched: fetched.length, cached, failed: failed.map((r) => r.title) },
     lessons: fileMeta.map((m) => ({ num: m.num, topic: m.topic, file: m.file })),
   };
   if (AS_JSON) {
@@ -190,62 +210,9 @@ async function generateOutline(spec, lessonsCount, lang) {
   return normalizeOutline(parsed.outline, lessonsCount);
 }
 
-async function generateLessonMain({ spec, topic, lessonNum, total, outline, lang = 'zh' }) {
-  const conf = langConf(lang);
-  const resourcesBlock = (spec.resources || [])
-    .map((r) => `- ${r.title}${r.url ? ` (${r.url})` : ''}`)
-    .join('\n') || '(无指定资源)';
-  const outlineBlock = outline.map((t, i) => `  第 ${i + 1} 课：${t}`).join('\n');
-
-  const messages = [
-    {
-      role: 'system',
-      content: `你是一位优秀的讲师，擅长把复杂概念讲清楚。任务：写一节 HTML 课程内容。
-
-## 输出语言
-${conf.directive}
-
-## 输出格式
-**只返回 HTML 片段，不要 <main> 标签**（我会用模板包 <main>）。
-不要包含 <!DOCTYPE>/<html>/<head>/<body>/<main>——只返回正文的 <h2>/<p>/<ul>/<table>/<div> 等。
-第一行直接从 <h2> 开始（不要重复 <h1>，标题由模板负责）。
-
-## 内容要求
-- 围绕"${topic}"这个主题讲透
-- 至少 3 个二级标题（<h2>），从概念到实践层层递进
-- 重点用 <div class="callout"> 高亮（核心结论）
-- 易错点用 <div class="callout callout-warn"> 高亮
-- 实用技巧用 <div class="callout callout-tip"> 高亮
-- 代码或命令用 <pre><code>...</code></pre> 包裹
-- 对照/比较用 <div class="compare"><div><h4>A</h4><p>...</p></div><div><h4>B</h4><p>...</p></div></div>
-- 表格用标准 <table><thead><tbody>
-- 核心机制示意图：每课至少 1 张，用内联 <svg>（设 viewBox，style="width:100%;height:auto" 自适应）；节点 + 箭头表达流转/层次/对比，图大字少、只画机制不画装饰，图内文字用本课输出语言；禁止外链图片、禁止 emoji 拼贴
-- 末尾加 <div class="quiz-anchor">对应考点关键词列表</div> 标注本课对应的核心考点（用于四对齐校验）
-- 长度：800-1500 字之间（非中文按同等信息量折算）
-- 风格：口语化、有具体例子、避免空洞术语堆砌
-
-## 风格参考
-- 读者：${spec.audience}
-- 深度：${spec.depth}
-- 引用资源用 <a href="...">资源名</a>，但不要堆砌外链
-
-直接开始写正文 HTML 片段（从 <h2> 开始），不要任何前后解释。`,
-    },
-    {
-      role: 'user',
-      content: `学习目标（整门课）：${spec.mission}
-
-本课在整门课的位置：
-${outlineBlock}
-
-当前要写的是第 ${lessonNum} 课：${topic}
-
-可用资源：
-${resourcesBlock}
-
-请写第 ${lessonNum} 课（共 ${total} 课）的 HTML 正文片段。`,
-    },
-  ];
+async function generateLessonMain({ spec, topic, lessonNum, total, outline, lang = 'zh', referenceTextBlock = '' }) {
+  // prompt 构建在 teach-utils.buildLessonPrompt（纯函数，单测可 dry-run 断言参考正文进 prompt）
+  const messages = buildLessonPrompt({ spec, topic, lessonNum, total, outline, lang, referenceTextBlock });
 
   // LLM 偶尔会无视指令加 <main> 或 <h1>，做后处理剥离
   let raw = await chat(messages, { temperature: 0.7 });

@@ -78,6 +78,7 @@ Convierte la especificación del tema (mission + resources + audience) en un cur
 - estructura: h1 + meta + lead + varios h2 + callouts (punto clave / aviso / truco) + quiz-anchor
 - diagrama de mecanismo: mínimo un SVG en línea por lección — imagen grande, poco texto, solo el mecanismo (nodos + flechas para flujo / jerarquía / contraste)
 - retroenlaces de fuentes: cada lección cierra con un bloque `📚 Fuentes` que enumera los enlaces autorizados — los recursos = los `resources` de `course-spec.json` fusionados con el `RESOURCES.md` del tema (la lista de recursos autorizados que conviene mantener en el flujo de teach), deduplicados por URL; la lista fusionada alimenta tanto las referencias de preparación del LLM como el pie de página (la cara de artefacto del principio «los conceptos se construyen con material de referencia»)
+- captura del cuerpo de las referencias (v0.13): al generar el curso se captura el **texto de la página** de esos enlaces y se incorpora al contexto de preparación del LLM (el principio «los conceptos se construyen con material de referencia» pasa de la capa de citas a la de contenido — el texto capturado es la primera base de preparación); una caché local deduplica por URL (`apps/quiz-app/node_modules/.cache/teach-resources/`) para no repetir capturas al regenerar; si una fuente falla, se degrada a citar solo el URL sin interrumpir la generación
 - enlaces prev/next que encadenan las lecciones
 
 ### Uso

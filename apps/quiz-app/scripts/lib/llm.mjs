@@ -31,7 +31,8 @@ for (const candidate of [
   join(__dirname, '..', '..', '..', '..', '.env'),   // repo-root/.env
   join(__dirname, '..', '..', '.env'),                // apps/quiz-app/.env
 ]) {
-  dotenv.config({ path: candidate });
+  // quiet：dotenv 17 的 tip/横幅会打进 stdout，污染三个 CLI 的 --json 约定（stdout 只出结果 JSON）
+  dotenv.config({ path: candidate, quiet: true });
 }
 
 /**

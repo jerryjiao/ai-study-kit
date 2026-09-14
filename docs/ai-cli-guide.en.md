@@ -78,6 +78,7 @@ Turns a theme spec (mission + resources + audience) into a multi-lesson, self-co
 - structure: h1 + meta + lead + multiple h2 + callouts (key point / warning / tip) + quiz-anchor
 - mechanism diagram: at least one inline SVG per lesson — big picture, few words, mechanism only (nodes + arrows for flow / hierarchy / contrast)
 - source backlinks: every lesson ends with a `📚 Sources` block listing authoritative links — resources = `course-spec.json`'s `resources` merged with the theme's `RESOURCES.md` (the teach-workflow's authoritative resource list), deduplicated by URL; the merged list feeds both the LLM's prep references and the footer display (the artifact side of the "concepts come from reference materials" principle)
+- reference body fetching (v0.13): at generation time the **page body** of those links is fetched into the LLM's prep context (the "concepts come from reference materials" principle moves from the citation layer to the content layer — fetched text is the primary prep basis); a local cache dedupes by URL (`apps/quiz-app/node_modules/.cache/teach-resources/`) so reruns don't refetch; a failing source degrades to URL-list citation without interrupting the run
 - prev/next links chain lessons together
 
 ### Usage

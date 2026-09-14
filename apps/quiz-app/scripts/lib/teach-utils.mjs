@@ -164,6 +164,72 @@ ${resourcesBlock}
 }
 
 /**
+ * 构建"生成一课正文"的 LLM messages（v0.13 起可带参考材料正文块）。
+ * 抽出便于单测 prompt 结构（dry-run 断言备课 prompt 含参考正文，不调 LLM）。
+ * @param {object} params 与 teach-generate.generateLessonMain 同参
+ * @param {string} [params.referenceTextBlock]  抓取的参考正文块（空串 = 无，退回纯 URL 清单）
+ */
+export function buildLessonPrompt({ spec, topic, lessonNum, total, outline, lang = 'zh', referenceTextBlock = '' }) {
+  const conf = langConf(lang);
+  const resourcesBlock = (spec.resources || [])
+    .map((r) => `- ${r.title}${r.url ? ` (${r.url})` : ''}`)
+    .join('\n') || '(无指定资源)';
+  const outlineBlock = outline.map((t, i) => `  第 ${i + 1} 课：${t}`).join('\n');
+  const referenceSection = referenceTextBlock
+    ? `\n## 参考材料正文（抓取自上述链接，备课第一依据；材料未覆盖的内容才可用你的通用知识）\n${referenceTextBlock}\n`
+    : '';
+  return [
+    {
+      role: 'system',
+      content: `你是一位优秀的讲师，擅长把复杂概念讲清楚。任务：写一节 HTML 课程内容。
+
+## 输出语言
+${conf.directive}
+
+## 输出格式
+**只返回 HTML 片段，不要 <main> 标签**（我会用模板包 <main>）。
+不要包含 <!DOCTYPE>/<html>/<head>/<body>/<main>——只返回正文的 <h2>/<p>/<ul>/<table>/<div> 等。
+第一行直接从 <h2> 开始（不要重复 <h1>，标题由模板负责）。
+
+## 内容要求
+- 围绕"${topic}"这个主题讲透
+- 至少 3 个二级标题（<h2>），从概念到实践层层递进
+- 重点用 <div class="callout"> 高亮（核心结论）
+- 易错点用 <div class="callout callout-warn"> 高亮
+- 实用技巧用 <div class="callout callout-tip"> 高亮
+- 代码或命令用 <pre><code>...</code></pre> 包裹
+- 对照/比较用 <div class="compare"><div><h4>A</h4><p>...</p></div><div><h4>B</h4><p>...</p></div></div>
+- 表格用标准 <table><thead><tbody>
+- 核心机制示意图：每课至少 1 张，用内联 <svg>（设 viewBox，style="width:100%;height:auto" 自适应）；节点 + 箭头表达流转/层次/对比，图大字少、只画机制不画装饰，图内文字用本课输出语言；禁止外链图片、禁止 emoji 拼贴
+- 末尾加 <div class="quiz-anchor">对应考点关键词列表</div> 标注本课对应的核心考点（用于四对齐校验）
+- 长度：800-1500 字之间（非中文按同等信息量折算）
+- 风格：口语化、有具体例子、避免空洞术语堆砌
+
+## 风格参考
+- 读者：${spec.audience}
+- 深度：${spec.depth}
+- 引用资源用 <a href="...">资源名</a>，但不要堆砌外链
+
+直接开始写正文 HTML 片段（从 <h2> 开始），不要任何前后解释。`,
+    },
+    {
+      role: 'user',
+      content: `学习目标（整门课）：${spec.mission}
+
+本课在整门课的位置：
+${outlineBlock}
+
+当前要写的是第 ${lessonNum} 课：${topic}
+
+可用资源：
+${resourcesBlock}
+${referenceSection}
+请写第 ${lessonNum} 课（共 ${total} 课）的 HTML 正文片段。`,
+    },
+  ];
+}
+
+/**
  * 容错处理 LLM 返回的 outline：长度不匹配时取前 N 个或补齐。
  * @param {string[]} outline  LLM 返回的大纲
  * @param {number} expected   期望长度

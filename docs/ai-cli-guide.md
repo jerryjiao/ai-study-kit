@@ -78,6 +78,7 @@ pnpm run ai:podcast -- --input examples/dev-intro/lessons/git-basics.html
 - 结构：h1 + meta + lead + 多个 h2 + callouts（重点/警示/技巧）+ quiz-anchor
 - 核心机制示意图：每课至少 1 张内联 SVG，图大字少、只画机制（节点+箭头表达流转/层次/对比）
 - 出处回链：每课页尾 `📚 出处` 块列出权威来源链接——资源 = `course-spec.json` 的 `resources` 与主题目录 `RESOURCES.md`（teach 工作流约定的权威资源清单）按 URL 去重合并，既进 LLM 备课参考也进页尾展示（「以参考材料建概念」原则的产物面）
+- 参考正文抓取（v0.13）：产课时把上述链接的**页面正文**抓进 LLM 备课上下文（「以参考材料建概念」从引用层落到内容层，备课第一依据）；本地缓存按 URL 去重（`apps/quiz-app/node_modules/.cache/teach-resources/`），重跑产课不重抓；个别源抓取失败自动降级回 URL 清单引用，产课不中断
 - prev/next 链接互链
 
 ### 用法
