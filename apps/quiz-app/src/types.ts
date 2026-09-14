@@ -147,5 +147,7 @@ export interface Stats {
  *  - saved：已同步（或未开始）
  *  - error：POST 失败、已重试 3 次、入队待 flush
  *  - local：本地模式（CONTEXT.md）——启动探测发现无后端，进度仅存本浏览器
+ *  - remote-invalid：服务器在线但远端快照形状不合格（旧格式/损坏），已忽略这份
+ *    快照——不锁本地模式，下次保存照常 POST 修复（审计 bug #53）
  *  由 progressClient 通知，useProgress 维护，SyncStatusBanner 消费。 */
-export type SyncStatus = 'saved' | 'error' | 'local';
+export type SyncStatus = 'saved' | 'error' | 'local' | 'remote-invalid';

@@ -13,7 +13,7 @@
 import { copyFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveThemeDir } from './lib/theme-path.mjs';
+import { resolveThemeDir, detectStickyTheme } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { buildCoverageSnapshot, readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
@@ -24,25 +24,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
 const DATA_DIR = resolve(__dirname, '../src/data');
 
-// 防呆：未显式指定 EXAMPLE_THEME 时，沿用已同步主题（src/data/theme.json），
-// 防止裸跑 build/dev 把已部署主题的题库覆盖回默认示例。新环境无 theme.json 才回落 dev-intro。
-// theme.json 记 { theme, dir? }：仓库内主题只记名字；外部主题包额外记源目录绝对路径
-// （只记 basename 会在 examples/ 里找不到 → 误回落 dev-intro，静默切主题）。
-function detectTheme() {
-  if (process.env.EXAMPLE_THEME) return process.env.EXAMPLE_THEME;
-  const themeFile = join(DATA_DIR, 'theme.json');
-  if (existsSync(themeFile)) {
-    try {
-      const t = JSON.parse(readFileSync(themeFile, 'utf-8'));
-      if (t.dir && existsSync(t.dir)) return t.dir;          // 外部主题包：粘滞完整路径
-      if (t.theme && existsSync(join(REPO_ROOT, 'examples', t.theme))) return t.theme;
-    } catch { /* theme.json 损坏则回落默认 */ }
-  }
-  return 'dev-intro';
-}
-
-// 解析主题目录：EXAMPLE_THEME 支持仓库内主题名或外部主题包路径（见 lib/theme-path.mjs）
-const THEME_RAW = detectTheme();
+// 解析主题目录：粘滞主题口径在 lib/theme-path.mjs 的 detectStickyTheme
+// （EXAMPLE_THEME > theme.json 粘滞 > dev-intro；损坏打 warn 不静默换主题）。
+const THEME_RAW = detectStickyTheme(DATA_DIR, REPO_ROOT);
 const { dir: EXAMPLE_DIR, name: EXAMPLE_THEME, external: EXTERNAL } = resolveThemeDir(THEME_RAW, REPO_ROOT);
 
 if (!existsSync(EXAMPLE_DIR)) {
