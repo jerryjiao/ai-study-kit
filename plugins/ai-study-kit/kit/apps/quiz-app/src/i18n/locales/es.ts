@@ -44,14 +44,16 @@ export const es: Record<TKey, string> = {
   'home.confirmResetAll':
     '¿Vaciar TODO el progreso (respuestas + erróneas + lecturas)? No se puede deshacer y se sincronizará con todos tus dispositivos.',
 
-  // Panel de dominio por punto de examen (canal doble preguntas + tarjetas, ver src/lib/mastery.ts)
-  'home.masteryTitle': 'Dominio por punto de examen (preguntas + tarjetas)',
-  'home.masterySummary': 'Dominados {mastered} · Débiles {weak} · En curso {inProgress} · Sin empezar {untouched}',
-  'home.masteryChipMastered': 'Dominado',
-  'home.masteryChipWeak': 'Débil',
-  'home.masteryChipInProgress': 'En curso',
-  'home.masteryChipUntouched': 'Sin empezar',
-  'home.masteryFlashOpen': '{n} tarjeta(s) sin graduar',
+  // Panel de panorama por punto de examen (señales visto/practicado/dominado + bloques day, ver src/lib/panorama.ts)
+  'home.panoramaTitle': 'Panorama de puntos (visto · practicado · dominado)',
+  'home.panoramaSummary': 'Vistos {taught}/{total} · Practicados {practiced}/{total} · Dominados {mastered}/{total}',
+  'home.panoramaTaught': 'Visto',
+  'home.panoramaPracticed': 'Practicado',
+  'home.panoramaMastered': 'Dominado',
+  'home.panoramaAnswered': 'Resp {answered}/{total}',
+  'home.panoramaOral': 'Orales {correct}/{asked}',
+  'home.panoramaWrong': 'Sin graduar {n}',
+  'home.panoramaStale': 'Las señales de visto/oral corresponden al último build; respuestas y dominio son en vivo.',
   'home.masteryNoEp': 'Este banco de preguntas no tiene puntos de examen marcados (examPoint): no se puede derivar el dominio.',
 
   // Práctica

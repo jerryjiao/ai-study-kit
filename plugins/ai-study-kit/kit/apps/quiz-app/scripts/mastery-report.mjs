@@ -24,13 +24,13 @@
  * 学习记录来自 study/records/*.md（契约二，parseSessionRecord 解析；records 学习者私有不上站，
  * 本命令在本地读它们派生信号）。消费方：skill「报进度」全景卡、web 覆盖快照（同判据）。
  */
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
-import { parseSessionRecord } from './lib/records.mjs';
+import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -83,24 +83,9 @@ if (existsSync(profilePath)) {
 
 // ── 考点全景（--panorama，v0.13）：三信号 + day 分组，与掌握报告同数据源另派生一路 ──
 if (AS_PANORAMA) {
-  // 契约二学习记录（学习者私有，本地读取派生信号）：现行 study/records/ + 旧布局 learning-records/
-  const records = [];
-  for (const dir of ['study/records', 'learning-records']) {
-    const recDir = join(THEME_DIR, dir);
-    if (!existsSync(recDir)) continue;
-    for (const f of readdirSync(recDir).filter((x) => x.endsWith('.md')).sort()) {
-      try { records.push(parseSessionRecord(readFileSync(join(recDir, f), 'utf-8'))); } catch { /* 单文件坏不拖垮全景 */ }
-    }
-  }
-  // 课已学完（显式确认制，与 state.md §3 / progress.ts isCourseRead 同口径：tomb >= seen = 已撤销）
-  const lessonsDir = join(THEME_DIR, 'lessons');
-  const lessonFiles = existsSync(lessonsDir) ? readdirSync(lessonsDir).filter((f) => f.endsWith('.html')) : [];
-  const lessonsDone = lessonFiles.filter((f) => {
-    const seen = (progress?.coursesRead || {})[`${THEME}/${f}`];
-    if (seen === undefined) return false;
-    const tomb = (progress?.coursesReadTombstones || {})[`${THEME}/${f}`];
-    return tomb === undefined ? true : seen > tomb;
-  }).length;
+  // 契约二学习记录 + 课已学完：与 sync-examples 的覆盖快照共用同一对装载器（lib/coverage.mjs）
+  const records = readSessionRecords(THEME_DIR);
+  const { lessonsTotal, lessonsDone } = lessonsReadState(THEME_DIR, THEME, progress);
 
   const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
   const panorama = {
@@ -111,7 +96,7 @@ if (AS_PANORAMA) {
     ...buildPanorama({
       questions, answers, srs, flashcards,
       epNames, epDays: epDayMap(missionText), records,
-      coursesRead: { lessonsTotal: lessonFiles.length, lessonsDone },
+      coursesRead: { lessonsTotal, lessonsDone },
     }),
   };
 
@@ -121,7 +106,7 @@ if (AS_PANORAMA) {
     const s = panorama.summary;
     const flag = (b) => (b ? '✓' : '·');
     console.log(`🗺️ 考点全景 · ${THEME}`);
-    console.log(`   进度源：${panorama.progressSource} · 记录 ${records.length} 份 · 课已学完 ${lessonsDone}/${lessonFiles.length}${panorama.courseTaughtAll ? '（课程通道：全部考点记讲过）' : ''}`);
+    console.log(`   进度源：${panorama.progressSource} · 记录 ${records.length} 份 · 课已学完 ${lessonsDone}/${lessonsTotal}${panorama.courseTaughtAll ? '（课程通道：全部考点记讲过）' : ''}`);
     console.log(`   总览：已讲 ${s.taught}/${s.examPoints} · 已练 ${s.practiced}/${s.examPoints} · 已掌握 ${s.mastered}/${s.examPoints}`);
     console.log('');
     for (const g of panorama.groups) {

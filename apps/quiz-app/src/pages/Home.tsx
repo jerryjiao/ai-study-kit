@@ -20,8 +20,9 @@ import {
 import { questions } from '../data/questions';
 import { flashcards } from '../data/flashcards';
 import themeMeta from '../data/theme.json';
+import { coverage } from '../data/coverage';
 import { computeStats, wrongIds, readCount, isAnswerDeleted } from '../lib/progress';
-import { masteryByExamPoint, type ExamPointMastery, type MasteryStatus } from '../lib/mastery';
+import { buildPanorama, type PanoramaGroup } from '../lib/panorama';
 import { clearPos } from '../lib/posMemory';
 import { useProgress } from '../hooks/useProgress';
 import { StatBadge } from '../components/StatBadge';
@@ -153,18 +154,17 @@ export function Home() {
   // 多主题隔离：本页 reset 类操作只清激活主题的进度（题 id 集），不误伤其他主题。
   const themeQuestionIds = useMemo(() => questions.map((q) => q.id), []);
 
-  // 考点掌握度（题 + 闪卡双通道判据，与 mastery-report 同口径）：按激活主题的题/卡派生，
-  // 考点显示名来自 sync 产进 theme.json 的 examPoints（MISSION 排布表解析）。
-  const epNames = (themeMeta as { examPoints?: Record<string, string> }).examPoints ?? {};
-  const mastery = useMemo(
-    () => masteryByExamPoint(questions, progress.answers, epNames, flashcards, progress.srs ?? {}),
+  // 考点全景（v0.13 三信号，判据与 mastery-report --panorama 同口径——双实现见 lib/panorama.ts 头注）：
+  // 讲过/口头来自 build 时产出的内容无关覆盖快照（src/data/coverage.json，records 私有不出本地），
+  // 练过/掌握由本地进度实时派生；分组按 theme.json examDays（MISSION 排布表 day 列）。
+  const themeData = themeMeta as { examPoints?: Record<string, string>; examDays?: Record<string, string> };
+  const panorama = useMemo(
+    () => buildPanorama(
+      questions, progress.answers, themeData.examPoints ?? {},
+      flashcards, progress.srs ?? {}, coverage, themeData.examDays ?? {},
+    ),
     [progress.answers, progress.srs],
   );
-  const masteryCounts = useMemo(() => {
-    const m: Record<MasteryStatus, number> = { mastered: 0, weak: 0, inProgress: 0, untouched: 0 };
-    for (const p of mastery.points) m[p.status]++;
-    return m;
-  }, [mastery]);
 
   // 展开状态：默认全部收起，点开才展开。
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
@@ -252,8 +252,8 @@ export function Home() {
         </div>
       </div>
 
-      {/* 考点掌握度（题 + 闪卡双通道，判据见 src/lib/mastery.ts；无考点标记的主题优雅降级为提示行） */}
-      <MasteryPanel points={mastery.points} counts={masteryCounts} />
+      {/* 考点全景（讲/练/掌三信号，判据见 src/lib/panorama.ts；无考点标记的主题优雅降级为提示行） */}
+      <PanoramaPanel summary={panorama.summary} groups={panorama.groups} />
 
       {/* 按主题练习（两级：大类可展开/收起，三大类下有子主题；其余单卡片） */}
       <div className="space-y-2.5">
@@ -483,59 +483,71 @@ function AnsweredDetailPanel({
   );
 }
 
-/** 考点掌握度面板：按考点（EP-NN）列出四态掌握度（题 + 闪卡双通道判据，src/lib/mastery.ts，
- *  与 mastery-report / ai-study-kit skill 探测同口径）。无考点标记的主题降级为一行提示——
- *  教育主题作者：题库给题加上 examPoint（EP-NN）后面板才有内容。 */
-function MasteryPanel({
-  points,
-  counts,
+/** 考点全景面板：每考点三信号（讲/练/掌）按学程块（day）分组，组头带汇总行。
+ *  判据 src/lib/panorama.ts（与 mastery-report --panorama 同口径，双实现纪律）；「讲过/口头」
+ *  信号来自 build 时覆盖快照（records 私有不出本地），答题/掌握实时。无考点标记的主题降级为提示行。 */
+function PanoramaPanel({
+  summary,
+  groups,
 }: {
-  points: ExamPointMastery[];
-  counts: Record<MasteryStatus, number>;
+  summary: { examPoints: number; taught: number; practiced: number; mastered: number };
+  groups: PanoramaGroup[];
 }) {
   const { t } = useI18n();
-  if (points.length === 0) {
+  if (summary.examPoints === 0) {
     return <p className="text-xs text-text-faint px-1">{t('home.masteryNoEp')}</p>;
   }
-  const chipCls: Record<MasteryStatus, string> = {
-    mastered: 'bg-green-50 text-green-700',
-    weak: 'bg-red-50 text-red-700',
-    inProgress: 'bg-amber-50 text-amber-700',
-    untouched: 'bg-bg-subtle text-text-faint',
-  };
-  const chipLabel: Record<MasteryStatus, string> = {
-    mastered: t('home.masteryChipMastered'),
-    weak: t('home.masteryChipWeak'),
-    inProgress: t('home.masteryChipInProgress'),
-    untouched: t('home.masteryChipUntouched'),
-  };
+  // 三信号 chip：亮=该色系，灭=灰底「·」前缀（语义见 panorama.ts 头注）
+  const sig = (on: boolean, label: string, onCls: string) => (
+    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium ${on ? onCls : 'bg-bg-subtle text-text-faint'}`}>
+      {on ? `✓${label}` : `·${label}`}
+    </span>
+  );
   return (
     <details className="group rounded-xl border border-border bg-bg-subtle/50 overflow-hidden">
       <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer text-sm text-text-muted hover:text-text-secondary select-none list-none [&::-webkit-details-marker]:hidden">
         <Gauge className="h-4 w-4 shrink-0" strokeWidth={2} />
-        <span className="font-medium shrink-0">{t('home.masteryTitle')}</span>
+        <span className="font-medium shrink-0">{t('home.panoramaTitle')}</span>
         <span className="text-xs opacity-70 truncate tabular-nums">
-          {t('home.masterySummary', counts)}
+          {t('home.panoramaSummary', { ...summary, total: summary.examPoints })}
         </span>
         <ChevronRight className="h-4 w-4 ml-auto shrink-0 opacity-50 group-open:rotate-90 transition-transform" />
       </summary>
-      <div className="px-4 pb-4 pt-3 border-t border-border space-y-1.5">
-        {points.map((p) => (
-          <div key={p.ep} className="flex items-center gap-2 text-xs">
-            <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium ${chipCls[p.status]}`}>
-              {chipLabel[p.status]}
-            </span>
-            <span className="font-medium text-text-secondary truncate">
-              {p.ep} {p.name}
-            </span>
-            <span className="shrink-0 text-text-faint tabular-nums">
-              {p.correctNow}/{p.total}
-            </span>
-            {p.flashOpenIds.length > 0 && (
-              <span className="shrink-0 ml-auto px-1.5 py-0.5 rounded text-[10px] bg-sky-50 text-sky-600">
-                {t('home.masteryFlashOpen', { n: p.flashOpenIds.length })}
+      <div className="px-4 pb-4 pt-3 border-t border-border space-y-2.5">
+        <p className="text-[10px] text-text-faint">{t('home.panoramaStale')}</p>
+        {groups.map((g) => (
+          <div key={g.day}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold text-text-secondary shrink-0">{g.day}</span>
+              <span className="text-[10px] text-text-faint tabular-nums truncate">
+                {t('home.panoramaSummary', g.summary)}
               </span>
-            )}
+            </div>
+            <div className="space-y-1">
+              {g.points.map((p) => (
+                <div key={p.ep} className="flex items-center gap-1.5 text-xs">
+                  {sig(p.taught, t('home.panoramaTaught'), 'bg-sky-50 text-sky-700')}
+                  {sig(p.practiced, t('home.panoramaPracticed'), 'bg-indigo-50 text-indigo-700')}
+                  {sig(p.mastered, t('home.panoramaMastered'), 'bg-green-50 text-green-700')}
+                  <span className="font-medium text-text-secondary truncate">
+                    {p.ep} {p.name}
+                  </span>
+                  <span className="shrink-0 text-text-faint tabular-nums">
+                    {t('home.panoramaAnswered', { answered: p.answered, total: p.total })}
+                  </span>
+                  {p.oral && (
+                    <span className="shrink-0 text-[10px] text-text-faint tabular-nums">
+                      {t('home.panoramaOral', { correct: p.oral.correct, asked: p.oral.asked })}
+                    </span>
+                  )}
+                  {p.openWrong > 0 && (
+                    <span className="shrink-0 ml-auto px-1.5 py-0.5 rounded text-[10px] bg-red-50 text-red-600">
+                      {t('home.panoramaWrong', { n: p.openWrong })}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>

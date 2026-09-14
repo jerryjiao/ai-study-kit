@@ -14,7 +14,9 @@ import { copyFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, readFi
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
-import { epNameMap } from './lib/mastery.mjs';
+import { epNameMap, epDayMap } from './lib/mastery.mjs';
+import { buildPanorama } from './lib/panorama.mjs';
+import { buildCoverageSnapshot, readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
@@ -79,16 +81,17 @@ if (existsSync(themeConfigSrc)) {
 // 记录激活主题：Courses 页据此拼课程 URL（study/<theme>/），保证内容与课程永远同主题，
 // 也让「切换主题」只需改 EXAMPLE_THEME 一处（原需同步手改 Courses.tsx 的 COURSE_URL）。
 // 外部主题包额外记 dir（绝对路径）——detectTheme 粘滞回退靠它，不靠裸名字。
-// examPoints（可选）：MISSION.md 排布表解析出的考点名映射（EP-NN → 考点名），
-// 首页掌握度面板用它做考点显示名（UI 不重复解析 markdown）。无 MISSION/无排布表 = 空映射。
+// examPoints（可选）：MISSION.md 排布表解析出的考点名映射（EP-NN → 考点名）；
+// examDays（可选）：EP-NN → day 学程块映射——首页考点全景面板按它分组。
+// 两者都由排布表解析（UI 不重复解析 markdown）。无 MISSION/无排布表 = 空映射。
 const missionPath = join(EXAMPLE_DIR, 'MISSION.md');
-const examPoints = existsSync(missionPath)
-  ? epNameMap(readFileSync(missionPath, 'utf-8'))
-  : {};
+const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
+const examPoints = epNameMap(missionText);
+const examDays = epDayMap(missionText);
 writeFileSync(
   join(DATA_DIR, 'theme.json'),
   JSON.stringify(
-    { theme: EXAMPLE_THEME, ...(EXTERNAL ? { dir: EXAMPLE_DIR } : {}), examPoints },
+    { theme: EXAMPLE_THEME, ...(EXTERNAL ? { dir: EXAMPLE_DIR } : {}), examPoints, examDays },
     null, 2
   ) + '\n'
 );
@@ -122,3 +125,33 @@ if (existsSync(lessonsDir)) {
   writeFileSync(join(DATA_DIR, 'courses.json'), JSON.stringify({ theme: EXAMPLE_THEME, lessons: [] }, null, 2) + '\n');
   console.warn(`[sync-examples] lessons 目录不存在：${lessonsDir}（courses.json 置空清单）`);
 }
+
+// 考点覆盖快照（v0.13）：study/records（学习者私有）+ 课已学完 + 答题进度 → 内容无关的
+// 三信号快照（只含 ep id / 布尔 / 计数，无任何个人叙述——隐私边界有内容断言测试盯住），
+// web 首页「考点全景」面板的「讲过/口头」信号通道。面板新鲜度 = 本次 build 时点；
+// 聊天层（mastery-report --panorama）永远现算最新，两端口径一致。
+// 无 records / 无 progress（如 CI）= 信号全 false，不是故障。
+const questionsForCoverage = JSON.parse(readFileSync(join(EXAMPLE_DIR, 'questions.json'), 'utf-8'));
+const flashForCoverage = existsSync(join(EXAMPLE_DIR, 'flashcards.json'))
+  ? JSON.parse(readFileSync(join(EXAMPLE_DIR, 'flashcards.json'), 'utf-8'))
+  : [];
+const progressPath = resolve(__dirname, '..', 'progress.json');
+let progressForCoverage = null;
+if (existsSync(progressPath)) {
+  try { progressForCoverage = JSON.parse(readFileSync(progressPath, 'utf-8')); } catch { progressForCoverage = null; }
+}
+const coverage = buildCoverageSnapshot(buildPanorama({
+  questions: questionsForCoverage,
+  answers: (progressForCoverage && progressForCoverage.answers) || {},
+  srs: (progressForCoverage && progressForCoverage.srs) || {},
+  flashcards: flashForCoverage,
+  epNames: examPoints,
+  epDays: examDays,
+  records: readSessionRecords(EXAMPLE_DIR),
+  coursesRead: lessonsReadState(EXAMPLE_DIR, EXAMPLE_THEME, progressForCoverage),
+}));
+writeFileSync(
+  join(DATA_DIR, 'coverage.json'),
+  JSON.stringify({ theme: EXAMPLE_THEME, ...coverage }, null, 2) + '\n'
+);
+console.log(`[sync-examples] → src/data/coverage.json  (考点覆盖快照：${coverage.points.length} 点 · 讲 ${coverage.points.filter((p) => p.taught).length} · 课程通道 ${coverage.courseTaughtAll ? 'on' : 'off'})`);

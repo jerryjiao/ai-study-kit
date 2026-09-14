@@ -44,14 +44,16 @@ export const ru: Record<TKey, string> = {
   'home.confirmResetAll':
     'Очистить ВЕСЬ прогресс (ответы + ошибки + чтение)? Отменить нельзя, изменение синхронизируется на все устройства.',
 
-  // Панель освоения по пунктам экзамена (вопросы + карточки, см. src/lib/mastery.ts)
-  'home.masteryTitle': 'Освоение по пунктам экзамена (вопросы + карточки)',
-  'home.masterySummary': 'Освоено {mastered} · Слабо {weak} · В процессе {inProgress} · Не начато {untouched}',
-  'home.masteryChipMastered': 'Освоено',
-  'home.masteryChipWeak': 'Слабо',
-  'home.masteryChipInProgress': 'В процессе',
-  'home.masteryChipUntouched': 'Не начато',
-  'home.masteryFlashOpen': 'Не выпущено карточек: {n}',
+  // Панель панорамы по пунктам экзамена (сигналы изучено/отработано/освоено + блоки day, см. src/lib/panorama.ts)
+  'home.panoramaTitle': 'Панорама пунктов (изучено · отработано · освоено)',
+  'home.panoramaSummary': 'Изучено {taught}/{total} · Отработано {practiced}/{total} · Освоено {mastered}/{total}',
+  'home.panoramaTaught': 'Изучено',
+  'home.panoramaPracticed': 'Отработано',
+  'home.panoramaMastered': 'Освоено',
+  'home.panoramaAnswered': 'Ответы {answered}/{total}',
+  'home.panoramaOral': 'Устно {correct}/{asked}',
+  'home.panoramaWrong': 'Не закрыто {n}',
+  'home.panoramaStale': 'Сигналы «изучено/устно» — на момент последней сборки; ответы и освоение — в реальном времени.',
   'home.masteryNoEp': 'В этом банке вопросов нет меток пунктов экзамена (examPoint) — освоение недоступно.',
 
   // Тренировка

@@ -44,14 +44,16 @@ export const en: Record<TKey, string> = {
   'home.confirmResetAll':
     'Clear ALL progress (answers + wrong + reading)? This cannot be undone and will sync to all your devices.',
 
-  // Exam-point mastery panel (question + flashcard dual channel, see src/lib/mastery.ts)
-  'home.masteryTitle': 'Exam-point mastery (questions + flashcards)',
-  'home.masterySummary': 'Mastered {mastered} · Weak {weak} · In progress {inProgress} · Not started {untouched}',
-  'home.masteryChipMastered': 'Mastered',
-  'home.masteryChipWeak': 'Weak',
-  'home.masteryChipInProgress': 'In progress',
-  'home.masteryChipUntouched': 'Not started',
-  'home.masteryFlashOpen': '{n} flashcard(s) not graduated',
+  // Exam-point panorama panel (taught/practiced/mastered signals + day groups, see src/lib/panorama.ts)
+  'home.panoramaTitle': 'Exam-point panorama (taught · practiced · mastered)',
+  'home.panoramaSummary': 'Taught {taught}/{total} · Practiced {practiced}/{total} · Mastered {mastered}/{total}',
+  'home.panoramaTaught': 'Taught',
+  'home.panoramaPracticed': 'Practiced',
+  'home.panoramaMastered': 'Mastered',
+  'home.panoramaAnswered': 'Ans {answered}/{total}',
+  'home.panoramaOral': 'Oral {correct}/{asked}',
+  'home.panoramaWrong': 'Not graduated {n}',
+  'home.panoramaStale': 'Taught/oral signals as of the last build; answers and mastery are live.',
   'home.masteryNoEp': 'This question bank has no exam-point tags (examPoint) — mastery cannot be derived.',
 
   // Practice
