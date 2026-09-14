@@ -76,7 +76,7 @@ pnpm dev
 
 Once the plugin is installed above (or via `pnpm run skill:install` into `~/.agents/skills/`), every study session can start here.
 
-**The command names are the menu** — four in total: `/ask-coach` asks the coach what to do (state snapshot + recommendation + guided execution), `/coach` jumps straight into a tutoring session, `/doctor` runs a one-stop health check (quality gates + environment probes), `/recap` jumps straight into a wrong-question deep-dive; everything else goes through the router.
+**The command names are the menu** — four in total: `/ask-coach` asks the coach what to do (state snapshot + recommendation + guided execution), `/coach` jumps straight into a tutoring session, `/study-doctor` runs a one-stop health check (quality gates + environment probes), `/study-recap` jumps straight into a wrong-question deep-dive; everything else goes through the router.
 
 `/ask-coach` first **scans your study state** (current theme, question/card/course inventory, answering progress, due flashcards, wrong count, lessons completed, tutoring progress, AI config), then **recommends the single most useful thing to do right now** — start a new theme, review due flashcards, drill questions, or turn your accumulated wrong answers into a deep-dive — and once you pick, it **walks you through it step by step**. Eleven playbooks cover everything from initializing the project to deploying it. (The playbook files the skill executes are written in Chinese; this guide is in English: [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).)
 

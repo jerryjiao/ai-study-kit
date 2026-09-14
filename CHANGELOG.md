@@ -2,6 +2,15 @@
 
 本仓库的版本日志。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.13.1] — 2026-09-14
+
+主题：**命令改名避撞——薄命令 `/doctor`、`/recap` 与 Claude Code 内置命令硬撞名（内置优先于插件 skill），加 `study-` 前缀成为 `/study-doctor`、`/study-recap`；命令面其余不动（/ask-coach /coach 经查无撞名）。**
+
+### Changed
+
+- **薄命令改名**：`skills/doctor` → `skills/study-doctor`、`skills/recap` → `skills/study-recap`（git mv 保留历史）。撞名依据：Claude Code 官方命令表内置 `/doctor`（安装/配置体检，带自动修复）与 `/recap`（会话回顾，输出限 400 字符）——插件发行目标明确含 Claude Code，内置命令优先，同名插件 skill 会被遮蔽且语义混淆。`study-` 前缀撞名面为零（内置无 /study-*、社区市集无同名）。当初选 doctor 的理由「npm/brew doctor 惯例」恰是 Claude Code 也用它命名的原因，理由反噬故弃。
+- **全链路同步**：主 skill 开篇菜单、coach 薄命令分流、flows.md 体检节标题、sync-plugin 注释与市集描述、安装脚本注释、README 四语命令清单、docs/ai-study-kit 四语命令表与安装示例、CONTEXT.md skill 词条、AGENTS.md——`/coach` 与 `/ask-coach` 未动（无内置撞名、无社区同名热门）。
+
 ## [0.13.0] — 2026-09-14
 
 主题：**聊天层优先——把主学习方式（跟 agent 聊天陪练）撑成一等公民：教练纪律 / 考点全景图（讲·练·掌三信号）/ 案例大题陪练 / 命令面收敛四件（/ask-coach + /coach /doctor /recap），外加 teach 抓参考正文与冲刺包打印版。**

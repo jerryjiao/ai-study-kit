@@ -1,10 +1,10 @@
 ---
-name: recap
+name: study-recap
 description: /recap 错题串讲直入：先探测（后端在线/有错题/AI 配齐），进 F4 把错题从「知道答案」升级到「知道为什么错」。 Wrong-question deep-dive entry: probes prerequisites then runs F4.
 disable-model-invocation: true
 ---
 
-# /recap 错题串讲
+# /study-recap 错题串讲
 
 错题攒多了想深挖——直进 F4 错题串讲。主入口与完整协议见 [`../ask-coach/SKILL.md`](../ask-coach/SKILL.md)。
 

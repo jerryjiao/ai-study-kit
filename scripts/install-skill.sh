@@ -28,7 +28,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# 多 skill 源发现：skills/ 下每个含 SKILL.md 的目录（ask-coach 主入口 + coach/doctor/recap 薄命令）。
+# 多 skill 源发现：skills/ 下每个含 SKILL.md 的目录（ask-coach 主入口 + coach/study-doctor/study-recap 薄命令）。
 # 不用 mapfile（bash 4+，macOS 自带 bash 3.2 没有）：while-read 进数组，3.2 兼容。
 SKILLS=()
 while IFS= read -r dir; do

@@ -76,7 +76,7 @@ pnpm dev
 
 Con el plugin instalado arriba (o con `pnpm run skill:install` en `~/.agents/skills/`), cada sesión de estudio puede empezar aquí.
 
-**Los nombres de los comandos son el menú** — cuatro en total: `/ask-coach` pregunta al coach qué hacer (instantánea + recomendación + ejecución guiada), `/coach` entra directo a una sesión de tutoría, `/doctor` corre un chequeo integral (puertas de calidad + sondas de entorno), `/recap` entra directo al análisis de erróneas; el resto pasa por el enrutador.
+**Los nombres de los comandos son el menú** — cuatro en total: `/ask-coach` pregunta al coach qué hacer (instantánea + recomendación + ejecución guiada), `/coach` entra directo a una sesión de tutoría, `/study-doctor` corre un chequeo integral (puertas de calidad + sondas de entorno), `/study-recap` entra directo al análisis de erróneas; el resto pasa por el enrutador.
 
 `/ask-coach` primero **escanea tu estado de estudio** (tema actual, inventario de preguntas/tarjetas/cursos, progreso, tarjetas vencidas, cantidad de erróneas, lecciones completadas, progreso de tutoría, configuración de IA); luego **te recomienda la única cosa más útil de hacer ahora** — empezar un tema nuevo, repasar tarjetas vencidas, practicar preguntas o convertir tus erróneas acumuladas en un análisis a fondo — y al elegir, **te guía paso a paso**. Once guías cubren desde inicializar el proyecto hasta desplegarlo. (Los guiones que ejecuta el skill están en chino; esta guía está en español: [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).)
 

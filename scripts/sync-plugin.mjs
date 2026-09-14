@@ -13,7 +13,8 @@
 //
 // 命名约定：**插件名 ai-study-kit 终身不变**（市集名不可改）；skill 名即命令名——
 // 主入口 ask-coach（原 skill 名 ai-study-kit，v0.13 更名，市集装出后敲 /ask-coach），
-// 薄命令 coach / doctor / recap 各自一个源目录。
+// 薄命令 coach / study-doctor / study-recap 各自一个源目录（doctor/recap 加 study- 前缀，
+// 避开 Claude Code 内置 /doctor /recap 命令）。
 //
 // 版本：默认取根 package.json 的 version（发版改一处，plugin 跟随）；--version 可临时覆盖。
 //
@@ -130,7 +131,7 @@ copyFileSync(join(REPO_ROOT, 'assets', 'logo.png'), join(PLUGIN_DIR, 'icon.png')
 mkdirSync(join(REPO_ROOT, '.claude-plugin'), { recursive: true });
 const marketplace = {
   name: 'ai-study-kit',
-  description: 'ai-study-kit 插件市集：/ask-coach 学习教练（+ /coach /doctor /recap 薄命令）。',
+  description: 'ai-study-kit 插件市集：/ask-coach 学习教练（+ /coach /study-doctor /study-recap 薄命令）。',
   owner: { name: 'ai-study-kit', url: 'https://github.com/jerryjiao/ai-study-kit' },
   plugins: [
     {

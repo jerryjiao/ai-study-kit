@@ -10,14 +10,14 @@ ai-study-kit tiene muchas funciones — app de práctica, cursos, tarjetas, repa
 |---------|----------|
 | `/ask-coach` | Preguntar al coach: instantánea de estado + recomendación + ejecución guiada (entrada principal; el resto se enruta desde aquí) |
 | `/coach` | Sentarse a estudiar: entrada directa a la tutoría (F10 abrir/reanudar; al abrir reporta «qué tocar hoy y por qué») |
-| `/doctor` | Chequeo integral: cuatro puertas de calidad + sondas de entorno, informe de estado y orden de reparación |
-| `/recap` | Entrada directa al análisis de erróneas (F4, cuando los prerrequisitos están) |
+| `/study-doctor` | Chequeo integral: cuatro puertas de calidad + sondas de entorno, informe de estado y orden de reparación |
+| `/study-recap` | Entrada directa al análisis de erróneas (F4, cuando los prerrequisitos están) |
 
 ---
 
 ## Instalación
 
-Los códigos fuente de los skills viven en el repositorio bajo `skills/` (fuente única de verdad: la entrada principal `ask-coach` + tres comandos finos `coach` / `doctor` / `recap` que comparten los `references/` de la entrada principal). Dos rutas de instalación:
+Los códigos fuente de los skills viven en el repositorio bajo `skills/` (fuente única de verdad: la entrada principal `ask-coach` + tres comandos finos `coach` / `study-doctor` / `study-recap` que comparten los `references/` de la entrada principal). Dos rutas de instalación:
 
 **① Marketplace de plugins (zcode / Claude Code, recomendado)**: el repositorio trae su propio manifiesto de marketplace (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` genera `plugins/ai-study-kit/` a partir del código fuente). Añade el marketplace `https://github.com/jerryjiao/ai-study-kit` en tu cliente e instala el plugin `ai-study-kit` — las actualizaciones del skill llegan con cada refresco del marketplace, **sin reinstalación manual** (las versiones siguen los releases del repositorio). **El nombre del plugin es ai-study-kit de por vida; los comandos son la familia ask-coach** (renombrado desde `/ai-study-kit` en v0.13, septiembre de 2026 — los nombres de marketplace son permanentes, así que el del plugin no cambia).
 
@@ -25,7 +25,7 @@ Los códigos fuente de los skills viven en el repositorio bajo `skills/` (fuente
 
 ```bash
 # 从 ai-study-kit 仓库根目录（装全部四个 skill； los comandos finos dependen de los references/ de la entrada principal）
-pnpm run skill:install          # copia a ~/.agents/skills/{ask-coach,coach,doctor,recap}
+pnpm run skill:install          # copia a ~/.agents/skills/{ask-coach,coach,study-doctor,study-recap}
 pnpm run skill:install -- --link   # 符号链接版（随仓库 git pull 自动更新）
 
 # 其他客户端：自定义目标目录
@@ -78,7 +78,7 @@ Sin una intención explícita, la recomendación toma el primer acierto en orden
 | F10 | Tutoría acompañada | enseñar cada punto por diálogo hasta dominarlo + evaluar en el momento + continuar entre días | conjunto mínimo de puntos desde la tabla → explicación en tres partes + frases ancla → evaluar por modo → guardar punto por punto en `study/records/` → pasar el testigo a F3 |
 | F11 | Sprint preexamen | ≤ 7 días para el examen, o pides «sprint / preexamen / intensivo» | cosechar frases de records + archivo de erróneas → paquete de sprint de cuatro piezas + versión imprimible en `study/sprint/` → pasar el testigo al simulacro de F3 |
 
-Además, dos entradas de operaciones: el **chequeo** (`/doctor` — orquestación integral de las cuatro puertas de calidad + sondas de entorno, con informe de estado y orden de reparación) y el **diagnóstico** (progreso que no sincroniza, 404 de cursos, errores de configuración del CLI, aciertos del scan… una tabla de consulta rápida síntoma → causa raíz → solución).
+Además, dos entradas de operaciones: el **chequeo** (`/study-doctor` — orquestación integral de las cuatro puertas de calidad + sondas de entorno, con informe de estado y orden de reparación) y el **diagnóstico** (progreso que no sincroniza, 404 de cursos, errores de configuración del CLI, aciertos del scan… una tabla de consulta rápida síntoma → causa raíz → solución).
 
 ---
 

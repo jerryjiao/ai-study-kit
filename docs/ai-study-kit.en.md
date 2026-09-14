@@ -10,14 +10,14 @@ ai-study-kit has many features — quiz app, courses, flashcards, wrong-question
 |---------|--------------|
 | `/ask-coach` | Ask the coach: state snapshot + recommendation + guided execution (main entry; everything else routes from here) |
 | `/coach` | Sit down and study: direct tutoring entry (F10 open/resume; opening reports "what to practice today + why") |
-| `/doctor` | One-stop health check: four quality gates + environment probes, pass/fail report + fix order |
-| `/recap` | Direct wrong-question deep-dive entry (F4, once prerequisites check out) |
+| `/study-doctor` | One-stop health check: four quality gates + environment probes, pass/fail report + fix order |
+| `/study-recap` | Direct wrong-question deep-dive entry (F4, once prerequisites check out) |
 
 ---
 
 ## Installation
 
-The skill sources live in the repo under `skills/` (single source of truth: the `ask-coach` main entry + three thin commands `coach` / `doctor` / `recap` that share the main entry's `references/`). Two install paths:
+The skill sources live in the repo under `skills/` (single source of truth: the `ask-coach` main entry + three thin commands `coach` / `study-doctor` / `study-recap` that share the main entry's `references/`). Two install paths:
 
 **① Plugin marketplace (zcode / Claude Code, recommended)**: the repo ships its own marketplace manifest (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` generates `plugins/ai-study-kit/` from the source). Add the marketplace `https://github.com/jerryjiao/ai-study-kit` in your client and install the `ai-study-kit` plugin — skill updates arrive with marketplace refreshes, **no manual reinstall** (versions follow repo releases). **The plugin name is ai-study-kit for life; the commands are the ask-coach family** (renamed from `/ai-study-kit` in v0.13, Sept 2026 — marketplace names are permanent, so the plugin name stays).
 
@@ -25,7 +25,7 @@ The skill sources live in the repo under `skills/` (single source of truth: the 
 
 ```bash
 # from the ai-study-kit repo root (installs all four skills; thin commands rely on the main entry's references/)
-pnpm run skill:install          # copies to ~/.agents/skills/{ask-coach,coach,doctor,recap}
+pnpm run skill:install          # copies to ~/.agents/skills/{ask-coach,coach,study-doctor,study-recap}
 pnpm run skill:install -- --link   # symlink variant (auto-updates with git pull)
 
 # other clients: custom destination
@@ -78,7 +78,7 @@ Without an explicit intent, the recommendation takes the first hit in order (ful
 | F10 | Coached tutoring | Teach each exam point through dialogue + quiz on the spot + resume across days | minimal exam-point set from the table → three-part explanation + anchor phrase → quiz by mode → persist per point into `study/records/` → hand over to F3 |
 | F11 | Pre-deadline sprint | ≤ 7 days to the exam, or you say "sprint / pre-exam / cram" | harvest records phrases + wrong-question archives → four-piece sprint package + print version into `study/sprint/` → hand over to F3 mock exam |
 
-Plus two ops entries: **health check** (`/doctor` — one-stop orchestration of the four quality gates + environment probes, with a pass/fail report and fix order) and **diagnostics** (progress not syncing, course 404, CLI config errors, scan hits… a symptom → root cause → action lookup table).
+Plus two ops entries: **health check** (`/study-doctor` — one-stop orchestration of the four quality gates + environment probes, with a pass/fail report and fix order) and **diagnostics** (progress not syncing, course 404, CLI config errors, scan hits… a symptom → root cause → action lookup table).
 
 ---
 

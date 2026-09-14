@@ -14,4 +14,4 @@ disable-model-invocation: true
    - 没有 → 从 **F10 第 0 步开场纪律**进：报「今天最该练 + 为什么」→ 开新站。
 3. **怎么教**：三段式/考法/判定标准以 [`../ask-coach/references/coach.md`](../ask-coach/references/coach.md) 为准（先读再用）。
 
-不是陪练的活（刷题 → 答题站、错题串讲 → /recap、体检 → /doctor、其他 → /ask-coach 路由），说一句该去哪。
+不是陪练的活（刷题 → 答题站、错题串讲 → /study-recap、体检 → /study-doctor、其他 → /ask-coach 路由），说一句该去哪。
