@@ -2,6 +2,32 @@
 
 本仓库的版本日志。格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+**固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
+
+## [Unreleased]
+
+主题：**存量项目升级兼容机制（ADR-0006 / spec #55）——kit 自报版本 + F13 升级流程 + 体检两探测项，兼容承诺从「不崩不丢」升到「全功能对齐：降级必告知、给补齐路径」；另修三个静默错误类审计 bug。**
+
+### 升级与存量影响
+
+- **新文件**：`kit/kit-version.json`（kit 快照版本标记，sync-plugin 打包写入，随插件/F1 拷贝自然进入用户项目）。**新契约**：skill 探测协议新增「版本」字段（用户项目与插件快照两处版本 diff）；体检新增「版本漂移」「契约完整性」两探测项；F1 新增第 0 步探测分支。
+- **老项目缺了会怎样**：无 kit-version.json = 版本未知（按最老处理）；kit 代码落后于插件快照 = 功能层静默降级（考点掌握度退化纯题维度、考点全景口头信号恒为零、推荐引不出错因），数据层不受影响（进度/闪卡/课已学完分毫不动）；误被路由进 F1 时不再嵌套拷出 `kit/kit`（此前是未定义行为）。
+- **怎么补**：更新插件后敲 `/ask-coach`——快照会报版本差并引导 **F13 升级**（备份 progress → 重拷 kit → 补缺失文件模板 → 契约缺口逐项引导，只引导不代写内容）；日常 `/study-doctor` 也能发现漂移与缺口。v0.14 新数据文件（oral-attempts.json / graph-map.json）无需补，首用时自建。
+- **是否破坏性**：否。progress 格式未变；主题包（kit 外）不被升级触碰；干净目录的 F1 从零初始化行为与从前一致。三个 bug 修复均为「静默错误改显式告知」：sync-study 裸跑现在跟随粘滞主题（此前静默把 dev-intro 课程站同步上去）、theme.json 损坏现在打 warn（此前静默切回 dev-intro）、远端 progress 旧快照缺 answers 现在显式 banner 告知「已忽略」（此前静默降级本地模式）。
+
+### Added
+
+- **kit-version.json（kit 自报版本）**：`scripts/sync-plugin.mjs` 打包 kit 快照时从根 package.json 写入版本号；打包断言 `apps/quiz-app/scripts/lib/kit-version.test.mjs`（node:test 带：产物必含该文件且版本一致——版本号与产物漂移即红，发版连带 sync:plugin 从纪律变测试）。
+- **F13 升级流程（ADR-0006 落地；ADR 定稿拟名 F12，同日 v0.14 已把 F12 给了知识图谱投影且随插件发出，编号顺延为 F13，附注在 ADR 内）**：存量项目一趟到全功能对齐——读两处版本报漂移 → 备份 progress（全程不解析不改写）→ 重拷 kit（保 progress 拷回，验无嵌套）→ 对照快照补缺失新文件模板（v0.14 新数据文件不补，首用自建）→ 契约缺口（排布表缺失 / 题缺 examPoint / 闪卡缺映射）逐项引导、只点名给补法绝不代写 → 体检收口（版本已对齐 + 无未告知缺口）。
+- **探测协议「版本」字段（state.md §8）**：快照新增「版本」行——已对齐 / 落后 N 版 / 版本未知按最老 / 仓库本体；推荐算法第 2 条命中漂移即推荐 F13（功能层先对齐再谈学什么）。
+- **体检两探测项（flows.md 体检节 / `/study-doctor`）**：版本漂移（用户项目 kit 版本 vs 插件快照，三态报告）+ 契约完整性（排布表 / 题库 examPoint 标记率 / 闪卡映射率，缺什么怎么补）；只读只报事实，修复顺序插在「校验门红」与「.env 缺项」之间。
+
+### Fixed
+
+- **sync-study 裸跑不读粘滞主题（#52）**：裸跑 `npm run sync:study` 此前固定 `EXAMPLE_THEME || 'dev-intro'`，把 dev-intro 课程站静默同步到别的主题的数据层上；现与 sync-examples 同口径（粘滞主题解析提为 `lib/theme-path.mjs` 的 `detectStickyTheme` 共享，env > theme.json 粘滞 > dev-intro），有单测。
+- **远端 progress 旧快照静默降级本地模式（#53）**：服务器 progress.json 缺 `answers` 时，前端 `as` 断言直接 merge 抛 TypeError 被吞 → 假「网络不可达」锁死本地模式，用户以为进度丢了。现在远端快照过与本地同构的形状校验，不合格 → 忽略这份快照 + 琥珀色 banner 显式告知「服务器数据格式旧，已忽略——下次保存自动修复」，不锁本地模式（后续 POST 照常，服务器 read-merge-write 自愈）；`SyncStatus` 新增 `'remote-invalid'`，i18n 四语同步。
+- **theme.json 损坏静默切回 dev-intro（#54）**：detectStickyTheme 的损坏分支此前无日志，现在打 warn（「theme.json 损坏，已回退 dev-intro——如非预期请检查该文件」），有单测断言 warn 必出。
+
 ## [0.14.0] — 2026-09-14
 
 主题：**知识图谱投影桥（ADR-0005 落地）——口头答题流水 / 口头掌握四态 / knowflow 图着色 / 前置关系推荐 / 全景连线，聊天新学的无题知识也有可信的掌握信号，知识结构连成图看见。**

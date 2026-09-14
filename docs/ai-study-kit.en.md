@@ -19,7 +19,7 @@ ai-study-kit has many features — quiz app, courses, flashcards, wrong-question
 
 The skill sources live in the repo under `skills/` (single source of truth: the `ask-coach` main entry + three thin commands `coach` / `study-doctor` / `study-recap` that share the main entry's `references/`). Two install paths:
 
-**① Plugin marketplace (zcode / Claude Code, recommended)**: the repo ships its own marketplace manifest (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` generates `plugins/ai-study-kit/` from the source). Add the marketplace `https://github.com/jerryjiao/ai-study-kit` in your client and install the `ai-study-kit` plugin — skill updates arrive with marketplace refreshes, **no manual reinstall** (versions follow repo releases). **The plugin name is ai-study-kit for life; the commands are the ask-coach family** (renamed from `/ai-study-kit` in v0.13, Sept 2026 — marketplace names are permanent, so the plugin name stays).
+**① Plugin marketplace (zcode / Claude Code, recommended)**: the repo ships its own marketplace manifest (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` generates `plugins/ai-study-kit/` from the source). Add the marketplace `https://github.com/jerryjiao/ai-study-kit` in your client and install the `ai-study-kit` plugin — skill updates arrive with marketplace refreshes, **no manual reinstall** (versions follow repo releases). **After a plugin update, opening `/ask-coach` in an older project reports the version gap and guides you through the F13 upgrade** (data-safe, fills the gaps — see the flow table; the kit snapshot self-reports its version via `kit-version.json`). **The plugin name is ai-study-kit for life; the commands are the ask-coach family** (renamed from `/ai-study-kit` in v0.13, Sept 2026 — marketplace names are permanent, so the plugin name stays).
 
 **② Manual install (any client honoring `~/.agents/skills/`)**:
 
@@ -43,26 +43,27 @@ After installing, restart the CLI (or open a new session) and type `/ask-coach`.
 
 Every invocation runs the same three steps:
 
-1. **Scan state** (read-only, ≤1 min) — theme, question/card/course/deep-dive inventory, answering progress, ungraduated wrong questions, due flashcards, lessons completed, weak oral-recitation targets (derived from the attempts ledger), tutoring sessions and exam deadline, AI config, backend online or not; with a knowledge graph location provided it also carries graph signals (per-node mastery four-states, prerequisite relations — see F12).
+1. **Scan state** (read-only, ≤1 min) — theme, question/card/course/deep-dive inventory, answering progress, ungraduated wrong questions, due flashcards, lessons completed, weak oral-recitation targets (derived from the attempts ledger), tutoring sessions and exam deadline, AI config, backend online or not, kit version drift (your project vs the plugin snapshot — lagging or unknown version leads to the F13 upgrade, see below); with a knowledge graph location provided it also carries graph signals (per-node mastery four-states, prerequisite relations — see F12).
 2. **Report + recommend** — one snapshot table + one recommended action with a reason + a numbered menu.
 3. **Execute with you** — once you pick, it follows the playbook in `skills/ask-coach/references/flows.md` step by step, then checks the "done" criteria.
 
-Without an explicit intent, the recommendation takes the first hit in order (full version in `skills/ask-coach/SKILL.md`). The top three run "flashcards → sprint → resume tutoring": reviews are debt that accrues daily, the sprint is the harvest window within a week of the exam, and tutoring can resume anytime:
+Without an explicit intent, the recommendation takes the first hit in order (full version in `skills/ask-coach/SKILL.md`). The top three study entries run "flashcards → sprint → resume tutoring": reviews are debt that accrues daily, the sprint is the harvest window within a week of the exam, and tutoring can resume anytime (version drift sits ahead of the study entries — align the feature layer first; your data is never at risk):
 
 | Order | Condition | Recommendation |
 |-------|-----------|----------------|
 | 1 | Repo doesn't exist | **F1** bootstrap the project (get the quiz app running first) |
-| 2 | Active theme is the dev-intro demo and you have your own topic | **F2** new theme (the demo's git/Linux questions aren't your study material) |
-| 3 | Due flashcards > 0 | **F3** daily study (clear reviews first — memory is decaying; new knowledge can wait) |
-| 4 | ≤ 7 days to the MISSION.md deadline | **F11** pre-deadline sprint (the short-window intensive-repetition window is open; no deadline configured → this row never matches and the snapshot shows ⚠) |
-| 5 | Tutoring session in progress | **F10** coached tutoring, resume (report session name + open todo count, **runs only with your nod**: resuming is a suggestion, not an order) |
-| 6 | Ungraduated wrong questions ≥ 3 | **F4** wrong-question grilling (LLM-clustered deep-dive) |
-| 7 | Unanswered questions & lessons not done | **F3** daily study (build concepts before drilling — read the day's lesson; a lesson counts only after you click "✓ done", opening doesn't count) |
-| 8 | Unanswered questions & lessons done | **F3** daily study (concepts are in place, drill to validate) |
-| 9 | All questions answered & accuracy ≥ 80% | **F5** make a podcast (passive consolidation) or **F2** new theme |
-| 10 | All questions answered & accuracy < 80% | **F4** grilling; still short of the bar → **F6** patch the course (lesson quality isn't enough) |
+| 2 | Project kit version lagging or unknown | **F13** upgrade (align the feature layer first — new features are silently degraded while drifting; data-safe, a few minutes) |
+| 3 | Active theme is the dev-intro demo and you have your own topic | **F2** new theme (the demo's git/Linux questions aren't your study material) |
+| 4 | Due flashcards > 0 | **F3** daily study (clear reviews first — memory is decaying; new knowledge can wait) |
+| 5 | ≤ 7 days to the MISSION.md deadline | **F11** pre-deadline sprint (the short-window intensive-repetition window is open; no deadline configured → this row never matches and the snapshot shows ⚠) |
+| 6 | Tutoring session in progress | **F10** coached tutoring, resume (report session name + open todo count, **runs only with your nod**: resuming is a suggestion, not an order) |
+| 7 | Ungraduated wrong questions ≥ 3 | **F4** wrong-question grilling (LLM-clustered deep-dive) |
+| 8 | Unanswered questions & lessons not done | **F3** daily study (build concepts before drilling — read the day's lesson; a lesson counts only after you click "✓ done", opening doesn't count) |
+| 9 | Unanswered questions & lessons done | **F3** daily study (concepts are in place, drill to validate) |
+| 10 | All questions answered & accuracy ≥ 80% | **F5** make a podcast (passive consolidation) or **F2** new theme |
+| 11 | All questions answered & accuracy < 80% | **F4** grilling; still short of the bar → **F6** patch the course (lesson quality isn't enough) |
 
-## The twelve flows
+## The thirteen flows
 
 | # | Flow | When | Key commands |
 |---|------|------|--------------|
@@ -78,6 +79,7 @@ Without an explicit intent, the recommendation takes the first hit in order (ful
 | F10 | Coached tutoring | Teach each exam point through dialogue + quiz on the spot + resume across days | minimal exam-point set from the table → three-part explanation + anchor phrase → quiz by mode → persist per point into `study/records/` (oral Q&As go into the oral-attempts.json ledger) → hand over to F3 |
 | F11 | Pre-deadline sprint | ≤ 7 days to the exam, or you say "sprint / pre-exam / cram" | harvest records phrases + wrong-question archives → four-piece sprint package + print version into `study/sprint/` → hand over to F3 mock exam |
 | F12 | Knowledge-graph projection | You have a knowflow knowledge base (graph.json) and want mastery coloring and exam-point edges visible on the graph | build/confirm the exam-point↔node mapping (`study/records/graph-map.json`, proposed by the agent, confirmed by you item by item) → `pnpm run mastery -- --graph <graph.json> --write-projection` writes the read-only projection; no graph / no mapping degrades silently and knowledge pages are never written back |
+| F13 | Upgrade | The plugin updated and your project lags behind (version drift / unknown version) | back up progress → re-copy the kit (progress preserved) → fill in missing file templates → walk each contract gap (exam-point table / examPoint tags / card mapping — guided, never ghost-written) → close with the health check |
 
 Plus two ops entries: **health check** (`/study-doctor` — one-stop orchestration of the four quality gates + environment probes, with a pass/fail report and fix order) and **diagnostics** (progress not syncing, course 404, CLI config errors, scan hits… a symptom → root cause → action lookup table).
 
