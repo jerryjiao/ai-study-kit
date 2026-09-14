@@ -43,7 +43,7 @@ Tras instalar, reinicia el CLI (o abre una sesión nueva) y escribe `/ask-coach`
 
 Cada invocación sigue siempre tres pasos:
 
-1. **Sondeo del estado** (solo lectura, ≤1 min) — tema, inventario de preguntas/tarjetas/cursos/análisis, progreso de respuestas, erróneas sin graduarse, tarjetas vencidas, lecciones completadas, sesiones de tutoría y fecha del examen, configuración de IA, backend en línea o no.
+1. **Sondeo del estado** (solo lectura, ≤1 min) — tema, inventario de preguntas/tarjetas/cursos/análisis, progreso de respuestas, erróneas sin graduarse, tarjetas vencidas, lecciones completadas, objetivos orales débiles del interrogatorio (derivados del registro de intentos), sesiones de tutoría y fecha del examen, configuración de IA, backend en línea o no; si se indica la ruta al grafo de conocimiento, también las señales del grafo (cuatro estados por nodo, relaciones de prerrequisito — ver F12).
 2. **Informe + recomendación** — una tabla de instantánea + una acción recomendada con su razón + un menú numerado.
 3. **Ejecución acompañada** — una vez elegida la opción, sigue el playbook de `skills/ask-coach/references/flows.md` paso a paso y, al terminar, verifica contra los «criterios de cierre».
 
@@ -62,7 +62,7 @@ Sin una intención explícita, la recomendación toma el primer acierto en orden
 | 9 | Todas las preguntas respondidas y tasa de acierto ≥ 80 % | **F5** hacer un podcast (consolidación pasiva) o **F2** nuevo tema |
 | 10 | Todas las preguntas respondidas y tasa de acierto < 80 % | **F4** repaso a fondo de erróneas; si sigue sin llegar, **F6** reforzar el curso (la calidad de las lecciones no basta) |
 
-## Los once flujos
+## Los doce flujos
 
 | # | Flujo | Cuándo usarlo | Comandos clave |
 |---|-------|---------------|----------------|
@@ -75,8 +75,9 @@ Sin una intención explícita, la recomendación toma el primer acierto en orden
 | F7 | Editar contenido | cambiar preguntas/cursos/tarjetas/calendario | cadena de operaciones de las cuatro alineaciones + verificación |
 | F8 | Verificar y publicar | puerta de calidad previa al release | `pnpm run scan` / `test` / `build` + `scripts/bidirectional-check.py` |
 | F9 | Desplegar | subir al servidor en la nube | pm2 (arrancar desde `apps/quiz-app/`) |
-| F10 | Tutoría acompañada | enseñar cada punto por diálogo hasta dominarlo + evaluar en el momento + continuar entre días | conjunto mínimo de puntos desde la tabla → explicación en tres partes + frases ancla → evaluar por modo → guardar punto por punto en `study/records/` → pasar el testigo a F3 |
+| F10 | Tutoría acompañada | enseñar cada punto por diálogo hasta dominarlo + evaluar en el momento + continuar entre días | conjunto mínimo de puntos desde la tabla → explicación en tres partes + frases ancla → evaluar por modo → guardar punto por punto en `study/records/` (las preguntas orales van al registro oral-attempts.json) → pasar el testigo a F3 |
 | F11 | Sprint preexamen | ≤ 7 días para el examen, o pides «sprint / preexamen / intensivo» | cosechar frases de records + archivo de erróneas → paquete de sprint de cuatro piezas + versión imprimible en `study/sprint/` → pasar el testigo al simulacro de F3 |
+| F12 | Proyección del grafo de conocimiento | Tienes una base knowflow (graph.json) y quieres ver el coloreado por dominio y las conexiones entre puntos en el grafo | crear/confirmar el mapeo punto↔nodo (`study/records/graph-map.json`, propuesto por el agente y confirmado por ti punto por punto) → `pnpm run mastery -- --graph <graph.json> --write-projection` escribe la proyección de solo lectura; sin grafo / sin mapeo degrada en silencio y jamás se reescriben las páginas de conocimiento |
 
 Además, dos entradas de operaciones: el **chequeo** (`/study-doctor` — orquestación integral de las cuatro puertas de calidad + sondas de entorno, con informe de estado y orden de reparación) y el **diagnóstico** (progreso que no sincroniza, 404 de cursos, errores de configuración del CLI, aciertos del scan… una tabla de consulta rápida síntoma → causa raíz → solución).
 

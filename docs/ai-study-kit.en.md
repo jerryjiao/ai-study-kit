@@ -43,7 +43,7 @@ After installing, restart the CLI (or open a new session) and type `/ask-coach`.
 
 Every invocation runs the same three steps:
 
-1. **Scan state** (read-only, ≤1 min) — theme, question/card/course/deep-dive inventory, answering progress, ungraduated wrong questions, due flashcards, lessons completed, tutoring sessions and exam deadline, AI config, backend online or not.
+1. **Scan state** (read-only, ≤1 min) — theme, question/card/course/deep-dive inventory, answering progress, ungraduated wrong questions, due flashcards, lessons completed, weak oral-recitation targets (derived from the attempts ledger), tutoring sessions and exam deadline, AI config, backend online or not; with a knowledge graph location provided it also carries graph signals (per-node mastery four-states, prerequisite relations — see F12).
 2. **Report + recommend** — one snapshot table + one recommended action with a reason + a numbered menu.
 3. **Execute with you** — once you pick, it follows the playbook in `skills/ask-coach/references/flows.md` step by step, then checks the "done" criteria.
 
@@ -62,7 +62,7 @@ Without an explicit intent, the recommendation takes the first hit in order (ful
 | 9 | All questions answered & accuracy ≥ 80% | **F5** make a podcast (passive consolidation) or **F2** new theme |
 | 10 | All questions answered & accuracy < 80% | **F4** grilling; still short of the bar → **F6** patch the course (lesson quality isn't enough) |
 
-## The eleven flows
+## The twelve flows
 
 | # | Flow | When | Key commands |
 |---|------|------|--------------|
@@ -75,8 +75,9 @@ Without an explicit intent, the recommendation takes the first hit in order (ful
 | F7 | Edit content | Change questions/lessons/cards/schedule | four-alignment chain + checks |
 | F8 | Verify & release | Pre-release quality gate | `pnpm run scan` / `test` / `build` + `scripts/bidirectional-check.py` |
 | F9 | Deploy | Put it on a cloud server | pm2 (start from `apps/quiz-app/`) |
-| F10 | Coached tutoring | Teach each exam point through dialogue + quiz on the spot + resume across days | minimal exam-point set from the table → three-part explanation + anchor phrase → quiz by mode → persist per point into `study/records/` → hand over to F3 |
+| F10 | Coached tutoring | Teach each exam point through dialogue + quiz on the spot + resume across days | minimal exam-point set from the table → three-part explanation + anchor phrase → quiz by mode → persist per point into `study/records/` (oral Q&As go into the oral-attempts.json ledger) → hand over to F3 |
 | F11 | Pre-deadline sprint | ≤ 7 days to the exam, or you say "sprint / pre-exam / cram" | harvest records phrases + wrong-question archives → four-piece sprint package + print version into `study/sprint/` → hand over to F3 mock exam |
+| F12 | Knowledge-graph projection | You have a knowflow knowledge base (graph.json) and want mastery coloring and exam-point edges visible on the graph | build/confirm the exam-point↔node mapping (`study/records/graph-map.json`, proposed by the agent, confirmed by you item by item) → `pnpm run mastery -- --graph <graph.json> --write-projection` writes the read-only projection; no graph / no mapping degrades silently and knowledge pages are never written back |
 
 Plus two ops entries: **health check** (`/study-doctor` — one-stop orchestration of the four quality gates + environment probes, with a pass/fail report and fix order) and **diagnostics** (progress not syncing, course 404, CLI config errors, scan hits… a symptom → root cause → action lookup table).
 

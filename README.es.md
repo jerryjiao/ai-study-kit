@@ -44,7 +44,7 @@ Instala todo el kit en tu agente de IA (zcode / Claude Code). **Sin clonar el re
 # instala ai-study-kit y dile «quiero aprender X» (o /ask-coach) en una nueva sesión
 ```
 
-Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Once flujos cubiertos de principio a fin, agrupados en cuatro líneas — enseñanza (tutoría guiada, sprint de pre-examen), práctica (estudio diario, repaso de errores, pódcast), contenido (tema nuevo, generación de cursos, edición de contenido), operaciones (arranque, verificación, despliegue) — ver [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).
+Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin. Doce flujos cubiertos de principio a fin, agrupados en cuatro líneas — enseñanza (tutoría guiada, sprint de pre-examen), práctica (estudio diario, repaso de errores, pódcast), contenido (tema nuevo, generación de cursos, edición de contenido), operaciones (arranque, verificación, despliegue, proyección del grafo) — ver [`docs/ai-study-kit.es.md`](docs/ai-study-kit.es.md).
 
 ¿Solo quieres ver cómo es? Sigue la ruta de clonación de abajo.
 

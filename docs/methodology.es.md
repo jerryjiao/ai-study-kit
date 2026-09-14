@@ -38,9 +38,9 @@ La herramienta organiza cinco tipos de artefactos en torno a un mismo conjunto d
 4. **Análisis a fondo de erróneas (salida del CLI grill)** — los fallos de alta frecuencia se agrupan en clústeres y cada uno se excava a fondo: por qué te equivocaste y dónde está la frontera de lo confuso, no solo la respuesta correcta.
 5. **Podcasts de repaso (salida del CLI podcast)** — cursos, preguntas y análisis de erróneas convertidos en audio a dos voces (presentador y presentadora) para repasar en trayectos y entrenamientos.
 
-### La línea de coach: `/ai-study-kit`
+### La línea de coach: `/ask-coach`
 
-Con tantas funciones, «¿qué toca hacer exactamente hoy?» se vuelve una carga en sí misma. El coach de estudio `/ai-study-kit` se encarga del enrutamiento: cada vez sondea primero tu estado de aprendizaje en modo solo lectura, luego te da una acción recomendada con su razón, y una vez elegida te guía por el playbook. Dos de sus flujos corresponden directamente a las afirmaciones más profundas de esta metodología:
+Con tantas funciones, «¿qué toca hacer exactamente hoy?» se vuelve una carga en sí misma. El coach de estudio `/ask-coach` se encarga del enrutamiento: cada vez sondea primero tu estado de aprendizaje en modo solo lectura, luego te da una acción recomendada con su razón, y una vez elegida te guía por el playbook. Dos de sus flujos corresponden directamente a las afirmaciones más profundas de esta metodología:
 
 - **F10 tutoría acompañada** — la lección es unidireccional; la tutoría es un diálogo: explica a fondo cada punto de examen (qué es / por qué / cuándo se usa), evalúa en el momento y corrige el error en el momento. Es el complemento interactivo de «construir conceptos con materiales de referencia».
 - **F11 sprint preexamen** — a ≤ 7 días de la fecha del examen se abre la ventana de cosecha: cosecha solo lo ya aprendido (frases ancla, archivo de erróneas), no añadas lecciones nuevas; memoriza a fondo y valida con un simulacro.
@@ -105,7 +105,7 @@ Aplica esta metodología a tu propio tema (K8s, React, vocabulario de inglés, c
 4. **Valida con preguntas** — valen exámenes reales, simulacros o preguntas escritas por ti; la clave es que sea **cuantificable**. La tasa de acierto no es el fin, es una señal de diagnóstico.
 5. **Excava en las erróneas** — no te quedes con la respuesta correcta; pregúntate «por qué fallé, dónde está la confusión, cómo sería una variante». Deja que se acumulen y deja que el CLI grill las agrupe y las explique a fondo.
 
-No hace falta recorrer el flujo a mano: con el coach `/ai-study-kit` instalado, basta decir «quiero aprender X» y el flujo F2 de nuevo tema te llevará por los pasos anteriores en orden.
+No hace falta recorrer el flujo a mano: con el coach `/ask-coach` instalado, basta decir «quiero aprender X» y el flujo F2 de nuevo tema te llevará por los pasos anteriores en orden.
 
 ---
 

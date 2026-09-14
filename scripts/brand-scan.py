@@ -84,6 +84,10 @@ SKIP_DIRS = {
     "__pycache__", "podcast-out", ".quizbuild", ".astro",
 }
 
+# Built-artifact directories we never scan into (suffix match on relative path):
+# demo 是 CI 现场构建的产物，bundle 文件名含 Vite 内容哈希（随机 base62）——
+# 短个人语境词（T5/T8…）会随机撞上哈希子串造成假阳性（源码本身已被扫描）。
+SKIP_REL_DIR_SUFFIXES = {"site/public/demo"}
 # Files we never scan (by exact name).
 SKIP_FILES = {
     "brand-scan.py",  # this file contains the keywords itself
@@ -138,6 +142,10 @@ def iter_scan_files(root: Path):
     """Yield files we should scan, skipping noise directories and binary paths."""
     for dirpath, dirnames, filenames in os.walk(root):
         # prune in-place so os.walk doesn't descend
+        rel = Path(dirpath).relative_to(root).as_posix()
+        if any(rel == s or rel.endswith("/" + s) for s in SKIP_REL_DIR_SUFFIXES):
+            dirnames[:] = []
+            continue
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
         for fname in filenames:
             if fname in SKIP_FILES:

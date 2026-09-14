@@ -38,9 +38,9 @@ The tool organizes five kinds of artifacts around the same exam points, plus a c
 4. **Wrong-question deep-dives** (grill CLI output) — high-frequency mistakes clustered and expanded per cluster: why you got it wrong and where the confusing boundaries lie, not just the correct answer.
 5. **Review podcasts** (podcast CLI output) — courses, questions and deep-dives turned into two-host audio for commutes and workouts.
 
-### The coach line: `/ai-study-kit`
+### The coach line: `/ask-coach`
 
-Once there are many features, "what exactly should I do today?" becomes a burden in itself. The `/ai-study-kit` study coach does the routing: it first scans your learning state read-only, recommends one action with a reason, then walks you through the playbook once you pick. Two of its flows map directly onto deeper claims of this methodology:
+Once there are many features, "what exactly should I do today?" becomes a burden in itself. The `/ask-coach` study coach does the routing: it first scans your learning state read-only, recommends one action with a reason, then walks you through the playbook once you pick. Two of its flows map directly onto deeper claims of this methodology:
 
 - **F10 coached tutoring** — lessons are one-way, tutoring is a dialogue: teach each exam point thoroughly (what / why / when to use), quiz on the spot, correct misconceptions on the spot. An interactive complement to "build concepts from reference materials".
 - **F11 pre-deadline sprint** — within 7 days of the exam date you enter the harvest window: only harvest what you've already learned (anchor phrases, wrong-answer archives), no new lessons; memorize, then validate with a mock exam.
@@ -104,7 +104,7 @@ Apply this methodology to your own topic (K8s, React, vocabulary, any subject):
 4. **Validate with questions** — real exams, mocks or self-written all work; the key is that it's **quantifiable**. Accuracy isn't the goal, it's a diagnostic signal.
 5. **Dig into wrong answers** — don't just read the correct answer; ask "why was I wrong, where's the confusion boundary, how would a variant look". Let them pile up, then let the grill CLI cluster and expand them.
 
-You don't have to walk this manually — once the `/ai-study-kit` coach is installed, say "I want to learn X" and the F2 new-theme flow walks you through the steps above.
+You don't have to walk this manually — once the `/ask-coach` coach is installed, say "I want to learn X" and the F2 new-theme flow walks you through the steps above.
 
 ---
 

@@ -106,7 +106,7 @@ Tus respuestas erróneas del servidor, agrupadas por punto de examen con un LLM 
 4. por clúster, el LLM produce un HTML de análisis profundo (tabla de diferencias clave + diagrama de decisión + avisos de errores frecuentes + entrenamiento con variantes)
 5. se escribe en `examples/<theme>/study/wrong-questions/cluster-NN-<slug>.html` (lo producido en la ubicación antigua `wrong-questions/` se reconoce y migra automáticamente)
 6. se actualiza `examples/<theme>/study/wrong-questions/index.html`, la portada del centro de erróneas
-7. **también produce el perfil del aprendiz**: el LLM registra además, por punto de examen, las causas de error (wrongReasons / advice) en `examples/<theme>/study/records/profile.json` (legible por máquinas; los clústeres que compartan algún id de pregunta se fusionan en el mismo punto y se acumulan). El perfil es un dato privado del aprendiz y nunca se publica con el build; la próxima ejecución de `mastery-report` o la sonda de `/ai-study-kit` lo recogen automáticamente, de modo que la recomendación se concreta: «EP-03 fallado 2 veces, causa: poca soltura combinando bits de permisos».
+7. **también produce el perfil del aprendiz**: el LLM registra además, por punto de examen, las causas de error (wrongReasons / advice) en `examples/<theme>/study/records/profile.json` (legible por máquinas; los clústeres que compartan algún id de pregunta se fusionan en el mismo punto y se acumulan). El perfil es un dato privado del aprendiz y nunca se publica con el build; la próxima ejecución de `mastery-report` o la sonda de `/ask-coach` lo recogen automáticamente, de modo que la recomendación se concreta: «EP-03 fallado 2 veces, causa: poca soltura combinando bits de permisos».
 
 ### Uso
 
@@ -133,7 +133,7 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 
 ## mastery-report — informe de dominio por punto de examen (sin IA)
 
-Herramienta complementaria de grill: **deriva de forma determinista** el dominio de cada punto de examen (el `examPoint` de las preguntas, EP-NN) a partir del banco de preguntas + el progreso de respuestas, sin LLM. La comparten personas y agentes: las personas leen la tabla, los agentes consumen `--json` (la línea «puntos débiles» de la sonda de `/ai-study-kit` sale de aquí).
+Herramienta complementaria de grill: **deriva de forma determinista** el dominio de cada punto de examen (el `examPoint` de las preguntas, EP-NN) a partir del banco de preguntas + el progreso de respuestas, sin LLM. La comparten personas y agentes: las personas leen la tabla, los agentes consumen `--json` (la línea «puntos débiles» de la sonda de `/ask-coach` sale de aquí).
 
 ### Criterios (cuatro estados)
 

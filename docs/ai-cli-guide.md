@@ -106,7 +106,7 @@ pnpm run ai:teach -- --theme X --json        # 机器可读输出（agent 消费
 4. 每簇 LLM 产深度精讲 HTML（核心区别表 + 决策流程图 + 易错警示 + 变体训练）
 5. 写到 `examples/<theme>/study/wrong-questions/cluster-NN-<slug>.html`（旧位置 `wrong-questions/` 的产物会自动识别迁移）
 6. 更新 `examples/<theme>/study/wrong-questions/index.html` 错题中心主页
-7. **顺产学习者档案**：LLM 同时把考点级错因（wrongReasons / advice）写进 `examples/<theme>/study/records/profile.json`（机器可读，题 id 重叠即同考点合并累积）。档案是学习者私有数据，不随 build 上站；下次跑 `mastery-report` 或 `/ai-study-kit` 探测时自动带出，让推荐理由具体到「EP-03 连错 2 次，错因：权限位组合不熟」。
+7. **顺产学习者档案**：LLM 同时把考点级错因（wrongReasons / advice）写进 `examples/<theme>/study/records/profile.json`（机器可读，题 id 重叠即同考点合并累积）。档案是学习者私有数据，不随 build 上站；下次跑 `mastery-report` 或 `/ask-coach` 探测时自动带出，让推荐理由具体到「EP-03 连错 2 次，错因：权限位组合不熟」。
 
 ### 用法
 
@@ -133,7 +133,7 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 
 ## mastery-report — 考点掌握报告（无 AI）
 
-串讲的伴生工具：从题库 + 答题进度**确定性派生**每个考点（题的 `examPoint`，EP-NN）的掌握度，不需要 LLM。人和 agent 共用——人看表格，agent 吃 `--json`（`/ai-study-kit` 探测快照的「弱考点」行就来自它）。
+串讲的伴生工具：从题库 + 答题进度**确定性派生**每个考点（题的 `examPoint`，EP-NN）的掌握度，不需要 LLM。人和 agent 共用——人看表格，agent 吃 `--json`（`/ask-coach` 探测快照的「弱考点」行就来自它）。
 
 ### 判据（四态）
 

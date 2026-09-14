@@ -106,7 +106,7 @@ Pulls your wrong answers from the server, clusters them by exam point with an LL
 4. per cluster the LLM writes a deep-dive HTML (core-differences table + decision flowchart + pitfall warnings + variant drills)
 5. written to `examples/<theme>/study/wrong-questions/cluster-NN-<slug>.html` (output in the legacy `wrong-questions/` location is recognized and migrated automatically)
 6. updates `examples/<theme>/study/wrong-questions/index.html`, the wrong-question hub
-7. **also writes a learner profile**: the LLM additionally records per-exam-point wrong reasons (wrongReasons / advice) into `examples/<theme>/study/records/profile.json` (machine-readable; clusters sharing any question id merge into the same point and accumulate). The profile is private learner data and never ships with the build; the next `mastery-report` run or `/ai-study-kit` probe picks it up automatically, so recommendations get specific — "EP-03 missed twice, reason: unfamiliar with permission-bit combinations".
+7. **also writes a learner profile**: the LLM additionally records per-exam-point wrong reasons (wrongReasons / advice) into `examples/<theme>/study/records/profile.json` (machine-readable; clusters sharing any question id merge into the same point and accumulate). The profile is private learner data and never ships with the build; the next `mastery-report` run or `/ask-coach` probe picks it up automatically, so recommendations get specific — "EP-03 missed twice, reason: unfamiliar with permission-bit combinations".
 
 ### Usage
 
@@ -133,7 +133,7 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # pull wrong answers from a
 
 ## mastery-report — exam-point mastery report (no AI)
 
-Companion tool to grill: **deterministically derives** each exam point's mastery (a question's `examPoint`, EP-NN) from the question bank + answer progress — no LLM involved. Shared by humans and agents: humans read the table, agents consume `--json` (the `/ai-study-kit` probe's "weak points" snapshot line comes from here).
+Companion tool to grill: **deterministically derives** each exam point's mastery (a question's `examPoint`, EP-NN) from the question bank + answer progress — no LLM involved. Shared by humans and agents: humans read the table, agents consume `--json` (the `/ask-coach` probe's "weak points" snapshot line comes from here).
 
 ### Criteria (four states)
 
