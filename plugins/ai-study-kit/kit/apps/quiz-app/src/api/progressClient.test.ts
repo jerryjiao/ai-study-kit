@@ -89,6 +89,31 @@ describe('progressClient 本地模式', () => {
     expect(posts).toHaveLength(1);
   });
 
+  it('远端快照缺 answers（旧格式）→ 忽略快照 + remote-invalid 告警，不锁本地模式（审计 bug #53）', async () => {
+    const store = stubLocalStorage();
+    store.set('ask-progress-v1', JSON.stringify(makeProgress('GIT-001')));
+    // 服务器在线但返回的快照缺 answers（v0.10 前旧格式）
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ version: 1, read: {} }), { status: 200 }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const { loadProgress, saveProgress, isLocalMode, setSyncListener } = await freshClient();
+
+    const statuses: string[] = [];
+    setSyncListener((s) => statuses.push(s));
+    const p = await loadProgress();
+
+    expect(isLocalMode()).toBe(false);                       // 服务器在线，不锁本地模式
+    expect(p.answers['GIT-001']?.correct).toBe(true);        // 本地副本原样返回
+    expect(statuses).toContain('remote-invalid');            // 显式告警，不静默
+    expect(statuses).not.toContain('local');
+
+    // 后续保存照常 POST——服务器 read-merge-write 会用合法快照修复存储
+    await saveProgress(makeProgress('GIT-003'));
+    const posts = fetchMock.mock.calls.filter((c) => c[1]?.method === 'POST');
+    expect(posts).toHaveLength(1);
+  });
+
   it('本地模式不是终身监禁：冷却期后保存会懒重探，后端恢复即回到同步模式', async () => {
     vi.useFakeTimers();
     try {

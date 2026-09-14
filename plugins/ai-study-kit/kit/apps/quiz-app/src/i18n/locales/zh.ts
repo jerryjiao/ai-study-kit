@@ -192,6 +192,7 @@ export const zh = {
 
   // 同步横幅
   'sync.local': '在线演示模式：进度仅保存在此浏览器，不联网同步',
+  'sync.remoteInvalid': '服务器上的进度数据格式过旧，已忽略这份快照——进度暂以本浏览器为准，下次保存会自动修复',
   'sync.retrying': '正在重试同步…',
   'sync.error': '进度同步失败，已暂存本地。点击重试',
   'sync.retry': '重试',

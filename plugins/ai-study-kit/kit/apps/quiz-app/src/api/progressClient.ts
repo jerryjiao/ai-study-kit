@@ -7,13 +7,13 @@ const LS_KEY = 'ask-progress-v1';
  *  每个元素是一个完整 Progress 快照（不是增量），flush 时按 submittedAt merge 进服务器。 */
 const PENDING_KEY = 'ask-progress-pending';
 
-/** 同步状态回调：让 UI 层（useProgress）感知成功/失败/本地模式，显示 banner */
-type SyncListener = (status: 'saved' | 'error' | 'local') => void;
+/** 同步状态回调：让 UI 层（useProgress）感知成功/失败/本地模式/远端快照不合格，显示 banner */
+type SyncListener = (status: 'saved' | 'error' | 'local' | 'remote-invalid') => void;
 let syncListener: SyncListener | null = null;
 export function setSyncListener(fn: SyncListener | null): void {
   syncListener = fn;
 }
-function notify(status: 'saved' | 'error' | 'local'): void {
+function notify(status: 'saved' | 'error' | 'local' | 'remote-invalid'): void {
   try { syncListener?.(status); } catch { /* 监听器异常不影响主流程 */ }
 }
 
@@ -50,10 +50,16 @@ function readLocal(): Progress {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return emptyProgress();
     const p = JSON.parse(raw);
-    return p && p.version === 1 && p.answers ? p : emptyProgress();
+    return isValidProgress(p) ? p : emptyProgress();
   } catch {
     return emptyProgress();
   }
+}
+
+/** 快照形状校验：本地缓存、pending 队列、远端 GET 三处同一把尺（version 1 + answers 对象）。
+ *  不校验更深的字段——mergeProgress 对缺省字段有合并语义，这里只拦「根本不是 Progress」。 */
+function isValidProgress(p: unknown): p is Progress {
+  return !!p && (p as Progress).version === 1 && !!(p as Progress).answers;
 }
 function writeLocal(p: Progress) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(p)); } catch { /* 忽略配额 */ }
@@ -65,7 +71,7 @@ function readPending(): Progress[] {
     const raw = localStorage.getItem(PENDING_KEY);
     if (!raw) return [];
     const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr.filter((x) => x && x.version === 1 && x.answers) : [];
+    return Array.isArray(arr) ? arr.filter(isValidProgress) : [];
   } catch {
     return [];
   }
@@ -92,6 +98,15 @@ export async function loadProgress(): Promise<Progress> {
       return readLocal();
     }
     const remote = (await res.json()) as Progress;
+    // 远端快照过与本地同构的形状校验（isValidProgress，同一把尺）：服务器在线但快照缺
+    // answers 等旧格式，不能直接 merge（mergeProgress 会抛 TypeError 被下方 catch 吞掉 →
+    // 假「网络不可达」锁死本地模式，用户以为进度丢了）。不合格 → 忽略这份快照、显式告知
+    // UI（banner 说明「服务器数据格式旧，已忽略」），不锁本地模式——后续保存照常 POST，
+    // 服务器 read-merge-write 会用合法新快照修复存储（审计 bug #53）。
+    if (!isValidProgress(remote)) {
+      notify('remote-invalid');
+      return readLocal();
+    }
     // ⭐ 合并时【重读】本地快照，而非函数开头捕获的旧值：
     //    GET 期间可能已有乐观写入落盘（markRead/submitAnswer 的 writeLocal 先行、POST 在途），
     //    用旧快照 merge 后回写会把它们清掉，造成"UI 有、存储无"的口径漂移（2026-08-17 踩过）。

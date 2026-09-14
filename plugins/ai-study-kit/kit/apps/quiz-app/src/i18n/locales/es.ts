@@ -195,6 +195,7 @@ export const es: Record<TKey, string> = {
 
   // Aviso de sincronización
   'sync.local': 'Modo demo: el progreso se guarda solo en este navegador, sin sincronización',
+  'sync.remoteInvalid': 'Los datos de progreso del servidor tienen un formato antiguo y se han ignorado — el progreso sigue a este navegador por ahora; el próximo guardado lo reparará automáticamente',
   'sync.retrying': 'Reintentando sincronización…',
   'sync.error': 'Falló la sincronización: guardado localmente. Toca para reintentar.',
   'sync.retry': 'Reintentar',

@@ -1,7 +1,7 @@
 # Flow Playbooks · 流程手册
 
 > Step 3 按编号取用。每个流程：**目的 → 前置 → 步骤 → 完成标志**。
-> 路径基准：有仓库时相对仓库根；插件安装用户（无仓库）相对**用户学习项目根**（F0 建的 `<project>/`）。改文件前先看 SKILL.md 硬红线。
+> 路径基准：有仓库时相对仓库根；插件安装用户（无仓库）相对**用户学习项目根**（F1 建的 `<project>/`）。改文件前先看 SKILL.md 硬红线。
 > 文中 `examples/<theme>/` 泛指**主题源目录**——主题住外部主题包（F2 第 4 步二选一）时，把路径换成该包目录。
 
 ---
@@ -12,7 +12,18 @@
 
 **定位插件里的快照**：本文件位于 `<插件根>/skills/ask-coach/references/flows.md`，向上三级即插件根，快照在 `<插件根>/kit/`（zcode/Claude 安装的插件目录都能这样反推；找不到就问用户插件装在哪或改走末尾的 clone 备选路线）。
 
-**步骤**：
+**第 0 步 · 先探测再分支（写死，存量项目绝不盲拷）**：
+
+```bash
+# <项目> = 用户学习项目根（问一次，默认 ~/study-kit/）
+test -d <项目>/kit && echo "kit=exists" || echo "kit=clean"
+cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
+```
+
+- **kit 目录不存在（干净目录）** → 走下方从零初始化。
+- **kit 目录已存在**——有版本文件且落后于 `<插件根>/kit/kit-version.json`，或无版本文件（= 版本未知，按最老处理）→ **不执行任何拷贝**，报两处版本差（用户项目 vS → 插件 vT）并**转 F13 升级**。为什么写死：无条件 `cp -r` 拷在已存在目录上会把新快照嵌套成 `kit/kit`，存量项目直接搞乱——误被路由进 F1 的老项目正是靠这道分支被认出来（ADR-0006）。
+
+**步骤**（仅干净目录）：
 
 1. 选定用户学习项目目录（问一次，默认 `~/study-kit/`），拷出快照并装依赖：
 
@@ -33,7 +44,7 @@
 
 **完成标志**：三个 tab 都能正常渲染。之后默认接力 F2。
 
-**升级**（插件更新后）：`cp kit/apps/quiz-app/progress.json /tmp/` → 重拷 `<插件根>/kit` → 拷回 progress.json（进度按题 id 存，主题包在 kit 外均不受影响）。
+**升级**（插件更新后）：不走本流程——kit 目录已存在，第 0 步会转 F13（保数据升级）。
 
 ---
 
@@ -543,11 +554,68 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
 ---
 
+## F13 · 升级（upgrade，ADR-0006）
+
+**目的**：把存量项目（CONTEXT.md 术语）一趟带到与当前插件版本**全功能对齐**——kit 代码更新到快照版本、缺失的新文件按模板补齐、契约缺口逐项引导补齐。数据不丢是硬承诺：progress 全程只备份不解析、分毫不动。此前被静默降级的功能（掌握度退纯题维度、考点全景口头信号恒为零）在这里被点名并给补法——**降级必告知，给补齐路径**。
+
+**什么时候用**：
+
+- /ask-coach 探测报版本落后（快照「版本」行：用户项目 kit 与插件快照两处 `kit-version.json` 的 diff，state.md §8）。
+- F1 第 0 步识别到 kit 目录已存在（版本落后或版本未知）转来。
+- 用户明说「升级 / 更新项目 / 项目旧了 / 补功能」。
+
+**什么时候不用**：
+
+- 干净目录 → F1 从零初始化（F13 只对已存在的项目）。
+- 主题内容要改 → F7。F13 不代写内容，只补模板与点名缺口。
+
+**步骤**：
+
+1. **读两处版本，报漂移**（只读）：用户项目 `kit/kit-version.json` vs 插件快照 `<插件根>/kit/kit-version.json`（定位法同 F1）。无版本文件 = **版本未知，按最老处理**——如实告知「项目建于版本标记出现之前」，不给错误的安全感。落后 N 版用 CHANGELOG 数版本号，不做语义化比较。
+
+2. **备份 progress**（唯一必保数据）：
+
+   ```bash
+   cp <项目>/kit/apps/quiz-app/progress.json <项目>/progress.backup-<YYYYMMDD>.json
+   ```
+
+   progress 是运行期数据，升级全程**不解析、不合并、不改写**——只备份与原样保留。
+
+3. **重拷 kit（保 progress 拷回）**：主题包住 kit 外（F2 建议形态），重拷不碰它——多主题用户的所有主题包均不受影响，升级只动 kit 代码与契约映射。
+
+   ```bash
+   # 先挪走 progress（下面会清掉整个 kit 目录）：
+   mv <项目>/kit/apps/quiz-app/progress.json /tmp/progress-keep.json
+   rm -rf <项目>/kit && cp -r <插件根>/kit <项目>/kit
+   mv /tmp/progress-keep.json <项目>/kit/apps/quiz-app/progress.json
+   # 验版本 + 验无嵌套：
+   cat <项目>/kit/kit-version.json   # = 快照版本
+   test ! -d <项目>/kit/kit && echo "no-nesting=ok"
+   ```
+
+4. **对照快照补缺失的新文件模板**（只补缺失，不覆盖已有）：diff 用户项目与插件快照的文件清单，缺的**代码/配置文件**从快照拷入。主题包侧（kit 外）缺的可选契约文件按模板补——`theme-config.json` 缺可不补（无配置回退是正常态，要定制呈现层再按仓库 `docs/theming.md` 的字段表写模板）；**冲刺包打印版**（`study/sprint/print.html`）是 F11 的随包产物，旧冲刺包没有属正常——下次 F11 产包自动带上，要给旧包补就重跑一次 F11。**v0.14 新数据文件（`study/records/oral-attempts.json`、`graph-map.json`）不补**——沿用「首用时自建、只读不建」惯例，没用到的新功能不添升级步骤。
+
+5. **契约缺口逐项引导（只点名 + 给补法，绝不代写内容——内容主权在学习者）**：
+
+   | 缺口 | 项目里的表现 | 补法（学习者的活，F13 只引导） |
+   |------|-------------|-------------------------------|
+   | MISSION.md 无「## 考点排布表」 | 四对齐校验回退 dev-intro 关键词模式并 ⚠；考点名映射为空 | 按 F2 第 2 步补表（考点/深度/题型×题量/day/闪卡数） |
+   | 题库缺 `examPoint`/`day` 标记 | `mastery-report` 考点全部 untouched、首页掌握度面板无考点 | 照排布表给 `questions.json` 的题补 `examPoint`（EP-NN）与 `day`，改题保留旧 id |
+   | 闪卡缺 `examPoint` 映射 | 掌握度退**纯题维度**（闪卡通道不参与判据）——升级前用户感知不到，此处点名 | 给 `flashcards.json` 的卡补 `examPoint` 字段映射到对应考点 |
+
+   每项引用实测数据说明「补了恢复什么」（如 `mastery-report --json` 显示 0/45 题带考点标记 → 补齐后掌握度/全景/弱考点推荐才活），逐项问用户「现在补还是稍后」；不补的照实记着，第 6 步体检里如实报「已知悉未补」。
+
+6. **收尾体检**：跑「体检」节的两个新探测项——**版本漂移**报「已对齐」；**契约完整性**按第 5 步处置结果如实报（没补的缺口仍列出，注明学习者已知悉）。全绿的口径 = 无漂移 + 无**未告知**的缺口，不是无缺口。
+
+**完成标志**：`<项目>/kit/kit-version.json` = 快照版本 · 无嵌套 `kit/kit` · progress 与升级前逐字节一致（`diff` 备份）· 每个契约缺口已补或已明确告知。
+
+---
+
 ## 体检（study-doctor）
 
-**目的**：一句话把**全部校验门 + 环境探测**串成一份汇总报告——每项过/红 + 建议修复顺序。零新校验逻辑：四门校验跑的是 F8 既有命令（去掉最慢的 build），环境探测跑的是 state.md 既有探测命令，体检只做编排聚合。新主题建站后、出问题时、发布前想快速确认状态，都从这儿进。
+**目的**：一句话把**全部校验门 + 环境探测**串成一份汇总报告——每项过/红 + 建议修复顺序。零新校验逻辑：四门校验跑的是 F8 既有命令（去掉最慢的 build），环境探测跑的是 state.md 既有探测命令，加上版本漂移 + 契约完整性两个探测项（ADR-0006，命令见下方第 3 步），体检只做编排聚合。新主题建站后、出问题时、发布前想快速确认状态，都从这儿进。
 
-**与 F8 的分工**：F8 是发布质量门（五门含 build，红了不许发布）；体检是**诊断视图**——不跑 build（慢且写盘），多探一层环境（LLM/TTS/后端/主题/sync 新鲜度），红项给修复顺序。
+**与 F8 的分工**：F8 是发布质量门（五门含 build，红了不许发布）；体检是**诊断视图**——不跑 build（慢且写盘），多探一层环境（LLM/TTS/后端/主题/sync 新鲜度/版本漂移/契约完整性），红项给修复顺序。
 
 **步骤**（命令原样串跑，逐项记 ✅/❌）：
 
@@ -574,7 +642,29 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
    sync 不新鲜的表现：diff 报差异或 `src/data/*.json` 不存在——源改了没重跑 `pnpm dev/build`（内含 sync）。
 
-3. **按模板输出报告**（数字全部来自实测）：
+3. **版本漂移 + 契约完整性**（ADR-0006 两探测项，只读、只报事实与补法、不代修）：
+
+   ```bash
+   # ① 版本漂移：用户项目 kit 版本 vs 插件快照版本（state.md §8；仅用户学习项目形态——
+   #    仓库本体恒与 skill 同代，报「仓库本体」即可）
+   cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
+   cat <插件根>/kit/kit-version.json
+   # ② 契约完整性：排布表 / 题库考点标记 / 闪卡映射三件（D=主题源目录，同 §1 两形态）
+   grep -c '^## 考点排布表' "$D/MISSION.md" 2>/dev/null || echo "table=missing"
+   THEME_DIR="$D" node -e '
+   const fs = require("fs");
+   const D = process.env.THEME_DIR;
+   const qs = JSON.parse(fs.readFileSync(`${D}/questions.json`, "utf-8"));
+   const fc = JSON.parse(fs.readFileSync(`${D}/flashcards.json`, "utf-8"));
+   console.log(`questionsTagged=${qs.filter((q) => q.examPoint).length}/${qs.length} flashcardsMapped=${fc.filter((c) => c.examPoint).length}/${fc.length}`);
+   '
+   ```
+
+   - 漂移三态：两处版本相等 = 已对齐；用户项目版本旧 = 落后 N 版（CHANGELOG 数版本）→ 补法走 F13；无版本文件 = 版本未知按最老 → 同样 F13。
+   - 契约缺口判定：`table=missing` 或 0 = 排布表缺失；`questionsTagged` 低于全量 = 掌握度/全景的考点维度失明；`flashcardsMapped=0`（或排布表声明有卡考点却无映射）= 掌握度退纯题维度。补法都在 F13 第 5 步的表里——只报事实，不虚报也不代修。
+   - 已对齐 + 无缺口的项目：两项报 ✅，不输出多余噪音。
+
+4. **按模板输出报告**（数字全部来自实测）：
 
    ```
    🩺 体检报告
@@ -589,10 +679,13 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
      后端 :8787 … 在线 ✅ / 离线（要 F4 拉错题先 pnpm run server）
      主题 … <theme>（dir ok / MISSING / 外部主题包路径）
      sync 新鲜度 … ✅ / ❌（重跑 pnpm build——常连带解掉假红）
+   版本与契约（ADR-0006；只报事实与补法）：
+     版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体
+     契约完整性 … ✅ 无缺口 / ⚠ <排布表缺失 · 题缺考点标记 N/M · 卡缺映射 N/M>（补法见 F13 第 5 步）
    建议修复顺序：<只列红项，按下面的固定优先级>
    ```
 
-4. **修复顺序**（固定优先级，只报红项）：**sync 不新鲜 → 校验门红**（先重跑 `pnpm build` 再复检——产物落后会造成假红）→ **.env 缺项** → **后端离线**。为什么 sync 在最前：它是「环境在说谎」的那一类，先排除假信号再修真问题。
+5. **修复顺序**（固定优先级，只报红项）：**sync 不新鲜 → 校验门红**（先重跑 `pnpm build` 再复检——产物落后会造成假红）→ **版本漂移**（走 F13——旧 kit 跑新 skill 文档会撞墙，先对齐再修别的）→ **契约缺口**（F13 第 5 步引导补，学习者的活）→ **.env 缺项** → **后端离线**。为什么 sync 在最前：它是「环境在说谎」的那一类，先排除假信号再修真问题；漂移排在其后同理——kit 代际差会让校验结果本身不可信。
 
 **完成标志**：报告已输出（全绿加一句「可发布，发布前再走 F8 过 build 门」；有红则修复顺序已给出）。修复后重跑体检确认转绿。
 

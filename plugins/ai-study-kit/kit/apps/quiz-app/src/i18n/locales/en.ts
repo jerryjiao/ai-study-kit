@@ -195,6 +195,7 @@ export const en: Record<TKey, string> = {
 
   // Sync banner
   'sync.local': 'Demo mode: progress is saved in this browser only — no server sync',
+  'sync.remoteInvalid': 'The progress data on the server is in an outdated format and was ignored — progress follows this browser for now; the next save will repair it automatically',
   'sync.retrying': 'Retrying sync…',
   'sync.error': 'Progress sync failed — saved locally. Tap to retry.',
   'sync.retry': 'Retry',

@@ -196,6 +196,21 @@ grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有�
 
 **旧布局兼容**：探测遇根级 `learning-records/` → 按本节同样的判定规则照读照报（进不进行中、待办数、模式都照算），并在快照或报告追加一句提示：`检测到旧目录 learning-records/，可一次性迁入 study/records/（F10 兼容识别，迁移自愿）`。只提示不代迁，一次会话提一遍即可。
 
+## 8. kit 版本（快照「版本」行，ADR-0006）
+
+用户学习项目（F1/F13 建的，根下有 `kit/`）才探；仓库本体贡献者形态恒与 skill 文档同代，报「仓库本体」即可。
+
+```bash
+# 用户项目 kit 版本——无此文件 = 版本未知，按最老处理（不是故障，版本标记前的项目都这样）
+cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
+# 插件快照版本：本文件位于 <插件根>/skills/ask-coach/references/state.md，向上三级即插件根
+cat <插件根>/kit/kit-version.json
+```
+
+- 两处都有 → 按号判断落后与否（不做语义化比较）；落后时报「落后 N 版」（N 用仓库 CHANGELOG 的版本数数出来），快照行指 F13。
+- 用户项目无版本文件 → 报「版本未知，按最老处理」，同样指 F13——不给错误的安全感。
+- 版本号相等 → 「已对齐」。
+
 ## 快照之外的加分项（顺手看，不强制）
 
 - `git status --porcelain` 有未提交改动且涉及 `examples/` → 快照里提一句「有未提交的内容改动，发布前记得走 F8 校验」。

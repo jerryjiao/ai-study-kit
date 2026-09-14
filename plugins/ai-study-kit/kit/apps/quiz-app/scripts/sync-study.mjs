@@ -8,7 +8,7 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveThemeDir } from './lib/theme-path.mjs';
+import { resolveThemeDir, detectStickyTheme } from './lib/theme-path.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..', '..');
@@ -42,9 +42,10 @@ function copyTree(src, dest, rel = '') {
 
 // 课程源目录 → public/study/<name>/：仓库内 examples/<theme>/，或外部主题包路径
 // （EXAMPLE_THEME 含路径分隔符即外部形态，见 lib/theme-path.mjs；name 取 basename，URL 不变）。
-// 切换主题：改 EXAMPLE_THEME 环境变量。多个主题可放进数组（如 ['dev-intro', 'k8s-basics']）。
-const EXAMPLE_THEME = process.env.EXAMPLE_THEME || 'dev-intro';
-const COURSES = [resolveThemeDir(EXAMPLE_THEME, repoRoot)];
+// 主题解析走 detectStickyTheme（EXAMPLE_THEME > theme.json 粘滞 > dev-intro）——与 sync-examples
+// 同一口径：裸跑不读粘滞主题会把 dev-intro 课程站静默同步到别的主题的数据层上（审计 bug #52）。
+const THEME_RAW = detectStickyTheme(join(__dirname, '..', 'src', 'data'), repoRoot);
+const COURSES = [resolveThemeDir(THEME_RAW, repoRoot)];
 
 mkdirSync(join(__dirname, '..', 'public', 'study'), { recursive: true });
 

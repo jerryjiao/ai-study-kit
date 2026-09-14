@@ -13,7 +13,7 @@ import { loadProgress, saveProgress, setSyncListener, flushPending } from '../ap
 interface ProgressCtxValue {
   progress: Progress;
   loaded: boolean;
-  syncStatus: SyncStatus;       // 'saved' | 'error' | 'local'：同步/失败/本地模式（见 types.ts）
+  syncStatus: SyncStatus;       // 'saved' | 'error' | 'local' | 'remote-invalid'：同步/失败/本地模式/远端快照不合格（见 types.ts）
   retrySync: () => Promise<void>; // 手动重试 flush pending 队列（点击 banner 时调）
   submitAnswer: (id: string, rec: AnswerRecord) => void;
   markRead: (id: string) => void;
