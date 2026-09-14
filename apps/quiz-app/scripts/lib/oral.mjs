@@ -78,16 +78,18 @@ export function mergeOralAttempts(a = [], b = []) {
 }
 
 /**
- * 目标引用解析。优先级：EP 前缀 → 映射反查（graph-map 的 node 路径/label → EP）→ 裸考点名回退。
- * 返回 via = 命中路径（ep 前缀 | node 映射反查 | name 裸名回退）——聚合方据此决定计数去向
+ * 目标引用解析。优先级：EP 前缀 → 映射反查（graph-map 的 node 路径/label → EP）→
+ * 图节点直引（graph.json 的节点路径/label，未映射的无题知识点）→ 裸考点名回退。
+ * 返回 via = 命中路径（ep 前缀 | node 映射/直引 | name 裸名回退）——聚合方据此决定计数去向
  * （节点命中只进节点桶，不经映射重复计入 EP，避免多节点共享一个 EP 时计数放大）。
  * @param {string} target 原始目标引用
  * @param {object} [p]
- * @param {object} [p.epNames]  EP-NN → 考点名（epNameMap 输出），裸名匹配用它
- * @param {object} [p.graphMap] loadGraphMap 输出（{ byNode, byLabel, byEp }），映射反查用它
+ * @param {object} [p.epNames]   EP-NN → 考点名（epNameMap 输出），裸名匹配用它
+ * @param {object} [p.graphMap]  loadGraphMap 输出（{ byNode, byLabel, byEp }），映射反查用它
+ * @param {object} [p.graphNodes] { byId: Map<id,{id,label}>, byLabel: Map }（图节点直引索引）
  * @returns {{ ep: string|null, node: string|null, name: string, via: 'ep'|'node'|'name'|null, resolved: boolean }}
  */
-export function resolveOralTarget(target, { epNames = {}, graphMap = null } = {}) {
+export function resolveOralTarget(target, { epNames = {}, graphMap = null, graphNodes = null } = {}) {
   const raw = String(target ?? '').trim();
   // ① EP 前缀最优先（「EP-03 chmod 权限」→ EP-03，后缀只作人读备注）
   const epm = raw.match(/^(EP-\d+)\b/);
@@ -99,17 +101,34 @@ export function resolveOralTarget(target, { epNames = {}, graphMap = null } = {}
     const byLabel = graphMap.byLabel?.get(raw);
     if (byLabel) return { ep: byLabel.ep, node: byLabel.node, name: raw, via: 'node', resolved: true };
   }
-  // ③ 裸考点名回退：与排布表考点名精确相等
+  // ③ 图节点直引（未映射节点的引用通道）：路径精确 → label 精确
+  if (graphNodes) {
+    const byId = graphNodes.byId?.get(raw);
+    if (byId) return { ep: null, node: byId.id, name: byId.label || raw, via: 'node', resolved: true };
+    const byLabel = graphNodes.byLabel?.get(raw);
+    if (byLabel) return { ep: null, node: byLabel.id, name: raw, via: 'node', resolved: true };
+  }
+  // ④ 裸考点名回退：与排布表考点名精确相等
   for (const [ep, name] of Object.entries(epNames)) {
     if (name === raw) return { ep, node: null, name: raw, via: 'name', resolved: true };
   }
   return { ep: null, node: null, name: raw, via: null, resolved: false };
 }
 
+/** 图节点直引索引（graph = loadKnowledgeGraph 输出）——resolveOralTarget 的 graphNodes 参数。 */
+export function graphNodeIndex(graph) {
+  if (!graph) return null;
+  return {
+    byId: new Map(graph.nodes.map((n) => [n.id, n])),
+    byLabel: new Map(graph.nodes.filter((n) => n.label).map((n) => [n.label, n])),
+  };
+}
+
 /**
- * 按解析目标聚合流水计数。
- * EP 前缀与裸名命中 → byEp；节点命中只进 byNode（不经映射重复计入 EP）；
- * 完全未解析 → byName（无题知识点的兜底桶，消费方按名字认领）。
+ * 按解析目标聚合流水计数。每条明细只进一个主桶（不重复计数）：
+ * 解析出 EP 的（EP 前缀 / 裸名命中 / 经映射反查到 EP 的节点引用）→ byEp（考点视图）；
+ * 纯图节点直引（未映射的无题知识点，ep 为空）→ byNode（节点视图）；
+ * 完全未解析 → byName（兜底桶，消费方按名字认领）。
  * @returns {{ byEp: Map<string,{asked,correct}>, byNode: Map<string,{asked,correct}>, byName: Map<string,{asked,correct}> }}
  */
 export function aggregateOral(attempts = [], opts = {}) {
@@ -124,8 +143,8 @@ export function aggregateOral(attempts = [], opts = {}) {
   };
   for (const a of attempts) {
     const r = resolveOralTarget(a.target, opts);
-    if (r.via === 'ep' || (r.via === 'name' && r.ep)) bump(byEp, r.ep, a.correct);
-    else if (r.via === 'node') bump(byNode, r.node, a.correct);
+    if (r.ep) bump(byEp, r.ep, a.correct);
+    else if (r.node) bump(byNode, r.node, a.correct);
     else bump(byName, r.name, a.correct);
   }
   return { byEp, byNode, byName };
@@ -172,6 +191,7 @@ export function mergeMastery(epStatus, oralStatus) {
 
 /**
  * 按解析目标把流水明细分组（保留时序——oralMastery 需要每组完整作答序列算加权）。
+ * 分桶规则与 aggregateOral 一致：解析出 EP 优先，纯节点直引次之，未解析进 byName。
  * @returns {{ byEp: Map<string,Array>, byNode: Map<string,Array>, byName: Map<string,Array> }}
  */
 export function groupOralAttempts(attempts = [], opts = {}) {
@@ -180,10 +200,10 @@ export function groupOralAttempts(attempts = [], opts = {}) {
   const byName = new Map();
   for (const a of attempts) {
     const r = resolveOralTarget(a.target, opts);
-    if (r.via === 'ep' || (r.via === 'name' && r.ep)) {
+    if (r.ep) {
       if (!byEp.has(r.ep)) byEp.set(r.ep, []);
       byEp.get(r.ep).push(a);
-    } else if (r.via === 'node') {
+    } else if (r.node) {
       if (!byNode.has(r.node)) byNode.set(r.node, []);
       byNode.get(r.node).push(a);
     } else {

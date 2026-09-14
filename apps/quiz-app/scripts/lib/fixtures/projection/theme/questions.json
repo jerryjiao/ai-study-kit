@@ -1,0 +1,5 @@
+[
+  { "id": "DEV-001", "topic": "git", "type": "single", "question": "q1", "options": ["a", "b", "c", "d"], "answer": 0, "examPoint": "EP-01", "day": "D1" },
+  { "id": "DEV-002", "topic": "git", "type": "single", "question": "q2", "options": ["a", "b", "c", "d"], "answer": 1, "examPoint": "EP-02", "day": "D1" },
+  { "id": "DEV-003", "topic": "git", "type": "single", "question": "q3", "options": ["a", "b", "c", "d"], "answer": 2, "examPoint": "EP-03", "day": "D2" }
+]

@@ -1,0 +1,14 @@
+{
+  "nodes": [
+    { "id": "concepts/staging.md", "label": "暂存区", "category": "concepts" },
+    { "id": "concepts/revert.md", "label": "revert", "category": "concepts" },
+    { "id": "concepts/branch.md", "label": "分支", "category": "concepts" },
+    { "id": "concepts/作用域.md", "label": "作用域", "category": "concepts" },
+    { "id": "entities/git.md", "label": "git", "category": "entities" }
+  ],
+  "edges": [
+    { "id": 0, "from": "concepts/staging.md", "to": "concepts/commit.md", "arrows": "to" },
+    { "id": 1, "from": "concepts/revert.md", "to": "concepts/staging.md", "arrows": "to", "relation": "前置" }
+  ],
+  "stats": { "total_nodes": 5, "total_edges": 2 }
+}

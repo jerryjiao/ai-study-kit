@@ -31,14 +31,15 @@
  * records 与流水都是学习者私有不上站，本命令在本地读它们派生信号。
  * 消费方：skill「报进度」全景卡、web 覆盖快照（同判据）。
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
-import { readOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath } from './lib/oral.mjs';
+import { readOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath, graphNodeIndex } from './lib/oral.mjs';
+import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor } from './lib/graph-bridge.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -56,6 +57,10 @@ const { dir: THEME_DIR, name: THEME } = resolveThemeDir(
 const AS_JSON = args.includes('--json');
 const AS_PANORAMA = args.includes('--panorama');
 const PROGRESS_PATH = take('--progress') || join(REPO_ROOT, 'apps', 'quiz-app', 'progress.json');
+// 投影桥（v0.14，ADR-0005）：knowflow 图位置以参数/环境变量传入（同进度文件模式）；
+// --write-projection 现算后产出只读投影文件（默认落 graph.json 同目录 mastery-projection.json）。
+const GRAPH_PATH = take('--graph') || process.env.KNOWFLOW_GRAPH_JSON || null;
+const WRITE_PROJECTION = args.includes('--write-projection');
 
 // ── 数据装载 ──────────────────────────────────────────────
 const questionsPath = join(THEME_DIR, 'questions.json');
@@ -140,9 +145,17 @@ const { points, untracked } = masteryByExamPoint({ questions, answers, epNames, 
 const weak = rankWeakness(points);
 const byStatus = (s) => points.filter((p) => p.status === s).length;
 
+// 投影桥（v0.14，ADR-0005）：knowflow 图 + 考点节点映射 → 只读投影（节点四态供图着色）。
+// 图与映射缺任一即静默降级为纯考点口径（graph.loaded = false），绝不报错——
+// 没装 knowflow 的用户看不到任何变化。映射文件学习者私有（不上站不提交，ADR-0002）。
+const graphMap = loadGraphMap(THEME_DIR);
+const graph = loadKnowledgeGraph(GRAPH_PATH);
+const graphNodes = graphNodeIndex(graph);
+
 // 口头四态（v0.14）：排布表全部考点（无流水 = 未开始）∪ 流水里的裸知识点（无题新知识）。
 // EP 目标的 status 是纯口头通道判据；与题库四态的合流（负面证据优先）在消费方做（mergeMastery）。
-const oralGroups = groupOralAttempts(oralAttempts, { epNames });
+// 解析链带图节点直引（graphNodes）——图节点路径/label 引用的问答归节点桶，不冒充裸名。
+const oralGroups = groupOralAttempts(oralAttempts, { epNames, graphMap, graphNodes: graphNodes ?? undefined });
 const oralTargets = [
   ...Object.entries(epNames).map(([ep, name]) => {
     const m = oralMastery(oralGroups.byEp.get(ep) ?? []);
@@ -154,6 +167,32 @@ const oralTargets = [
   }),
 ];
 const oralWeak = rankOralWeakness(oralTargets);
+
+// 投影构建（graphMap / graph / graphNodes 已在上面装载）
+let graphSignal = { loaded: false, path: GRAPH_PATH || '(未传 --graph / KNOWFLOW_GRAPH_JSON)', note: '无图数据，功能静默降级为纯考点口径' };
+let projectionResult = null;
+if (graph) {
+  const pkgVer = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf-8')).version;
+  const projection = buildProjection({
+    graph, graphMap, points, oralAttempts, epNames,
+    generatedAt: new Date().toISOString(),
+    source: `ai-study-kit mastery v${pkgVer}`,
+  });
+  graphSignal = {
+    loaded: true,
+    path: GRAPH_PATH,
+    nodeCount: graph.nodes.length,
+    edgeCount: graph.edges.length,
+    mappedCount: graphMap ? graph.nodes.filter((n) => graphMap.byNode.has(n.id)).length : 0,
+    hasGraphMap: !!graphMap,
+    nodes: projection.nodes,   // 节点四态 + 口头统计（agent 探测消费）
+  };
+  if (WRITE_PROJECTION) {
+    const outPath = projectionPathFor(GRAPH_PATH);
+    writeFileSync(outPath, JSON.stringify(projection, null, 2) + '\n');
+    projectionResult = { written: true, path: outPath, generatedAt: projection.generatedAt, source: projection.source };
+  }
+}
 
 const joinProfile = (p) => {
   if (!profile || !Array.isArray(profile.examPoints)) return undefined;
@@ -186,6 +225,7 @@ const report = {
     targets: oralTargets,
     weakRanked: oralWeak.map((t) => t.target),
   },
+  graph: { ...graphSignal, projection: projectionResult },
 };
 
 // ── 输出 ──────────────────────────────────────────────────
@@ -215,6 +255,10 @@ if (AS_JSON) {
     if (oralWeak.length) {
       console.log(`  👉 口头弱项：${oralWeak.slice(0, 3).map((t) => (t.kind === 'ep' ? `${t.ep} ${t.name}` : t.name)).join('、')}`);
     }
+  }
+  if (graphSignal.loaded) {
+    console.log('');
+    console.log(`  🕸️ 知识图：${graphSignal.nodeCount} 节点 · ${graphSignal.edgeCount} 边 · 映射 ${graphSignal.mappedCount}${projectionResult ? ` · 投影已产出 ${projectionResult.path}` : '（加 --write-projection 产出投影文件）'}`);
   }
   if (report.globalPatterns.length) {
     console.log('');

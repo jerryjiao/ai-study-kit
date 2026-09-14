@@ -493,6 +493,56 @@ status: in-progress    # in-progress | done
 
 ---
 
+## F12 · 知识图谱投影（graph projection，v0.14）
+
+**目的**：把本仓的学习状态（题库掌握度 + 口头四态）投影到外部知识库 knowflow 的图上（节点着色）——知识住 knowflow，学习状态住本仓，桥只传一份**只读投影文件**，绝不回写知识页（ADR-0005）。
+
+**什么时候用**：用户想「在知识图谱上看见掌握情况 / 图着色 / 学的东西连成网」；或陪练中建立了新概念想同步图上状态。**没装 knowflow / 没有图的用户永远走不到这里**——所有图功能静默降级为纯考点口径，不报错、不唠叨。
+
+**两仓边界**：knowflow 的图 = wiki 页 + wikilink → `graph.json`（学习者手动采集合成，本仓**零摄取**）；本仓的信号 = progress / SRS / 口头答题流水。两者靠**考点节点映射**对上。
+
+### 第 1 步 · 找图与映射（缺任一 → 静默降级，直接说明即可）
+
+```bash
+# 图位置：问用户 knowflow 仓库的 graph.json 路径（或环境变量 KNOWFLOW_GRAPH_JSON）
+test -f "$GRAPH" && echo graph=ok || echo graph=missing
+# 映射文件（学习者私有，随 study/records/ 不上站不提交）：
+ls "$THEME_DIR/study/records/graph-map.json" 2>/dev/null || echo map=none
+```
+
+两者都在 → 继续；缺任一 → 本流程不可用（不是故障）：
+- 有图无映射 → 先走第 2 步建映射。
+- 无图 → 告诉用户图功能需要 knowflow 知识库（`graph.json`），本仓不接管知识采集。
+
+### 第 2 步 · 建考点节点映射（agent 提议 → 学习者逐条确认，绝不代确认）
+
+映射文件 `study/records/graph-map.json`（`{ version: 1, updatedAt, mappings: [{ node, ep, label }] }`，node = knowflow 节点相对路径，ep = EP-NN）：
+
+1. **提议**：加载图节点（graph.json 的 id/label）与主题排布表考点（EP-NN + 考点名），按 label ↔ 考点名提出候选映射清单（节点路径、EP、双方名称并列展示）。
+2. **确认**：逐条请学习者点头/改/弃——**宁可漏映射也不错配**（未映射节点仍可经口头流水独立判掌握，只是不并入考点视图）；按标题模糊匹配的「看起来像」不算确认。
+3. **落盘**：写入 `study/records/graph-map.json`（已有条目合并，学习者否决的不再提议）。学习者的确认本身是数据——agent 不悄悄改它。
+
+**红线**：绝不把 EP 或学习状态写进 knowflow 的 wiki 页面（知识库渗学习元数据，ADR-0005 明拒）。
+
+### 第 3 步 · 产出投影（掌握度现算 → 只读文件）
+
+```bash
+node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" --write-projection --json
+```
+
+- 产物：`<graph.json 同目录>/mastery-projection.json`（`{ version: 1, generatedAt, source, nodes: [{ id, mastery, oral: { asked, correct } }] }`）——只读、可重复生成；graph.json 本体与知识页零改动，flowtest 等其他消费方零感知。
+- 节点四态口径：映射节点 = 题库四态（v1.1）∪ 口头四态合流（负面证据优先）；未映射节点 = 纯口头通道。图与映射缺任一 → `graph.loaded = false`，报告自动退回纯考点口径。
+- 四态→颜色的映射规则由 knowflow 侧定义（本仓不越界）；学习者重新跑一次本命令即刷新着色数据。
+
+**完成标志**：投影文件落盘在图目录旁 + `--json` 的 `graph.projection.written = true`。提示用户在 knowflow 侧重新生成/打开图谱看节点着色。
+
+### 只干 / 绝不干
+
+- **只干**：找图与映射、提议映射待确认、现算产出只读投影。
+- **绝不干**：回写 knowflow 的 graph.json / wiki 页；代学习者确认映射；在无图环境下硬造图信号（降级是特性不是故障）。
+
+---
+
 ## 体检（study-doctor）
 
 **目的**：一句话把**全部校验门 + 环境探测**串成一份汇总报告——每项过/红 + 建议修复顺序。零新校验逻辑：四门校验跑的是 F8 既有命令（去掉最慢的 build），环境探测跑的是 state.md 既有探测命令，体检只做编排聚合。新主题建站后、出问题时、发布前想快速确认状态，都从这儿进。

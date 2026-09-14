@@ -161,6 +161,18 @@ SERVER=http://my-server:8787 pnpm run ai:grill       # 拉远端错题
 
 `oral.weakRanked` 给 agent 点名口头弱项；与题库考点四态合流时**负面证据优先**（任一弱即弱），题通道有数据以题为准，题没刷过时口头最多推到「进行中」（验效果靠做题）。既有考点四态判据（上表）一字不动。
 
+### 知识图投影（v0.14，`--graph` / `--write-projection`）
+
+传 `--graph <graph.json 路径>`（或环境变量 `KNOWFLOW_GRAPH_JSON`）时，报告装载外部知识库 knowflow 的知识图，结合考点节点映射（`study/records/graph-map.json`，agent 提议、学习者确认）产出**只读投影文件**：
+
+```bash
+pnpm run mastery -- --graph /path/to/knowflow/graph/graph.json --write-projection
+# → graph.json 同目录产出 mastery-projection.json：
+#   { version: 1, generatedAt, source, nodes: [{ id, mastery, oral: { asked, correct } }] }
+```
+
+`--json` 的 `graph` 字段带图信号：节点四态（映射节点 = 题库四态 ∪ 口头四态合流；未映射节点 = 纯口头通道）、映射计数、投影产出结果。**无图 / 无映射 = 静默降级**为纯考点口径（`graph.loaded = false`），不是故障；graph.json 本体与知识页零改动，知识库永不回写（ADR-0005 投影桥）。
+
 ### 用法
 
 ```bash

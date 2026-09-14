@@ -159,6 +159,18 @@ Cada objetivo oral del registro de intentos orales (`study/records/oral-attempts
 | Sin empezar | sin entradas en el registro |
 
 `oral.weakRanked` permite al agente nombrar los objetivos orales débiles; al fusionar con el canal de preguntas manda la **evidencia negativa** (cualquier débil → débil), el canal de preguntas decide cuando tiene datos, y sin respuestas el canal oral como mucho eleva el punto a «en progreso» (la verificación llega resolviendo preguntas). El criterio existente de puntos de examen (tabla anterior) no cambia.
+### Proyección del grafo de conocimiento (v0.14, `--graph` / `--write-projection`)
+
+Con `--graph <ruta de graph.json>` (o la variable de entorno `KNOWFLOW_GRAPH_JSON`) el informe carga el grafo de conocimiento externo de knowflow y, combinado con el mapeo punto de examen↔nodo (`study/records/graph-map.json`, propuesto por el agente y confirmado por quien aprende), produce un **archivo de proyección de solo lectura**:
+
+```bash
+pnpm run mastery -- --graph /ruta/knowflow/graph/graph.json --write-projection
+# → escribe mastery-projection.json junto a graph.json:
+#   { version: 1, generatedAt, source, nodes: [{ id, mastery, oral: { asked, correct } }] }
+```
+
+El campo `graph` de `--json` aporta las señales del grafo: cuatro estados por nodo (nodos mapeados = estado del canal de preguntas fusionado con el oral, evidencia negativa primero; nodos sin mapear = canal puramente oral), recuentos mapeados y el resultado de la proyección. **Sin grafo / sin mapeo = degradación silenciosa** a la vista pura de puntos de examen (`graph.loaded = false`): no es un error; graph.json y las páginas de conocimiento jamás se modifican ni se les escribe de vuelta (el puente de proyección de ADR-0005).
+
 
 
 ### Uso

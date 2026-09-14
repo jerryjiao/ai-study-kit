@@ -63,6 +63,10 @@ const GRAPHMAP = {
   byNode: new Map([['concepts/staging.md', { node: 'concepts/staging.md', ep: 'EP-01', label: '暂存区' }]]),
   byLabel: new Map([['暂存区', { node: 'concepts/staging.md', ep: 'EP-01', label: '暂存区' }]]),
 };
+const GRAPHNODES = {
+  byId: new Map([['concepts/作用域.md', { id: 'concepts/作用域.md', label: '作用域' }]]),
+  byLabel: new Map([['作用域', { id: 'concepts/作用域.md', label: '作用域' }]]),
+};
 
 test('resolve: EP 前缀最优先——节点映射存在也不反查', () => {
   const r = resolveOralTarget('EP-02 分支合并', { epNames: EPNAMES, graphMap: GRAPHMAP });
@@ -85,15 +89,18 @@ test('resolve: 裸考点名回退排布表名；完全未解析 → 全 null + r
 
 // ── aggregateOral ──────────────────────────────────────────
 
-test('aggregate: EP 目标进 byEp；节点目标只进 byNode（不经映射重复计入 EP）；未解析进 byName', () => {
+test('aggregate: 解析出 EP 的归 byEp（含映射反查）；纯节点直引归 byNode；未解析进 byName', () => {
   const { byEp, byNode, byName } = aggregateOral([
     { target: 'EP-01', correct: true, at: 1 },
     { target: 'EP-01', correct: false, at: 2 },
-    { target: 'concepts/staging.md', correct: true, at: 3 },
-    { target: '图上没有的概念', correct: true, at: 4 },
-  ], { epNames: EPNAMES, graphMap: GRAPHMAP });
-  assert.deepEqual(byEp.get('EP-01'), { asked: 2, correct: 1 });   // 节点命中不叠加
-  assert.deepEqual(byNode.get('concepts/staging.md'), { asked: 1, correct: 1 });
+    { target: 'concepts/staging.md', correct: true, at: 3 },   // graphMap 反查到 EP-01 → EP 桶
+    { target: '暂存区', correct: false, at: 4 },               // label 同上
+    { target: 'concepts/作用域.md', correct: true, at: 5 },    // 纯节点直引（graphNodes）→ 节点桶
+    { target: '图上没有的概念', correct: true, at: 6 },
+  ], { epNames: EPNAMES, graphMap: GRAPHMAP, graphNodes: GRAPHNODES });
+  assert.deepEqual(byEp.get('EP-01'), { asked: 4, correct: 2 });
+  assert.deepEqual(byNode.get('concepts/作用域.md'), { asked: 1, correct: 1 });
+  assert.equal(byNode.has('concepts/staging.md'), false);      // 映射命中不重复计节点
   assert.deepEqual(byName.get('图上没有的概念'), { asked: 1, correct: 1 });
 });
 

@@ -116,6 +116,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" 
 - 判据（v1.1 双通道）：考点（题库 `examPoint`，EP-NN）下题全答对、无未毕业错题，且映射闪卡（`flashcards.json` 可选 `examPoint`）全部毕业（SRS phase=review）= 掌握；有未毕业错题或当前答错 = 弱；部分作答无负面、或题全对但映射闪卡未全毕业 = 进行中。无映射闪卡的考点退回纯题维度。考点名从 MISSION 排布表解析。
 - `--progress` 文件不存在 = 空进度全部 untouched，不是故障；`--theme` 两种形态都认（同 §1）。
 - **口头四态与口头弱项（v0.14，同一份 `--json` 的 `oral` 字段）**：口头答题流水（`study/records/oral-attempts.json`）里的每个口头目标——排布表全部考点 ∪ 流水里的裸知识点（聊天新学、无题的概念）——判纯口头四态（近 5 次加权正确率 + 置信度封顶 1 次 0.5 / 2 次 0.8；无流水目标 = 未开始）。输出消费：`oral.weakRanked` 与 `oral.targets[].status` 进快照「弱考点」行的口头弱项——推荐时点名（「拥塞控制口头问 2 对 2、加权 0.8 还没到掌握线，再抽两轮」）。口头弱与题库弱**负面优先**：任一弱即弱；题没刷过时口头最多算「进行中」——推荐先补题。
+- **知识图信号（v0.14，同一份 `--json` 的 `graph` 字段）**：传 `--graph <graph.json 路径>`（或环境变量 `KNOWFLOW_GRAPH_JSON`）时，报告装载 knowflow 知识图并给出 `graph.nodes`（节点四态 + 口头统计）与映射计数；配合 `--write-projection` 产出只读投影文件供图着色（flows.md F12）。无图 / 无映射 → `graph.loaded = false`，静默降级为纯考点口径，不是故障。
 - 输出消费：`summary.weak` 与 `weakRanked`（弱点排序：未毕业多者先）进快照「弱考点」行；`points[].profile` 带 grill 串讲记下的错因（来自 `study/records/profile.json`，学习者私有不上站，目录语义见 §7）——推荐时点名引用，让理由从「错题多」变成「EP-03 连错 2 次，错因：权限位组合不熟」。`points[].flashOpenIds` 列出该考点未毕业的闪卡（推荐刷闪卡时点名）；判据与 web 首页「考点掌握度」面板同口径。
 
 **考点全景（「报进度」，v0.13）**：进度统计之外的第二条派生——每考点三信号，按排布表 day 分组：

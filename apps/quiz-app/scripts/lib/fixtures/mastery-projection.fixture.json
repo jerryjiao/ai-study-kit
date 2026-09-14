@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-14T00:00:00.000Z",
+  "source": "ai-study-kit mastery v0.14",
+  "nodes": [
+    {
+      "id": "concepts/staging.md",
+      "mastery": "weak",
+      "oral": {
+        "asked": 1,
+        "correct": 0
+      }
+    },
+    {
+      "id": "concepts/revert.md",
+      "mastery": "weak",
+      "oral": {
+        "asked": 2,
+        "correct": 2
+      }
+    },
+    {
+      "id": "concepts/branch.md",
+      "mastery": "inProgress",
+      "oral": {
+        "asked": 3,
+        "correct": 3
+      }
+    },
+    {
+      "id": "concepts/作用域.md",
+      "mastery": "mastered",
+      "oral": {
+        "asked": 3,
+        "correct": 3
+      }
+    },
+    {
+      "id": "entities/git.md",
+      "mastery": "untouched",
+      "oral": {
+        "asked": 0,
+        "correct": 0
+      }
+    }
+  ]
+}

@@ -159,6 +159,18 @@ Every oral target in the oral attempts ledger (`study/records/oral-attempts.json
 | Untouched | no ledger entries |
 
 `oral.weakRanked` lets agents name weak oral targets; when merged with the question-channel four-state, **negative evidence wins** (any weak → weak), the question channel rules once it has data, and with no answers yet the oral channel can lift a point to at most "in progress" (verification happens by answering questions). The existing exam-point criteria (table above) are unchanged.
+### Knowledge-graph projection (v0.14, `--graph` / `--write-projection`)
+
+With `--graph <graph.json path>` (or the `KNOWFLOW_GRAPH_JSON` environment variable) the report loads the external knowflow knowledge graph and, combined with the exam-point↔node mapping (`study/records/graph-map.json`, proposed by the agent, confirmed by the learner), produces a **read-only projection file**:
+
+```bash
+pnpm run mastery -- --graph /path/to/knowflow/graph/graph.json --write-projection
+# → writes mastery-projection.json next to graph.json:
+#   { version: 1, generatedAt, source, nodes: [{ id, mastery, oral: { asked, correct } }] }
+```
+
+The `graph` field of `--json` carries the graph signals: per-node four-states (mapped nodes = question-channel state merged with the oral channel, negative evidence first; unmapped nodes = pure oral channel), mapped counts, and the projection result. **No graph / no mapping = silent degradation** to the pure exam-point view (`graph.loaded = false`) — not an error; graph.json itself and knowledge pages are never touched, and the knowledge base is never written back (the ADR-0005 projection bridge).
+
 
 
 ### Usage
