@@ -158,7 +158,7 @@ pnpm run mastery -- --progress /tmp/p.json     # select a progress file (default
                                                #  for server progress first run curl -sf $SERVER/api/progress -o /tmp/p.json)
 pnpm run mastery -- --panorama                  # exam-point panorama (v0.13): taught/practiced/mastered
                                                #  signals grouped by day + summary lines (taught = study records
-                                               #  ∪ lessons completed; practiced = answers or oral counts;
+                                               #  ∪ lessons completed; practiced = answers or the oral attempts ledger;
                                                #  mastered = the four-state criteria). Add --json for agents;
                                                #  the skill's "report progress" card consumes it
 ```

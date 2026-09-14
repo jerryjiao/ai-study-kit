@@ -158,7 +158,7 @@ pnpm run mastery -- --progress /tmp/p.json     # elegir archivo de progreso (por
                                                #  para el progreso del servidor, antes curl -sf $SERVER/api/progress -o /tmp/p.json)
 pnpm run mastery -- --panorama                  # panorama de puntos (v0.13): señales visto/practicado/dominado
                                                #  agrupadas por day + líneas de resumen (visto = registros de estudio
-                                               #  ∪ lecciones completadas; practicado = respuestas o conteo oral;
+                                               #  ∪ lecciones completadas; practicado = respuestas o el registro de intentos orales;
                                                #  dominado = criterio de cuatro estados). Añade --json para agentes;
                                                #  la tarjeta «reportar progreso» del skill sale de aquí
 ```

@@ -17,6 +17,7 @@ import { resolveThemeDir } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { buildCoverageSnapshot, readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
+import { readOralAttempts } from './lib/oral.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
@@ -148,6 +149,7 @@ const coverage = buildCoverageSnapshot(buildPanorama({
   epNames: examPoints,
   epDays: examDays,
   records: readSessionRecords(EXAMPLE_DIR),
+  oralAttempts: readOralAttempts(EXAMPLE_DIR),
   coursesRead: lessonsReadState(EXAMPLE_DIR, EXAMPLE_THEME, progressForCoverage),
 }));
 writeFileSync(

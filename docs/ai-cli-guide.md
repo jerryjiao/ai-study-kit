@@ -157,7 +157,7 @@ pnpm run mastery -- --json                     # 机器可读（agent 探测用�
 pnpm run mastery -- --progress /tmp/p.json     # 指定进度文件（默认 apps/quiz-app/progress.json；
                                                #  看线上进度先 curl -sf $SERVER/api/progress -o /tmp/p.json）
 pnpm run mastery -- --panorama                  # 考点全景（v0.13）：讲/练/掌三信号按 day 分组 + 汇总行
-                                               #  （讲过=学习记录∪课已学完 / 练过=答题或口头计数 / 掌握=四态判据）
+                                               #  （讲过=学习记录∪课已学完 / 练过=答题或口头流水 / 掌握=四态判据）
                                                #  加 --json 给 agent；skill「报进度」全景卡就来自它
 ```
 

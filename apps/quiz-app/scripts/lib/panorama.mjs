@@ -1,10 +1,11 @@
 // panorama.mjs — 考点全景图数据层（纯函数，无 IO）。
 //
 // 三信号口径（v0.13，spec #38）：
-//   taught 讲过    契约二学习记录（已过考点/口头题计数）覆盖的考点 ∪ 课已学完（全部课读完 =
+//   taught 讲过    契约二学习记录（已过考点）覆盖的考点 ∪ 课已学完（全部课读完 =
 //                  课程通道讲过；部分读完不归因到考点——课→考点无逐一映射，宁可少报不虚报）
-//   practiced 练过 该考点下有答题记录（answered > 0），或口头题计数 > 0（弱信号——聊天层
-//                  的口头问答也算练）
+//   practiced 练过 该考点下有答题记录（answered > 0），或口头问答 > 0（弱信号——聊天层
+//                  的口头问答也算练；v0.14 起口头计数唯一真源 = 口头答题流水
+//                  oral-attempts.json，旧记录手写「口头题计数」节照读合并）
 //   mastered 掌握  掌握度四态判据不变（masteryByExamPoint，题 + 闪卡双通道）
 //
 // 分组：按 MISSION 排布表 day 列（epDayMap）；无 day 归「未排程」组，无排布表全部归该组。
@@ -14,6 +15,7 @@
 // 沿掌握度 mastery.mjs/mastery.ts 双实现先例。web 侧消费的是内容无关覆盖快照（sync 产物），
 // 本文件同时是快照生成的判据源。
 import { masteryByExamPoint } from './mastery.mjs';
+import { aggregateOral } from './oral.mjs';
 
 /**
  * 全景聚合。
@@ -24,20 +26,20 @@ import { masteryByExamPoint } from './mastery.mjs';
  * @param {Array}  [p.flashcards] 主题闪卡（可选 examPoint）
  * @param {object} [p.epNames]    epNameMap 输出（EP → 考点名，名字匹配 records 用）
  * @param {object} [p.epDays]     epDayMap 输出（EP → day 分组）
- * @param {Array}  [p.records]    parseSessionRecord 输出数组（契约二学习记录，可空）
+ * @param {Array}  [p.records]    parseSessionRecord 输出数组（契约二学习记录，可空；旧「口头题计数」照读合并）
+ * @param {Array}  [p.oralAttempts] 口头答题流水明细（readOralAttempts 输出，v0.14 起口头计数的唯一真源）
  * @param {object} [p.coursesRead]  { lessonsTotal, lessonsDone }（课已学完口径；done=total>0 触发课程通道讲过）
  * @returns {{theme 字段由调用方补；本函数返回 summary + groups}}
  */
 export function buildPanorama({
   questions, answers = {}, srs = {}, flashcards = [], epNames = {}, epDays = {},
-  records = [], coursesRead = { lessonsTotal: 0, lessonsDone: 0 },
+  records = [], oralAttempts = [], coursesRead = { lessonsTotal: 0, lessonsDone: 0 },
 }) {
   const { points } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs });
 
   // 契约二记录 → 每个 EP 的覆盖证据。匹配两路：显式 EP 前缀（记录写「EP-01 暂存区」）或
-  // 名字精确匹配排布表考点名（记录写「暂存区」）。口头题计数同时算 练过 弱信号。
+  // 名字精确匹配排布表考点名（记录写「暂存区」）。
   const taughtByEp = new Map();
-  const oralByEp = new Map();
   const recordHits = (entry) => {
     if (!entry) return [];
     const targets = new Set();
@@ -53,15 +55,22 @@ export function buildPanorama({
     for (const passed of rec.passed || []) {
       for (const ep of recordHits(passed) ?? []) taughtByEp.set(ep, true);
     }
+  }
+  // 口头计数（v0.14 起唯一真源 = 口头答题流水；旧记录手写计数节照读合并，旧值不丢）：
+  const oralByEp = new Map();
+  const bumpOral = (ep, asked, correct) => {
+    const cur = oralByEp.get(ep) ?? { asked: 0, correct: 0 };
+    cur.asked += asked;
+    cur.correct += correct;
+    oralByEp.set(ep, cur);
+  };
+  for (const rec of records || []) {
     for (const oral of rec.oral || []) {
-      for (const ep of recordHits(oral) ?? []) {
-        const cur = oralByEp.get(ep) ?? { asked: 0, correct: 0 };
-        cur.asked += oral.asked;
-        cur.correct += oral.correct;
-        oralByEp.set(ep, cur);
-      }
+      for (const ep of recordHits(oral) ?? []) bumpOral(ep, oral.asked, oral.correct);
     }
   }
+  const ledgerOral = aggregateOral(oralAttempts, { epNames });
+  for (const [ep, c] of ledgerOral.byEp) bumpOral(ep, c.asked, c.correct);
   // 课程通道：全部课已学完 → 课程把整个大纲讲过一遍（部分读完不归因，宁少报不虚报）
   const courseTaughtAll = coursesRead.lessonsTotal > 0
     && coursesRead.lessonsDone === coursesRead.lessonsTotal;

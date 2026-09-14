@@ -20,9 +20,11 @@
  * 文件不存在 = 空进度（全部 untouched），不是故障。
  *
  * --panorama（v0.13）：考点全景图——每考点三信号（讲过=契约二学习记录 ∪ 课已学完 /
- * 练过=有答题或口头题计数 / 掌握=四态判据不变），按排布表 day 分组 + 汇总行。
- * 学习记录来自 study/records/*.md（契约二，parseSessionRecord 解析；records 学习者私有不上站，
- * 本命令在本地读它们派生信号）。消费方：skill「报进度」全景卡、web 覆盖快照（同判据）。
+ * 练过=有答题或口头问答 / 掌握=四态判据不变），按排布表 day 分组 + 汇总行。
+ * 学习记录来自 study/records/*.md（契约二，parseSessionRecord 解析）；口头信号 v0.14 起
+ * 以口头答题流水 study/records/oral-attempts.json 为唯一真源（旧记录手写计数节照读合并）。
+ * records 与流水都是学习者私有不上站，本命令在本地读它们派生信号。
+ * 消费方：skill「报进度」全景卡、web 覆盖快照（同判据）。
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -31,6 +33,7 @@ import { resolveThemeDir } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
+import { readOralAttempts } from './lib/oral.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -83,8 +86,9 @@ if (existsSync(profilePath)) {
 
 // ── 考点全景（--panorama，v0.13）：三信号 + day 分组，与掌握报告同数据源另派生一路 ──
 if (AS_PANORAMA) {
-  // 契约二学习记录 + 课已学完：与 sync-examples 的覆盖快照共用同一对装载器（lib/coverage.mjs）
+  // 契约二学习记录 + 口头答题流水 + 课已学完：与 sync-examples 的覆盖快照共用同一组装载器
   const records = readSessionRecords(THEME_DIR);
+  const oralAttempts = readOralAttempts(THEME_DIR);
   const { lessonsTotal, lessonsDone } = lessonsReadState(THEME_DIR, THEME, progress);
 
   const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
@@ -95,7 +99,7 @@ if (AS_PANORAMA) {
     progressSource: existsSync(PROGRESS_PATH) ? PROGRESS_PATH : '(空进度，全部未开始)',
     ...buildPanorama({
       questions, answers, srs, flashcards,
-      epNames, epDays: epDayMap(missionText), records,
+      epNames, epDays: epDayMap(missionText), records, oralAttempts,
       coursesRead: { lessonsTotal, lessonsDone },
     }),
   };
@@ -106,7 +110,7 @@ if (AS_PANORAMA) {
     const s = panorama.summary;
     const flag = (b) => (b ? '✓' : '·');
     console.log(`🗺️ 考点全景 · ${THEME}`);
-    console.log(`   进度源：${panorama.progressSource} · 记录 ${records.length} 份 · 课已学完 ${lessonsDone}/${lessonsTotal}${panorama.courseTaughtAll ? '（课程通道：全部考点记讲过）' : ''}`);
+    console.log(`   进度源：${panorama.progressSource} · 记录 ${records.length} 份 · 口头流水 ${oralAttempts.length} 条 · 课已学完 ${lessonsDone}/${lessonsTotal}${panorama.courseTaughtAll ? '（课程通道：全部考点记讲过）' : ''}`);
     console.log(`   总览：已讲 ${s.taught}/${s.examPoints} · 已练 ${s.practiced}/${s.examPoints} · 已掌握 ${s.mastered}/${s.examPoints}`);
     console.log('');
     for (const g of panorama.groups) {

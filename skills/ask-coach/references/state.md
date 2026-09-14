@@ -123,7 +123,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" 
 node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" --panorama --json
 ```
 
-- 三信号：**讲过** = 契约二学习记录（`study/records/*.md` 的已过考点/口头题计数，显式 EP 前缀或考点名精确匹配）∪ 课已学完（全部课读完才点亮课程通道——部分读完不归因到考点，宁少报不虚报）；**练过** = 该考点有答题记录，或口头题计数 > 0（弱信号）；**掌握** = 掌握度四态判据不变。无 records、无进度时只报客观侧（答题驱动或全 false），不虚报。
+- 三信号：**讲过** = 契约二学习记录（`study/records/*.md` 的已过考点，显式 EP 前缀或考点名精确匹配）∪ 课已学完（全部课读完才点亮课程通道——部分读完不归因到考点，宁少报不虚报）；**练过** = 该考点有答题记录，或口头问答 > 0（弱信号；v0.14 起口头计数唯一真源 = 口头答题流水 `study/records/oral-attempts.json`，旧记录手写「口头题计数」节照读合并）；**掌握** = 掌握度四态判据不变。无 records、无流水、无进度时只报客观侧（答题驱动或全 false），不虚报。
 - 聊天层**永远现算最新**（每次报进度重跑本命令；web 首页面板消费的是上次 build 时点的覆盖快照，两端口径一致、新鲜度不同）。
 - **全景卡模板**（数字全部来自实测 JSON，按此渲染后紧跟一句推荐）：
 
