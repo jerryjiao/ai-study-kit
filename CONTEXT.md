@@ -38,7 +38,19 @@ _Avoid_: 及格率、正确率（那是全题库口径，不是考点口径）
 
 **学习者档案（learner profile）**:
 `study/records/profile.json`——grill 串讲顺产的机器可读错因档案（考点级 wrongReasons/advice/串讲次数），skill 探测与 mastery-report 消费它把推荐理由具体化。与进度档案同目录，学习者私有，不随 build 上站。合并语义：新旧考点有题 id 重叠即同一考点。
-_Avoid_: 用户画像（那是增长/营销语境）、记忆图谱（借自外部项目的词，本仓库没有这层）
+_Avoid_: 用户画像（那是增长/营销语境）、记忆图谱（图在 knowflow 知识库，档案是错因记录不是图）
+
+**知识图谱投影（graph projection）**:
+知识与学习状态的接法（「投影桥」）：知识（概念与连线）住外部知识库 knowflow 的图，学习状态（作答/复习/掌握）住本仓信号源；掌握度永远现算，经一份只读投影文件（节点→状态）单向流向知识图谱供其着色与导航，绝不回写知识页。与 DeepTutor 同构（其 ConceptGraph 与 LearningStore 分家、靠 knowledge_point id 对接）。考点与图节点的对应见「考点节点映射」。
+_Avoid_: 把掌握度写进知识页（状态入库，两处真源打架）、双向同步
+
+**口头答题流水（oral attempts）**:
+聊天陪练中每次口头问答的明细记录（考哪个知识点、对错、时间戳），存 `study/records/oral-attempts.json`，学习者私有不上站。无题知识点（图节点）的掌握度信号源：近期加权正确率 + 置信度封顶（答 1 次封 0.5、2 次封 0.8，防一次蒙对），范式照搬 DeepTutor `compute_mastery`，确定性零 LLM。契约二「口头题计数」从它派生，不再手写总数。
+_Avoid_: 手写总数当真源（双记必漂移）、把明细流水写进 markdown 表格
+
+**考点节点映射（graph map）**:
+knowflow 图节点 id ↔ 考点（EP-NN）的个人映射文件 `study/records/graph-map.json`，agent 辅助建立、学习者确认。未映射节点仍可经口头流水判掌握，只是不并入考点视图。映射是个人学习数据，同 records 隐私边界（不上站、不提交）。
+_Avoid_: 把 EP 写进 knowflow 页面 frontmatter（知识库渗学习元数据）、按标题模糊匹配（幻影对齐）
 
 **主题配置（theme-config）**:
 主题包内可选的 `theme-config.json`——承载该主题的全部呈现层定制（排序/显示名/子主题/来源徽标/学习优先级层/深度徽标/样式）。应用代码不含任何主题数据，sync 时未提供则按字段逐项回退。
