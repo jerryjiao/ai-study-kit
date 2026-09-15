@@ -55,11 +55,16 @@ export default defineConfig({
         ru: { label: 'Русский', lang: 'ru' },
       },
       customCss: ['./src/styles/custom.css'],
-      // 页头覆盖：Starlight 默认 Header + 右上角「文档 / 在线试玩」常驻入口（src/components/Header.astro）
-      components: { Header: './src/components/Header.astro' },
+      // 页头覆盖：Starlight 默认 Header + 右上角「文档 / 在线试用」常驻入口（src/components/Header.astro）；
+      // 站尾覆盖：原版 0.41 无站点 footer 配置，补全站协议/仓库/更新日志站尾（src/components/SiteFooter.astro）
+      components: { Header: './src/components/Header.astro', Footer: './src/components/SiteFooter.astro' },
       // OG 分享图（#14：C 风基准，scripts/gen-og.py 生成 public/og.png 后提交入库）
       head: [
         { tag: 'meta', attrs: { property: 'og:image', content: `https://aistudykit.dev${SITE_BASE}/og.png` } },
+        // 显式尺寸与替代文本：分享卡占位稳定 + 无障碍/图片搜索语义
+        { tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+        { tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+        { tag: 'meta', attrs: { property: 'og:image:alt', content: 'ai-study-kit：把题库变成刷题、闪卡、错题精讲一体的学习闭环' } },
         { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
         // iOS 主屏图标（demo 页同款，quiz-app favicon.png 同源）；自定义 head 项不走

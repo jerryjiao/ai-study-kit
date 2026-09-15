@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" type="image/png" href="/favicon.png" />
-    <title>AI Study Kit · 学习练习站</title>
+    <!-- 品牌写法全站小写（ai-study-kit）；description/OG 是通用文案，不绑域名——
+         本地 / pm2 / 官网 demo 全部部署形态共用；官网专属的 canonical/og:url
+         由 apps/site/scripts/build-demo.mjs 在拷贝时注入。 -->
+    <title>ai-study-kit · 学习练习站</title>
+    <meta name="description" content="开源刷题与闪卡学习站：单选、多选、判断提交即判分，闪卡走 Anki 兼容的 SM-2 算法，课程自包含 HTML，进度保存在本地浏览器。" />
+    <meta property="og:title" content="ai-study-kit · 学习练习站" />
+    <meta property="og:description" content="开源刷题与闪卡学习站：刷题判分、闪卡复习、课程讲解，进度保存在本地浏览器。" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
     <!-- 防白闪：在任何 CSS 渲染前读 localStorage 主题偏好，给 <html> 加 .dark 类。
          必须同步阻塞执行——放在 stylesheet 之前，避免 React 挂载前的 50-200ms 白闪。
          主题值 'light'/'dark'/'system'，缺省 = system。 -->

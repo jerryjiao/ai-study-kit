@@ -5,7 +5,7 @@
 // 在 astro build 后注入根 404 页实现（本脚本不再复制 demo/404.html）。
 // 运行：pnpm run build:demo（apps/site），CI 部署前必跑。
 import { execSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEMO_BASE } from '../site.config.mjs';
@@ -35,6 +35,20 @@ execSync('pnpm run build', {
 
 const src = resolvePath(quizRoot, 'dist');
 if (!existsSync(src)) throw new Error(`未找到 quiz-app 构建产物：${src}`);
+
+// 官网专属元信息注入（2026-09-15 SEO）：canonical 指官网 demo 路径。quiz-app 源里的
+// head 是全部署形态共用的（本地/pm2 无官网域名语义），所以域名绑定的标签只在拷贝时注入。
+const demoIndex = join(src, 'index.html');
+let demoHtml = readFileSync(demoIndex, 'utf8');
+if (!demoHtml.includes('rel="canonical"')) {
+  const siteUrl = 'https://aistudykit.dev';
+  const tags = `    <link rel="canonical" href="${siteUrl}${DEMO_BASE}/" />\n    <meta property="og:url" content="${siteUrl}${DEMO_BASE}/" />\n`;
+  if (!demoHtml.includes('</title>')) throw new Error('demo index.html 缺少 </title>，无法注入');
+  demoHtml = demoHtml.replace('</title>', '</title>\n' + tags);
+  writeFileSync(demoIndex, demoHtml);
+  console.log('[build-demo] 已注入官网 canonical/og:url');
+}
+
 const dest = resolvePath(siteRoot, 'public/demo');
 
 console.log('[build-demo] 拷贝到 apps/site/public/demo/ …');

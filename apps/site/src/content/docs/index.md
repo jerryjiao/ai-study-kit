@@ -1,8 +1,10 @@
 ---
-title: 把任意题库变成完整的学习闭环
-description: 开源学习脚手架，答题、课程、闪卡、错题精讲、间隔重复围绕同一套考点对齐
+title: 开源刷题工具：把你的题库变成刷题 · 闪卡 · 错题精讲的学习闭环
+description: ai-study-kit 是开源刷题工具：收集的真题或 AI 出的题，一键变成刷题站、课程讲解、闪卡复习、错题精讲一体的学习闭环。MIT 协议、可自部署、不配 AI 也能用。
 template: splash
 hero:
+  # H1 保持品牌句；SERP title（frontmatter title）负责吃搜索词——两者分离靠显式 hero.title
+  title: 把任意题库变成完整的学习闭环
   tagline: 开源脚手架，MIT 协议。题目可以是收集的真题，也可以让 AI 出；课程、闪卡、错题精讲和间隔重复由工具负责，进度跨设备同步。
   image:
     html: |
@@ -23,7 +25,7 @@ hero:
         </div>
       </div>
   actions:
-    - text: 在线试玩
+    - text: 在线试用
       link: /demo/
       variant: primary
       icon: rocket
@@ -35,6 +37,26 @@ hero:
       link: https://github.com/jerryjiao/ai-study-kit
       variant: secondary
       icon: github
+head:
+  # 结构化数据：WebSite + SoftwareApplication + FAQPage（与本页 FAQ 区块逐条对应）。
+  # 富摘要自 2023 起 FAQ 仅政府/健康站展示，这里的价值在语义明确化与长尾覆盖。
+  - tag: script
+    attrs:
+      type: application/ld+json
+    content: |
+      {"@context":"https://schema.org","@graph":[
+      {"@type":"WebSite","name":"ai-study-kit","url":"https://aistudykit.dev/","inLanguage":"zh-CN","description":"开源刷题工具：把任意题库变成刷题、闪卡、错题精讲一体的学习闭环"},
+      {"@type":"SoftwareApplication","name":"ai-study-kit","url":"https://aistudykit.dev/","applicationCategory":"EducationalApplication","operatingSystem":"Web","description":"把任意主题的题库变成完整学习闭环的开源脚手架：答题、课程、闪卡、错题精讲、间隔重复，进度可跨设备同步。","offers":{"@type":"Offer","price":0,"priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/jerryjiao/ai-study-kit","author":{"@type":"Organization","name":"ai-study-kit contributors"}},
+      {"@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"ai-study-kit 免费吗？","acceptedAnswer":{"@type":"Answer","text":"免费。MIT 开源协议，代码与题库格式全部开放，无账号、无订阅、无遥测。"}},
+      {"@type":"Question","name":"我没有题库怎么办？","acceptedAnswer":{"@type":"Answer","text":"两种来源：自己整理的真题按 JSON 格式录入；或用内置的三个 AI 命令行工具，按考点排布表让 AI 直产题目，用你自己的 API key。"}},
+      {"@type":"Question","name":"支持哪些题型？","acceptedAnswer":{"@type":"Answer","text":"单选、多选、判断。多选必须全对才算对；题目是纯 JSON，不锁任何格式。"}},
+      {"@type":"Question","name":"和 Anki 什么关系？","acceptedAnswer":{"@type":"Answer","text":"闪卡复习采用 Anki 兼容的 SM-2 算法（学习步、毕业、遗忘衰减同构），但本工具是刷题 + 课程 + 错题精讲的完整闭环，不是 Anki 插件。"}},
+      {"@type":"Question","name":"错题精讲是怎么做的？","acceptedAnswer":{"@type":"Answer","text":"AI 把错题按考点聚类，逐个考点生成精讲页，顺带沉淀考点级错因档案，下一次复习直接点名弱项。"}},
+      {"@type":"Question","name":"需要联网或服务器吗？数据存在哪？","acceptedAnswer":{"@type":"Answer","text":"不需要。pnpm dev 本地跑，答题和闪卡全在浏览器里；想跨设备同步时再部署一个小服务器。数据只有两处：本地模式存浏览器，自部署模式存你自己的服务器（一个 JSON 文件），不经任何第三方。"}},
+      {"@type":"Question","name":"换成我自己的科目麻烦吗？","acceptedAnswer":{"@type":"Answer","text":"不麻烦。换主题就是换一个目录的 JSON 与 HTML 文件；内置 /ask-coach 学习教练带你从能力大纲到题库走完全流程。"}}
+      ]}
+      ]}
 ---
 
 <section class="ask-lead">
@@ -94,6 +116,23 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
+    <h2>真实界面长这样</h2>
+    <p>下面是在线 demo 的实拍，不是设计稿——点「在线试用」直接上手</p>
+  </div>
+  <div class="ask-shots">
+    <figure class="ask-shot-card">
+      <img src="/shots/quiz-zh.png" alt="刷题界面：git 三区模型单选题，答对高亮与逐题解析" loading="lazy" />
+      <figcaption>刷题：提交即判分，答错进错题本，逐题解析</figcaption>
+    </figure>
+    <figure class="ask-shot-card">
+      <img src="/shots/wrong-zh.png" alt="错题精讲页面：错题按考点聚类，逐考点讲透" loading="lazy" />
+      <figcaption>错题精讲：按考点聚类，逐个讲透薄弱点</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
     <h2>三条命令，浏览器里见</h2>
     <p>不配 AI 也能用，答题站和闪卡不依赖任何外部服务</p>
   </div>
@@ -101,6 +140,43 @@ hero:
     <div class="ask-step"><div class="n">1</div>clone 仓库<code>git clone https://github.com/jerryjiao/ai-study-kit</code></div>
     <div class="ask-step"><div class="n">2</div>安装依赖<code>pnpm install</code></div>
     <div class="ask-step"><div class="n">3</div>启动<code>pnpm dev → http://localhost:5173</code></div>
+  </div>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
+    <h2>常见问题</h2>
+    <p>关于免费、题库来源、数据归属和 Anki 兼容</p>
+  </div>
+  <div class="ask-faq">
+    <details>
+      <summary>免费吗？</summary>
+      <p>免费。MIT 开源协议，代码与题库格式全部开放，无账号、无订阅、无遥测。</p>
+    </details>
+    <details>
+      <summary>我没有题库怎么办？</summary>
+      <p>两种来源：自己整理的真题按 JSON 格式录入；或用内置的三个 AI 命令行工具，按考点排布表让 AI 直产题目，用你自己的 API key。</p>
+    </details>
+    <details>
+      <summary>支持哪些题型？</summary>
+      <p>单选、多选、判断。多选必须全对才算对；题目是纯 JSON，不锁任何格式。</p>
+    </details>
+    <details>
+      <summary>和 Anki 什么关系？</summary>
+      <p>闪卡复习采用 Anki 兼容的 SM-2 算法（学习步、毕业、遗忘衰减同构），但本工具是刷题 + 课程 + 错题精讲的完整闭环，不是 Anki 插件。</p>
+    </details>
+    <details>
+      <summary>错题精讲是怎么做的？</summary>
+      <p>AI 把错题按考点聚类，逐个考点生成精讲页，顺带沉淀考点级错因档案，下一次复习直接点名弱项。</p>
+    </details>
+    <details>
+      <summary>需要联网或服务器吗？数据存在哪？</summary>
+      <p>不需要。pnpm dev 本地跑，答题和闪卡全在浏览器里；想跨设备同步时再部署一个小服务器。数据只有两处：本地模式存浏览器，自部署模式存你自己的服务器（一个 JSON 文件），不经任何第三方。</p>
+    </details>
+    <details>
+      <summary>换成我自己的科目麻烦吗？</summary>
+      <p>不麻烦。换主题就是换一个目录的 JSON 与 HTML 文件；内置 /ask-coach 学习教练带你从能力大纲到题库走完全流程。</p>
+    </details>
   </div>
 </section>
 
