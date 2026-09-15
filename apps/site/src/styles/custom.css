@@ -200,13 +200,9 @@ header.header::before {
 .ask-section-head h2 { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0.5rem; }
 .ask-section-head p { color: var(--sl-color-gray-3); font-size: 0.98rem; max-width: 44rem; margin: 0 auto; }
 
-/* 功能五件套卡片：等高、图标尺寸统一 */
-.ask-feats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; align-items: stretch; }
+/* 功能六件套卡片：等高、图标尺寸统一；六卡恰好 3×2（窄屏 2×3），无孤卡 */
+.ask-feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: stretch; }
 @media (max-width: 60rem) { .ask-feats { grid-template-columns: repeat(2, 1fr); } }
-/* 2 列时第 5 张卡落单半宽，改为通栏横条更平衡 */
-@media (max-width: 60rem) and (min-width: 40.01rem) {
-  .ask-feat:last-child { grid-column: 1 / -1; }
-}
 .ask-feat {
   border: 1px solid var(--sl-color-gray-6);
   border-radius: 0.9rem;

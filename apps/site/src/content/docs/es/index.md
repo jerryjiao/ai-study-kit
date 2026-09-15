@@ -48,7 +48,7 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
-    <h2>Una app, cinco artefactos de estudio</h2>
+    <h2>Un kit, seis artefactos de estudio</h2>
     <p>Lo que explican los cursos, evalúan las preguntas y fijan las tarjetas son los mismos puntos de conocimiento</p>
   </div>
   <div class="ask-feats">
@@ -57,6 +57,7 @@ hero:
     <div class="ask-feat"><div class="ico">🎴</div><b>Tarjetas</b><span>Los conceptos clave como tarjetas: pregunta delante, detalle detrás</span></div>
     <div class="ask-feat"><div class="ico">🔍</div><b>Análisis de erróneas</b><span>La IA agrupa tus fallos por punto de examen y explica cada uno</span></div>
     <div class="ask-feat"><div class="ico">⏱️</div><b>Repetición espaciada</b><span>SM-2 programa los repasos; las tarjetas vencidas se ponen en cola solas</span></div>
+    <div class="ask-feat"><div class="ico">🎧</div><b>Podcasts</b><span>Cualquier material de estudio se convierte en un audio a dos voces para el camino</span></div>
   </div>
 </section>
 

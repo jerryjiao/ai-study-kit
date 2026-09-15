@@ -54,7 +54,8 @@ head:
       {"@type":"Question","name":"和 Anki 什么关系？","acceptedAnswer":{"@type":"Answer","text":"闪卡复习采用 Anki 兼容的 SM-2 算法（学习步、毕业、遗忘衰减同构），但本工具是刷题 + 课程 + 错题精讲的完整闭环，不是 Anki 插件。"}},
       {"@type":"Question","name":"错题精讲是怎么做的？","acceptedAnswer":{"@type":"Answer","text":"AI 把错题按考点聚类，逐个考点生成精讲页，顺带沉淀考点级错因档案，下一次复习直接点名弱项。"}},
       {"@type":"Question","name":"需要联网或服务器吗？数据存在哪？","acceptedAnswer":{"@type":"Answer","text":"不需要。pnpm dev 本地跑，答题和闪卡全在浏览器里；想跨设备同步时再部署一个小服务器。数据只有两处：本地模式存浏览器，自部署模式存你自己的服务器（一个 JSON 文件），不经任何第三方。"}},
-      {"@type":"Question","name":"换成我自己的科目麻烦吗？","acceptedAnswer":{"@type":"Answer","text":"不麻烦。换主题就是换一个目录的 JSON 与 HTML 文件；内置 /ask-coach 学习教练带你从能力大纲到题库走完全流程。"}}
+      {"@type":"Question","name":"换成我自己的科目麻烦吗？","acceptedAnswer":{"@type":"Answer","text":"不麻烦。换主题就是换一个目录的 JSON 与 HTML 文件；内置 /ask-coach 学习教练带你从能力大纲到题库走完全流程。"}},
+      {"@type":"Question","name":"能把学习内容做成播客听吗？","acceptedAnswer":{"@type":"Answer","text":"能。任一学习素材（课程、题目、错题精讲）都能合成男女双播音频，附带逐字稿；用你自己的 API key 生成，支持四语输出，通勤、运动时被动巩固。"}}
       ]}
       ]}
 ---
@@ -69,7 +70,7 @@ head:
 
 <section class="ask-section">
   <div class="ask-section-head">
-    <h2>一个 app，五个学习产物</h2>
+    <h2>一个工具包，六个学习产物</h2>
     <p>课讲的、题考的、卡记的，是同一套知识点</p>
   </div>
   <div class="ask-feats">
@@ -78,6 +79,7 @@ head:
     <div class="ask-feat"><div class="ico">🎴</div><b>闪卡</b><span>核心概念做成卡片，正面提问，背面展开</span></div>
     <div class="ask-feat"><div class="ico">🔍</div><b>错题精讲</b><span>AI 把错题按考点聚类，逐个讲透</span></div>
     <div class="ask-feat"><div class="ico">⏱️</div><b>间隔重复</b><span>SM-2 算法排复习计划，到期自动排队</span></div>
+    <div class="ask-feat"><div class="ico">🎧</div><b>播客</b><span>任一学习素材合成男女双播音频，通勤路上听</span></div>
   </div>
 </section>
 
@@ -179,6 +181,10 @@ head:
     <details>
       <summary>换成我自己的科目麻烦吗？</summary>
       <p>不麻烦。换主题就是换一个目录的 JSON 与 HTML 文件；内置 /ask-coach 学习教练带你从能力大纲到题库走完全流程。</p>
+    </details>
+    <details>
+      <summary>能把学习内容做成播客听吗？</summary>
+      <p>能。任一学习素材（课程、题目、错题精讲）都能合成男女双播音频，附带逐字稿；用你自己的 API key 生成，支持四语输出，通勤、运动时被动巩固。</p>
     </details>
   </div>
 </section>

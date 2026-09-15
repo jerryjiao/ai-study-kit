@@ -54,7 +54,8 @@ head:
       {"@type":"Question","name":"Which LLM providers are supported?","acceptedAnswer":{"@type":"Answer","text":"Any OpenAI-compatible API (OpenAI, Zhipu GLM, DeepSeek, Kimi, Qwen, Doubao and more), configured in your own .env. The quiz app and flashcards also work with no AI at all."}},
       {"@type":"Question","name":"How do I deploy it?","acceptedAnswer":{"@type":"Answer","text":"Static frontend plus a small Hono server: pnpm build && pnpm exec pm2 start on any Node host — or run purely locally with pnpm dev."}},
       {"@type":"Question","name":"What question types are supported?","acceptedAnswer":{"@type":"Answer","text":"Single-choice, multiple-choice (all-correct grading) and true/false, stored as plain JSON — no lock-in."}},
-      {"@type":"Question","name":"Can I use my own question bank?","acceptedAnswer":{"@type":"Answer","text":"Yes: questions and flashcards are JSON files per theme. The built-in /ask-coach skill walks you from an exam outline to a full deck, and the AI CLIs can draft questions for you."}}
+      {"@type":"Question","name":"Can I use my own question bank?","acceptedAnswer":{"@type":"Answer","text":"Yes: questions and flashcards are JSON files per theme. The built-in /ask-coach skill walks you from an exam outline to a full deck, and the AI CLIs can draft questions for you."}},
+      {"@type":"Question","name":"Can I turn my study material into a podcast?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any material — lessons, questions, wrong-answer deep-dives — can be synthesized into a two-host audio show with a transcript. Generated with your own API key, in four languages, for passive review on your commute or while exercising."}}
       ]}
       ]}
 ---
@@ -69,7 +70,7 @@ head:
 
 <section class="ask-section">
   <div class="ask-section-head">
-    <h2>One app, five learning artifacts</h2>
+    <h2>One toolkit, six learning artifacts</h2>
     <p>What the lessons teach, the quizzes test and the cards drill are the same knowledge points</p>
   </div>
   <div class="ask-feats">
@@ -78,6 +79,7 @@ head:
     <div class="ask-feat"><div class="ico">🎴</div><b>Flashcards</b><span>Core concepts as cards, prompt on the front, details on the back</span></div>
     <div class="ask-feat"><div class="ico">🔍</div><b>Deep-dives</b><span>AI clusters wrong answers by exam point and explains each one</span></div>
     <div class="ask-feat"><div class="ico">⏱️</div><b>Spaced repetition</b><span>SM-2 schedules reviews; due cards queue up on their own</span></div>
+    <div class="ask-feat"><div class="ico">🎧</div><b>Podcasts</b><span>Any study material becomes a two-host audio show for your commute</span></div>
   </div>
 </section>
 
@@ -175,6 +177,10 @@ head:
     <details>
       <summary>Can I use my own question bank?</summary>
       <p>Yes: questions and flashcards are JSON files per theme. The built-in /ask-coach skill walks you from an exam outline to a full deck, and the AI CLIs can draft questions for you.</p>
+    </details>
+    <details>
+      <summary>Can I turn my study material into a podcast?</summary>
+      <p>Yes. Any material — lessons, questions, wrong-answer deep-dives — can be synthesized into a two-host audio show with a transcript. Generated with your own API key, in four languages, for passive review on your commute or while exercising.</p>
     </details>
   </div>
 </section>
