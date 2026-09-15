@@ -13,9 +13,9 @@ description: Pon la demo en marcha en cinco minutos y mira la práctica, las tar
 | 🗂️ **Aprendiendo cualquier cosa con «puntos de examen»** (cumplimiento, procesos, terminología) | ✅ Si se puede descomponer en preguntas y respuestas, se puede estudiar |
 | ❌ Buscas un banco de preguntas ya hecho | ❌ Esto es un **andamiaje**, no un banco — recopila exámenes reales, escribe las preguntas a mano o deja que un agente de IA las genere |
 
-**En una frase**: esto es un andamiaje, no un banco de preguntas. Las preguntas pueden ser exámenes reales que recopiles, escritas a mano, o un banco completo generado por un agente de IA — instala [`/ask-coach`](/ai-study-kit/ai/ai-study-kit/) y pídelo; el flujo está en [Hazlo tuyo](/ai-study-kit/es/your-theme/), sección «Deja que un agente de IA escriba las preguntas». En cuanto estén en JSON, la herramienta añade cursos, tarjetas, análisis de erróneas y planificación de repasos.
+**En una frase**: esto es un andamiaje, no un banco de preguntas. Las preguntas pueden ser exámenes reales que recopiles, escritas a mano, o un banco completo generado por un agente de IA — instala [`/ask-coach`](/ai/ai-study-kit/) y pídelo; el flujo está en [Hazlo tuyo](/es/your-theme/), sección «Deja que un agente de IA escriba las preguntas». En cuanto estén en JSON, la herramienta añade cursos, tarjetas, análisis de erróneas y planificación de repasos.
 
-¿No quieres clonar? [Prueba la demo online](/ai-study-kit/demo/) — funcionalidad completa, el progreso se guarda solo en tu navegador.
+¿No quieres clonar? [Prueba la demo online](/demo/) — funcionalidad completa, el progreso se guarda solo en tu navegador.
 
 ## La demo en 5 minutos
 
@@ -35,7 +35,7 @@ pnpm dev
 | **Tarjetas** | 4 tarjetas de repetición espaciada SM-2, valoradas again / hard / good / easy, compatibles con Anki |
 | **Cursos** | 2 lecciones HTML autónomas (las tres áreas de git, directorios y permisos de Linux) con diagramas ASCII y avisos |
 
-> Es solo una demo. **No vas a usar nada del contenido de dev-intro** — lo cambiarás por lo que de verdad estés aprendiendo. Ver [Hazlo tuyo](/ai-study-kit/es/your-theme/).
+> Es solo una demo. **No vas a usar nada del contenido de dev-intro** — lo cambiarás por lo que de verdad estés aprendiendo. Ver [Hazlo tuyo](/es/your-theme/).
 
 ## Funciona sin IA
 
@@ -43,6 +43,6 @@ Los tres CLI de IA son capacidades incrementales. Si solo quieres la app de prá
 
 Para ir más allá:
 
-- [Hazlo tuyo](/ai-study-kit/es/your-theme/) — convierte la demo en tu propio tema en 30 minutos
-- [Metodología](/ai-study-kit/es/method/methodology/) — por qué es «temario → materiales → preguntas»
-- [Guía de los CLI de IA](/ai-study-kit/es/ai/ai-cli/) — deja que la IA genere cursos, análisis y podcasts
+- [Hazlo tuyo](/es/your-theme/) — convierte la demo en tu propio tema en 30 minutos
+- [Metodología](/es/method/methodology/) — por qué es «temario → materiales → preguntas»
+- [Guía de los CLI de IA](/es/ai/ai-cli/) — deja que la IA genere cursos, análisis y podcasts

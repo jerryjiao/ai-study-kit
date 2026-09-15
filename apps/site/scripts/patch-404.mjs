@@ -2,7 +2,7 @@
 //
 // 背景（wayfinder #12 第 5 点）：Pages 只认站点根的 404.html，public/demo/404.html
 // 不会被用作 /demo/* 的回退。所以把「demo 深链救援」脚本注入 Starlight 生成的根
-// 404 页：访问 /ai-study-kit/demo/flashcards 这类未命中路径时，先把目标路由存进
+// 404 页：访问 /demo/flashcards 这类未命中路径时，先把目标路由存进
 // sessionStorage，再跳回 demo 首页；quiz-app 的 DeepLinkRestore 组件启动时恢复路由。
 // 非 demo 路径不受影响，仍显示 Starlight 的 404 页面。
 import { readFileSync, writeFileSync } from 'node:fs';

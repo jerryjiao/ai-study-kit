@@ -9,7 +9,7 @@
 > Turn any question set into a complete learning loop — practice + courses + flashcards + wrong-answer deep-dives + spaced repetition, with progress synced across devices. See the demo in 5 minutes, make it yours in 30.
 
 <p align="center">
-  <a href="https://jerryjiao.github.io/ai-study-kit/"><img src="https://img.shields.io/badge/website-online-blue" alt="Website" /></a>
+  <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/website-online-blue" alt="Website" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Deploy status" /></a>
   <img src="https://img.shields.io/badge/i18n-4%20languages-blue" alt="UI in 4 languages" />
   <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
@@ -17,7 +17,7 @@
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
 </p>
 
-🌐 [Website](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Live demo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Quick start](https://jerryjiao.github.io/ai-study-kit/en/get-started/)
+🌐 [Website](https://aistudykit.dev/) · ▶️ [Live demo](https://aistudykit.dev/demo/) · 📖 [Quick start](https://aistudykit.dev/en/get-started/)
 
 ---
 
@@ -258,11 +258,11 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # Russian p
 
 ## 📚 Documentation
 
-> Every doc exists in four languages — Chinese, English, Spanish and Russian — with a language switcher on top. The [website](https://jerryjiao.github.io/ai-study-kit/) mirrors them all and auto-opens the version matching your browser.
+> Every doc exists in four languages — Chinese, English, Spanish and Russian — with a language switcher on top. The [website](https://aistudykit.dev/) mirrors them all and auto-opens the version matching your browser.
 
 | Doc | What you'll learn |
 |------|-----------|
-| [Quick start](https://jerryjiao.github.io/ai-study-kit/en/get-started/) | 5-minute demo + making it yours (English) |
+| [Quick start](https://aistudykit.dev/en/get-started/) | 5-minute demo + making it yours (English) |
 | [`docs/methodology.en.md`](docs/methodology.en.md) | syllabus → materials → questions |
 | [`docs/four-alignment.en.md`](docs/four-alignment.en.md) | how courses / questions / cards / deep-dives stay in sync |
 | [`docs/ai-cli-guide.en.md`](docs/ai-cli-guide.en.md) | full usage of the three AI CLIs |

@@ -58,7 +58,7 @@ EXAMPLE_THEME=react-basics pnpm dev
 
 ## Step 5 · 配课程和首页分组（可选，10 分钟）
 
-- **课程**。把 `examples/react-basics/lessons/*.html` 改成你的，可以用 AI 帮你产，见 [AI CLI 指南](/ai-study-kit/ai/ai-cli/)。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
+- **课程**。把 `examples/react-basics/lessons/*.html` 改成你的，可以用 AI 帮你产，见 [AI CLI 指南](/ai/ai-cli/)。同时改 `apps/quiz-app/src/pages/Courses.tsx` 里的 `COURSE_URL` 为 `/study/react-basics/index.html`。
 - **首页分组**。改 `apps/quiz-app/src/lib/topicOrder.ts` 的 `TOPIC_ORDER`，把 `'git-basics', 'linux-commands'` 换成你的主题列表。
 
 ## Step 6 · 校验（2 分钟）
@@ -74,7 +74,7 @@ python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验
 
 ## 让 AI agent 替你产题（可选）
 
-Steps 2-3 的题和卡可以不手写。装好 [`/ask-coach`](/ai-study-kit/ai/ai-study-kit/) 后直接说「帮我给 react-basics 产一套题库」，agent 会：
+Steps 2-3 的题和卡可以不手写。装好 [`/ask-coach`](/ai/ai-study-kit/) 后直接说「帮我给 react-basics 产一套题库」，agent 会：
 
 1. 先在 MISSION.md 的**考点排布表**和你对齐——考什么、考多深、每种题型几道、配几张卡；
 2. 你确认后照表逐考点产题、产卡（题目带 `examPoint` 考点标注和 `day` 日程标签）；
@@ -82,4 +82,4 @@ Steps 2-3 的题和卡可以不手写。装好 [`/ask-coach`](/ai-study-kit/ai/a
 
 手工路径（本页 Steps 1-6）永远是主路；两条路的产物同构，排布表就是人机之间的契约。
 
-改完内容记得跑[四对齐校验](/ai-study-kit/maintain/bidirectional-check/)，课程、题目、闪卡、错题精讲要围绕同一套考点对齐。
+改完内容记得跑[四对齐校验](/maintain/bidirectional-check/)，课程、题目、闪卡、错题精讲要围绕同一套考点对齐。

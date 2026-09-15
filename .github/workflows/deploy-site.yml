@@ -38,7 +38,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Build demo (quiz-app static, QUIZ_BASE=/ai-study-kit/demo/) + site
+      - name: Build demo (quiz-app static, QUIZ_BASE=/demo/) + site
         run: |
           pnpm --filter site run build:demo
           pnpm --filter site run build

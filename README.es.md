@@ -9,7 +9,7 @@
 > Convierte cualquier banco de preguntas en un ciclo de aprendizaje completo — práctica + cursos + tarjetas + análisis a fondo de errores + repetición espaciada, con el progreso sincronizado entre dispositivos. Prueba el demo en 5 minutos; hazlo tuyo en 30.
 
 <p align="center">
-  <a href="https://jerryjiao.github.io/ai-study-kit/"><img src="https://img.shields.io/badge/web-online-blue" alt="Sitio web" /></a>
+  <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/web-online-blue" alt="Sitio web" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Estado del deploy" /></a>
   <img src="https://img.shields.io/badge/i18n-4%20idiomas-blue" alt="Interfaz en 4 idiomas" />
   <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
@@ -17,7 +17,7 @@
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
 </p>
 
-🌐 [Sitio web](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Demo en vivo](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/es/get-started/)
+🌐 [Sitio web](https://aistudykit.dev/) · ▶️ [Demo en vivo](https://aistudykit.dev/demo/) · 📖 [Primeros pasos](https://aistudykit.dev/es/get-started/)
 
 ---
 
@@ -258,11 +258,11 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # diálogos
 
 ## 📚 Documentación
 
-> Toda la documentación existe en cuatro idiomas —chino, inglés, español y ruso— con un selector de idioma arriba. La [web](https://jerryjiao.github.io/ai-study-kit/) los reproduce y abre automáticamente la versión que coincide con el idioma de tu navegador.
+> Toda la documentación existe en cuatro idiomas —chino, inglés, español y ruso— con un selector de idioma arriba. La [web](https://aistudykit.dev/) los reproduce y abre automáticamente la versión que coincide con el idioma de tu navegador.
 
 | Documento | Qué aprenderás |
 |------|-----------|
-| [Primeros pasos](https://jerryjiao.github.io/ai-study-kit/es/get-started/) | demo en 5 minutos + hazlo tuyo |
+| [Primeros pasos](https://aistudykit.dev/es/get-started/) | demo en 5 minutos + hazlo tuyo |
 | [`docs/methodology.es.md`](docs/methodology.es.md) | temario → materiales → preguntas |
 | [`docs/four-alignment.es.md`](docs/four-alignment.es.md) | cómo se mantienen sincronizados cursos / preguntas / tarjetas / análisis |
 | [`docs/ai-cli-guide.es.md`](docs/ai-cli-guide.es.md) | uso completo de los tres CLI de IA |

@@ -24,11 +24,11 @@ hero:
       </div>
   actions:
     - text: 在线试玩
-      link: /ai-study-kit/demo/
+      link: /demo/
       variant: primary
       icon: rocket
     - text: 快速上手
-      link: /ai-study-kit/get-started/
+      link: /get-started/
       variant: secondary
       icon: right-arrow
     - text: GitHub
@@ -116,7 +116,7 @@ hero:
   </div>
   <p class="ask-more">
     <code>pnpm run skill:install</code> 装进 AI CLI，之后每次学习从它开始 ·
-    <a href="/ai-study-kit/ai/ai-study-kit/">看 /ask-coach 怎么用</a>
+    <a href="/ai/ai-study-kit/">看 /ask-coach 怎么用</a>
   </p>
 </section>
 
@@ -131,6 +131,6 @@ hero:
     <span class="node">做题验效果</span>
   </div>
   <p class="ask-more">
-    <a href="/ai-study-kit/method/methodology/">看方法论的完整说明</a>
+    <a href="/method/methodology/">看方法论的完整说明</a>
   </p>
 </section>

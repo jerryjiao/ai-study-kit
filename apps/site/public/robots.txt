@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jerryjiao.github.io/ai-study-kit/sitemap-index.xml
+Sitemap: https://aistudykit.dev/sitemap-index.xml

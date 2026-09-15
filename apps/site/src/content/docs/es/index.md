@@ -24,11 +24,11 @@ hero:
       </div>
   actions:
     - text: Probar la demo
-      link: /ai-study-kit/demo/
+      link: /demo/
       variant: primary
       icon: rocket
     - text: Inicio rápido
-      link: /ai-study-kit/es/get-started/
+      link: /es/get-started/
       variant: secondary
       icon: right-arrow
     - text: GitHub
@@ -116,7 +116,7 @@ hero:
   </div>
   <p class="ask-more">
     <code>pnpm run skill:install</code> lo añade a tu CLI de IA; cada sesión empieza ahí ·
-    <a href="/ai-study-kit/es/ai/ai-study-kit/">Cómo funciona /ask-coach</a>
+    <a href="/es/ai/ai-study-kit/">Cómo funciona /ask-coach</a>
   </p>
 </section>
 
@@ -131,6 +131,6 @@ hero:
     <span class="node">Las preguntas validan el dominio</span>
   </div>
   <p class="ask-more">
-    <a href="/ai-study-kit/es/method/methodology/">Lee la metodología completa</a>
+    <a href="/es/method/methodology/">Lee la metodología completa</a>
   </p>
 </section>

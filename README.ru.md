@@ -9,7 +9,7 @@
 > Превратите любой банк вопросов в полный цикл обучения — тренажёр + курсы + карточки + подробный разбор ошибок + интервальное повторение, с синхронизацией прогресса между устройствами. Демо запускается за 5 минут, адаптация под вашу тему — за 30.
 
 <p align="center">
-  <a href="https://jerryjiao.github.io/ai-study-kit/"><img src="https://img.shields.io/badge/site-online-blue" alt="Сайт" /></a>
+  <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/site-online-blue" alt="Сайт" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Статус деплоя" /></a>
   <img src="https://img.shields.io/badge/i18n-4%20%D1%8F%D0%B7%D1%8B%D0%BA%D0%B0-blue" alt="Интерфейс на 4 языках" />
   <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
@@ -17,7 +17,7 @@
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
 </p>
 
-🌐 [Сайт](https://jerryjiao.github.io/ai-study-kit/) · ▶️ [Живое демо](https://jerryjiao.github.io/ai-study-kit/demo/) · 📖 [Быстрый старт](https://jerryjiao.github.io/ai-study-kit/ru/get-started/)
+🌐 [Сайт](https://aistudykit.dev/) · ▶️ [Живое демо](https://aistudykit.dev/demo/) · 📖 [Быстрый старт](https://aistudykit.dev/ru/get-started/)
 
 ---
 
@@ -258,11 +258,11 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # диал�
 
 ## 📚 Документация
 
-> Каждый документ существует на четырёх языках — китайском, английском, испанском и русском — с переключателем вверху. [Сайт](https://jerryjiao.github.io/ai-study-kit/) повторяет их все и сам открывает вариант по языку вашего браузера.
+> Каждый документ существует на четырёх языках — китайском, английском, испанском и русском — с переключателем вверху. [Сайт](https://aistudykit.dev/) повторяет их все и сам открывает вариант по языку вашего браузера.
 
 | Документ | Чему научитесь |
 |------|-----------|
-| [Быстрый старт](https://jerryjiao.github.io/ai-study-kit/ru/get-started/) | демо за 5 минут + делаем своим |
+| [Быстрый старт](https://aistudykit.dev/ru/get-started/) | демо за 5 минут + делаем своим |
 | [`docs/methodology.ru.md`](docs/methodology.ru.md) | программа → материалы → вопросы |
 | [`docs/four-alignment.ru.md`](docs/four-alignment.ru.md) | как курсы / вопросы / карточки / разборы держатся согласованно |
 | [`docs/ai-cli-guide.ru.md`](docs/ai-cli-guide.ru.md) | полное использование трёх ИИ-CLI |

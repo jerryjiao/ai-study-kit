@@ -1,5 +1,6 @@
 // ai-study-kit 官网（wayfinder map #9 / #10 选型：Astro Starlight）。
-// 部署形态：GitHub Pages 项目页 → https://jerryjiao.github.io/ai-study-kit/
+// 部署形态：GitHub Pages 项目页 + 自定义域名 → https://aistudykit.dev/
+// （2026-09-15 迁移；老 URL https://jerryjiao.github.io/ai-study-kit/* 由 GitHub Pages 自动 301 到新域）
 // 四语（与项目 UI/CLI/README 的 zh/en/es/ru 对齐，#13 分层策略）：zh-cn 为默认语言挂在根路径，
 // en/es/ru 各挂 /<lang>/，未翻译页 fallback 到中文 + 提示条。
 // demo（#12）：构建时把 quiz-app 静态产物拷进 public/demo/（见 scripts/build-demo + CI）。
@@ -14,7 +15,7 @@ const KIT_VERSION = JSON.parse(
 ).version;
 
 export default defineConfig({
-  site: 'https://jerryjiao.github.io',
+  site: 'https://aistudykit.dev',
   base: SITE_BASE,
   // dev 热更新 workaround（astro#17335，7.x 未修）：Vite 对 src/content/** 的 markdown
   // 触发"抢先"热重载，抢在 content layer 写完 node_modules/.astro data store 之前，
@@ -58,7 +59,7 @@ export default defineConfig({
       components: { Header: './src/components/Header.astro' },
       // OG 分享图（#14：C 风基准，scripts/gen-og.py 生成 public/og.png 后提交入库）
       head: [
-        { tag: 'meta', attrs: { property: 'og:image', content: `https://jerryjiao.github.io${SITE_BASE}/og.png` } },
+        { tag: 'meta', attrs: { property: 'og:image', content: `https://aistudykit.dev${SITE_BASE}/og.png` } },
         { tag: 'meta', attrs: { property: 'og:type', content: 'website' } },
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
         // iOS 主屏图标（demo 页同款，quiz-app favicon.png 同源）；自定义 head 项不走
