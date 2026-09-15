@@ -1,0 +1,88 @@
+---
+// 覆盖 Starlight Footer（astro.config.mjs components.Footer 注册）：
+// 保留原版页面级部件（编辑链接/更新时间/上下页翻页），其后追加全站站尾——
+// Starlight 0.41 已无站点级 footer 配置，开源项目官网的协议/仓库/更新日志入口收在这里。
+// 修复前页面以大片空白突兀收尾（2026-09-15 审计实锤），站尾同时是搜索引擎的信任信号。
+import EditLink from 'virtual:starlight/components/EditLink';
+import LastUpdated from 'virtual:starlight/components/LastUpdated';
+import Pagination from 'virtual:starlight/components/Pagination';
+
+import { readFileSync } from 'node:fs';
+
+import { SITE_BASE } from '../../site.config.mjs';
+
+// 版本号与仓库根 package.json 同源（侧栏标签同款取法，升版零维护）。
+// 注意 URL 相对解析第一个 .. 先吃掉文件名：components/SiteFooter.astro 要 5 层才到仓库根。
+const KIT_VERSION = JSON.parse(
+	readFileSync(new URL('../../../../../package.json', import.meta.url), 'utf8'),
+).version;
+
+const lang = Astro.locals.starlightRoute.lang;
+const CHANGELOG_LABELS: Record<string, string> = {
+	en: 'Changelog',
+	es: 'Cambios',
+	ru: 'История изменений',
+};
+const changelogLabel = CHANGELOG_LABELS[lang] ?? '更新日志';
+const changelogHref = `${SITE_BASE}${lang === 'zh-CN' ? '' : `/${lang}`}/changelog/`;
+---
+
+<footer class="sl-flex">
+	<div class="meta sl-flex">
+		<EditLink />
+		<LastUpdated />
+	</div>
+	<Pagination />
+	<div class="site-footer">
+		<div class="site-footer-links">
+			<a href={changelogHref}>{changelogLabel} · v{KIT_VERSION}</a>
+			<span aria-hidden="true">·</span>
+			<a href="https://github.com/jerryjiao/ai-study-kit">GitHub</a>
+			<span aria-hidden="true">·</span>
+			<a href="https://github.com/jerryjiao/ai-study-kit/blob/main/LICENSE">MIT License</a>
+		</div>
+		<p>© 2026 ai-study-kit</p>
+	</div>
+</footer>
+
+<style>
+	/* 原版 Footer 的核心层列向布局必须由本覆盖件补回——组件整体替换后原样式不复存在，
+	   缺了它 footer.sl-flex 会横向排布，站尾与翻页卡片同行相撞（1440 实测）。 */
+	@layer starlight.core {
+		footer {
+			flex-direction: column;
+			gap: 1.5rem;
+		}
+	}
+	@layer starlight.components {
+		.site-footer {
+			margin-top: 3rem;
+			padding-block: 1.5rem;
+			border-top: 1px solid var(--sl-color-gray-6);
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem 2rem;
+			align-items: baseline;
+			justify-content: space-between;
+			font-size: var(--sl-text-sm);
+			color: var(--sl-color-gray-3);
+		}
+		.site-footer-links {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.6rem;
+			align-items: baseline;
+		}
+		.site-footer a {
+			color: var(--sl-color-gray-2);
+			text-decoration: none;
+		}
+		.site-footer a:hover {
+			color: var(--sl-accent);
+			text-decoration: underline;
+		}
+		.site-footer p {
+			margin: 0;
+		}
+	}
+</style>

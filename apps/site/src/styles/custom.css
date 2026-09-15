@@ -7,6 +7,14 @@
   --ask-gradient: linear-gradient(90deg, #4f46e5, #06b6d4);
 }
 
+/* hero 光晕（.hero-html::before，inset -14%）会把文档撑出 ~34px 横向溢出（390 实测）。
+   用 clip 而不是 hidden：hidden 会把元素变成滚动容器，破坏 Starlight 的粘性侧栏/页头。
+   html 与 body 同时裁：viewport 的 clip 仍允许程序化滚动残留 34px（实测），body 层裁掉后
+   scrollWidth 彻底归位视口宽。 */
+html, body {
+  overflow-x: clip;
+}
+
 /* 品牌化：链接 hover、当前页指示、主按钮跟 accent */
 .main a:hover {
   color: var(--sl-accent);
@@ -82,11 +90,39 @@ header.header::before {
 .ask-lead-strip span {
   white-space: nowrap;
 }
-.ask-lead-strip span + span::before {
+/* 分隔点做进前一个 span 的尾部（::after）：flex 换行时点只会留在上一行行尾，
+   不会像 span+span::before 那样悬到下一行行首（en 站 1440 实测行首悬点）。 */
+.ask-lead-strip span:not(:last-child)::after {
   content: '·';
   margin: 0 0.8rem;
   color: var(--sl-color-gray-5);
   font-weight: 700;
+}
+/* 窄屏改纵向排列：竖排时分隔点没有意义，直接隐藏 */
+@media (max-width: 40rem) {
+  .ask-lead-strip {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+  }
+  .ask-lead-strip span:not(:last-child)::after {
+    content: none;
+  }
+}
+
+/* 堆叠态 hero（<50rem）：Starlight 把 hero-html 排在文案前，首屏被 app 窗口占满、标题坠底；
+   窄屏改为标题先、窗口后（桌面双栏不受影响，仍走 Starlight 的 grid 模板） */
+@media (max-width: 49.99rem) {
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero > .stack {
+    order: -1;
+  }
+  .hero > .hero-html {
+    margin-inline: auto;
+  }
 }
 
 /* hero 右侧：CSS 画的 app 窗口（经 hero.image.html 注入，见 #14） */
@@ -167,6 +203,10 @@ header.header::before {
 /* 功能五件套卡片：等高、图标尺寸统一 */
 .ask-feats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; align-items: stretch; }
 @media (max-width: 60rem) { .ask-feats { grid-template-columns: repeat(2, 1fr); } }
+/* 2 列时第 5 张卡落单半宽，改为通栏横条更平衡 */
+@media (max-width: 60rem) and (min-width: 40.01rem) {
+  .ask-feat:last-child { grid-column: 1 / -1; }
+}
 .ask-feat {
   border: 1px solid var(--sl-color-gray-6);
   border-radius: 0.9rem;
@@ -174,11 +214,15 @@ header.header::before {
   background: var(--sl-color-gray-7);
   display: flex; flex-direction: column; align-items: flex-start;
 }
+/* 图标加圆角底座：裸 emoji 直接浮在卡面上缺少视觉锚 */
 .ask-feat .ico {
-  font-size: 1.35rem; line-height: 1;
+  font-size: 1.15rem; line-height: 1;
   width: 2.4rem; height: 2.4rem;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 0.8rem;
+  border-radius: 0.6rem;
+  background: color-mix(in oklab, #4f46e5 10%, transparent);
+  border: 1px solid color-mix(in oklab, #4f46e5 18%, transparent);
 }
 .ask-feat b { display: block; font-size: 0.95rem; margin-bottom: 0.45rem; }
 .ask-feat span { font-size: 0.82rem; color: var(--sl-color-gray-3); line-height: 1.65; display: block; }
@@ -210,20 +254,29 @@ header.header::before {
 :root[data-theme='dark'] .ask-compare tr.us td { color: #c7d2fe; background: color-mix(in oklab, #4f46e5 20%, transparent); }
 .ask-compare .y { color: #10b981; }
 :root[data-theme='dark'] .ask-compare .y { color: #6ee7b7; }
+/* 窄屏收字号与格距：6 列能力矩阵在 390px 实测被裁出右缘，压缩后可整体放下。
+   表头必须允许换行——nowrap 时「错题精讲/闪卡 SRS」把六列撑到 ~424px，超出可用 342px，
+   两行表头后各列收到字符宽即可完整放进视口。 */
+@media (max-width: 40rem) {
+  .ask-compare { font-size: 0.8rem; }
+  .ask-compare th, .ask-compare td { padding: 0.65rem 0.55rem; }
+  .ask-compare th { white-space: normal; }
+  .ask-compare td.tool { white-space: nowrap; font-size: 0.78rem; }
+}
 
 /* quick start 三步：等高、代码块底对齐 */
 .ask-steps { max-width: 58rem; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; align-items: stretch; }
 @media (max-width: 60rem) { .ask-steps { grid-template-columns: 1fr; } }
 .ask-step {
   border: 1px dashed var(--sl-color-gray-5);
-  border-radius: 0.9rem; padding: 1.5rem 1.2rem; text-align: center;
+  border-radius: 0.9rem; padding: 1.2rem 1.2rem 1.3rem; text-align: center;
   display: flex; flex-direction: column; align-items: center;
 }
 .ask-step .n {
   width: 2.1rem; height: 2.1rem; border-radius: 50%;
   background: var(--ask-gradient); color: #fff; font-weight: 800; font-size: 0.95rem;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.65rem;
 }
 .ask-step code {
   display: block; width: 100%; box-sizing: border-box;
@@ -244,5 +297,67 @@ header.header::before {
   color: #c7d2fe; border-color: color-mix(in oklab, #4f46e5 45%, transparent);
 }
 .ask-flow .arr { color: var(--sl-color-gray-4); font-size: 1.1rem; }
+/* 窄屏纵向堆叠：flex 换行时箭头会悬挂在行尾/行首（390px 实测），竖排后箭头转为向下 */
+@media (max-width: 40rem) {
+  .ask-flow { flex-direction: column; gap: 0.55rem; }
+  .ask-flow .arr { transform: rotate(90deg); }
+}
 .ask-more { text-align: center; margin-top: 1.6rem; }
-.ask-more a { color: var(--sl-accent); font-weight: 600; font-size: 0.95rem; }
+/* splash 正文里的 markdown 链接默认带下划线紫色，与卡片化区块不搭：统一成 accent 实色 + 箭头，
+   hover 才回下划线。链接内部禁止断行、箭头前不留可断空格——CJK 断行会把箭头单独甩到下一行
+   居中悬空（390 实测）。 */
+.ask-more a { color: var(--sl-accent); font-weight: 600; font-size: 0.95rem; text-decoration: none; white-space: nowrap; }
+.ask-more a::after { content: '→'; margin-inline-start: 0.35em; font-weight: 700; }
+.ask-more a:hover { text-decoration: underline; }
+
+/* FAQ 折叠区块（首页内容补强）：details/summary 原生交互，样式跟卡片体系走 */
+.ask-faq { max-width: 58rem; margin: 0 auto; display: grid; gap: 0.7rem; }
+.ask-faq details {
+  border: 1px solid var(--sl-color-gray-6);
+  border-radius: 0.75rem;
+  background: var(--sl-color-gray-7);
+  padding: 0 1.1rem;
+}
+.ask-faq summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.95rem 0;
+  font-weight: 600; font-size: 0.95rem; line-height: 1.55;
+}
+/* Starlight 的 .sl-markdown-content summary::before 是空块级伪元素（content:"" + display:block），
+   在 flex summary 里会成为独立 flex 项：把问题文字挤到中间、自身渲染在行首（1440 实测）。
+   明确压掉它，保证「文字居左 + 加号居右」两项布局。 */
+.ask-faq summary::before { content: none; }
+.ask-faq summary::-webkit-details-marker { display: none; }
+.ask-faq summary::after {
+  content: '+'; flex: none;
+  font-size: 1.2rem; font-weight: 700; line-height: 1;
+  color: var(--sl-accent);
+  transition: transform 0.15s ease;
+}
+.ask-faq details[open] summary::after { transform: rotate(45deg); }
+.ask-faq details p {
+  margin: 0 0 1rem;
+  font-size: 0.88rem; line-height: 1.75;
+  color: var(--sl-color-gray-3);
+}
+.ask-faq details p code {
+  font-size: 0.8rem;
+  background: var(--sl-color-gray-6); border-radius: 0.35rem; padding: 0.1rem 0.35rem;
+}
+
+/* 真实界面截图区（demo 实拍）：两列带框阴影，窄屏单列 */
+.ask-shots { max-width: 64rem; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; align-items: start; }
+@media (max-width: 50rem) { .ask-shots { grid-template-columns: 1fr; max-width: 30rem; } }
+.ask-shot-card { margin: 0; }
+.ask-shot-card img {
+  width: 100%; display: block;
+  border-radius: 0.9rem;
+  border: 1px solid var(--sl-color-gray-6);
+  box-shadow: 0 24px 48px -20px rgba(15, 23, 42, 0.3);
+}
+.ask-shot-card figcaption {
+  text-align: center; margin-top: 0.7rem;
+  font-size: 0.82rem; color: var(--sl-color-gray-3);
+}
