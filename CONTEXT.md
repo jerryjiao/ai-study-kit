@@ -21,7 +21,7 @@ MISSION.md 的「## 考点排布表」节——`考点id(EP-NN) | 考点 | 深�
 _Avoid_: quiz-spec、题库规格文件（独立文件形态已被 ADR-0001 否决）
 
 **skill（vs CLI）**:
-skill 指装进 agent 环境、给 AI 执行的指令包——仓库内共四个：`/ask-coach` 主入口（状态快照 → 推荐 → 带执行，源目录 `skills/ask-coach/`，带 references/ 三份参考文档）+ 三个薄命令 `/coach`（陪练直入）/`/study-doctor`（体检）/`/study-recap`（错题串讲直入），薄命令只有十几行 SKILL.md、共享主入口的 references/。**命名史**：原 study-coach → 2026-08-25 改名 ai-study-kit → 2026-09 v0.13 主 skill 更名 ask-coach（插件名 ai-study-kit 终身不变，市集名不可改）。CLI 指仓库 `apps/quiz-app/scripts/` 下的可执行脚本（teach-generate / grill-wrong / podcast-generate）。两类东西，不混称。
+skill 指装进 agent 环境、给 AI 执行的指令包——仓库内共五个：`/ask-coach` 主入口（状态快照 → 推荐 → 带执行，源目录 `skills/ask-coach/`，带 references/ 三份参考文档）+ 四个薄命令 `/study-coach`（陪练直入）/`/study-doctor`（体检）/`/study-recap`（错题串讲直入）/`/study-podcast`（播客直入），薄命令只有十几行 SKILL.md、共享主入口的 references/、命名一律 study- 前缀。**命名史**：原 study-coach → 2026-08-25 改名 ai-study-kit → 2026-09 v0.13 主 skill 更名 ask-coach（插件名 ai-study-kit 终身不变，市集名不可改）→ v0.16 `/coach` 改名 `/study-coach`（薄命令统一 study- 前缀，取代 v0.13「避内置撞名才加前缀」规则）+ 新增 `/study-podcast`（播客直入）。CLI 指仓库 `apps/quiz-app/scripts/` 下的可执行脚本（teach-generate / grill-wrong / podcast-generate）。两类东西，不混称。
 _Avoid_: 把 CLI 叫 skill（旧文档的混称，已纠正）、把插件名 ai-study-kit 当命令名（命令是 ask-coach 一族）
 
 **考点全景（exam-point panorama）**:

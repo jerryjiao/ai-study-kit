@@ -4,28 +4,29 @@
 
 ai-study-kit has many features — quiz app, courses, flashcards, wrong-question grilling, podcasts, deployment — which itself becomes a burden for a learner: **what exactly should I do today?** `/ask-coach` answers that. It's the repo's built-in main-entry skill: install it once, start every study session from it, and let it scan your state, recommend, and execute with you — no need to memorize the toolchain.
 
-**The command names are the menu** — the ai-study-kit plugin (name is permanent) installs four commands:
+**The command names are the menu** — the ai-study-kit plugin (name is permanent) installs five commands:
 
 | Command | What it does |
 |---------|--------------|
 | `/ask-coach` | Ask the coach: state snapshot + recommendation + guided execution (main entry; everything else routes from here) |
-| `/coach` | Sit down and study: direct tutoring entry (F10 open/resume; opening reports "what to practice today + why") |
+| `/study-coach` | Sit down and study: direct tutoring entry (F10 open/resume; opening reports "what to practice today + why") |
 | `/study-doctor` | One-stop health check: four quality gates + environment probes, pass/fail report + fix order |
 | `/study-recap` | Direct wrong-question deep-dive entry (F4, once prerequisites check out) |
+| `/study-podcast` | Direct podcast entry (F5, turns study material into a two-host audio show for your commute) |
 
 ---
 
 ## Installation
 
-The skill sources live in the repo under `skills/` (single source of truth: the `ask-coach` main entry + three thin commands `coach` / `study-doctor` / `study-recap` that share the main entry's `references/`). Two install paths:
+The skill sources live in the repo under `skills/` (single source of truth: the `ask-coach` main entry + four thin commands `study-coach` / `study-doctor` / `study-recap` / `study-podcast` that share the main entry's `references/`). Two install paths:
 
 **① Plugin marketplace (zcode / Claude Code, recommended)**: the repo ships its own marketplace manifest (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` generates `plugins/ai-study-kit/` from the source). Add the marketplace `https://github.com/jerryjiao/ai-study-kit` in your client and install the `ai-study-kit` plugin — skill updates arrive with marketplace refreshes, **no manual reinstall** (versions follow repo releases). **After a plugin update, opening `/ask-coach` in an older project reports the version gap and guides you through the F13 upgrade** (data-safe, fills the gaps — see the flow table; the kit snapshot self-reports its version via `kit-version.json`). **The plugin name is ai-study-kit for life; the commands are the ask-coach family** (renamed from `/ai-study-kit` in v0.13, Sept 2026 — marketplace names are permanent, so the plugin name stays).
 
 **② Manual install (any client honoring `~/.agents/skills/`)**:
 
 ```bash
-# from the ai-study-kit repo root (installs all four skills; thin commands rely on the main entry's references/)
-pnpm run skill:install          # copies to ~/.agents/skills/{ask-coach,coach,study-doctor,study-recap}
+# from the ai-study-kit repo root (installs all five skills; thin commands rely on the main entry's references/)
+pnpm run skill:install          # copies to ~/.agents/skills/{ask-coach,study-coach,study-doctor,study-recap,study-podcast}
 pnpm run skill:install -- --link   # symlink variant (auto-updates with git pull)
 
 # other clients: custom destination

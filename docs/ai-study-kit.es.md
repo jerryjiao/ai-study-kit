@@ -4,28 +4,29 @@
 
 ai-study-kit tiene muchas funciones — app de práctica, cursos, tarjetas, repaso a fondo de erróneas, podcasts, despliegue — y eso, para quien estudia, se convierte en una carga: **¿qué toca hacer exactamente hoy?** `/ask-coach` existe para responder a eso. Es el skill de entrada principal que trae el propio repositorio: lo instalas una vez, empiezas cada sesión de estudio desde él, y dejas que escanee tu estado, te recomiende y ejecute contigo — sin memorizar la cadena de herramientas.
 
-**Los nombres de los comandos son el menú** — el plugin ai-study-kit (nombre permanente) instala cuatro comandos:
+**Los nombres de los comandos son el menú** — el plugin ai-study-kit (nombre permanente) instala cinco comandos:
 
 | Comando | Qué hace |
 |---------|----------|
 | `/ask-coach` | Preguntar al coach: instantánea de estado + recomendación + ejecución guiada (entrada principal; el resto se enruta desde aquí) |
-| `/coach` | Sentarse a estudiar: entrada directa a la tutoría (F10 abrir/reanudar; al abrir reporta «qué tocar hoy y por qué») |
+| `/study-coach` | Sentarse a estudiar: entrada directa a la tutoría (F10 abrir/reanudar; al abrir reporta «qué tocar hoy y por qué») |
 | `/study-doctor` | Chequeo integral: cuatro puertas de calidad + sondas de entorno, informe de estado y orden de reparación |
 | `/study-recap` | Entrada directa al análisis de erróneas (F4, cuando los prerrequisitos están) |
+| `/study-podcast` | Entrada directa al podcast (F5, convierte material de estudio en un audio a dos voces para el camino) |
 
 ---
 
 ## Instalación
 
-Los códigos fuente de los skills viven en el repositorio bajo `skills/` (fuente única de verdad: la entrada principal `ask-coach` + tres comandos finos `coach` / `study-doctor` / `study-recap` que comparten los `references/` de la entrada principal). Dos rutas de instalación:
+Los códigos fuente de los skills viven en el repositorio bajo `skills/` (fuente única de verdad: la entrada principal `ask-coach` + cuatro comandos finos `study-coach` / `study-doctor` / `study-recap` / `study-podcast` que comparten los `references/` de la entrada principal). Dos rutas de instalación:
 
 **① Marketplace de plugins (zcode / Claude Code, recomendado)**: el repositorio trae su propio manifiesto de marketplace (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` genera `plugins/ai-study-kit/` a partir del código fuente). Añade el marketplace `https://github.com/jerryjiao/ai-study-kit` en tu cliente e instala el plugin `ai-study-kit` — las actualizaciones del skill llegan con cada refresco del marketplace, **sin reinstalación manual** (las versiones siguen los releases del repositorio). **Tras actualizar el plugin, abrir `/ask-coach` en un proyecto antiguo informa del desfase de versión y te guía por la actualización F13** (segura para los datos, rellena los huecos — ver la tabla de flujos; la instantánea del kit autoinforma su versión vía `kit-version.json`). **El nombre del plugin es ai-study-kit de por vida; los comandos son la familia ask-coach** (renombrado desde `/ai-study-kit` en v0.13, septiembre de 2026 — los nombres de marketplace son permanentes, así que el del plugin no cambia).
 
 **② Instalación manual (cualquier cliente que respete `~/.agents/skills/`)**:
 
 ```bash
-# 从 ai-study-kit 仓库根目录（装全部四个 skill； los comandos finos dependen de los references/ de la entrada principal）
-pnpm run skill:install          # copia a ~/.agents/skills/{ask-coach,coach,study-doctor,study-recap}
+# 从 ai-study-kit 仓库根目录（装全部五个 skill； los comandos finos dependen de los references/ de la entrada principal）
+pnpm run skill:install          # copia a ~/.agents/skills/{ask-coach,study-coach,study-doctor,study-recap,study-podcast}
 pnpm run skill:install -- --link   # 符号链接版（随仓库 git pull 自动更新）
 
 # 其他客户端：自定义目标目录

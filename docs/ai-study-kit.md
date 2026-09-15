@@ -4,28 +4,29 @@
 
 ai-study-kit 的功能多——答题站、课程、闪卡、错题串讲、播客、部署，但对学习者来说这反而成了负担：**今天到底该干嘛？** `/ask-coach` 就是回答这个问题的。它是仓库自带的主入口 skill：装一次，每次学习从它开始，由它扫状态、给推荐、带你执行，不用背工具链。
 
-**命令名即菜单**，插件 ai-study-kit（名字终身不变）装出来共四个命令：
+**命令名即菜单**，插件 ai-study-kit（名字终身不变）装出来共五个命令：
 
 | 命令 | 干什么 |
 |------|--------|
 | `/ask-coach` | 问教练：状态快照 + 推荐 + 带执行（主入口，其余流程走路由） |
-| `/coach` | 坐下就学：陪练直入（F10 进站/续站，开场报「今天最该练+为什么」） |
+| `/study-coach` | 坐下就学：陪练直入（F10 进站/续站，开场报「今天最该练+为什么」） |
 | `/study-doctor` | 一键体检：四门校验 + 环境探测，过红报告 + 修复顺序 |
 | `/study-recap` | 错题串讲直入（F4，前置齐了直接深挖） |
+| `/study-podcast` | 播客直入（F5，把学习素材合成男女双播音频，通勤路上听） |
 
 ---
 
 ## 安装
 
-skill 源文件在仓库 `skills/` 下（单一事实源：`ask-coach` 主入口 + `coach` / `study-doctor` / `study-recap` 三个薄命令，薄命令共享主入口的 `references/`）。两条安装路径：
+skill 源文件在仓库 `skills/` 下（单一事实源：`ask-coach` 主入口 + `study-coach` / `study-doctor` / `study-recap` / `study-podcast` 四个薄命令，薄命令共享主入口的 `references/`）。两条安装路径：
 
 **① plugin 市集（zcode / Claude Code，推荐）**：仓库自带 marketplace 清单（`.claude-plugin/marketplace.json`，由 `scripts/sync-plugin.mjs` 从源生成 `plugins/ai-study-kit/`）。在客户端里添加 marketplace `https://github.com/jerryjiao/ai-study-kit`，安装 `ai-study-kit` 插件——后续 skill 更新随市集刷新到达，**无需手动重装**（版本跟仓库 release）。**插件更新后，旧项目打开 `/ask-coach` 会被报出版本差并引导 F13 升级**（保数据、补缺口，见上方流程表；kit 快照自报版本 `kit-version.json`）。**插件名终身 ai-study-kit，命令名是 ask-coach 一族**（2026-09 v0.13 由 `/ai-study-kit` 更名，市集名不可改所以插件名不动）。
 
 **② 手动安装（任何认 `~/.agents/skills/` 的客户端）**：
 
 ```bash
-# 在 ai-study-kit 仓库根目录（四个 skill 全装，薄命令依赖主入口的 references/）
-pnpm run skill:install          # 复制安装到 ~/.agents/skills/{ask-coach,coach,study-doctor,study-recap}
+# 在 ai-study-kit 仓库根目录（五个 skill 全装，薄命令依赖主入口的 references/）
+pnpm run skill:install          # 复制安装到 ~/.agents/skills/{ask-coach,study-coach,study-doctor,study-recap,study-podcast}
 pnpm run skill:install -- --link   # 符号链接版（随仓库 git pull 自动更新）
 
 # 其他客户端：自定义目标目录

@@ -60,7 +60,7 @@ ai-study-kit/
 │   ├── configuration.md       # .env 配置（LLM/TTS provider）
 │   └── theming.md             # theme-config.json 呈现层字段表（不入官网 sync 清单）
 ├── skills/
-│   └── ai-study-kit/           # 学习教练 skill 单一事实源（探测状态 → 推荐 → 带执行）
+│   └── ai-study-kit/           # 学习教练 skill 单一事实源（探测状态 → 推荐 → 带执行；主入口 + 四薄命令共五个目录）
 │       ├── SKILL.md           # 路由指令本体
 │       └── references/        # state.md 探测协议 + flows.md 十三流程 playbook + coach.md 教学法
 ├── plugins/
@@ -93,7 +93,7 @@ pnpm run scan              # brand-scan.py（零泄露校验）
 pnpm run check:alignment   # bidirectional-check.py 四对齐校验（默认 dev-intro，可传主题目录）
 pnpm run ai:teach          # teach CLI 产课程（ai:grill / ai:podcast 同理，见 docs/ai-cli-guide.md）
 pnpm run mastery           # 考点掌握报告（无 AI，确定性派生；--json 给 agent 消费）
-pnpm run skill:install     # 把四个 skill（ask-coach 主入口 + coach/study-doctor/study-recap 薄命令）装进 ~/.agents/skills/
+pnpm run skill:install     # 把五个 skill（ask-coach 主入口 + study-coach/study-doctor/study-recap/study-podcast 薄命令）装进 ~/.agents/skills/
 pnpm start                 # build && server（本地一键）
 
 # 直接在 apps/quiz-app/ 执行：
@@ -180,7 +180,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - **考点掌握度** `scripts/lib/mastery.mjs` + `scripts/mastery-report.mjs`（`pnpm run mastery`，`--json` 给 agent）：确定性派生无 LLM，判据（v1.1 双通道）=考点（题 `examPoint` EP-NN）下题全答对、无未毕业错题，且映射闪卡（`flashcards.json` 可选 `examPoint`）全部毕业（SRS phase=review）；无映射考点退回纯题维度。TS 移植 `src/lib/mastery.ts`（首页「考点掌握度」面板）判据与脚本侧必须同步改。
   - **口头答题流水 + 口头四态（v0.14）** `scripts/lib/oral.mjs`：聊天陪练每次口头问答追加一条明细到 `study/records/oral-attempts.json`（target/correct/at/source，at 真实 `Date.now()`；契约二「口头题计数」节 v0.14 起停写、旧记录照读合并）；口头目标（排布表全部考点 ∪ 流水裸知识点）四态 = 近 5 次加权正确率（0.5/0.7/0.85/0.95/1.0）+ 置信度封顶（1 次封 0.5、2 次封 0.8），`mastery-report --json` 的 `oral` 字段输出。既有考点四态判据 v1.1 不动；两通道合流负面证据优先（`mergeMastery`）。写入口径与三来源（抽背/复述/案例）见 skill flows.md 契约二。
   - **消费端**：skill 快照「弱考点」行 + 推荐算法点名弱考点（state.md §3 / SKILL.md）。
-- **学习教练 skill（命令面四件：`/ask-coach` 主入口 + `/coach` `/study-doctor` `/study-recap` 薄命令；doctor/recap 加 study- 前缀避 Claude Code 内置撞名）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后敲对应命令触发（原命令名 /ai-study-kit，v0.13 更名 ask-coach；插件名 ai-study-kit 终身不变）。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/ask-coach/references/flows.md` 的 playbook 带执行（初始化/新主题/每日刷题/错题串讲/播客/产课/改内容/校验/体检/部署/陪练教学/考前冲刺/图谱投影/升级，F1-F13 + 体检；F13 存量项目升级 + kit-version.json 见 ADR-0006）。源文件在 `skills/`（**单一事实源**：ask-coach 主入口 + 三个薄命令目录），安装用 `pnpm run skill:install`（全装）。
+- **学习教练 skill（命令面五件：`/ask-coach` 主入口 + `/study-coach` `/study-doctor` `/study-recap` `/study-podcast` 薄命令；v0.16 起薄命令一律 study- 前缀）**：仓库自带的用户入口指令，装进 `~/.agents/skills/` 后敲对应命令触发（原命令名 /ai-study-kit，v0.13 更名 ask-coach；插件名 ai-study-kit 终身不变）。协议：只读探测学习状态 → 快照+推荐+菜单 → 按 `skills/ask-coach/references/flows.md` 的 playbook 带执行（初始化/新主题/每日刷题/错题串讲/播客/产课/改内容/校验/体检/部署/陪练教学/考前冲刺/图谱投影/升级，F1-F13 + 体检；F13 存量项目升级 + kit-version.json 见 ADR-0006）。源文件在 `skills/`（**单一事实源**：ask-coach 主入口 + 四个薄命令目录），安装用 `pnpm run skill:install`（全装）。
 - **⭐ ai-study-kit plugin 分发（插件=发行形态）**：`plugins/ai-study-kit/` + repo 根 `.claude-plugin/marketplace.json` 是 `scripts/sync-plugin.mjs` 的**committed sync 产物，禁止手编**——改 skill 走 `skills/` 源（sync-plugin 循环打包全部 skill 目录），改完重跑 `pnpm run sync:plugin`（版本跟根 package.json）。**命名史**：skill/插件原名 study-coach，2026-08-25 v0.7.0 改名 ai-study-kit；2026-09 v0.13 主 skill 更名 ask-coach、加薄命令三件（市集插件名终身不可改，ai-study-kit 保留为插件名）。插件内容 = skills + **`kit/` 迷你仓库快照**（apps/quiz-app + examples/dev-intro 的 git 跟踪面，"装插件零 clone 建站"的数据基础，skill F1 流从快照拷进用户项目）。用户安装二选一：① zcode / Claude Code 添加 marketplace `https://github.com/jerryjiao/ai-study-kit` 装 ai-study-kit（更新 = marketplace refresh，无需手动重装）；② `pnpm run skill:install`（拷贝到 `~/.agents/skills/`，更新需重跑，适合无 plugin 机制的环境）。
 
 ## zcode / AI agent 访问资料的方式
