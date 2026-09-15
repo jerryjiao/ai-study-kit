@@ -1,23 +1,53 @@
 ---
 title: Inicio rápido
-description: Pon la demo en marcha en cinco minutos y mira la práctica, las tarjetas y los cursos
+description: 'Elige la ruta de instalación de tu herramienta, dile a tu IA «quiero aprender X» y el coach se encarga del resto — sitio, preguntas y despliegue'
 ---
 
-## ¿Para quién es esto?
+Instala un plugin, dile a tu IA «quiero aprender X» y tu sitio de estudio ya está en marcha. Elige tu herramienta abajo; cada comando de aquí se ha probado de verdad.
 
-| Qué haces | Te encaja |
-|------|---------|
-| 🧑‍💻 **Dev aprendiendo una tecnología nueva** (React / K8s / Rust) | ✅ Convierte la documentación oficial en preguntas y fíjalas con tarjetas |
-| 📚 **Estudiando para un examen** (asignatura / certificación) | ✅ Banco de preguntas real + análisis de erróneas generados por IA |
-| 🎯 **Preparando entrevistas** | ✅ Escribe tus propias preguntas + cursos generados por IA, con SRS |
-| 🗂️ **Aprendiendo cualquier cosa con «puntos de examen»** (cumplimiento, procesos, terminología) | ✅ Si se puede descomponer en preguntas y respuestas, se puede estudiar |
-| ❌ Buscas un banco de preguntas ya hecho | ❌ Esto es un **andamiaje**, no un banco — recopila exámenes reales, escribe las preguntas a mano o deja que un agente de IA las genere |
+## Instalar según tu herramienta
 
-**En una frase**: esto es un andamiaje, no un banco de preguntas. Las preguntas pueden ser exámenes reales que recopiles, escritas a mano, o un banco completo generado por un agente de IA — instala [`/ask-coach`](/ai/ai-study-kit/) y pídelo; el flujo está en [Hazlo tuyo](/es/your-theme/), sección «Deja que un agente de IA escriba las preguntas». En cuanto estén en JSON, la herramienta añade cursos, tarjetas, análisis de erróneas y planificación de repasos.
+Los pasos de instalación cambian según la herramienta, y cada una necesita su propia copia. El plugin incluye el código fuente completo de la app, así que no hay nada que clonar.
 
-¿No quieres clonar? [Prueba la demo online](/demo/) — funcionalidad completa, el progreso se guarda solo en tu navegador.
+**Claude Code** (dos pasos, ejecuta ambos)
 
-## La demo en 5 minutos
+```text
+/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
+/plugin install ai-study-kit@ai-study-kit
+```
+
+**zcode**: abre el marketplace de plugins, añade el repositorio `https://github.com/jerryjiao/ai-study-kit` e instala ai-study-kit.
+
+**Codex** (dos pasos, ejecuta ambos)
+
+```text
+codex plugin marketplace add jerryjiao/ai-study-kit
+codex plugin add ai-study-kit@ai-study-kit
+```
+
+**Cualquier otro CLI de IA** que lea un directorio de skills puede usar el instalador incluido:
+
+```bash
+git clone https://github.com/jerryjiao/ai-study-kit
+cd ai-study-kit && pnpm run skill:install   # instala en ~/.agents/skills/
+# o elige destino: bash scripts/install-skill.sh --dest ~/.claude/skills
+```
+
+**Cursor, Copilot y demás** quedan cubiertos por el manifiesto estándar Agent Plugins; consulta la documentación de plugins de cada herramienta.
+
+## Qué pasa después de instalar
+
+Dile a tu IA «quiero aprender X», o ejecuta [`/ask-coach`](/es/ai/ai-study-kit/). El coach escanea primero tu estado de aprendizaje (tema, progreso, erróneas, tarjetas vencidas, configuración de IA), recomienda lo que más vale la pena hacer ahora y luego lo ejecuta contigo. Trece flujos cubiertos de principio a fin — arranque, temas nuevos, generación de preguntas y cursos, análisis de erróneas y despliegue.
+
+Tu proyecto de estudio (copia de la app + tus paquetes de tema) vive por completo en tu propio directorio y sobrevive a las actualizaciones del plugin; tras una actualización, los proyectos antiguos reciben un aviso de versión, y actualizar es un pase corto que no toca tus datos.
+
+El proyecto no trae banco de preguntas hecho. Las preguntas pueden ser exámenes reales que recopiles, o un banco completo generado por un agente de IA — instala `/ask-coach` y pídelo; el flujo está en [Hazlo tuyo](/es/your-theme/), sección «Deja que un agente de IA escriba las preguntas».
+
+¿No quieres instalar nada? [Prueba la demo online](/demo/) — funcionalidad completa, el progreso se guarda solo en tu navegador.
+
+## Desarrolladores: la demo en local (ruta clone)
+
+Para curiosear el código o correr la demo en local:
 
 ```bash
 git clone https://github.com/jerryjiao/ai-study-kit

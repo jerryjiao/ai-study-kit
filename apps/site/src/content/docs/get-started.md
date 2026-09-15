@@ -1,23 +1,53 @@
 ---
 title: 快速上手
-description: 五分钟把 demo 跑起来，看到答题、闪卡、课程分别长什么样
+description: '按工具选一条安装路，装完对 AI 说「我想学 X」，教练带你从建站、产题到部署'
 ---
 
-## 这是给谁用的
+装个插件，对 AI 说「我想学 X」，你的学习站就开起来了。下面按工具选一条路，每条都是实测可跑的命令。
 
-| 你在做什么 | 合不合适 |
-|------|---------|
-| 🧑‍💻 开发者学新技术，React、K8s、Rust 这类 | ✅ 把官方文档要点抽成题，刷题加闪卡巩固 |
-| 📚 学生复习，考研或资格证 | ✅ 真题库加 AI 错题精讲 |
-| 🎯 准备面试 | ✅ 自己出题，AI 帮你产课和错题串讲 |
-| 🗂️ 学任何有考点的东西，合规、流程、术语 | ✅ 能拆成问答就能学 |
-| ❌ 只想要一套现成题库 | ❌ 项目是脚手架，不含真题——题目自己出，或让 AI agent 替你产 |
+## 按工具安装
 
-项目不带现成题库，题目可以是收集的真题，也可以让 AI agent 替你产——装好 [`/ask-coach`](/ai/ai-study-kit/) 后说一句「帮我给这个主题产一套题库」，流程见[换成你的主题](/your-theme/)的「让 AI agent 替你产题」。有了题目，课程、闪卡、错题本和复习调度由它补齐。
+不同工具安装方式不同，多个工具要各装一份。插件自带完整答题站源码，装完不用 clone 本仓库。
 
-不想 clone，可以先[在线试用 demo](/demo/)，功能完整，进度只存在你的浏览器里。
+**Claude Code**（两步，都要跑）
 
-## 5 分钟跑起来看 demo
+```text
+/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
+/plugin install ai-study-kit@ai-study-kit
+```
+
+**zcode** 打开插件市集，添加仓库 `https://github.com/jerryjiao/ai-study-kit`，安装 ai-study-kit。
+
+**Codex**（两步，都要跑）
+
+```text
+codex plugin marketplace add jerryjiao/ai-study-kit
+codex plugin add ai-study-kit@ai-study-kit
+```
+
+**其他 AI CLI**（认 skills 目录的都行）用仓库自带的安装脚本
+
+```bash
+git clone https://github.com/jerryjiao/ai-study-kit
+cd ai-study-kit && pnpm run skill:install   # 装到 ~/.agents/skills/
+# 或装到指定目录：bash scripts/install-skill.sh --dest ~/.claude/skills
+```
+
+**Cursor、Copilot 等**经 Agent Plugins 标准清单支持，装法见各工具的插件文档。
+
+## 装完会发生什么
+
+对 AI 说「我想学 X」，或敲 [`/ask-coach`](/ai/ai-study-kit/)。教练先扫描学习状态（主题、进度、错题、到期闪卡、AI 配置），推荐现在最该做的一件事，然后带你执行。从初始化项目、开新主题、产题产课，到错题串讲和部署上线，十三个流程全覆盖。
+
+学习项目（答题站 + 你的主题包）住你自己的目录，与插件升级互不干扰；插件更新后旧项目会收到版本提示，升级是一趟保数据的短流程。
+
+项目不带现成题库，题目可以是收集的真题，也可以让 AI agent 替你产。装好 `/ask-coach` 后说一句「帮我给这个主题产一套题库」，流程见[换成你的主题](/your-theme/)的「让 AI agent 替你产题」。
+
+不想装任何东西？可以先[在线试用 demo](/demo/)，功能完整，进度只存在你的浏览器里。
+
+## 开发者·本地跑 demo（clone 路线）
+
+想在本地把 demo 跑起来看代码，照下面四条命令做。
 
 ```bash
 git clone https://github.com/jerryjiao/ai-study-kit

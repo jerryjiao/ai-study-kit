@@ -144,7 +144,7 @@ head:
     <div class="ask-step"><div class="n">3</div>The coach takes over<code>Scan progress → pick the one thing to do → walk you through it</code></div>
   </div>
   <p class="ask-more">
-    Prefer to run it locally? <a href="/en/get-started/">Clone route in the Quick start</a>
+    Use a different tool? <a href="/en/get-started/">See the per-tool install matrix</a> · Prefer running locally? The clone route lives there too
   </p>
 </section>
 

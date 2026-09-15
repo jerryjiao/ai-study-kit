@@ -105,7 +105,7 @@ hero:
     <div class="ask-step"><div class="n">3</div>El coach toma el mando<code>Escanea tu progreso → elige lo próximo → te guía</code></div>
   </div>
   <p class="ask-more">
-    ¿Prefieres ejecutarlo localmente? <a href="/es/get-started/">Ruta con clone en Primeros pasos</a>
+    ¿Usas otra herramienta? <a href="/es/get-started/">Mira la matriz de instalación por herramienta</a> · ¿Prefieres ejecutarlo localmente? La ruta con clone también está ahí
   </p>
 </section>
 

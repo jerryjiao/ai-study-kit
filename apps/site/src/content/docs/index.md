@@ -144,7 +144,7 @@ head:
     <div class="ask-step"><div class="n">3</div>教练接管<code>探测进度 → 推荐今天最该做的 → 带你执行</code></div>
   </div>
   <p class="ask-more">
-    开发者想本地跑？<a href="/get-started/">clone 路线看快速上手</a>
+    用别的工具？<a href="/get-started/">按工具安装矩阵看快速上手</a> · 开发者想本地跑？clone 路线也在那
   </p>
 </section>
 
