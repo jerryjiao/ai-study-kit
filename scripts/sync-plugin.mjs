@@ -6,10 +6,17 @@
 //   plugins/ai-study-kit/
 //     .zcode-plugin/plugin.json    # zcode manifest
 //     .claude-plugin/plugin.json   # Claude Code 兼容（同内容）
+//     .codex-plugin/plugin.json    # Codex CLI 清单（该目录只放这一个文件，Codex 约束）
+//     plugin.json                  # Agent Plugins 1.0 标准清单（agent-plugins.org）
 //     skills/<skill-name>/...      # skills/ 下每个含 SKILL.md 的源目录原样拷入（多 skill：v0.13 起）
 //     kit/                         # 迷你仓库快照（apps/quiz-app + examples/dev-intro 跟踪面）
 //     icon.png                     # 插件包根图标
 //   .claude-plugin/marketplace.json  # repo 根市集清单（add marketplace 用仓库完整 URL）
+//   .agents/plugins/marketplace.json # repo 根 Codex 市集清单（codex plugin marketplace add <owner>/<repo>）
+//
+// 「一份内容、多清单」：插件本体（skills + kit/）不动，各生态清单由本脚本顺产，
+// 布局逐字段对齐 openai/role-specific-plugins（.agents/plugins/marketplace.json +
+// 每插件 .codex-plugin/plugin.json）与 Agent Plugins 1.0 schema（插件根 plugin.json）。
 //
 // 命名约定：**插件名 ai-study-kit 终身不变**（市集名不可改）；skill 名即命令名——
 // 主入口 ask-coach（原 skill 名 ai-study-kit，v0.13 更名，市集装出后敲 /ask-coach），
@@ -91,9 +98,49 @@ for (const skill of skillDirs) {
 }
 mkdirSync(join(PLUGIN_DIR, '.zcode-plugin'), { recursive: true });
 mkdirSync(join(PLUGIN_DIR, '.claude-plugin'), { recursive: true });
+mkdirSync(join(PLUGIN_DIR, '.codex-plugin'), { recursive: true });
 const manifestJson = JSON.stringify(manifest, null, 2) + '\n';
 writeFileSync(join(PLUGIN_DIR, '.zcode-plugin', 'plugin.json'), manifestJson);
 writeFileSync(join(PLUGIN_DIR, '.claude-plugin', 'plugin.json'), manifestJson);
+
+// Codex CLI 清单（对照 openai/role-specific-plugins 的 sales 示例）。
+// Codex 约束：.codex-plugin/ 目录里只放 plugin.json，别的东西都在插件根。
+const codexManifest = {
+  name: PLUGIN_NAME,
+  version: VERSION,
+  description: DESCRIPTION,
+  author: manifest.author,
+  homepage: manifest.homepage,
+  repository: 'https://github.com/jerryjiao/ai-study-kit/tree/main/plugins/ai-study-kit',
+  license: 'MIT',
+  keywords: KEYWORDS,
+  skills: './skills/',
+  interface: {
+    displayName: 'ai-study-kit',
+    shortDescription: 'Study coach: turn any topic into a full learning loop',
+    developerName: 'ai-study-kit',
+    category: 'Productivity',
+    capabilities: ['Interactive', 'Read', 'Write'],
+    websiteURL: 'https://aistudykit.dev/',
+  },
+};
+writeFileSync(join(PLUGIN_DIR, '.codex-plugin', 'plugin.json'), JSON.stringify(codexManifest, null, 2) + '\n');
+
+// Agent Plugins 1.0 标准清单（开放标准，2026-08-06 起；Cursor/Vercel/GitHub/AWS/Microsoft 签署）。
+// schema: https://agent-plugins.org/schemas/1.0.0/plugin.schema.json（必填仅 $schema+name，
+// additionalProperties:false，author 只认 name/email/url——别塞别的键）。
+const agentPluginsManifest = {
+  $schema: 'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json',
+  name: PLUGIN_NAME,
+  version: VERSION,
+  description: DESCRIPTION,
+  author: manifest.author,
+  homepage: manifest.homepage,
+  repository: 'https://github.com/jerryjiao/ai-study-kit/tree/main/plugins/ai-study-kit',
+  license: 'MIT',
+  keywords: KEYWORDS,
+};
+writeFileSync(join(PLUGIN_DIR, 'plugin.json'), JSON.stringify(agentPluginsManifest, null, 2) + '\n');
 
 // kit/ = 迷你仓库快照（发行形态：装插件即得可构建的答题站 + dev-intro 演示，用户零 clone）。
 // 只拷 git 跟踪文件——跟踪面天然排除 node_modules/dist/同步产物(.json)/.env/progress.json，
@@ -159,6 +206,24 @@ const marketplace = {
 };
 writeFileSync(join(REPO_ROOT, '.claude-plugin', 'marketplace.json'), JSON.stringify(marketplace, null, 2) + '\n');
 
+// repo 根 Codex 市集清单（字段照 openai/role-specific-plugins 的 .agents/plugins/marketplace.json；
+// policy 值取官方样本现状 ON_USE）。`codex plugin marketplace add jerryjiao/ai-study-kit` 读这份。
+mkdirSync(join(REPO_ROOT, '.agents', 'plugins'), { recursive: true });
+const codexMarketplace = {
+  name: 'ai-study-kit',
+  interface: { displayName: 'ai-study-kit' },
+  plugins: [
+    {
+      name: PLUGIN_NAME,
+      source: { source: 'local', path: `./plugins/${PLUGIN_NAME}` },
+      policy: { installation: 'AVAILABLE', authentication: 'ON_USE' },
+      category: 'Productivity',
+    },
+  ],
+};
+writeFileSync(join(REPO_ROOT, '.agents', 'plugins', 'marketplace.json'), JSON.stringify(codexMarketplace, null, 2) + '\n');
+
 console.log(`[sync-plugin] skills/（${skillDirs.length} 个：${skillDirs.join(', ')}）→ plugins/${PLUGIN_NAME}/  (v${VERSION})`);
 console.log('[sync-plugin] → .claude-plugin/marketplace.json  (repo-root marketplace)');
-console.log('[sync-plugin] 安装：zcode / Claude Code 添加 marketplace https://github.com/jerryjiao/ai-study-kit 后装 ai-study-kit；改 skill 源后重跑本脚本再提交。');
+console.log('[sync-plugin] → .agents/plugins/marketplace.json + .codex-plugin/plugin.json + plugin.json  (Codex / Agent Plugins 1.0)');
+console.log('[sync-plugin] 安装：zcode / Claude Code 添加 marketplace https://github.com/jerryjiao/ai-study-kit 后装 ai-study-kit；Codex 走 codex plugin marketplace add jerryjiao/ai-study-kit；改 skill 源后重跑本脚本再提交。');

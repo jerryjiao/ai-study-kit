@@ -17,3 +17,20 @@ test('kit 快照含 kit-version.json，版本号与根 package.json 一致', () 
   const pkg = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf-8'));
   assert.equal(marker.version, pkg.version, `kit-version.json(${marker.version}) ≠ package.json(${pkg.version})——改版本后必须重跑 pnpm run sync:plugin`);
 });
+
+// 四份插件清单的版本面（v0.16 起多生态分发：zcode/Claude manifest×2 + Codex 清单 +
+// Agent Plugins 1.0 清单）——同一发版纪律：bump 后没重跑 sync-plugin 这里就红。
+test('四份插件清单版本号与根 package.json 一致', () => {
+  const pkg = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf-8'));
+  const manifests = [
+    join(REPO_ROOT, 'plugins', 'ai-study-kit', '.zcode-plugin', 'plugin.json'),
+    join(REPO_ROOT, 'plugins', 'ai-study-kit', '.claude-plugin', 'plugin.json'),
+    join(REPO_ROOT, 'plugins', 'ai-study-kit', '.codex-plugin', 'plugin.json'),
+    join(REPO_ROOT, 'plugins', 'ai-study-kit', 'plugin.json'),
+  ];
+  for (const f of manifests) {
+    assert.ok(existsSync(f), `清单缺失：${f}——重跑 pnpm run sync:plugin`);
+    const m = JSON.parse(readFileSync(f, 'utf-8'));
+    assert.equal(m.version, pkg.version, `${f} 版本(${m.version}) ≠ package.json(${pkg.version})——改版本后必须重跑 pnpm run sync:plugin`);
+  }
+});

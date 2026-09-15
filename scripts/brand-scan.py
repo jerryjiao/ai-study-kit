@@ -116,12 +116,15 @@ def scan_file(path: Path, brand_re: re.Pattern, personal_re: re.Pattern) -> list
         # GitHub Pages URLs `https://<owner>.github.io/<repo>`, and dynamic shields
         # badges `https://img.shields.io/github/<metric>/<owner>/<repo>` contain the
         # repo owner's username, which is intentionally public (the repo's owner).
-        # Skip personal-context matches inside such URLs — all of them per line,
+        # Also bare CLI owner/repo references `<owner>/ai-study-kit` (e.g.
+        # `codex plugin marketplace add jerryjiao/ai-study-kit`) — same public owner,
+        # anchored to this repo's name so no other owner/repo pair is exempted.
+        # Skip personal-context matches inside such spans — all of them per line,
         # not just the first (a single line may carry several Pages links).
         clone_url_spans = [
             m.span()
             for m in re.finditer(
-                r"https?://(?:github\.com/[^/\s]+/[^/\s]+|raw\.githubusercontent\.com/[^/\s]+/[^/\s]+|cdn\.jsdelivr\.net/gh/[^/\s]+/[^/\s]+|img\.shields\.io/github/[^/\s]+(?:/[^/\s]+)*|[a-z0-9-]+\.github\.io(?:/[^/\s]+)?)",
+                r"https?://(?:github\.com/[^/\s]+/[^/\s]+|raw\.githubusercontent\.com/[^/\s]+/[^/\s]+|cdn\.jsdelivr\.net/gh/[^/\s]+/[^/\s]+|img\.shields\.io/github/[^/\s]+(?:/[^/\s]+)*|[a-z0-9-]+\.github\.io(?:/[^/\s]+)?)|[A-Za-z0-9-]+/ai-study-kit",
                 line,
             )
         ]

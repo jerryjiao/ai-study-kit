@@ -1,0 +1,20 @@
+{
+  "name": "ai-study-kit",
+  "interface": {
+    "displayName": "ai-study-kit"
+  },
+  "plugins": [
+    {
+      "name": "ai-study-kit",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ai-study-kit"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
