@@ -6,7 +6,7 @@
 
 [简体中文](README.md) · **English** · [Español](README.es.md) · [Русский](README.ru.md)
 
-> Turn any question set into a complete learning loop — practice + courses + flashcards + wrong-answer deep-dives + spaced repetition, with progress synced across devices. See the demo in 5 minutes, make it yours in 30.
+> An AI coach that drills any topic until you truly know it. Collect the questions yourself, or let AI write them; wrong answers get explained point by point, reviews queue up on their own, and progress syncs across devices. Free and open source — install a plugin and you're ready.
 
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/website-online-blue" alt="Website" /></a>
@@ -21,6 +21,42 @@
 
 ---
 
+## 📦 Install into your AI tool
+
+Install steps differ per tool, and each tool needs its own copy. The plugin ships the complete app source, so there is nothing to clone — the agent walks you from zero to a running study site, generating questions and courses along the way.
+
+**Claude Code** (two steps, run both)
+
+```text
+/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
+/plugin install ai-study-kit@ai-study-kit
+```
+
+**zcode** — open the plugin marketplace, add the repository `https://github.com/jerryjiao/ai-study-kit`, then install ai-study-kit.
+
+**Codex** (two steps, run both)
+
+```text
+codex plugin marketplace add jerryjiao/ai-study-kit
+codex plugin add ai-study-kit@ai-study-kit
+```
+
+**Any other AI CLI** that reads a skills directory can use the bundled installer:
+
+```bash
+git clone https://github.com/jerryjiao/ai-study-kit
+cd ai-study-kit && pnpm run skill:install   # installs to ~/.agents/skills/
+# or pick a destination: bash scripts/install-skill.sh --dest ~/.claude/skills
+```
+
+**Cursor, Copilot and friends** are covered via the Agent Plugins standard manifest; see each tool's plugin docs for how to install.
+
+Once installed, tell your AI "I want to learn X", or run `/ask-coach`. Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Thirteen flows covered end to end, grouped in four lines — teaching (coached tutoring, pre-deadline sprint), practice (daily study, wrong-question grilling, podcasts), content (new theme, course generation, content edits), ops (bootstrap, upgrade, verification, deploy, graph projection) — see [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).
+
+Just want to see what it looks like first? Take the clone route below.
+
+---
+
 ## 👋 Who is this for
 
 | You are… | Fit |
@@ -31,22 +67,7 @@
 | 🗂️ **Learning anything with "test points"** (compliance / processes / terminology) | ✅ If it can be broken down into "question + answer", you can study it |
 | ❌ Looking for a ready-made question bank ("500 Java questions") | ❌ This is a **scaffold** and ships with zero real questions — you bring the questions, or generate them with AI |
 
-**In one sentence**: this is a **scaffold**, not a question bank. You bring the questions; the tool turns them into a study app with courses, flashcards, and wrong-answer analysis.
-
----
-
-## 🤖 Recommended way to start: install the plugin — no clone needed
-
-Install the whole kit into your AI agent (zcode / Claude Code). **No repo cloning, no commands to memorize** — the plugin ships a complete buildable app snapshot, and the agent walks you from zero to a running study site, generating questions and courses along the way:
-
-```
-/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
-# install ai-study-kit, then say "I want to learn X" (or /ask-coach) in a new session
-```
-
-Your study project (app copy + your theme packs) lives entirely in your own directory and survives plugin upgrades. Thirteen flows covered end to end, grouped in four lines — teaching (coached tutoring, pre-deadline sprint), practice (daily study, wrong-question grilling, podcasts), content (new theme, course generation, content edits), ops (bootstrap, upgrade, verification, deploy, graph projection) — see [`docs/ai-study-kit.en.md`](docs/ai-study-kit.en.md).
-
-Just want to see what it looks like first? Take the clone route below.
+**In one sentence**: you bring the questions; the tool turns them into a study app with courses, flashcards, and wrong-answer analysis.
 
 ---
 
@@ -246,7 +267,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # Russian p
 
 | Without ai-study-kit | With ai-study-kit |
 |-------------------|-----------------|
-| **Anki**: great flashcards, but no practice site, no wrong-answer deep-dives, no courses | 5 study artifacts in one app, all aligned on the same set of test points |
+| **Anki**: great flashcards, but no practice site, no wrong-answer deep-dives, no courses | 6 study artifacts in one app, all aligned on the same set of test points |
 | **Quizlet**: has questions and cards, but closed-source SaaS — your data isn't in your hands | MIT open source; data stays local + on your server; sync with no accounts |
 | **Notion notes**: capture, but no drilling and no spaced-repetition algorithm | Anki-compatible SM-2 + Anki learning steps built in |
 | **PDF / Word question dumps**: read-only — no grading, no accuracy stats | auto-grading, wrong-question book, accuracy stats, SRS scheduling |
