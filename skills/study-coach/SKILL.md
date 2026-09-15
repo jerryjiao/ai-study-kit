@@ -1,10 +1,10 @@
 ---
-name: coach
-description: /coach 陪练直入：坐下就学——先探测状态、开场报「今天最该练+为什么」，进站/续站 F10 陪练教学。 Direct coaching entry: probes state, opens or resumes an F10 tutoring station.
+name: study-coach
+description: /study-coach 陪练直入：坐下就学——先探测状态、开场报「今天最该练+为什么」，进站/续站 F10 陪练教学。 Direct coaching entry: probes state, opens or resumes an F10 tutoring station.
 disable-model-invocation: true
 ---
 
-# /coach 陪练直入
+# /study-coach 陪练直入
 
 坐下就学的零绕路入口——直进 F10 陪练教学。主入口与完整协议见 [`../ask-coach/SKILL.md`](../ask-coach/SKILL.md)。
 

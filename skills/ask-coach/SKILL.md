@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # /ask-coach 学习教练
 
-ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / 错题精讲 / 播客 / 部署），但工具全不等于知道「现在该干嘛」。**命令名即菜单**——敲 `/ask-coach` 就是问教练；本指令是主入口：先看状态，再给建议，最后带你执行。常用动作另有直入命令（陪练 `/coach`、体检 `/study-doctor`、错题串讲 `/study-recap`），其余走这里路由。
+ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / 错题精讲 / 播客 / 部署），但工具全不等于知道「现在该干嘛」。**命令名即菜单**——敲 `/ask-coach` 就是问教练；本指令是主入口：先看状态，再给建议，最后带你执行。常用动作另有直入命令（陪练 `/study-coach`、体检 `/study-doctor`、错题串讲 `/study-recap`、播客 `/study-podcast`），其余走这里路由。
 
 每次执行固定三步，不要跳步：
 
@@ -78,7 +78,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 | 错题 / 串讲 / 精讲 / 为什么错 | F4 | 后端在线 + 有错题 + AI 配齐 |
 | 掌握度 / 弱考点 / 哪里最弱 / 考点报告 | 快照延伸（直接跑 `mastery-report`，报告 + 顺势推荐 F4/F10） | 题库有 `examPoint` 标记（progress 为空只报全部未开始） |
 | 报进度 / 全景 / 学到哪了 / 我在哪 | 快照延伸（跑 `mastery-report --panorama --json`，按 state.md §3 模板出全景卡） | 题库有 `examPoint` 标记（无 records/课进度时三信号只报客观侧，不虚报） |
-| 播客 / 音频 / 通勤听 | F5 | AI 配齐；TTS 没配可 `--no-tts` 只出逐字稿 |
+| 播客 / 音频 / 通勤听 | F5（直入 `/study-podcast`） | AI 配齐；TTS 没配可 `--no-tts` 只出逐字稿 |
 | 产课 / 加课 / 讲义 / 教我 X | F6 | `course-spec.json` + AI 配齐 |
 | 改题 / 改课 / 改卡 / 改日程 | F7 | — |
 | 校验 / 检查 / 能不能发布 | F8 | — |

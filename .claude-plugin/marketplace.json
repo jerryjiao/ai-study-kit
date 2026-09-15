@@ -1,6 +1,6 @@
 {
   "name": "ai-study-kit",
-  "description": "ai-study-kit 插件市集：/ask-coach 学习教练（+ /coach /study-doctor /study-recap 薄命令）。",
+  "description": "ai-study-kit 插件市集：/ask-coach 学习教练（+ /study-coach /study-doctor /study-recap /study-podcast 薄命令）。",
   "owner": {
     "name": "ai-study-kit",
     "url": "https://github.com/jerryjiao/ai-study-kit"
