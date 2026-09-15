@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1 1 22 22">
+  <path fill="var(--ms-c1, currentColor)" d="M1 1h10v10H1z"/>
+  <path fill="var(--ms-c2, currentColor)" d="M12 1h10v10H12z"/>
+  <path fill="var(--ms-c3, currentColor)" d="M1 12h10v10H1z"/>
+  <path fill="var(--ms-c4, currentColor)" d="M12 12h10v10H12z"/>
+</svg>

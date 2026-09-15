@@ -223,6 +223,34 @@ header.header::before {
 .ask-feat b { display: block; font-size: 0.95rem; margin-bottom: 0.45rem; }
 .ask-feat span { font-size: 0.82rem; color: var(--sl-color-gray-3); line-height: 1.65; display: block; }
 
+/* Agent 支持墙：单色灰 logo，hover 恢复品牌色/提亮（黑色系品牌提亮为正文色）。
+   多色 logo（Microsoft 四方块、AWS 笑容）经 CSS 变量恢复各自品牌色。 */
+.ask-wall { max-width: 58rem; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
+.ask-wall-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--sl-color-gray-6); border-radius: 0.9rem;
+  background: var(--sl-color-gray-7);
+  padding: 1rem 1.1rem 0.8rem; min-width: 6.8rem;
+}
+.ask-wall-tile .logo { height: 1.9rem; display: flex; align-items: center; color: var(--sl-color-gray-3); transition: color 0.15s ease; }
+.ask-wall-tile .logo svg { height: 1.7rem; width: auto; display: block; }
+/* zcode 无公开 logo 资产：文字标，与墙同排版 */
+.ask-wall-tile .logo.zmark { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
+.ask-wall-tile .name { font-size: 0.8rem; font-weight: 600; color: var(--sl-color-gray-2); }
+.ask-wall-tile .chip {
+  font-size: 0.62rem; line-height: 1.5; padding: 0.05rem 0.5rem; border-radius: 999px;
+  border: 1px solid color-mix(in oklab, #4f46e5 25%, transparent);
+  color: #4f46e5; background: color-mix(in oklab, #4f46e5 8%, transparent);
+}
+:root[data-theme="dark"] .ask-wall-tile .chip { color: #c7d2fe; border-color: color-mix(in oklab, #c7d2fe 30%, transparent); background: color-mix(in oklab, #c7d2fe 10%, transparent); }
+.ask-wall-foot { text-align: center; color: var(--sl-color-gray-3); font-size: 0.85rem; }
+/* hover：品牌色恢复 */
+.ask-wall-tile.b-claude:hover .logo { color: #d97757; }
+.ask-wall-tile.b-aws:hover .logo { color: var(--sl-color-text); --aws-smile: #ff9900; }
+.ask-wall-tile.b-ms:hover .logo { --ms-c1: #f25022; --ms-c2: #7fba00; --ms-c3: #00a4ef; --ms-c4: #ffb900; }
+.ask-wall-tile.b-text:hover .logo { color: var(--sl-color-text); }
+.ask-wall-tile:hover .name { color: var(--sl-color-text); }
+
 /* 对比表：外框收缩到内容宽度再居中（不留右侧死白），垂直居中、行距统一 */
 .ask-compare-wrap {
   max-width: 58rem; width: fit-content; margin: 0 auto;
