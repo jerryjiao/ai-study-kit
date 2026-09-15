@@ -3,7 +3,8 @@ title: Превратите любой банк вопросов в полный
 description: Открытый каркас, где тесты, курсы, карточки и интервальное повторение выровнены вокруг одних и тех же пунктов экзамена
 template: splash
 hero:
-  tagline: 'Открытый каркас под лицензией MIT. Вопросы могут быть реальными, собранными вами, или написанными ИИ; курсы, карточки, разбор ошибок и интервальное повторение берёт на себя инструмент, а прогресс синхронизируется между устройствами.'
+  title: ИИ-коуч тренирует вас, пока не получится
+  tagline: 'Вопросы собираете вы или пишет их ИИ. Ошибки разбираются по пунктам программы, повторения планируются сами, прогресс синхронизируется между устройствами. Бесплатно и с открытым кодом: установите плагин и скажите ИИ «хочу выучить X».'
   image:
     html: |
       <div class="ask-shot">
@@ -94,14 +95,17 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
-    <h2>Три команды — и оно в браузере</h2>
-    <p>Работает без настройки ИИ; тренажёр и карточки не зависят от внешних сервисов</p>
+    <h2>Две команды — и дальше командует коуч</h2>
+    <p>В плагине есть весь исходник приложения — без clone и без команд наизусть</p>
   </div>
   <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>Склонируйте репозиторий<code>git clone https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>Установите зависимости<code>pnpm install</code></div>
-    <div class="ask-step"><div class="n">3</div>Запустите dev-сервер<code>pnpm dev → http://localhost:5173</code></div>
+    <div class="ask-step"><div class="n">1</div>Добавьте маркетплейс<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
+    <div class="ask-step"><div class="n">2</div>Установите ai-study-kit<code>Затем скажите ИИ «хочу выучить X» (или /ask-coach)</code></div>
+    <div class="ask-step"><div class="n">3</div>Коуч берёт на себя<code>Сканирует прогресс → выбирает одно дело → ведёт вас</code></div>
   </div>
+  <p class="ask-more">
+    Хотите запустить локально? <a href="/ru/get-started/">Маршрут с clone — в Быстром старте</a>
+  </p>
 </section>
 
 <section class="ask-section">

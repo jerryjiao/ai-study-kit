@@ -3,7 +3,8 @@ title: Convierte cualquier banco de preguntas en un ciclo completo de estudio
 description: Andamiaje open source donde práctica, cursos, tarjetas y repetición espaciada se mantienen alineados en torno a los mismos puntos de examen
 template: splash
 hero:
-  tagline: 'Andamiaje open source bajo MIT. Las preguntas pueden ser exámenes reales que recopiles o preguntas que escriba una IA; la herramienta se encarga de los cursos, las tarjetas, el análisis de erróneas y la repetición espaciada, con el progreso sincronizado entre dispositivos.'
+  title: Un coach de IA te entrena hasta dominarlo
+  tagline: 'Las preguntas las reúnes tú o las escribe la IA. Los errores se explican por punto de examen, los repasos se programan solos y el progreso se sincroniza entre dispositivos. Gratis y open source: instala el plugin y dile a tu IA «quiero aprender X».'
   image:
     html: |
       <div class="ask-shot">
@@ -94,14 +95,17 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
-    <h2>Tres comandos y ya está en tu navegador</h2>
-    <p>Funciona sin configurar ninguna IA; la app de práctica y las tarjetas no dependen de servicios externos</p>
+    <h2>Dos comandos y se lo pasas al coach</h2>
+    <p>El plugin trae el código completo de la app — sin clonar, sin comandos que memorizar</p>
   </div>
   <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>Clona el repo<code>git clone https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>Instala dependencias<code>pnpm install</code></div>
-    <div class="ask-step"><div class="n">3</div>Arranca el dev server<code>pnpm dev → http://localhost:5173</code></div>
+    <div class="ask-step"><div class="n">1</div>Añade el marketplace<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
+    <div class="ask-step"><div class="n">2</div>Instala ai-study-kit<code>Luego dile a tu IA «quiero aprender X» (o /ask-coach)</code></div>
+    <div class="ask-step"><div class="n">3</div>El coach toma el mando<code>Escanea tu progreso → elige lo próximo → te guía</code></div>
   </div>
+  <p class="ask-more">
+    ¿Prefieres ejecutarlo localmente? <a href="/es/get-started/">Ruta con clone en Primeros pasos</a>
+  </p>
 </section>
 
 <section class="ask-section">

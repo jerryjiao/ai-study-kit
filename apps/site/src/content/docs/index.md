@@ -3,9 +3,9 @@ title: 开源刷题工具：把你的题库变成刷题 · 闪卡 · 错题精�
 description: ai-study-kit 是开源刷题工具：收集的真题或 AI 出的题，一键变成刷题站、课程讲解、闪卡复习、错题精讲一体的学习闭环。MIT 协议、可自部署、不配 AI 也能用。
 template: splash
 hero:
-  # H1 保持品牌句；SERP title（frontmatter title）负责吃搜索词——两者分离靠显式 hero.title
-  title: 把任意题库变成完整的学习闭环
-  tagline: 开源脚手架，MIT 协议。题目可以是收集的真题，也可以让 AI 出；课程、闪卡、错题精讲和间隔重复由工具负责，进度跨设备同步。
+  # H1 是主张句（AI 教练带领 + 练到会）；SERP title（frontmatter title）负责吃搜索词——两者分离靠显式 hero.title
+  title: AI 教练带你练到会
+  tagline: 题目自己收，或者让 AI 出。错题按考点讲透，到期复习自动排队，进度跨设备同步。免费开源，装个插件对 AI 说「我想学 X」就能开始。
   image:
     html: |
       <div class="ask-shot">
@@ -133,14 +133,17 @@ head:
 
 <section class="ask-section">
   <div class="ask-section-head">
-    <h2>三条命令，浏览器里见</h2>
-    <p>不配 AI 也能用，答题站和闪卡不依赖任何外部服务</p>
+    <h2>两条命令，交给教练</h2>
+    <p>插件自带完整答题站源码——不用 clone，不用记命令</p>
   </div>
   <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>clone 仓库<code>git clone https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>安装依赖<code>pnpm install</code></div>
-    <div class="ask-step"><div class="n">3</div>启动<code>pnpm dev → http://localhost:5173</code></div>
+    <div class="ask-step"><div class="n">1</div>添加市集<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
+    <div class="ask-step"><div class="n">2</div>装 ai-study-kit<code>装完对 AI 说「我想学 X」（或 /ask-coach）</code></div>
+    <div class="ask-step"><div class="n">3</div>教练接管<code>探测进度 → 推荐今天最该做的 → 带你执行</code></div>
   </div>
+  <p class="ask-more">
+    开发者想本地跑？<a href="/get-started/">clone 路线看快速上手</a>
+  </p>
 </section>
 
 <section class="ask-section">

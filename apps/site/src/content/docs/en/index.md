@@ -3,9 +3,9 @@ title: Open-Source Quiz & Flashcard App · Self-Hosted · MIT
 description: ai-study-kit is an open-source, self-hosted quiz and flashcard app — practice tests, lessons, wrong-answer deep-dives and Anki-compatible spaced repetition around one exam-point map. MIT licensed, no account, your data.
 template: splash
 hero:
-  # H1 keeps the brand sentence; the SERP <title> (frontmatter title) carries the search keywords
-  title: Turn any quiz set into a complete learning loop
-  tagline: An open-source scaffold under MIT. Questions can be past papers you collect or ones an AI writes for you; the tool takes care of courses, flashcards, deep-dives and spaced repetition, with cross-device sync.
+  # H1 is the claim (an AI coach that drills you); the SERP <title> (frontmatter title) carries the search keywords
+  title: An AI coach that drills you until you've got it
+  tagline: Bring your own questions or have AI write them. Wrong answers get explained by exam point, reviews are scheduled automatically, and progress syncs across devices. Free and open source — install the plugin and tell your AI “I want to learn X.”
   image:
     html: |
       <div class="ask-shot">
@@ -133,14 +133,17 @@ head:
 
 <section class="ask-section">
   <div class="ask-section-head">
-    <h2>Three commands, then it is in your browser</h2>
-    <p>Works without any AI setup; the quiz app and flashcards need no external service</p>
+    <h2>Two commands, then hand it to the coach</h2>
+    <p>The plugin ships the full quiz-app source — no clone, no commands to memorize</p>
   </div>
   <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>Clone the repo<code>git clone https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>Install dependencies<code>pnpm install</code></div>
-    <div class="ask-step"><div class="n">3</div>Start the dev server<code>pnpm dev → http://localhost:5173</code></div>
+    <div class="ask-step"><div class="n">1</div>Add the marketplace<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
+    <div class="ask-step"><div class="n">2</div>Install ai-study-kit<code>Then tell your AI “I want to learn X” (or /ask-coach)</code></div>
+    <div class="ask-step"><div class="n">3</div>The coach takes over<code>Scan progress → pick the one thing to do → walk you through it</code></div>
   </div>
+  <p class="ask-more">
+    Prefer to run it locally? <a href="/en/get-started/">Clone route in the Quick start</a>
+  </p>
 </section>
 
 <section class="ask-section">
