@@ -4,7 +4,31 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
-## [Unreleased]
+## [0.16.0] — 2026-09-15
+
+主题：**命令面五件化 + 多生态一键分发——`/study-podcast` 播客直入、`/coach` 改名 `/study-coach` 统一 study- 家族前缀；插件多出 Codex 与 Agent Plugins 1.0 标准清单，任何生态一条命令装全套；官网与 README 按工具安装矩阵重讲安装故事，首页六卡补上播客并新增 agent 支持墙。**
+
+### 升级与存量影响
+
+- **新文件/新契约**：三份新清单（`plugins/ai-study-kit/.codex-plugin/plugin.json`、`plugins/ai-study-kit/plugin.json`、仓库根 `.agents/plugins/marketplace.json`）全在发行物侧，**不进 kit 快照**，用户项目零新增文件。skill 侧新增 `skills/study-podcast/` 目录（随插件分发）；新增测试 `command-surface.test.mjs`（随 kit 分发，无运行依赖）。
+- **老项目缺了会怎样**：无影响。命令面与清单都在插件/发行侧；用户项目的 kit 数据层（progress / srs / coursesRead / 学习者档案）格式未动。唯一行为变化：`/coach` 改名 `/study-coach` 后旧命令不存在了（见 Changed）。
+- **怎么补**：升级插件即可拿到新命令面——zcode / Claude Code 用户在客户端 marketplace refresh，Codex 用户重跑 `codex plugin marketplace add jerryjiao/ai-study-kit`，手动安装用户重跑 `pnpm run skill:install`。装完敲 `/ask-coach`，存量项目会照常被报版本差并引导 F13 升级。
+- **是否破坏性**：`/coach` → `/study-coach` 是**干净切、不留旧别名**（命名史见下），属预期行为变化；其余全部向后兼容。
+
+### Added
+
+- **`/study-podcast` 播客直入薄命令**：先只读探测（AI 配置必须、TTS 可缺提示 `--no-tts` 只出逐字稿、素材存在）再进 F5 做播客，素材选择作为 playbook 选择点问用户（默认按 F5 优先级推荐）。命令面从四件扩为五件，主入口路由不变（直入只是快捷方式）。
+- **插件多生态清单（一份内容、多清单）**：sync-plugin 顺产三份新清单——Codex 插件清单（`.codex-plugin/plugin.json`，interface 展示元数据）+ Codex 市集清单（仓库根 `.agents/plugins/marketplace.json`）+ Agent Plugins 1.0 标准清单（插件根 `plugin.json`），布局逐字段对齐 openai/role-specific-plugins 与 agent-plugins.org schema。**本机 codex CLI 实测**：`codex plugin marketplace add jerryjiao/ai-study-kit` → `plugin add ai-study-kit@ai-study-kit` 装出五个 skill + kit 快照全链路通过。Codex 用户从此与 zcode / Claude Code 用户同享「装插件零 clone 建站」。
+- **命令面一致性测试**（`command-surface.test.mjs`）：断言 skills/ 目录名集合 = 主入口直入命令清单 = CONTEXT.md 词条计数 = AGENTS.md 命令面提法，加/改/删命令任何一处提法没跟上即红（变异验证实测改名全红）；kit-version 测试扩为四清单版本一致断言（发版纪律看住多清单面）。
+- **官网首页六卡露出播客**：产物格五卡扩六卡（🎧 播客），区块标题松绑「一个工具包，六个学习产物」，FAQ 与 JSON-LD FAQPage 各搭一条播客问答；网格 5 列改 3 列（桌面 3×2、窄屏 2×3），四语同步。
+- **首页 agent 支持墙**：「支持哪些 AI CLI」——实测三家（Claude Code、zcode 文字标、Codex）+ Agent Plugins 1.0 签署方五家（Cursor、Vercel、GitHub、AWS、Microsoft，带「标准兼容」徽标），单色灰 logo hover 恢复品牌色（MS 四色/AWS 橙经 CSS 变量），官方 SVG 入库 `public/agents/` 站内自持，四语同步、亮暗主题与 390px 移动端实测可读。
+- **README/官网按工具安装矩阵**：不同工具安装方式不同、多个工具各装一份——Claude Code 两步（marketplace add + plugin install，此前只写一步半用户会卡）、zcode 市集 UI、Codex 两步、其他 CLI 走仓库安装脚本（支持自定义目标目录）、Cursor/Copilot 一句「见各工具插件文档」不编命令；README 四语与官网 get-started 四语逐字一致，clone 路线降为开发者段。
+
+### Changed
+
+- **`/coach` 改名 `/study-coach`（git mv 保留历史）**：薄命令统一 study- 家族前缀（`/study-coach` `/study-doctor` `/study-recap` `/study-podcast`），命名规则从 v0.13 的「避 Claude Code 内置撞名才加前缀」改为「薄命令一律 study- 前缀」——敲前缀就能联想全家。**干净切、不留旧别名**，`/coach` 用户请更新肌肉记忆；升级路径见上。v0.13 记录的「/coach 经查无撞名不动」是当时事实，留档不改。
+- **README 四语全文按 hero 标准返工**：主张句开头（「AI 教练帮你把任何要考的东西练到会」）、无 jargon 开场；check_prose 硬禁令清零（35 处冒号 + 41 处破折号逐一改写）。
+- **官网手工层返工**：get-started ×4 改「按工具安装 → 装完说『我想学 X』→ 开发者 clone 段」叙事；your-theme Step 5 纠正过时指引（手改 Courses.tsx / topicOrder.ts 的教法在 2026-08 配置化后已失效，改为课程入口自动跟随 + theme-config.json）。
 
 ### Fixed
 
