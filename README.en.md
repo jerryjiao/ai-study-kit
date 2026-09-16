@@ -184,5 +184,6 @@ PRs and issues welcome. Before opening a PR, please:
 ## 🙏 Acknowledgements
 
 - The content-pack workspace structure (MISSION → RESOURCES → lessons) and the question-writing discipline (equal-length options, no formatting tells) borrow from [Matt Pocock's teach skill](https://github.com/mattpocock); the decision trail is in [`docs/adr/0001-agent-authored-questions-not-cli.md`](docs/adr/0001-agent-authored-questions-not-cli.md)
+- The data loop (interaction traces → learner facts → better recommendations) and the oral-mastery formula (recency-weighted accuracy with confidence caps, deterministic, no LLM) are inspired by [DeepTutor](https://github.com/HKUDS/DeepTutor); the decision trail is in [`docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md`](docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md)
 - The spaced-repetition algorithm references [Anki's SM-2 implementation](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
 - The example theme's (dev-intro) git content references the [Pro Git Book](https://git-scm.com/book/en/v2) (official, free)

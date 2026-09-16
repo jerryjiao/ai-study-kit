@@ -184,5 +184,6 @@ PR и issues приветствуются. Перед PR:
 ## 🙏 Благодарности
 
 - Структура пакета контента (MISSION → RESOURCES → lessons) и дисциплина написания вопросов (равная длина вариантов, без подсказок в формате) взяты из [teach skill Мэтта Покока](https://github.com/mattpocock); след решения — [`docs/adr/0001-agent-authored-questions-not-cli.md`](docs/adr/0001-agent-authored-questions-not-cli.md)
+- Цикл данных (следы взаимодействия → факты об учащемся → лучшие рекомендации) и формула устного усвоения (взвешенная по свежести точность с ограничением уверенности, детерминированная, без LLM) вдохновлены [DeepTutor](https://github.com/HKUDS/DeepTutor); след решения — [`docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md`](docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md)
 - Алгоритм интервального повторения опирается на [реализацию SM-2 в Anki](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
 - Знания о git в примере (dev-intro) сверены с [книгой Pro Git](https://git-scm.com/book/ru/v2) (официальная, бесплатная)

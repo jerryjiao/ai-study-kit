@@ -184,5 +184,6 @@ Los PR y las issues son bienvenidos. Por favor:
 ## 🙏 Agradecimientos
 
 - La estructura del paquete de contenidos (MISSION → RESOURCES → lessons) y la disciplina de redacción de preguntas (opciones de longitud pareja, sin pistas de formato) se toman prestadas del [teach skill de Matt Pocock](https://github.com/mattpocock); el rastro de la decisión está en [`docs/adr/0001-agent-authored-questions-not-cli.md`](docs/adr/0001-agent-authored-questions-not-cli.md)
+- El bucle de datos (rastros de interacción → hechos del estudiante → mejores recomendaciones) y la fórmula de dominio oral (precisión ponderada por recencia con topes de confianza, determinista, sin LLM) están inspirados en [DeepTutor](https://github.com/HKUDS/DeepTutor); el rastro de la decisión está en [`docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md`](docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md)
 - El algoritmo de repetición espaciada sigue [la implementación SM-2 de Anki](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
 - El conocimiento de git del tema de ejemplo proviene del [libro Pro Git](https://git-scm.com/book/en/v2) (oficial, gratuito)
