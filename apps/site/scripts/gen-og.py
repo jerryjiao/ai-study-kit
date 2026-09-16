@@ -14,7 +14,9 @@ INDIGO = (79, 70, 229)
 CYAN = (6, 182, 212)
 
 CJK_FONTS = [
-    "/System/Library/Fonts/PingFang.ttc",  # macOS
+    "/System/Library/Fonts/PingFang.ttc",  # macOS（旧版路径，新版系统可能没有）
+    "/System/Library/Fonts/Hiragino Sans GB.ttc",  # macOS 冬青黑体（本机实测可用）
+    "/System/Library/Fonts/STHeiti Medium.ttc",  # macOS 备用黑体
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",  # Linux (noto-cjk)
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",  # Linux fallback（无中文）
 ]
@@ -41,17 +43,16 @@ def main() -> None:
     img = grad.resize((W, H), Image.BILINEAR)
     draw = ImageDraw.Draw(img)
 
-    # 左上角色徽标：白色圆角块 + 「学」
+    # 左上角色徽标：白色描边圆角块 + 「学」（RGB 图不支持半透明填充，白 fill 会盖掉字，故只描边）
     badge = 118
-    draw.rounded_rectangle((64, 64, 64 + badge, 64 + badge), radius=26, fill=(255, 255, 255, 40))
     draw.rounded_rectangle((64, 64, 64 + badge, 64 + badge), radius=26, outline=(255, 255, 255), width=3)
     draw.text((64 + badge // 2, 64 + badge // 2), "学", font=load_font(74),
               fill=(255, 255, 255), anchor="mm")
 
-    # 标题区
+    # 标题区（2026-09-16 随首页「零准备」翻转同步：主句改「说一句就开学」）
     draw.text((66, 268), "ai-study-kit", font=load_font(96), fill=(255, 255, 255), anchor="lm")
-    draw.text((68, 372), "把任意题库，变成完整的学习闭环", font=load_font(52), fill=(255, 255, 255), anchor="lm")
-    draw.text((68, 456), "答题 · 课程 · 闪卡 · 错题精讲 · 间隔重复", font=load_font(34),
+    draw.text((68, 372), "对 AI 说「我想学 X」，带你练到会", font=load_font(52), fill=(255, 255, 255), anchor="lm")
+    draw.text((68, 456), "出题 · 课程 · 闪卡 · 错题精讲 · 间隔重复", font=load_font(34),
               fill=(230, 240, 255), anchor="lm")
     # 底部标签条
     draw.text((68, H - 64), "开源 MIT · GitHub Pages", font=load_font(28),

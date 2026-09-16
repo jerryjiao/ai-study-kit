@@ -6,9 +6,9 @@
 
 **简体中文** · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md)
 
-> AI 教练帮你把任何要考的东西练到会。题目自己收，或者让 AI 出；错题按考点讲透，复习自动排队，进度跨设备同步。免费开源，装个插件就能开始。
+> 对 AI 说一句「我想学 X」，教练先和你对齐考点，再出题、产课，带你练到会——不用先准备题库。错题按考点讲透，复习自动排队，进度跨设备同步。免费开源，装个插件就能开始。
 >
-> *An AI coach that drills any topic until you truly know it. Collect the questions yourself, or let AI write them.*
+> *An AI coach that drills any topic until you truly know it. Say “I want to learn X” — no question bank required.*
 
 **一句话安装**：把这句发给你的 AI（Claude Code、zcode、Cursor 等任意工具），它会照协议装好教练和建站源码——不用 clone，不用记命令：
 
@@ -27,249 +27,97 @@
 
 🌐 [官网](https://aistudykit.dev/) · ▶️ [在线 demo](https://aistudykit.dev/demo/) · 📖 [快速上手](https://aistudykit.dev/get-started/)
 
----
-
-## 📦 按工具手动安装
-
-不想经过 agent？按你的工具手动装，多个工具要各装一份。插件自带完整答题站源码，装完不用 clone 本仓库，agent 会带你从零建站、产题、产课到部署。
-
-**Claude Code**（两步，都要跑）
-
-```text
-/plugin marketplace add https://github.com/jerryjiao/ai-study-kit
-/plugin install ai-study-kit@ai-study-kit
-```
-
-**zcode** 打开插件市集，添加仓库 `https://github.com/jerryjiao/ai-study-kit`，安装 ai-study-kit。
-
-**Codex**（两步，都要跑）
-
-```text
-codex plugin marketplace add jerryjiao/ai-study-kit
-codex plugin add ai-study-kit@ai-study-kit
-```
-
-**其他 AI CLI**（认 skills 目录的都行）用仓库自带的安装脚本
-
-```bash
-git clone https://github.com/jerryjiao/ai-study-kit
-cd ai-study-kit && pnpm run skill:install   # 装到 ~/.agents/skills/
-# 或装到指定目录：bash scripts/install-skill.sh --dest ~/.claude/skills
-```
-
-**Cursor、Copilot 等**经 Agent Plugins 标准清单支持，装法见各工具的插件文档。
-
-装完对 AI 说「我想学 X」，或敲 `/ask-coach`。学习项目（答题站 + 你的主题包）住你自己的目录，与插件升级互不干扰。教学线（陪练教学、考前冲刺）、应试线（每日刷题、错题串讲、播客）、内容线（开新主题、产课加课、改内容）、运维线（初始化、升级、校验、部署、图谱投影）十三个流程全覆盖，详见 [`docs/ai-study-kit.md`](docs/ai-study-kit.md)。
-
-想先看看长什么样？往下走 clone 路线。
+**一句话定位**：你只需要说出想学什么，工具把剩下的变成一个有课程、有闪卡、有错题分析的完整学习 app。
 
 ---
 
 ## 👋 这是给谁用的
 
-| 你是 | 适不适合 |
-|------|---------|
-| 🧑‍💻 **开发者学新技术**（React / K8s / Rust） | ✅ 把官方文档要点抽成题，刷题 + 闪卡巩固 |
-| 📚 **学生复习**（学科 / 考研 / 资格证） | ✅ 真题库 + AI 错题精讲，比单纯刷题深 |
-| 🎯 **面试备战**（八股文 / 系统设计） | ✅ 自己出题 + AI 产课，配套 SRS 间隔重复 |
+| 你在做什么 | 适不适合 |
+|-----------|---------|
+| 🧑‍💻 **开发者学新技术**（React / K8s / Rust） | ✅ AI 把文档要点抽成题，刷题 + 闪卡巩固 |
+| 📚 **学生复习**（学科 / 考研 / 资格证） | ✅ 有真题就录进去，没真题让 AI 按考点出 |
+| 🎯 **面试备战**（八股文 / 系统设计） | ✅ 说一句要面什么，AI 产课产题、带你串错题 |
 | 🗂️ **学任何有"考点"的东西**（合规 / 流程 / 术语） | ✅ 只要能拆成"问题 + 答案"就能学 |
-| ❌ 想要现成题库（如"500 道 Java 题"） | ❌ 本工具是**脚手架**，不含任何真题，题目你自己提供或用 AI 生成 |
+| ❌ 想要一套现成题库（如"500 道 Java 题"） | ❌ 本工具不含真题——不过 AI 可以按你的考点现出一套（配你自己的 API key） |
 
-**一句话定位**。你带题来，工具帮你把它变成一个有课程、有闪卡、有错题分析的完整学习 app。
+装好之后想先跑跑看？往下走 clone 路线。
 
 ---
 
-## 🚀 5 分钟跑起来看 demo（clone 路线，开发者适用）
+## 🚀 跑起来看 demo（clone 路线，开发者适用）
 
 ```bash
 git clone https://github.com/jerryjiao/ai-study-kit
-cd ai-study-kit
-pnpm install
-pnpm dev
+cd ai-study-kit && pnpm install && pnpm dev
 # 浏览器打开 http://localhost:5173
 ```
 
-**启动后你能看到这些**（dev-intro 示例主题，git + Linux 基础）
-
-| 顶栏 tab | 你能看到什么 |
-|---------|-------------|
-| **答题** | 10 道 git/Linux 题（单选/多选/判断），点选项即判分，答错进错题本，答对显示解析 |
-| **闪卡** | 4 张 SM-2 间隔重复卡，按 again / hard / good / easy 评分，算法与 Anki 兼容 |
-| **课程** | 2 节自包含 HTML 课程（git 三区、Linux 目录与权限），带 ASCII 示意图、callout 提示框 |
-
-> 这只是个 demo，**dev-intro 主题的内容你全都不会用**，正式使用要换成你自己在学的主题。
+自带一个 git + Linux 的示例主题：**答题**（单选/多选/判断，提交即判分，答错进错题本）、**闪卡**（SM-2 间隔重复，与 Anki 算法兼容）、**课程**（自包含 HTML 讲义）。这只是 demo，正式使用换成你自己的主题（见下节）。
 
 ---
 
 ## 🧭 不知道下一步学什么？`/ask-coach`
 
-上面装好插件（或 `pnpm run skill:install` 装进 `~/.agents/skills/`）后，每次学习从它开始。
+装好插件（或 `pnpm run skill:install` 装进 `~/.agents/skills/`）后，每次学习从它开始。命令面五个：`/ask-coach` 问教练该干嘛（快照 + 推荐 + 带执行）、`/study-coach` 坐下就学、`/study-doctor` 一键体检、`/study-recap` 错题串讲直入、`/study-podcast` 播客直入。
 
-**命令名即菜单**，总共五个。`/ask-coach` 问教练该干嘛（快照 + 推荐 + 带执行）、`/study-coach` 坐下就学（陪练直入）、`/study-doctor` 一键体检（校验 + 环境探测）、`/study-recap` 错题串讲直入、`/study-podcast` 播客直入（学习素材做成通勤能听的双播音频），其余流程走路由。
-
-`/ask-coach` 会先**扫描你的学习状态**（当前主题、题/卡/课库存、答题进度、到期闪卡、错题数、课已学完、陪练进度、AI 配置），然后**推荐你现在最该做的一件事**，可能是开新主题、复习到期闪卡、刷题，或把攒下的错题做成串讲，选定后**带着你一步步执行**。从初始化整个项目到部署上线，十三个流程全覆盖。
-
-详见 [`docs/ai-study-kit.md`](docs/ai-study-kit.md)。
+`/ask-coach` 先扫描你的学习状态（进度、到期闪卡、错题、AI 配置），推荐现在最该做的一件事，选定后带着你一步步执行——从初始化到部署，十三个流程全覆盖。详见 [`docs/ai-study-kit.md`](docs/ai-study-kit.md)。
 
 ---
 
-## 🔧 30 分钟改成你自己的主题
+## 🔧 换成你自己的主题
 
-以学 **React 基础** 为例。全程只动 `examples/` 下的文件，**不动 apps/quiz-app/ 代码**。
+以学 **React 基础** 为例，全程只动 `examples/` 下的文件，不碰应用代码：
 
-### Step 1 · 复制主题目录（1 分钟）
+1. **复制主题目录**：`cp -r examples/dev-intro examples/react-basics`（也可以放仓库外，路径含分隔符即外部主题包，见 [`docs/adr/0004`](docs/adr/0004-external-theme-packs.md)）
+2. **改题库** `questions.json`：题是纯 JSON，一条记录 = 题干 + 选项 + 答案 + 解析（完整字段见 [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts)）：
 
-```bash
-cp -r examples/dev-intro examples/react-basics
-```
+   ```json
+   {
+     "id": "R-001",
+     "type": "single",
+     "source": "react-basics",
+     "topic": "react-basics",
+     "question": "React 中 useState 返回什么？",
+     "options": {
+       "A": "当前 state 的值",
+       "B": "更新 state 的函数",
+       "C": "一个数组 [state, setState]",
+       "D": "一个对象 { state, setState }"
+     },
+     "answer": ["C"],
+     "analysis": "useState 返回 [state, setState] 二元数组，通常数组解构使用。"
+   }
+   ```
 
-> **不想往套件仓库里放内容？** 主题包可以住在你自己的项目目录，`cp -r examples/dev-intro /path/to/your-project/theme/react-basics`，之后凡是用 `EXAMPLE_THEME` 的地方直接写这个路径（含路径分隔符即外部主题包形态，构建/产课/错题精讲四个脚本都认）。套件仓库保持纯净，只当工具用，详见 [`docs/adr/0004`](docs/adr/0004-external-theme-packs.md)。
+3. **改闪卡** `flashcards.json`：正面提问 + 背面展开，同样简单
+4. **切换**：`EXAMPLE_THEME=react-basics pnpm dev`，刷新即生效
+5. **（可选）课程与呈现**：课程走 `lessons/*.html`，首页分组/显示名等走 `theme-config.json`（见 [`docs/theming.md`](docs/theming.md)），不配置则优雅回退
+6. **校验四连**：`pnpm run scan`（零泄露）+ `pnpm test` + `pnpm run build` + `python3 scripts/bidirectional-check.py examples/react-basics/`（四对齐）
 
-### Step 2 · 改题库（10 分钟）
-
-编辑 `examples/react-basics/questions.json`，把 git/Linux 题换成你的 React 题。Schema 很简单。
-
-```json
-{
-  "id": "R-001",                      // 全局唯一稳定 id（进度按它存）
-  "type": "single",                    // single | multi | judge
-  "source": "react-basics",            // 题源标识
-  "topic": "react-basics",             // 主题分类（首页按它分组）
-  "question": "React 中 useState 返回什么？",
-  "options": {
-    "A": "当前 state 的值",
-    "B": "更新 state 的函数",
-    "C": "一个数组 [state, setState]",
-    "D": "一个对象 { state, setState }"
-  },
-  "answer": ["C"],
-  "analysis": "useState 返回一个二元数组：当前状态值 + 更新函数。通常用数组解构：const [count, setCount] = useState(0)。"
-}
-```
-
-完整字段（含可选的 `day` 日程标签与 `examPoint` 考点 id，四对齐校验按它们与 MISSION 排布表对账）见 [`apps/quiz-app/src/types.ts`](apps/quiz-app/src/types.ts) 的 `Question` 接口。
-
-### Step 3 · 改闪卡（5 分钟）
-
-编辑 `examples/react-basics/flashcards.json`，格式同样简单。
-
-```json
-{
-  "id": "FC-R-01",
-  "front": "useState 的返回值结构？",
-  "back": "返回 [state, setState] 二元数组。\n\n用法：const [count, setCount] = useState(0)。",
-  "source": "react-basics",
-  "topic": "react-basics"
-}
-```
-
-### Step 4 · 切换主题（1 分钟）
-
-```bash
-EXAMPLE_THEME=react-basics pnpm dev
-# 浏览器刷新——你的 React 题已经进答题站了
-```
-
-### Step 5 · （可选）配课程和首页呈现（10 分钟）
-
-- **课程**走 `examples/react-basics/lessons/*.html`，改成你的内容（可以用 AI 帮你产，见下文进阶）。课程入口自动跟随激活主题（`EXAMPLE_THEME`），无需改代码。
-- **首页呈现**走 `examples/react-basics/theme-config.json`（可选文件），控制首页分组顺序（`topicOrder`）、主题中文显示名（`topicLabels`）、考点子主题展开（`subtopics`）、来源徽标（`sourceLabels`）、核心/拓展层（`sourceLayers` + `layerTopics`）、考点深度徽标（`epDepth`）、卡片配色与图标（`topicStyles`）。不配置则优雅回退，显示原始 topic id、按字母序、不展开子主题。完整字段表与示例见 [`docs/theming.md`](docs/theming.md)。
-
-### Step 6 · 校验（2 分钟）
-
-```bash
-pnpm run scan       # 品牌扫描（0 hits 才算干净）
-pnpm test           # 5 个测试必须全过
-pnpm run build      # 构建必须成功
-python3 scripts/bidirectional-check.py examples/react-basics/  # 四对齐校验（读 MISSION 考点排布表对账）
-```
-
-**搞定**。整个改造过程**不需要碰任何 React 代码**，只是改 JSON 和 HTML。
-
-### 让 AI agent 替你产题（可选）
-
-不想手写 JSON？装好 `/ask-coach`（见上文「🧭 不知道下一步学什么」一节）后直接说「帮我给 react-basics 产一套题库」。agent 的流程是纪律化的，先在 MISSION.md 的**考点排布表**和你对齐（考什么、考多深、每种题型几道、配几张卡），你确认后照表逐考点产题、产卡，最后自动跑 `qa` / `scan` / 四对齐三门质量校验，全绿才交付。手工路径永远是主路；两条路的产物同构，排布表就是人机之间的契约。
+**不想手写题？** 装好 `/ask-coach` 后直接说「帮我给 react-basics 产一套题库」——agent 先在考点排布表上和你对齐，确认后照表产题产卡，自动过三门质量校验才交付。手工路径永远是主路，排布表是人机之间的契约。
 
 ---
 
-## 🤖 进阶 · 让 AI 帮你产课程 / 错题精讲 / 播客
+## 🤖 让 AI 产课程 / 错题精讲 / 播客
 
-到这里你已经有一个能刷题的 app 了。但 ai-study-kit 真正的价值在 **AI 辅助的完整学习闭环**，课程和错题精讲不用你手写，AI 帮你产。
+仓库内置三个 AI 命令行工具（LLM 支持任何 OpenAI 兼容协议；TTS 当前支持 GLM-TTS）：
 
-仓库内置三个 AI 命令行工具。
+| CLI | 干什么 | 产出 |
+|-----|-------|------|
+| `teach-generate.mjs` | 把主题规格结构化成多节 HTML 课程 | `lessons/*.html` |
+| `grill-wrong.mjs` | 把错题按考点聚类深度展开 | `wrong-questions/*.html` + 考点错因档案 |
+| `podcast-generate.mjs` | 任一学习素材合成男女双播音频 | `.wav` + 脚本 + 逐字稿 |
 
-| CLI | 干什么 | 输入 | 输出 |
-|-----|-------|------|------|
-| **`teach-generate.mjs`** | 把主题规格结构化成多节 HTML 课程 | `examples/<theme>/course-spec.json` | `lessons/0001-*.html` 等 |
-| **`grill-wrong.mjs`** | 刷完题后，把错题按考点聚类深度展开 | `/api/progress` 拉错题 | `wrong-questions/cluster-*.html` |
-| **`podcast-generate.mjs`** | 把课程 / 题 / 错题合成男女双播音频 | 任一学习素材（HTML/MD/JSON） | `.wav` + 脚本 JSON + 逐字稿 MD |
+配置只需 `cp .env.example .env` 后填 `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL`（详见 [`docs/configuration.md`](docs/configuration.md)），跑法与参数见 [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md)。
 
-LLM 支持任何 OpenAI 兼容协议，智谱 GLM（国内推荐）、OpenAI、DeepSeek、Kimi、通义、豆包都行。TTS 当前支持 GLM-TTS。
-
-### 配置
-
-```bash
-cp .env.example .env
-# 编辑 .env，至少配 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL 三项
-# 详见 docs/configuration.md
-```
-
-### 跑三个 CLI
-
-```bash
-# 启 quiz-app 后端（grill-wrong 需要）
-pnpm run server
-
-# 1. 生成课程
-node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics
-
-# 2. 刷完题后，生成错题精讲
-node apps/quiz-app/scripts/grill-wrong.mjs --theme react-basics
-
-# 3. 把课程做成播客
-node apps/quiz-app/scripts/podcast-generate.mjs \
-  --input examples/react-basics/lessons/0001-hooks.html
-```
-
-**典型工作流**长这样。
-
-```
-1. 你定主题 + 找权威资源（书 / 文档 / 视频）
-2. 写 course-spec.json → teach-generate 产 lessons/*.html（系统讲解）
-3. 你手动出题 → questions.json（练习验证）
-4. 刷题 → 错题进错题本
-5. grill-wrong → 产出错题精讲 HTML
-6. podcast-generate → 通勤时听播客复习
-```
-
-完整 CLI 用法、参数说明、FAQ 见 [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md)。配置细节见 [`docs/configuration.md`](docs/configuration.md)。
-
-> 💡 **不用 AI 也能用**。三个 CLI 是增量能力，只想要答题站 + 闪卡工具的话，不配 LLM、不跑 CLI，`pnpm dev` 就够用。
+> 💡 **不用 AI 也能用**。三个 CLI 是增量能力，只想要答题站 + 闪卡的话，不配 LLM、不跑 CLI，`pnpm dev` 就够用。
 
 ---
 
 ## 🌍 多语言 / Multi-language
 
-**本 README** 顶部有语言栏，四语切换（[简体中文](README.md) / [English](README.en.md) / [Español](README.es.md) / [Русский](README.ru.md)）。四份同构，改内容需四处同步（与 UI 词典同一约定）。
-
-**UI 界面**在顶栏一键切换 **中文 / English / Español / Русский**。
-
-- 首次访问按浏览器语言自动选择；切换后偏好跨设备同步（与主题偏好同一套 LWW 机制）；
-- `<html lang>` 和页面标题跟随语言切换（读屏/翻译工具友好）；
-- 词典在 [`apps/quiz-app/src/i18n/locales/`](apps/quiz-app/src/i18n/locales/)，en/es/ru 以 zh 的 key 集合做类型锚定，漏翻译直接编译报错，另有 key 完整性 + 占位符一致性测试兜底。加新语言 = 加一个词典文件 + 注册，改 UI 文案必须四处同步。
-
-**AI 生成内容**方面，三个 CLI 都支持指定输出语言，给非中文学习者产课/精讲/播客。
-
-```bash
-node apps/quiz-app/scripts/teach-generate.mjs   --theme X --lang en  # 英语课程
-node apps/quiz-app/scripts/grill-wrong.mjs      --theme X --lang es  # 西语错题精讲
-node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播客对白
-# 或 .env 里配 STUDY_LANG=en 统一默认（支持 zh/en/es/ru）
-```
-
-`--lang` 只影响生成内容和生成 HTML 的固定文案（导航、页脚、`<html lang>`）；CLI 日志仍是中文；题库原文不会被翻译。详见 [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md) 的「输出语言」章节。
-
-> **题库/闪卡内容语言**由你的数据决定（`examples/<theme>/*.json` 里写什么就显示什么）。想让整站变成英语学习站，就用英语出题 + `--lang en` 产课，工具本身不锁语言。
+本 README 四语同构（顶部语言栏切换）；**UI 界面**一键切换 中文 / English / Español / Русский，首次访问按浏览器语言选择，偏好跨设备同步；**AI 生成内容**用 `--lang zh|en|es|ru` 指定输出语言。词典与校验机制见 [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/)。
 
 ---
 
@@ -283,7 +131,7 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播
 | **纯刷题 PDF / Word** 只能看，不能判分、不能统计正确率 | 自动判分、错题本、正确率统计、SRS 调度 |
 | **AI 直接问 ChatGPT** 知识零散，没有学习路径 | AI 把零散知识结构化成系统课程 + 题库 + 闪卡 |
 
-**核心差异化是四对齐闭环**。课程讲的考点、题考的考点、闪卡记的考点、错题精讲的考点，全部围绕同一套知识点对齐（详见 [`docs/four-alignment.md`](docs/four-alignment.md)）。这一致性让你学完课立刻有题刷、做错立刻有深度展开。
+**核心差异化是四对齐闭环**：课程讲的考点、题考的考点、闪卡记的考点、错题精讲的考点，全部围绕同一套知识点对齐（详见 [`docs/four-alignment.md`](docs/four-alignment.md)）。
 
 ---
 
@@ -305,39 +153,18 @@ node apps/quiz-app/scripts/podcast-generate.mjs --input Y --lang ru  # 俄语播
 
 ---
 
-## 🛠️ 开发命令
+## 🛠️ 开发与部署
 
 ```bash
-# 仓库根目录
-pnpm install          # 装依赖
-pnpm run dev          # 启动（前端 :5173 + 后端 :8787）
-pnpm run build        # 构建（sync:examples + sync:study + tsc + vite）
-pnpm test             # 跑 5 个测试文件（130 个用例）
-pnpm run scan         # 零泄露扫描
-pnpm run server       # 单独起后端
-pnpm start            # build + server
-pnpm run skill:install    # 安装学习教练指令（/ask-coach 主入口 + 薄命令）
-pnpm run check:alignment  # 四对齐校验（默认扫 dev-intro，可传主题目录）
-
-# 在 apps/quiz-app/ 下
-npm run qa            # 题库质量校验（最长即答案 / 答案分布）
-npm run sync:examples # 手动同步 examples → src/data
-npm run sync:study    # 手动同步 examples → public/study
+pnpm install        # 装依赖
+pnpm run dev        # 本地开发（前端 :5173 + 后端 :8787）
+pnpm test           # 测试
+pnpm run scan       # 零泄露扫描
+pnpm run check:alignment  # 四对齐校验
+pnpm run skill:install    # 安装学习教练指令到 ~/.agents/skills/
 ```
 
-### 生产部署
-
-```bash
-cd apps/quiz-app
-pnpm install && pnpm run build
-pnpm exec pm2 start ecosystem.config.cjs
-pnpm exec pm2 save
-
-# 改端口
-PORT=80 pnpm exec pm2 start ecosystem.config.cjs
-```
-
-部署细节（pm2 cwd 锁定、跨设备同步原理等）见 [`AGENTS.md`](AGENTS.md)。
+完整命令表、生产部署（pm2）、跨设备同步原理见 [`AGENTS.md`](AGENTS.md) 与[官网文档](https://aistudykit.dev/)。
 
 ---
 

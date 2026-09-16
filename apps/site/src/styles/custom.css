@@ -72,42 +72,100 @@ header.header::before {
   z-index: -1;
 }
 
-/* hero 下面的规格条：一行三个事实，中点分隔（替代原来两段小字文本墙） */
-.ask-lead {
-  max-width: 48rem;
-  margin: 0 auto 0.5rem;
-  padding: 0 1.5rem;
-}
-.ask-lead-strip {
+/* hero 右侧签名元素：两段对话气泡（用户「我想学 X」→ 教练回复），
+   把「零准备」叙事画在 hero 里——这个产品的本质就是和 agent 的对话。 */
+.ask-hero-chat {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: var(--sl-color-gray-3);
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
 }
-.ask-lead-strip span {
-  white-space: nowrap;
+.ask-hero-chat-row {
+  display: flex;
 }
-/* 分隔点做进前一个 span 的尾部（::after）：flex 换行时点只会留在上一行行尾，
-   不会像 span+span::before 那样悬到下一行行首（en 站 1440 实测行首悬点）。 */
-.ask-lead-strip span:not(:last-child)::after {
-  content: '·';
-  margin: 0 0.8rem;
-  color: var(--sl-color-gray-5);
-  font-weight: 700;
+.ask-hero-chat-row span {
+  max-width: 94%;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.85rem;
 }
-/* 窄屏改纵向排列：竖排时分隔点没有意义，直接隐藏 */
-@media (max-width: 40rem) {
-  .ask-lead-strip {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.15rem;
+.ask-hero-chat-row.user {
+  justify-content: flex-end;
+}
+.ask-hero-chat-row.user span {
+  background: var(--ask-gradient);
+  color: #fff;
+  font-weight: 600;
+  border-bottom-right-radius: 0.3rem;
+}
+.ask-hero-chat-row.coach span {
+  background: color-mix(in oklab, #4f46e5 7%, var(--sl-color-bg));
+  border: 1px solid color-mix(in oklab, #4f46e5 16%, transparent);
+  color: var(--sl-color-text);
+  border-bottom-left-radius: 0.3rem;
+}
+:root[data-theme='dark'] .ask-hero-chat-row.coach span {
+  background: color-mix(in oklab, #4f46e5 16%, transparent);
+  border-color: color-mix(in oklab, #4f46e5 30%, transparent);
+}
+
+/* 安装卡紧跟 hero：顶部留白收紧，让「复制那句话」落在折叠线附近 */
+.ask-install-section {
+  padding-top: 1.4rem;
+}
+
+/* 面板节奏：交替区块垫一层淡 indigo 底的圆角面板，打破「每区同配方」的单调 */
+.ask-section--tint {
+  max-width: 76rem;
+  border-radius: 1.25rem;
+  background: color-mix(in oklab, #4f46e5 4%, var(--sl-color-gray-7));
+  border: 1px solid color-mix(in oklab, #4f46e5 9%, transparent);
+  padding-inline: clamp(1.5rem, 4vw, 3rem);
+}
+:root[data-theme='dark'] .ask-section--tint {
+  background: color-mix(in oklab, #4f46e5 7%, var(--sl-color-gray-7));
+  border-color: color-mix(in oklab, #4f46e5 16%, transparent);
+}
+
+/* 「装完会发生什么」四步序列：页面唯一用编号的地方（它真的是序列）。
+   桌面 4 列 + 箭头，窄屏纵向堆叠、箭头转下。 */
+.ask-steps {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  gap: 0.9rem;
+  align-items: start;
+  max-width: 66rem;
+  margin: 0 auto;
+}
+.ask-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.3rem;
+}
+.ask-step .num {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #4f46e5;
+  opacity: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme='dark'] .ask-step .num { color: #a5b4fc; }
+.ask-step b { font-size: 0.98rem; }
+.ask-step .desc { font-size: 0.82rem; line-height: 1.65; color: var(--sl-color-gray-3); }
+.ask-step-arr { color: var(--sl-color-gray-5); font-size: 1.05rem; padding-top: 0.35rem; }
+@media (max-width: 48rem) {
+  .ask-steps {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+    justify-items: center;
   }
-  .ask-lead-strip span:not(:last-child)::after {
-    content: none;
-  }
+  .ask-step { max-width: 26rem; }
+  .ask-step-arr { transform: rotate(90deg); padding-top: 0; }
 }
 
 /* 堆叠态 hero（<50rem）：Starlight 把 hero-html 排在文案前，首屏被 app 窗口占满、标题坠底；
@@ -210,7 +268,7 @@ header.header::before {
   background: var(--sl-color-gray-7);
   display: flex; flex-direction: column; align-items: flex-start;
 }
-/* 图标加圆角底座：裸 emoji 直接浮在卡面上缺少视觉锚 */
+/* 图标：线性 SVG 统一 1.7px 描边，indigo 单色，圆角底座给视觉锚 */
 .ask-feat .ico {
   font-size: 1.15rem; line-height: 1;
   width: 2.4rem; height: 2.4rem;
@@ -219,7 +277,10 @@ header.header::before {
   border-radius: 0.6rem;
   background: color-mix(in oklab, #4f46e5 10%, transparent);
   border: 1px solid color-mix(in oklab, #4f46e5 18%, transparent);
+  color: #4f46e5;
 }
+:root[data-theme='dark'] .ask-feat .ico { color: #a5b4fc; }
+.ask-feat .ico svg { width: 1.25rem; height: 1.25rem; display: block; }
 .ask-feat b { display: block; font-size: 0.95rem; margin-bottom: 0.45rem; }
 .ask-feat span { font-size: 0.82rem; color: var(--sl-color-gray-3); line-height: 1.65; display: block; }
 
