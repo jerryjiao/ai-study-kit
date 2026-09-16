@@ -70,6 +70,44 @@ head:
 
 <section class="ask-section">
   <div class="ask-section-head">
+    <h2>One sentence, hand it to your AI</h2>
+    <p>Copy this line and send it to any AI tool — Claude Code, zcode, Cursor — it installs the coach and the site source. No clone, no commands to memorize</p>
+  </div>
+  <div class="ask-install">
+    <code>Install ai-study-kit from https://aistudykit.dev/install.md</code>
+    <button class="ask-copy" type="button" data-done="Copied ✓">Copy</button>
+  </div>
+  <script>
+    (function () {
+      var box = document.querySelector('.ask-install');
+      var btn = box && box.querySelector('.ask-copy');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var text = box.querySelector('code').textContent.trim();
+        var done = function () {
+          var old = btn.textContent;
+          btn.textContent = btn.dataset.done || '✓';
+          btn.classList.add('done');
+          setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta); done();
+        }
+      });
+    })();
+  </script>
+  <p class="ask-more">
+    Prefer typing commands yourself? <a href="/en/get-started/">Per-tool install matrix</a> · Want to run locally? The clone route lives there too
+  </p>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
     <h2>One toolkit, six learning artifacts</h2>
     <p>What the lessons teach, the quizzes test and the cards drill are the same knowledge points</p>
   </div>
@@ -131,21 +169,6 @@ head:
       <figcaption>Dashboard: progress, accuracy and drill entries computed from your answers</figcaption>
     </figure>
   </div>
-</section>
-
-<section class="ask-section">
-  <div class="ask-section-head">
-    <h2>Two commands, then hand it to the coach</h2>
-    <p>The plugin ships the full quiz-app source — no clone, no commands to memorize</p>
-  </div>
-  <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>Add the marketplace<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>Install ai-study-kit<code>Then tell your AI “I want to learn X” (or /ask-coach)</code></div>
-    <div class="ask-step"><div class="n">3</div>The coach takes over<code>Scan progress → pick the one thing to do → walk you through it</code></div>
-  </div>
-  <p class="ask-more">
-    Use a different tool? <a href="/en/get-started/">See the per-tool install matrix</a> · Prefer running locally? The clone route lives there too
-  </p>
 </section>
 
 <section class="ask-section">

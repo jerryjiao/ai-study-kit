@@ -70,6 +70,44 @@ head:
 
 <section class="ask-section">
   <div class="ask-section-head">
+    <h2>一句话安装，交给你的 AI</h2>
+    <p>复制这句话发给 Claude Code、zcode、Cursor 等任意 AI 工具，它会装好教练和建站源码——不用 clone，不用记命令</p>
+  </div>
+  <div class="ask-install">
+    <code>请根据 https://aistudykit.dev/install.md，安装 ai-study-kit</code>
+    <button class="ask-copy" type="button" data-done="已复制 ✓">复制</button>
+  </div>
+  <script>
+    (function () {
+      var box = document.querySelector('.ask-install');
+      var btn = box && box.querySelector('.ask-copy');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var text = box.querySelector('code').textContent.trim();
+        var done = function () {
+          var old = btn.textContent;
+          btn.textContent = btn.dataset.done || '✓';
+          btn.classList.add('done');
+          setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta); done();
+        }
+      });
+    })();
+  </script>
+  <p class="ask-more">
+    想自己敲命令？<a href="/get-started/">按工具安装矩阵</a> · 开发者想本地跑？clone 路线也在那
+  </p>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
     <h2>一个工具包，六个学习产物</h2>
     <p>课讲的、题考的、卡记的，是同一套知识点</p>
   </div>
@@ -131,21 +169,6 @@ head:
       <figcaption>错题精讲：按考点聚类，逐个讲透薄弱点</figcaption>
     </figure>
   </div>
-</section>
-
-<section class="ask-section">
-  <div class="ask-section-head">
-    <h2>两条命令，交给教练</h2>
-    <p>插件自带完整答题站源码——不用 clone，不用记命令</p>
-  </div>
-  <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>添加市集<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>装 ai-study-kit<code>装完对 AI 说「我想学 X」（或 /ask-coach）</code></div>
-    <div class="ask-step"><div class="n">3</div>教练接管<code>探测进度 → 推荐今天最该做的 → 带你执行</code></div>
-  </div>
-  <p class="ask-more">
-    用别的工具？<a href="/get-started/">按工具安装矩阵看快速上手</a> · 开发者想本地跑？clone 路线也在那
-  </p>
 </section>
 
 <section class="ask-section">

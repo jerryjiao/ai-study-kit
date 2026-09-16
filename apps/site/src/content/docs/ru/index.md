@@ -48,6 +48,44 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
+    <h2>Одна фраза — и установкой займётся ваш ИИ</h2>
+    <p>Скопируйте эту строку и отправьте в любой ИИ-инструмент — Claude Code, zcode, Cursor — он установит коуча и исходник сайта. Без clone и без команд наизусть</p>
+  </div>
+  <div class="ask-install">
+    <code>Install ai-study-kit from https://aistudykit.dev/install.md</code>
+    <button class="ask-copy" type="button" data-done="Скопировано ✓">Копировать</button>
+  </div>
+  <script>
+    (function () {
+      var box = document.querySelector('.ask-install');
+      var btn = box && box.querySelector('.ask-copy');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var text = box.querySelector('code').textContent.trim();
+        var done = function () {
+          var old = btn.textContent;
+          btn.textContent = btn.dataset.done || '✓';
+          btn.classList.add('done');
+          setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta); done();
+        }
+      });
+    })();
+  </script>
+  <p class="ask-more">
+    Предпочитаете команды руками? <a href="/ru/get-started/">Матрица установки под каждый инструмент</a> · Запустить локально? Маршрут с clone тоже там
+  </p>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
     <h2>Один набор — шесть учебных артефактов</h2>
     <p>Курсы объясняют, вопросы проверяют, карточки закрепляют — одни и те же знания</p>
   </div>
@@ -92,21 +130,6 @@ hero:
       <tr class="us"><td class="tool">ai-study-kit</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓ MIT</td></tr>
     </table>
   </div>
-</section>
-
-<section class="ask-section">
-  <div class="ask-section-head">
-    <h2>Две команды — и дальше командует коуч</h2>
-    <p>В плагине есть весь исходник приложения — без clone и без команд наизусть</p>
-  </div>
-  <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>Добавьте маркетплейс<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>Установите ai-study-kit<code>Затем скажите ИИ «хочу выучить X» (или /ask-coach)</code></div>
-    <div class="ask-step"><div class="n">3</div>Коуч берёт на себя<code>Сканирует прогресс → выбирает одно дело → ведёт вас</code></div>
-  </div>
-  <p class="ask-more">
-    Другой инструмент? <a href="/ru/get-started/">Смотрите матрицу установки под каждый инструмент</a> · Хотите запустить локально? Маршрут с clone тоже там
-  </p>
 </section>
 
 <section class="ask-section">

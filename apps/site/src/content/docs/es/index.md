@@ -48,6 +48,44 @@ hero:
 
 <section class="ask-section">
   <div class="ask-section-head">
+    <h2>Una frase, y tu IA se encarga</h2>
+    <p>Copia esta línea y envíala a cualquier herramienta de IA —Claude Code, zcode, Cursor—: instalará el coach y el código de la app. Sin clonar, sin comandos que memorizar</p>
+  </div>
+  <div class="ask-install">
+    <code>Install ai-study-kit from https://aistudykit.dev/install.md</code>
+    <button class="ask-copy" type="button" data-done="¡Copiado ✓">Copiar</button>
+  </div>
+  <script>
+    (function () {
+      var box = document.querySelector('.ask-install');
+      var btn = box && box.querySelector('.ask-copy');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var text = box.querySelector('code').textContent.trim();
+        var done = function () {
+          var old = btn.textContent;
+          btn.textContent = btn.dataset.done || '✓';
+          btn.classList.add('done');
+          setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta); done();
+        }
+      });
+    })();
+  </script>
+  <p class="ask-more">
+    ¿Prefieres escribir los comandos? <a href="/es/get-started/">Matriz de instalación por herramienta</a> · ¿Ejecutar localmente? La ruta con clone también está ahí
+  </p>
+</section>
+
+<section class="ask-section">
+  <div class="ask-section-head">
     <h2>Un kit, seis artefactos de estudio</h2>
     <p>Lo que explican los cursos, evalúan las preguntas y fijan las tarjetas son los mismos puntos de conocimiento</p>
   </div>
@@ -92,21 +130,6 @@ hero:
       <tr class="us"><td class="tool">ai-study-kit</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓ MIT</td></tr>
     </table>
   </div>
-</section>
-
-<section class="ask-section">
-  <div class="ask-section-head">
-    <h2>Dos comandos y se lo pasas al coach</h2>
-    <p>El plugin trae el código completo de la app — sin clonar, sin comandos que memorizar</p>
-  </div>
-  <div class="ask-steps">
-    <div class="ask-step"><div class="n">1</div>Añade el marketplace<code>/plugin marketplace add https://github.com/jerryjiao/ai-study-kit</code></div>
-    <div class="ask-step"><div class="n">2</div>Instala ai-study-kit<code>Luego dile a tu IA «quiero aprender X» (o /ask-coach)</code></div>
-    <div class="ask-step"><div class="n">3</div>El coach toma el mando<code>Escanea tu progreso → elige lo próximo → te guía</code></div>
-  </div>
-  <p class="ask-more">
-    ¿Usas otra herramienta? <a href="/es/get-started/">Mira la matriz de instalación por herramienta</a> · ¿Prefieres ejecutarlo localmente? La ruta con clone también está ahí
-  </p>
 </section>
 
 <section class="ask-section">
