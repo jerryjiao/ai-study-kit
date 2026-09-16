@@ -10,6 +10,12 @@
 >
 > *An AI coach that drills any topic until you truly know it. Collect the questions yourself, or let AI write them.*
 
+**一句话安装**：把这句发给你的 AI（Claude Code、zcode、Cursor 等任意工具），它会照协议装好教练和建站源码——不用 clone，不用记命令：
+
+```text
+请根据 https://aistudykit.dev/install.md，安装 ai-study-kit
+```
+
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/官网-online-blue" alt="官网" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="部署状态" /></a>
@@ -23,9 +29,9 @@
 
 ---
 
-## 📦 装进你的 AI 工具
+## 📦 按工具手动安装
 
-不同工具安装方式不同，多个工具要各装一份。插件自带完整答题站源码，装完不用 clone 本仓库，agent 会带你从零建站、产题、产课到部署。
+不想经过 agent？按你的工具手动装，多个工具要各装一份。插件自带完整答题站源码，装完不用 clone 本仓库，agent 会带你从零建站、产题、产课到部署。
 
 **Claude Code**（两步，都要跑）
 

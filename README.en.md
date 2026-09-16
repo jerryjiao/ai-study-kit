@@ -6,7 +6,11 @@
 
 [简体中文](README.md) · **English** · [Español](README.es.md) · [Русский](README.ru.md)
 
-> An AI coach that drills any topic until you truly know it. Collect the questions yourself, or let AI write them; wrong answers get explained point by point, reviews queue up on their own, and progress syncs across devices. Free and open source — install a plugin and you're ready.
+**Install in one sentence**: send this line to your AI — Claude Code, zcode, Cursor, any tool — and it follows the protocol to install the coach and the site source. No clone, no commands to memorize:
+
+```text
+Install ai-study-kit from https://aistudykit.dev/install.md
+```
 
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/website-online-blue" alt="Website" /></a>
@@ -21,9 +25,9 @@
 
 ---
 
-## 📦 Install into your AI tool
+## 📦 Manual install, per tool
 
-Install steps differ per tool, and each tool needs its own copy. The plugin ships the complete app source, so there is nothing to clone — the agent walks you from zero to a running study site, generating questions and courses along the way.
+Prefer doing it by hand without an agent? Each tool installs its own copy. The plugin ships the complete app source, so there is nothing to clone — the agent walks you from zero to a running study site, generating questions and courses along the way.
 
 **Claude Code** (two steps, run both)
 

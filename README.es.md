@@ -6,7 +6,11 @@
 
 [简体中文](README.md) · [English](README.en.md) · **Español** · [Русский](README.ru.md)
 
-> Un coach de IA que te entrena hasta dominar cualquier tema de examen. Reúne las preguntas tú mismo, o deja que la IA las escriba; los fallos se explican punto por punto, los repasos se ponen en cola solos y el progreso se sincroniza entre dispositivos. Libre y open source: instalas un plugin y ya está.
+**Instala con una frase**: envía esta línea a tu IA —Claude Code, zcode, Cursor, cualquier herramienta— y seguirá el protocolo para instalar el coach y el código del sitio. Sin clonar, sin comandos que memorizar:
+
+```text
+Install ai-study-kit from https://aistudykit.dev/install.md
+```
 
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/web-online-blue" alt="Sitio web" /></a>
@@ -21,9 +25,9 @@
 
 ---
 
-## 📦 Instala en tu herramienta de IA
+## 📦 Instalación manual por herramienta
 
-Los pasos de instalación cambian según la herramienta, y cada una necesita su propia copia. El plugin incluye el código fuente completo de la app, así que no hay nada que clonar; el agente te acompaña de cero a un sitio de estudio funcionando, generando preguntas y cursos por el camino.
+¿Prefieres hacerlo a mano sin agente? Cada herramienta necesita su propia copia. El plugin incluye el código fuente completo de la app, así que no hay nada que clonar; el agente te acompaña de cero a un sitio de estudio funcionando, generando preguntas y cursos por el camino.
 
 **Claude Code** (dos pasos, ejecuta ambos)
 
