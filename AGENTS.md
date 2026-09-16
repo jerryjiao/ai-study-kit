@@ -41,6 +41,7 @@ ai-study-kit/
 │       ├── scripts/build-demo.mjs  # QUIZ_BASE 构建 quiz-app → public/demo/
 │       ├── scripts/patch-404.mjs   # 根 404.html 注入 demo 深链 SPA 兜底（build 后跑）
 │       ├── scripts/gen-og.py       # OG 分享图（产物 og.png 入库，改视觉时本地重跑）
+│       ├── public/install.md  # agent 安装协议（英文单份，有意不进四语体系；发布为 aistudykit.dev/install.md，见 ADR-0007）
 │       └── src/content/docs/  # 站内页（method/ai/maintain 及其 en/es/ru 译本均为 sync 产物；各语言 index/get-started 为手工层）
 ├── examples/
 │   └── dev-intro/             # 默认示例主题（git + Linux 基础入门）
