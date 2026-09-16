@@ -110,7 +110,7 @@ export default defineConfig({
               slug: 'ai/ai-cli',
             },
             {
-              label: 'Study Coach · `/ai-study-kit` 学习教练指令',
+              label: 'Study Coach · `/ask-coach` 学习教练指令',
               translations: { en: 'Study Coach', es: 'Study Coach', ru: 'Study Coach' },
               slug: 'ai/ai-study-kit',
             },
