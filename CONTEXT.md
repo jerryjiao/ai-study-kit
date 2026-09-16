@@ -71,3 +71,7 @@ _Avoid_: 重装（升级保数据，不是推倒重来）、自动迁移脚本�
 **kit-version.json**:
 kit 快照的版本标记文件——sync-plugin 打包时从根 package.json 写入版本号，F1 拷贝自然带进用户项目，项目由此「自报版本」。skill 读用户项目与插件快照两处 diff 判漂移；存量项目无此文件即「版本未知，按最老处理」。ADR-0006 落地（打包断言：`apps/quiz-app/scripts/lib/kit-version.test.mjs`）。
 _Avoid_: 读用户项目 package.json 猜（kit 拷贝不含仓库元数据）、目录 diff 猜（行尾噪声前科）
+
+**一键安装（install.md）**:
+统一安装入口——发布在 `https://aistudykit.dev/install.md` 的英文 agent 安装协议：用户把「请根据 <该链接>，安装 ai-study-kit」发给任意工具的 agent，agent 照协议检测工具→plugin 三家走原生两步 / 其余全量下载（5 个教练 skill + kit 快照）→按「skill 所在 skills 目录的同级放 kit」落位→校验并报 kit-version。更新 = 幂等重跑。ADR-0007。
+_Avoid_: 安装脚本（是协议文档，不是可执行脚本）、安装页（不是 HTML 页面，是纯 md 直链）、只管长尾工具（它服务所有工具，plugin 三家也在协议里）
