@@ -106,31 +106,28 @@ head:
 <section class="ask-section ask-section--tint">
   <div class="ask-section-head">
     <h2>What happens after install</h2>
-    <p>From one sentence to real mastery in four steps — each one waits for your confirmation</p>
+    <p>Four steps from one sentence to drilling</p>
   </div>
   <div class="ask-steps">
     <div class="ask-step">
       <span class="num">01</span>
-      <b>Say one line</b>
-      <span class="desc">Tell your AI “I want to learn X”. Got past papers or a syllabus? Hand them over. Got nothing? That works too</span>
+      <b>Say what you want to learn</b>
+      <span class="desc">Tell your AI “I want to learn X”; got past papers or a syllabus? Hand them over — got nothing? That works too</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">02</span>
-      <b>Align on exam points</b>
-      <span class="desc">The coach drafts the outline with you: what's covered, how deep, how many questions — nothing starts until you nod</span>
+      <b>Agree on the exam points</b>
+      <span class="desc">The coach settles scope with you first: what's covered, how deep, how many questions — nothing starts until you nod</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">03</span>
       <b>Get the full set</b>
-      <span class="desc">Questions, lessons and flashcards are generated around the same exam points: what the lessons teach, the quizzes test</span>
+      <span class="desc">Questions, lessons and flashcards are built around the same exam points: what the lessons teach, the quizzes test</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">04</span>
       <b>Drill until it sticks</b>
-      <span class="desc">Graded on submit, wrong answers explained by exam point, reviews queue up on schedule — until you get it right</span>
+      <span class="desc">Graded on submit, wrong answers explained by exam point, reviews queue up on schedule</span>
     </div>
   </div>
   <p class="ask-more">

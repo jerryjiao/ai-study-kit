@@ -104,31 +104,28 @@ head:
 <section class="ask-section ask-section--tint">
   <div class="ask-section-head">
     <h2>Qué pasa después de instalar</h2>
-    <p>De una frase al dominio real en cuatro pasos — cada uno espera tu confirmación</p>
+    <p>Cuatro pasos de una frase a empezar a practicar</p>
   </div>
   <div class="ask-steps">
     <div class="ask-step">
       <span class="num">01</span>
-      <b>Di una frase</b>
-      <span class="desc">Di a tu IA «quiero aprender X». ¿Tienes exámenes reales o un temario? Pásaselos. ¿No tienes nada? También sirve</span>
+      <b>Di qué quieres aprender</b>
+      <span class="desc">Di a tu IA «quiero aprender X»; si tienes exámenes reales o un temario, pásaselos — y si no, también sirve</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">02</span>
-      <b>Alineen los puntos</b>
-      <span class="desc">El coach redacta el temario contigo: qué entra, a qué profundidad, cuántas preguntas — nada arranca hasta que asientes</span>
+      <b>Acorden los puntos de examen</b>
+      <span class="desc">El coach fija primero el alcance contigo: qué entra, a qué profundidad, cuántas preguntas — nada arranca hasta que asientes</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">03</span>
       <b>Recibe el set completo</b>
-      <span class="desc">Preguntas, cursos y tarjetas se generan en torno a los mismos puntos de examen: lo que explican los cursos, lo evalúan las preguntas</span>
+      <span class="desc">Preguntas, cursos y tarjetas se generan sobre los mismos puntos de examen: lo que explican los cursos, lo evalúan las preguntas</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">04</span>
-      <b>Entrena hasta dominarlo</b>
-      <span class="desc">Calificación al enviar, errores explicados por punto de examen, repasos en cola solos — hasta que lo aciertes</span>
+      <b>Practica hasta dominarlo</b>
+      <span class="desc">Calificación al enviar, errores explicados por punto de examen, repasos en cola solos</span>
     </div>
   </div>
   <p class="ask-more">

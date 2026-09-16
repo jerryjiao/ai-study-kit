@@ -106,31 +106,28 @@ head:
 <section class="ask-section ask-section--tint">
   <div class="ask-section-head">
     <h2>装完会发生什么</h2>
-    <p>从一句话到练到会只有四步，每一步你确认了才算数</p>
+    <p>四步，从一句话到开练</p>
   </div>
   <div class="ask-steps">
     <div class="ask-step">
       <span class="num">01</span>
-      <b>说一句</b>
-      <span class="desc">对 AI 说「我想学 X」。手头有真题、有考纲就一起给它，什么都没有也行</span>
+      <b>说想学什么</b>
+      <span class="desc">对 AI 说「我想学 X」；手头有真题或考纲就一起给它，没有也行</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">02</span>
-      <b>对考点</b>
-      <span class="desc">教练先和你对齐能力大纲：考什么、考多深、出多少题——你点头才动工</span>
+      <b>和你对考点</b>
+      <span class="desc">教练先跟你定：考什么、考多深、出多少题，你确认了才动工</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">03</span>
-      <b>产全套</b>
-      <span class="desc">题目、课程、闪卡围绕同一套考点生成，课里讲的，题里就考</span>
+      <b>生成全套材料</b>
+      <span class="desc">题目、课程、闪卡围绕同一套考点，课里讲的题里就考</span>
     </div>
-    <div class="ask-step-arr">→</div>
     <div class="ask-step">
       <span class="num">04</span>
-      <b>练到会</b>
-      <span class="desc">刷题即判分，错题按考点精讲，到期复习自动排队，直到做对为止</span>
+      <b>练到会为止</b>
+      <span class="desc">提交即判分，错题按考点精讲，复习到期自动排队</span>
     </div>
   </div>
   <p class="ask-more">
