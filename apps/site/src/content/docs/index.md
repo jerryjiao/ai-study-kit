@@ -1,9 +1,9 @@
 ---
-title: 开源刷题工具：把你的题库变成刷题 · 闪卡 · 错题精讲的学习闭环
-description: ai-study-kit 是开源刷题工具：收集的真题或 AI 出的题，一键变成刷题站、课程讲解、闪卡复习、错题精讲一体的学习闭环。MIT 协议、可自部署、不配 AI 也能用。
+title: 开源 AI 学习教练：把任何要考的东西练到会
+description: ai-study-kit 是开源 AI 学习教练：题目自己收或让 AI 出，课程、刷题、闪卡、错题精讲串成完整学习闭环，带你把要考的东西练到会。MIT 协议、可自部署、不配 AI 也能用。
 template: splash
 hero:
-  # H1 是主张句（AI 教练带领 + 练到会）；SERP title（frontmatter title）负责吃搜索词——两者分离靠显式 hero.title
+  # H1 与 SERP title 同走「AI 教练 + 练到会」主张（2026-09-16 拍板：不做「刷题工具」定位）；题库/刷题等搜索词由 description 承载
   title: AI 教练带你练到会
   tagline: 题目自己收，或者让 AI 出。错题按考点讲透，到期复习自动排队，进度跨设备同步。免费开源，装个插件对 AI 说「我想学 X」就能开始。
   image:
@@ -45,7 +45,7 @@ head:
       type: application/ld+json
     content: |
       {"@context":"https://schema.org","@graph":[
-      {"@type":"WebSite","name":"ai-study-kit","url":"https://aistudykit.dev/","inLanguage":"zh-CN","description":"开源刷题工具：把任意题库变成刷题、闪卡、错题精讲一体的学习闭环"},
+      {"@type":"WebSite","name":"ai-study-kit","url":"https://aistudykit.dev/","inLanguage":"zh-CN","description":"开源 AI 学习教练：把任何要考的东西练到会——课程、刷题、闪卡、错题精讲串成完整学习闭环"},
       {"@type":"SoftwareApplication","name":"ai-study-kit","url":"https://aistudykit.dev/","applicationCategory":"EducationalApplication","operatingSystem":"Web","description":"把任意主题的题库变成完整学习闭环的开源脚手架：答题、课程、闪卡、错题精讲、间隔重复，进度可跨设备同步。","offers":{"@type":"Offer","price":0,"priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/jerryjiao/ai-study-kit","author":{"@type":"Organization","name":"ai-study-kit contributors"}},
       {"@type":"FAQPage","mainEntity":[
       {"@type":"Question","name":"ai-study-kit 免费吗？","acceptedAnswer":{"@type":"Answer","text":"免费。MIT 开源协议，代码与题库格式全部开放，无账号、无订阅、无遥测。"}},

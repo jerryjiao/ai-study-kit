@@ -1,9 +1,9 @@
 ---
-title: Open-Source Quiz & Flashcard App · Self-Hosted · MIT
-description: ai-study-kit is an open-source, self-hosted quiz and flashcard app — practice tests, lessons, wrong-answer deep-dives and Anki-compatible spaced repetition around one exam-point map. MIT licensed, no account, your data.
+title: "Open-Source AI Study Coach: Drills Any Topic Until You Truly Know It"
+description: ai-study-kit is an open-source AI study coach — bring your own questions or let AI write them; lessons, practice tests, flashcards and wrong-answer deep-dives close the loop until you truly know it. Self-hosted, MIT licensed, no account, your data.
 template: splash
 hero:
-  # H1 is the claim (an AI coach that drills you); the SERP <title> (frontmatter title) carries the search keywords
+  # H1 and the SERP <title> both carry the AI-coach claim (2026-09-16: no "quiz app" positioning); search keywords live in the description
   title: An AI coach that drills you until you've got it
   tagline: Bring your own questions or have AI write them. Wrong answers get explained by exam point, reviews are scheduled automatically, and progress syncs across devices. Free and open source — install the plugin and tell your AI “I want to learn X.”
   image:
@@ -45,8 +45,8 @@ head:
       type: application/ld+json
     content: |
       {"@context":"https://schema.org","@graph":[
-      {"@type":"WebSite","name":"ai-study-kit","url":"https://aistudykit.dev/en/","inLanguage":"en","description":"Open-source quiz and flashcard app: turn any question bank into a complete learning loop"},
-      {"@type":"SoftwareApplication","name":"ai-study-kit","url":"https://aistudykit.dev/en/","applicationCategory":"EducationalApplication","operatingSystem":"Web","description":"Open-source, self-hosted quiz and flashcard app: quizzes, lessons, wrong-answer deep-dives and spaced repetition aligned around the same exam points, with cross-device sync.","offers":{"@type":"Offer","price":0,"priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/jerryjiao/ai-study-kit","author":{"@type":"Organization","name":"ai-study-kit contributors"}},
+      {"@type":"WebSite","name":"ai-study-kit","url":"https://aistudykit.dev/en/","inLanguage":"en","description":"Open-source AI study coach: drills any topic until you truly know it — lessons, practice tests, flashcards and wrong-answer deep-dives in one learning loop"},
+      {"@type":"SoftwareApplication","name":"ai-study-kit","url":"https://aistudykit.dev/en/","applicationCategory":"EducationalApplication","operatingSystem":"Web","description":"Open-source AI study coach, self-hostable: lessons, quizzes, flashcards, wrong-answer deep-dives and spaced repetition aligned around the same exam points, with cross-device sync.","offers":{"@type":"Offer","price":0,"priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/jerryjiao/ai-study-kit","author":{"@type":"Organization","name":"ai-study-kit contributors"}},
       {"@type":"FAQPage","mainEntity":[
       {"@type":"Question","name":"Is ai-study-kit free?","acceptedAnswer":{"@type":"Answer","text":"Yes. MIT-licensed open source, no accounts, no subscriptions, no telemetry."}},
       {"@type":"Question","name":"How is it different from Anki?","acceptedAnswer":{"@type":"Answer","text":"Reviews run the Anki-compatible SM-2 scheduler (learning steps, graduation, lapse decay), but the loop also covers the quiz side — grading, wrong-answer deep-dives and course pages around the same exam points. It is not an Anki plugin."}},
