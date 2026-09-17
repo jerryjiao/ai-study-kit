@@ -18,7 +18,7 @@ export function LangToggle() {
         value={lang}
         onChange={(e) => setLang(e.target.value as UiLang)}
         aria-label={t('lang.aria')}
-        className="appearance-none bg-transparent pl-7 pr-3 py-1.5 rounded-full text-sm font-medium text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors cursor-pointer outline-none"
+        className="appearance-none bg-transparent pl-7 pr-1.5 sm:pr-3 py-1.5 rounded-full text-sm font-medium text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors cursor-pointer outline-none"
       >
         {LANGUAGES.map((l) => (
           <option key={l.code} value={l.code}>

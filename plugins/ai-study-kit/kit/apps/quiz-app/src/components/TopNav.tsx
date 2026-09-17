@@ -20,8 +20,9 @@ export function TopNav() {
   const onPanorama = pathname === '/panorama' || pathname.startsWith('/panorama/');
   const onQuiz = !onFlash && !onCourses && !onPanorama;
 
+  // whitespace-nowrap：四 tab 后小屏挤度上升，文字折行比横向收窄更伤（h-16 内两行字）
   const cls = (active: boolean) =>
-    `px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium transition-colors ${
+    `px-2 sm:px-4 py-1.5 sm:py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
       active ? 'bg-indigo-600 text-white shadow-soft' : 'text-text-muted hover:text-text-accent hover:bg-bg-hover'
     }`;
 
@@ -33,10 +34,11 @@ export function TopNav() {
           {/* BASE_URL 前缀：public 资源在 JS 里写死 "/logo.png" 不会随 vite base 重写，
               子路径部署（官网 /demo/）下会裂图；拼接后本地根路径与子路径都正确 */}
           <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="h-7 w-7 rounded-[7px]" />
-          <span className="sm:hidden">ASK</span>
+          {/* 420px 以下品牌只留图标：四 tab + 语言/主题按钮在 390px 视口才能不横向溢出 */}
+          <span className="hidden min-[420px]:inline sm:hidden">ASK</span>
           <span className="hidden sm:inline">ai-study-kit</span>
         </Link>
-        <nav className="flex items-center gap-1 sm:gap-1.5">
+        <nav className="flex items-center gap-0.5 sm:gap-1.5">
           <NavLink to="/" end className={cls(onQuiz)}>
             {t('nav.quiz')}
           </NavLink>
@@ -51,7 +53,7 @@ export function TopNav() {
           </NavLink>
           <button
             onClick={() => setSettingsOpen(true)}
-            className="p-2 rounded-full text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors"
+            className="p-1.5 sm:p-2 rounded-full text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors"
             title={t('settings.title')}
             aria-label={t('settings.title')}
           >

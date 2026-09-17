@@ -15,7 +15,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setMode(next)}
-      className="p-2 rounded-full text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors"
+      className="p-1.5 sm:p-2 rounded-full text-text-muted hover:text-text-accent hover:bg-bg-hover transition-colors"
       title={t('theme.title', { label })}
       aria-label={t('theme.aria', { label })}
     >
