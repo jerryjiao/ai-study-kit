@@ -148,3 +148,37 @@ export function buildPanorama(
     groups,
   };
 }
+
+/** 全景筛选三档（#80 chips + ?filter= 深链）：全部 / 弱项 / 未掌握。 */
+export type PanoramaFilter = 'all' | 'weak' | 'unmastered';
+
+/** URL 参数解析：合法枚举放行，非法/缺失回退「全部」（深链容错，不抛错）。 */
+export function parsePanoramaFilter(raw: string | null | undefined): PanoramaFilter {
+  return raw === 'weak' || raw === 'unmastered' ? raw : 'all';
+}
+
+/**
+ * 按档位过滤考点行：弱项 = 仅 status === 'weak'；未掌握 = status !== 'mastered'；
+ * 筛选后空 day 组整组隐藏（不留空白组头）；「全部」原样返回（同一引用）。
+ * 仅筛选可见行，不动判据；组内 summary 按可见行重算保持自洽
+ * （顶部全局汇总带由页面用 buildPanorama 的全量 summary 渲染，不经本函数收窄）。
+ */
+export function filterPanoramaGroups(groups: PanoramaGroup[], filter: PanoramaFilter): PanoramaGroup[] {
+  if (filter === 'all') return groups;
+  const keep = (p: PanoramaPoint) => (filter === 'weak' ? p.status === 'weak' : p.status !== 'mastered');
+  return groups
+    .map((g) => {
+      const points = g.points.filter(keep);
+      return {
+        ...g,
+        points,
+        summary: {
+          total: points.length,
+          taught: points.filter((x) => x.taught).length,
+          practiced: points.filter((x) => x.practiced).length,
+          mastered: points.filter((x) => x.mastered).length,
+        },
+      };
+    })
+    .filter((g) => g.points.length > 0);
+}

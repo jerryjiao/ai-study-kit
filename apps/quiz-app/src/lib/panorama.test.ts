@@ -1,7 +1,7 @@
 // panorama.test.ts — 考点全景 web 侧聚合单测（与 scripts/lib/panorama.test.mjs 同口径镜像，
 // 双实现纪律：判据两边同步改、测试两边都有——沿 mastery 双实现先例）。
 import { describe, it, expect } from 'vitest';
-import { buildPanorama, UNSCHEDULED_DAY, shouldRenderGraph, type CoverageSnapshot } from './panorama';
+import { buildPanorama, UNSCHEDULED_DAY, shouldRenderGraph, filterPanoramaGroups, parsePanoramaFilter, type CoverageSnapshot } from './panorama';
 import type { AnswerRecord, Question } from '../types';
 
 const qs = (pairs: [string, string[]][]): Question[] =>
@@ -85,5 +85,62 @@ describe('shouldRenderGraph 连线渲染判据（v0.14，无图/超限回退清�
     expect(shouldRenderGraph(4, edges(201))).toBe(false);
     expect(shouldRenderGraph(81, edges(3))).toBe(false);
     expect(shouldRenderGraph(80, edges(200))).toBe(true);
+  });
+});
+
+describe('filterPanoramaGroups / parsePanoramaFilter（筛选纯函数，#78）', () => {
+  // 四态齐备的夹具：EP-01 mastered / EP-02 weak / EP-03 inProgress（对一半无错）/ EP-04 untouched
+  const cov = coverage([
+    { ep: 'EP-01', taught: true, practiced: true, mastered: true, oral: null },
+    { ep: 'EP-02', taught: true, practiced: true, mastered: false, oral: null },
+    { ep: 'EP-03', taught: true, practiced: true, mastered: false, oral: null },
+    { ep: 'EP-04', taught: false, practiced: false, mastered: false, oral: null },
+  ]);
+  const answers = {
+    A: rec(), B: rec(),                                       // EP-01 全对 → mastered
+    C: rec({ correct: false, streak: 0, wrongCount: 1 }),     // EP-02 答错 → weak
+    D: rec(),                                                 // EP-03 对一半 → inProgress
+  };
+  const groups = buildPanorama(questions, answers, epNames, [], {}, cov, epDays).groups;
+  const epsOf = (gs: typeof groups) => gs.flatMap((g) => g.points.map((p) => p.ep));
+
+  it('「全部」原样返回（不复制不改写）', () => {
+    expect(filterPanoramaGroups(groups, 'all')).toBe(groups);
+  });
+
+  it('「弱项」仅留 status === weak，空 day 组整组隐藏', () => {
+    const weak = filterPanoramaGroups(groups, 'weak');
+    expect(epsOf(weak)).toEqual(['EP-02']);      // EP-01 mastered / EP-03 inProgress / EP-04 untouched 全被滤掉
+    expect(weak.map((g) => g.day)).toEqual(['D2']); // D1、D10 整组消失
+  });
+
+  it('「未掌握」= 非 mastered 全集（弱 + 进行中 + 未开始）， mastered 组隐藏', () => {
+    const un = filterPanoramaGroups(groups, 'unmastered');
+    expect(epsOf(un)).toEqual(['EP-02', 'EP-03', 'EP-04']);
+    expect(un.map((g) => g.day)).toEqual(['D2', 'D10']);
+  });
+
+  it('筛选后组内 summary 按可见行重算（与展示自洽）', () => {
+    const weak = filterPanoramaGroups(groups, 'weak');
+    expect(weak[0].summary).toEqual({ total: 1, taught: 1, practiced: 1, mastered: 0 });
+  });
+
+  it('全空结果（如全部已掌握时筛弱项）→ 返回空组列表不报错', () => {
+    const mastered = buildPanorama(
+      questions,
+      { A: rec(), B: rec(), C: rec(), D: rec(), E: rec(), F: rec() },
+      epNames, [], {}, cov, epDays,
+    ).groups;
+    expect(filterPanoramaGroups(mastered, 'weak')).toEqual([]);
+  });
+
+  it('parsePanoramaFilter：合法枚举放行，非法/缺失回退「全部」', () => {
+    expect(parsePanoramaFilter('weak')).toBe('weak');
+    expect(parsePanoramaFilter('unmastered')).toBe('unmastered');
+    expect(parsePanoramaFilter('all')).toBe('all');
+    expect(parsePanoramaFilter('xxx')).toBe('all');
+    expect(parsePanoramaFilter('')).toBe('all');
+    expect(parsePanoramaFilter(null)).toBe('all');
+    expect(parsePanoramaFilter(undefined)).toBe('all');
   });
 });
