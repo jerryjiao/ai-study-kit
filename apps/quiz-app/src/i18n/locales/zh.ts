@@ -61,6 +61,10 @@ export const zh = {
   'panorama.dotInProgress': '进行中',
   'panorama.dotUntouched': '未开始',
   'panorama.noEp': '当前题库没有考点标记（examPoint），无法派生掌握度。',
+  'panorama.filterAll': '全部',
+  'panorama.filterWeak': '弱项',
+  'panorama.filterUnmastered': '未掌握',
+  'panorama.filterAria': '考点筛选',
 
   // 练习页
   'practice.readMode': '看题模式',

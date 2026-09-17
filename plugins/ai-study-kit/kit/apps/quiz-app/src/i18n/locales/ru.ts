@@ -61,6 +61,10 @@ export const ru: Record<TKey, string> = {
   'panorama.dotInProgress': 'В процессе',
   'panorama.dotUntouched': 'Не начато',
   'panorama.noEp': 'В этом банке вопросов нет меток пунктов экзамена (examPoint) — освоение недоступно.',
+  'panorama.filterAll': 'Все',
+  'panorama.filterWeak': 'Слабые',
+  'panorama.filterUnmastered': 'Не освоено',
+  'panorama.filterAria': 'Фильтр пунктов экзамена',
 
   // Тренировка
   'practice.readMode': 'Режим чтения',

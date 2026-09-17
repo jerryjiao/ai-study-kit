@@ -1,9 +1,18 @@
 import { useMemo, useRef, useState, useLayoutEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { questions } from '../data/questions';
 import { flashcards } from '../data/flashcards';
 import themeMeta from '../data/theme.json';
 import { coverage } from '../data/coverage';
-import { buildPanorama, shouldRenderGraph, type PanoramaGroup, type PanoramaGraphEdge } from '../lib/panorama';
+import {
+  buildPanorama,
+  shouldRenderGraph,
+  filterPanoramaGroups,
+  parsePanoramaFilter,
+  type PanoramaFilter,
+  type PanoramaGroup,
+  type PanoramaGraphEdge,
+} from '../lib/panorama';
 import type { MasteryStatus } from '../lib/mastery';
 import { useProgress } from '../hooks/useProgress';
 import { useI18n } from '../i18n';
@@ -35,6 +44,11 @@ const STATUS_LEGEND: { status: MasteryStatus; key: 'panorama.dotMastered' | 'pan
 export function Panorama() {
   const { progress } = useProgress();
   const { t } = useI18n();
+  // 筛选：?filter=weak|unmastered 深链直达，非法值回退「全部」；不写 localStorage
+  //（查看层会话状态，刷新即回「全部」）——解析/过滤语义在 lib 纯函数（#78）。
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = parsePanoramaFilter(searchParams.get('filter'));
+  const setFilter = (f: PanoramaFilter) => setSearchParams(f === 'all' ? {} : { filter: f }, { replace: false });
   // 讲过/口头来自 build 时产出的内容无关覆盖快照（src/data/coverage.json，records 私有不出本地），
   // 练过/掌握由本地进度实时派生；分组按 theme.json examDays（MISSION 排布表 day 列）。
   const themeData = themeMeta as { examPoints?: Record<string, string>; examDays?: Record<string, string> };
@@ -45,6 +59,8 @@ export function Panorama() {
     ),
     [progress.answers, progress.srs],
   );
+  // 筛选只收窄 day 卡片列表；汇总带保持全局口径（grill 定案：筛选时不丢全局感）
+  const visibleGroups = useMemo(() => filterPanoramaGroups(panorama.groups, filter), [panorama.groups, filter]);
 
   if (panorama.summary.examPoints === 0) {
     return (
@@ -55,10 +71,33 @@ export function Panorama() {
     );
   }
 
+  const FILTER_CHIPS: { value: PanoramaFilter; label: string }[] = [
+    { value: 'all', label: t('panorama.filterAll') },
+    { value: 'weak', label: t('panorama.filterWeak') },
+    { value: 'unmastered', label: t('panorama.filterUnmastered') },
+  ];
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-5">
-      <header>
+      <header className="space-y-3">
         <h1 className="text-2xl font-bold text-text-primary tracking-tight">{t('panorama.title')}</h1>
+        {/* 三档筛选 chips：当前档高亮；切档即时过滤，空 day 组整组隐藏 */}
+        <div role="group" aria-label={t('panorama.filterAria')} className="flex flex-wrap gap-2">
+          {FILTER_CHIPS.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setFilter(value)}
+              aria-pressed={filter === value}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                filter === value
+                  ? 'bg-indigo-600 text-white shadow-soft'
+                  : 'bg-bg-surface border border-border text-text-muted hover:text-text-accent hover:bg-bg-hover'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </header>
 
       {/* 汇总带：全局三信号数字 + 四态图例（始终全局口径，后续筛选不收窄它） */}
@@ -76,7 +115,7 @@ export function Panorama() {
         </div>
       </section>
 
-      <PanoramaGroups groups={panorama.groups} edges={coverage.graph?.edges ?? null} />
+      <PanoramaGroups groups={visibleGroups} edges={coverage.graph?.edges ?? null} />
     </div>
   );
 }

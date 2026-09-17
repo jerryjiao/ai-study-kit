@@ -61,6 +61,10 @@ export const en: Record<TKey, string> = {
   'panorama.dotInProgress': 'In progress',
   'panorama.dotUntouched': 'Untouched',
   'panorama.noEp': 'This question bank has no exam-point tags (examPoint) — mastery cannot be derived.',
+  'panorama.filterAll': 'All',
+  'panorama.filterWeak': 'Weak',
+  'panorama.filterUnmastered': 'Not mastered',
+  'panorama.filterAria': 'Filter exam points',
 
   // Practice
   'practice.readMode': 'Reading mode',

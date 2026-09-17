@@ -61,6 +61,10 @@ export const es: Record<TKey, string> = {
   'panorama.dotInProgress': 'En progreso',
   'panorama.dotUntouched': 'Sin empezar',
   'panorama.noEp': 'Este banco de preguntas no tiene puntos de examen marcados (examPoint): no se puede derivar el dominio.',
+  'panorama.filterAll': 'Todos',
+  'panorama.filterWeak': 'Débiles',
+  'panorama.filterUnmastered': 'Sin dominar',
+  'panorama.filterAria': 'Filtrar puntos de examen',
 
   // Práctica
   'practice.readMode': 'Modo lectura',
