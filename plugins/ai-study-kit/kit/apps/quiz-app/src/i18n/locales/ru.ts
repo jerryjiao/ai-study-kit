@@ -13,6 +13,7 @@ export const ru: Record<TKey, string> = {
   'nav.quiz': 'Тесты',
   'nav.flashcards': 'Карточки',
   'nav.courses': 'Курсы',
+  'nav.panorama': 'Панорама',
   'nav.backHome': 'На главную',
 
   // Главная
@@ -44,22 +45,22 @@ export const ru: Record<TKey, string> = {
   'home.confirmResetAll':
     'Очистить ВЕСЬ прогресс (ответы + ошибки + чтение)? Отменить нельзя, изменение синхронизируется на все устройства.',
 
-  // Панель панорамы по пунктам экзамена (сигналы изучено/отработано/освоено + блоки day, см. src/lib/panorama.ts)
-  'home.panoramaTitle': 'Панорама пунктов (изучено · отработано · освоено)',
-  'home.panoramaSummary': 'Изучено {taught}/{total} · Отработано {practiced}/{total} · Освоено {mastered}/{total}',
-  'home.panoramaTaught': 'Изучено',
-  'home.panoramaPracticed': 'Отработано',
-  'home.panoramaMastered': 'Освоено',
-  'home.panoramaAnswered': 'Ответы {answered}/{total}',
-  'home.panoramaOral': 'Устно {correct}/{asked}',
-  'home.panoramaWrong': 'Не закрыто {n}',
-  'home.panoramaStale': 'Сигналы «изучено/устно» — на момент последней сборки; ответы и освоение — в реальном времени.',
-  'home.panoramaGraphHint': 'Связи из проекции графа знаний: сплошные стрелки = предпосылка (изучить сначала), пунктир = связность; точки = четыре состояния освоения.',
-  'home.panoramaDotMastered': 'Освоено',
-  'home.panoramaDotWeak': 'Слабое',
-  'home.panoramaDotInProgress': 'В процессе',
-  'home.panoramaDotUntouched': 'Не начато',
-  'home.masteryNoEp': 'В этом банке вопросов нет меток пунктов экзамена (examPoint) — освоение недоступно.',
+  // Страница панорамы по пунктам экзамена /panorama (сигналы изучено/отработано/освоено + блоки day, см. src/lib/panorama.ts)
+  'panorama.title': 'Панорама пунктов (изучено · отработано · освоено)',
+  'panorama.summary': 'Изучено {taught}/{total} · Отработано {practiced}/{total} · Освоено {mastered}/{total}',
+  'panorama.taught': 'Изучено',
+  'panorama.practiced': 'Отработано',
+  'panorama.mastered': 'Освоено',
+  'panorama.answered': 'Ответы {answered}/{total}',
+  'panorama.oral': 'Устно {correct}/{asked}',
+  'panorama.wrong': 'Не закрыто {n}',
+  'panorama.stale': 'Сигналы «изучено/устно» — на момент последней сборки; ответы и освоение — в реальном времени.',
+  'panorama.graphHint': 'Связи из проекции графа знаний: сплошные стрелки = предпосылка (изучить сначала), пунктир = связность; точки = четыре состояния освоения.',
+  'panorama.dotMastered': 'Освоено',
+  'panorama.dotWeak': 'Слабое',
+  'panorama.dotInProgress': 'В процессе',
+  'panorama.dotUntouched': 'Не начато',
+  'panorama.noEp': 'В этом банке вопросов нет меток пунктов экзамена (examPoint) — освоение недоступно.',
 
   // Тренировка
   'practice.readMode': 'Режим чтения',

@@ -13,6 +13,7 @@ export const en: Record<TKey, string> = {
   'nav.quiz': 'Quiz',
   'nav.flashcards': 'Flashcards',
   'nav.courses': 'Courses',
+  'nav.panorama': 'Panorama',
   'nav.backHome': 'Back to home',
 
   // Home
@@ -44,22 +45,22 @@ export const en: Record<TKey, string> = {
   'home.confirmResetAll':
     'Clear ALL progress (answers + wrong + reading)? This cannot be undone and will sync to all your devices.',
 
-  // Exam-point panorama panel (taught/practiced/mastered signals + day groups, see src/lib/panorama.ts)
-  'home.panoramaTitle': 'Exam-point panorama (taught · practiced · mastered)',
-  'home.panoramaSummary': 'Taught {taught}/{total} · Practiced {practiced}/{total} · Mastered {mastered}/{total}',
-  'home.panoramaTaught': 'Taught',
-  'home.panoramaPracticed': 'Practiced',
-  'home.panoramaMastered': 'Mastered',
-  'home.panoramaAnswered': 'Ans {answered}/{total}',
-  'home.panoramaOral': 'Oral {correct}/{asked}',
-  'home.panoramaWrong': 'Not graduated {n}',
-  'home.panoramaStale': 'Taught/oral signals as of the last build; answers and mastery are live.',
-  'home.panoramaGraphHint': 'Edges come from the knowledge-graph projection: solid arrows = prerequisite (learn first), dashed = related; dots = mastery four-state.',
-  'home.panoramaDotMastered': 'Mastered',
-  'home.panoramaDotWeak': 'Weak',
-  'home.panoramaDotInProgress': 'In progress',
-  'home.panoramaDotUntouched': 'Untouched',
-  'home.masteryNoEp': 'This question bank has no exam-point tags (examPoint) — mastery cannot be derived.',
+  // Exam-point panorama page /panorama (taught/practiced/mastered signals + day groups, see src/lib/panorama.ts)
+  'panorama.title': 'Exam-point panorama (taught · practiced · mastered)',
+  'panorama.summary': 'Taught {taught}/{total} · Practiced {practiced}/{total} · Mastered {mastered}/{total}',
+  'panorama.taught': 'Taught',
+  'panorama.practiced': 'Practiced',
+  'panorama.mastered': 'Mastered',
+  'panorama.answered': 'Ans {answered}/{total}',
+  'panorama.oral': 'Oral {correct}/{asked}',
+  'panorama.wrong': 'Not graduated {n}',
+  'panorama.stale': 'Taught/oral signals as of the last build; answers and mastery are live.',
+  'panorama.graphHint': 'Edges come from the knowledge-graph projection: solid arrows = prerequisite (learn first), dashed = related; dots = mastery four-state.',
+  'panorama.dotMastered': 'Mastered',
+  'panorama.dotWeak': 'Weak',
+  'panorama.dotInProgress': 'In progress',
+  'panorama.dotUntouched': 'Untouched',
+  'panorama.noEp': 'This question bank has no exam-point tags (examPoint) — mastery cannot be derived.',
 
   // Practice
   'practice.readMode': 'Reading mode',

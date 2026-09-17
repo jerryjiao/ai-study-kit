@@ -13,6 +13,7 @@ export const es: Record<TKey, string> = {
   'nav.quiz': 'Práctica',
   'nav.flashcards': 'Tarjetas',
   'nav.courses': 'Cursos',
+  'nav.panorama': 'Panorama',
   'nav.backHome': 'Volver al inicio',
 
   // Inicio
@@ -44,22 +45,22 @@ export const es: Record<TKey, string> = {
   'home.confirmResetAll':
     '¿Vaciar TODO el progreso (respuestas + erróneas + lecturas)? No se puede deshacer y se sincronizará con todos tus dispositivos.',
 
-  // Panel de panorama por punto de examen (señales visto/practicado/dominado + bloques day, ver src/lib/panorama.ts)
-  'home.panoramaTitle': 'Panorama de puntos (visto · practicado · dominado)',
-  'home.panoramaSummary': 'Vistos {taught}/{total} · Practicados {practiced}/{total} · Dominados {mastered}/{total}',
-  'home.panoramaTaught': 'Visto',
-  'home.panoramaPracticed': 'Practicado',
-  'home.panoramaMastered': 'Dominado',
-  'home.panoramaAnswered': 'Resp {answered}/{total}',
-  'home.panoramaOral': 'Orales {correct}/{asked}',
-  'home.panoramaWrong': 'Sin graduar {n}',
-  'home.panoramaStale': 'Las señales de visto/oral corresponden al último build; respuestas y dominio son en vivo.',
-  'home.panoramaGraphHint': 'Las conexiones vienen de la proyección del grafo de conocimiento: flechas continuas = prerrequisito (aprender primero), discontinuas = relación; puntos = cuatro estados de dominio.',
-  'home.panoramaDotMastered': 'Dominado',
-  'home.panoramaDotWeak': 'Débil',
-  'home.panoramaDotInProgress': 'En progreso',
-  'home.panoramaDotUntouched': 'Sin empezar',
-  'home.masteryNoEp': 'Este banco de preguntas no tiene puntos de examen marcados (examPoint): no se puede derivar el dominio.',
+  // Página de panorama por punto de examen /panorama (señales visto/practicado/dominado + bloques day, ver src/lib/panorama.ts)
+  'panorama.title': 'Panorama de puntos (visto · practicado · dominado)',
+  'panorama.summary': 'Vistos {taught}/{total} · Practicados {practiced}/{total} · Dominados {mastered}/{total}',
+  'panorama.taught': 'Visto',
+  'panorama.practiced': 'Practicado',
+  'panorama.mastered': 'Dominado',
+  'panorama.answered': 'Resp {answered}/{total}',
+  'panorama.oral': 'Orales {correct}/{asked}',
+  'panorama.wrong': 'Sin graduar {n}',
+  'panorama.stale': 'Las señales de visto/oral corresponden al último build; respuestas y dominio son en vivo.',
+  'panorama.graphHint': 'Las conexiones vienen de la proyección del grafo de conocimiento: flechas continuas = prerrequisito (aprender primero), discontinuas = relación; puntos = cuatro estados de dominio.',
+  'panorama.dotMastered': 'Dominado',
+  'panorama.dotWeak': 'Débil',
+  'panorama.dotInProgress': 'En progreso',
+  'panorama.dotUntouched': 'Sin empezar',
+  'panorama.noEp': 'Este banco de preguntas no tiene puntos de examen marcados (examPoint): no se puede derivar el dominio.',
 
   // Práctica
   'practice.readMode': 'Modo lectura',

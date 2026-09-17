@@ -16,6 +16,7 @@ export const zh = {
   'nav.quiz': '答题',
   'nav.flashcards': '闪卡',
   'nav.courses': '课程',
+  'nav.panorama': '全景',
   'nav.backHome': '返回首页',
 
   // 首页
@@ -44,22 +45,22 @@ export const zh = {
   'home.resetAll': '清空全部进度',
   'home.confirmResetAll': '清空全部进度（答题 + 错题 + 看题）？此操作不可恢复，且会同步到所有设备。',
 
-  // 考点全景面板（讲/练/掌三信号 + day 分组，判据见 src/lib/panorama.ts，与 mastery-report 同口径）
-  'home.panoramaTitle': '考点全景（讲 · 练 · 掌）',
-  'home.panoramaSummary': '已讲 {taught}/{total} · 已练 {practiced}/{total} · 已掌握 {mastered}/{total}',
-  'home.panoramaTaught': '讲',
-  'home.panoramaPracticed': '练',
-  'home.panoramaMastered': '掌',
-  'home.panoramaAnswered': '答 {answered}/{total}',
-  'home.panoramaOral': '口头 {correct}/{asked}',
-  'home.panoramaWrong': '未毕业 {n}',
-  'home.panoramaStale': '「讲过 / 口头」信号截至上次构建；答题与掌握实时。',
-  'home.panoramaGraphHint': '连线来自知识图谱投影：实线箭头=前置（先学），虚线=关联；圆点=掌握四态。',
-  'home.panoramaDotMastered': '掌握',
-  'home.panoramaDotWeak': '弱',
-  'home.panoramaDotInProgress': '进行中',
-  'home.panoramaDotUntouched': '未开始',
-  'home.masteryNoEp': '当前题库没有考点标记（examPoint），无法派生掌握度。',
+  // 考点全景独立页（讲/练/掌三信号 + day 分组，判据见 src/lib/panorama.ts，与 mastery-report 同口径）
+  'panorama.title': '考点全景（讲 · 练 · 掌）',
+  'panorama.summary': '已讲 {taught}/{total} · 已练 {practiced}/{total} · 已掌握 {mastered}/{total}',
+  'panorama.taught': '讲',
+  'panorama.practiced': '练',
+  'panorama.mastered': '掌',
+  'panorama.answered': '答 {answered}/{total}',
+  'panorama.oral': '口头 {correct}/{asked}',
+  'panorama.wrong': '未毕业 {n}',
+  'panorama.stale': '「讲过 / 口头」信号截至上次构建；答题与掌握实时。',
+  'panorama.graphHint': '连线来自知识图谱投影：实线箭头=前置（先学），虚线=关联；圆点=掌握四态。',
+  'panorama.dotMastered': '掌握',
+  'panorama.dotWeak': '弱',
+  'panorama.dotInProgress': '进行中',
+  'panorama.dotUntouched': '未开始',
+  'panorama.noEp': '当前题库没有考点标记（examPoint），无法派生掌握度。',
 
   // 练习页
   'practice.readMode': '看题模式',

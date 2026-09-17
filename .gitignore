@@ -73,3 +73,7 @@ examples/*/study/records/
 apps/quiz-app/src/data/coverage.json
 # 投影文件是 --write-projection 的生成产物（含 generatedAt 逐次漂移），fixture 目录只留输入面
 apps/quiz-app/scripts/lib/fixtures/projection/wiki/graph/mastery-projection.json
+# 本地 agent 工具产物（截图/会话状态），不入库
+.firecrawl/
+.v2c/
+.video_agent/

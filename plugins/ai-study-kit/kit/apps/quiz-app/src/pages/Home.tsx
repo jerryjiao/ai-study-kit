@@ -547,7 +547,7 @@ function PanoramaPanel({
   }, [open, drawGraph, measure]);
 
   if (summary.examPoints === 0) {
-    return <p className="text-xs text-text-faint px-1">{t('home.masteryNoEp')}</p>;
+    return <p className="text-xs text-text-faint px-1">{t('panorama.noEp')}</p>;
   }
   // 三信号 chip：亮=该色系，灭=灰底「·」前缀（语义见 panorama.ts 头注）
   const sig = (on: boolean, label: string, onCls: string) => (
@@ -556,10 +556,10 @@ function PanoramaPanel({
     </span>
   );
   const dotTitle: Record<string, string> = {
-    mastered: t('home.panoramaDotMastered'),
-    weak: t('home.panoramaDotWeak'),
-    inProgress: t('home.panoramaDotInProgress'),
-    untouched: t('home.panoramaDotUntouched'),
+    mastered: t('panorama.dotMastered'),
+    weak: t('panorama.dotWeak'),
+    inProgress: t('panorama.dotInProgress'),
+    untouched: t('panorama.dotUntouched'),
   };
   return (
     <details
@@ -568,9 +568,9 @@ function PanoramaPanel({
     >
       <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer text-sm text-text-muted hover:text-text-secondary select-none list-none [&::-webkit-details-marker]:hidden">
         <Gauge className="h-4 w-4 shrink-0" strokeWidth={2} />
-        <span className="font-medium shrink-0">{t('home.panoramaTitle')}</span>
+        <span className="font-medium shrink-0">{t('panorama.title')}</span>
         <span className="text-xs opacity-70 truncate tabular-nums">
-          {t('home.panoramaSummary', { ...summary, total: summary.examPoints })}
+          {t('panorama.summary', { ...summary, total: summary.examPoints })}
         </span>
         <ChevronRight className="h-4 w-4 ml-auto shrink-0 opacity-50 group-open:rotate-90 transition-transform" />
       </summary>
@@ -600,15 +600,15 @@ function PanoramaPanel({
           </svg>
         )}
         <p className="text-[10px] text-text-faint">
-          {t('home.panoramaStale')}
-          {drawGraph && <span className="ml-1">{t('home.panoramaGraphHint')}</span>}
+          {t('panorama.stale')}
+          {drawGraph && <span className="ml-1">{t('panorama.graphHint')}</span>}
         </p>
         {groups.map((g) => (
           <div key={g.day} className={drawGraph ? 'relative' : undefined}>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs font-semibold text-text-secondary shrink-0">{g.day}</span>
               <span className="text-[10px] text-text-faint tabular-nums truncate">
-                {t('home.panoramaSummary', g.summary)}
+                {t('panorama.summary', g.summary)}
               </span>
             </div>
             <div className="space-y-1">
@@ -622,23 +622,23 @@ function PanoramaPanel({
                     title={dotTitle[p.status] ?? undefined}
                     className={`shrink-0 h-2 w-2 rounded-full ring-2 ring-bg ${STATUS_DOT_CLS[p.status] ?? STATUS_DOT_CLS.untouched}`}
                   />
-                  {sig(p.taught, t('home.panoramaTaught'), 'bg-sky-50 text-sky-700')}
-                  {sig(p.practiced, t('home.panoramaPracticed'), 'bg-indigo-50 text-indigo-700')}
-                  {sig(p.mastered, t('home.panoramaMastered'), 'bg-green-50 text-green-700')}
+                  {sig(p.taught, t('panorama.taught'), 'bg-sky-50 text-sky-700')}
+                  {sig(p.practiced, t('panorama.practiced'), 'bg-indigo-50 text-indigo-700')}
+                  {sig(p.mastered, t('panorama.mastered'), 'bg-green-50 text-green-700')}
                   <span className="font-medium text-text-secondary truncate">
                     {p.ep} {p.name}
                   </span>
                   <span className="shrink-0 text-text-faint tabular-nums">
-                    {t('home.panoramaAnswered', { answered: p.answered, total: p.total })}
+                    {t('panorama.answered', { answered: p.answered, total: p.total })}
                   </span>
                   {p.oral && (
                     <span className="shrink-0 text-[10px] text-text-faint tabular-nums">
-                      {t('home.panoramaOral', { correct: p.oral.correct, asked: p.oral.asked })}
+                      {t('panorama.oral', { correct: p.oral.correct, asked: p.oral.asked })}
                     </span>
                   )}
                   {p.openWrong > 0 && (
                     <span className="shrink-0 ml-auto px-1.5 py-0.5 rounded text-[10px] bg-red-50 text-red-600">
-                      {t('home.panoramaWrong', { n: p.openWrong })}
+                      {t('panorama.wrong', { n: p.openWrong })}
                     </span>
                   )}
                 </div>
