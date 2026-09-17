@@ -1,7 +1,7 @@
 // panorama.ts — 考点全景图（web 侧聚合，scripts/lib/panorama.mjs 的 TS 移植）。
 //
 // ⚠️ 口径与 scripts/lib/panorama.mjs 必须保持同步（mastery-report / skill 探测用那边的
-// 版本，首页全景面板用这边）——沿 mastery.ts/mastery.mjs 双实现先例，改判据两边一起改。
+// 版本，web /panorama 独立页用这边）——沿 mastery.ts/mastery.mjs 双实现先例，改判据两边一起改。
 //
 // 三信号（v0.13）：
 //   taught 讲过    来自 build 时产出的内容无关覆盖快照（src/data/coverage.json——study/records

@@ -11,7 +11,7 @@
 // 分组：按 MISSION 排布表 day 列（epDayMap）；无 day 归「未排程」组，无排布表全部归该组。
 // 排序：day 按排布表出现顺序（D1、D2…自然序兜底），「未排程」垫底。
 //
-// ⚠️ src/lib/panorama.ts 是本文件的 TS 移植（web 首页面板用），口径必须两边同步——
+// ⚠️ src/lib/panorama.ts 是本文件的 TS 移植（web /panorama 独立页用），口径必须两边同步——
 // 沿掌握度 mastery.mjs/mastery.ts 双实现先例。web 侧消费的是内容无关覆盖快照（sync 产物），
 // 本文件同时是快照生成的判据源。
 import { masteryByExamPoint } from './mastery.mjs';

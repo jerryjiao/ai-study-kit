@@ -5,6 +5,7 @@ import { Practice } from './pages/Practice';
 import { FlashcardsHome } from './pages/FlashcardsHome';
 import { Flashcards } from './pages/Flashcards';
 import { Courses } from './pages/Courses';
+import { Panorama } from './pages/Panorama';
 import { TopNav } from './components/TopNav';
 import { SyncStatusBanner } from './components/SyncStatusBanner';
 import { ProgressProvider, useProgress } from './hooks/useProgress';
@@ -47,6 +48,7 @@ function Shell() {
         <Route path="/flashcards" element={<FlashcardsHome />} />
         <Route path="/flashcards/review" element={<Flashcards />} />
         <Route path="/courses" element={<Courses />} />
+        <Route path="/panorama" element={<Panorama />} />
       </Routes>
     </BrowserRouter>
   );
