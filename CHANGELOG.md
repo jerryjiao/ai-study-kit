@@ -4,6 +4,30 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
+## [0.17.0] — 2026-09-17
+
+主题：**考点全景独立页 `/panorama`——43 考点不再挤在首页：顶栏「全景」入口、四态汇总带、day 卡片放宽考点行、全部/弱项/未掌握三档筛选 + `?filter=` 深链（聊天层推荐可直达）、知识图谱连线层原样迁入；另收录统一安装入口 install.md（ADR-0007）与首页/README「零准备」叙事翻转。**
+
+### 升级与存量影响
+
+- **新文件/新契约**：kit 新增页面 `src/pages/Panorama.tsx` 与 lib 纯函数 `filterPanoramaGroups` / `parsePanoramaFilter`（`src/lib/panorama.ts`，筛选语义不进 CLI 侧双实现）；i18n 词条整体搬家 `home.panorama*` → `panorama.*`（含 `home.masteryNoEp` → `panorama.noEp`）并新增 `nav.panorama`。site 侧新增 `public/install.md`（agent 安装协议，ADR-0007，有意不进四语体系）。
+- **老项目缺了会怎样**：不升级插件的老用户拿不到新页面，功能无损（全景还在其首页面板里）；升级后若不跑 F13 重拷，kit 还是旧快照——全景页与 i18n 新前缀都不会出现，且**直接手改过 Home.tsx 的项目**重拷会覆盖（此前版本同此边界，非新增强）。skill 探测走 CLI（`mastery-report --panorama`）不受页面迁移影响，聊天层口径零变化。
+- **怎么补**：zcode / Claude Code 用户 marketplace refresh，Codex 用户重跑 `codex plugin marketplace add jerryjiao/ai-study-kit`，手动安装用户重跑 `pnpm run skill:install`；存量项目按 F13 升级流程重拷 kit（会自报版本差引导）。
+- **是否破坏性**：非破坏性。首页「考点全景」面板移除、入口移到顶栏「全景」是唯一可见变化（UI 位置迁移，数据与判据零改动：三信号/四态判据与 `scripts/lib/panorama.mjs` 双实现同步纪律不变）；旧 `home.panorama*` i18n key 不再存在，仅影响手改过词典的项目。
+
+### Added
+
+- **考点全景独立页 `/panorama`**（#76-#81）：顶栏四入口（答题/闪卡/课程/全景）；页头汇总带 = 三信号全局数字 + 掌握/弱/进行中/未开始四态图例；每学程 day 一张卡片，考点行放宽（四态圆点 + 讲/练/掌 chip + EP 编号名称 + 答 x/y + 口头 x/y + 未毕业徽标），真实备考规模（43 考点 × 10 day）不再是一面小字墙。无考点标记主题优雅降级提示行；demo 深链 `/panorama` 经站根 404 兜底直达。
+- **三档筛选 + `?filter=` 深链**（#78/#80）：筛选语义收敛为 lib 纯函数——`filterPanoramaGroups`（弱项 = 仅 weak、未掌握 = 非 mastered、空 day 组整组隐藏、组内汇总按可见行重算）与 `parsePanoramaFilter`（非法/缺失回退「全部」），`panorama.test.ts` 并入 6 断言；筛选不写 localStorage（查看层会话状态），汇总带在筛选下保持全局口径。深链为聊天层「弱项在哪」类推荐直达预留入口。
+- **统一安装入口 install.md**（#71-#74，ADR-0007）：`aistudykit.dev/install.md` 一份 agent 可执行的安装协议，所有工具（Claude Code / zcode / Codex / 手动）走它统一安装；skill 向上三级定位 kit 的硬契约写死，首页与 README ×4 最顶部挂入口。
+- **首页/README「零准备」叙事翻转**（#75）：官网首页 ×4 漏斗重排（先讲「你只需说想学什么」再讲安装）、hero 换真实对话签名、样式精修；README ×4 首屏重组瘦身，四清单章节降级为手动安装路径。
+
+### Changed
+
+- **首页考点全景面板整块移除**：含 Home 内全景派生 useMemo 与 coverage/flashcards 依赖，不残留入口；其余首页区块（统计/继续上次/错题重练/按主题练习/进度管理）不受影响。CONTEXT.md「考点全景」词条同步为独立页事实，agent 推荐措辞不再指向首页面板。
+- **i18n 词条搬家**：`home.panorama*` 15 条迁 `panorama.*` 前缀（四份词典 key 集一致，`i18n.test.ts` 把关），新增 `nav.panorama` 四语（全景/Panorama/Panorama/Панорама）。
+- **顶栏移动端适配**：四 tab 后 390px 视口横向溢出（目验实测 scrollWidth 426>390），修复为 tab 禁折行 + 齿轮/主题/语言小屏收内距 + 420px 以下品牌只留图标；桌面（sm+）渲染逐像素不变。
+
 ## [0.16.0] — 2026-09-15
 
 主题：**命令面五件化 + 多生态一键分发——`/study-podcast` 播客直入、`/coach` 改名 `/study-coach` 统一 study- 家族前缀；插件多出 Codex 与 Agent Plugins 1.0 标准清单，任何生态一条命令装全套；官网与 README 按工具安装矩阵重讲安装故事，首页六卡补上播客并新增 agent 支持墙。**
