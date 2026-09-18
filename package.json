@@ -1,7 +1,7 @@
 {
   "name": "ai-study-kit",
   "private": true,
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "AI 辅助学习工具脚手架——把任意主题的题库变成完整学习闭环：课程、闪卡、错题精讲、间隔重复。",
   "license": "MIT",
   "scripts": {
