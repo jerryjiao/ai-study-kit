@@ -47,7 +47,11 @@ const docsHref = `${SITE_BASE}${lang === 'zh-CN' ? '' : `/${lang}`}/get-started/
 			var pageLang = (document.documentElement.lang || 'zh').split('-')[0].toLowerCase();
 			if (['zh', 'en', 'es', 'ru'].indexOf(pageLang) < 0) pageLang = 'zh';
 
-			if (here === root) {
+			// 爬虫豁免：渲染 JS 的爬虫（Googlebot 等）环境语言是 en-US，会被跳去 /en/，
+			// GSC 把 / 判成「网页有重定向」不进索引（2026-09 实测 sitemap 34 提交 0 索引）。
+			// 爬虫留在 / 吃 canonical 自指的中文首页；真人浏览器行为不变。
+			var isBot = /bot|crawl|spider|slurp|inspection/i.test(navigator.userAgent);
+			if (here === root && !isBot) {
 				var pref = null;
 				try {
 					pref = localStorage.getItem(KEY);
