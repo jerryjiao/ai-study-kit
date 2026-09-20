@@ -2,7 +2,7 @@
 
 You (an AI coding agent) were pointed at this file because the user wants **ai-study-kit** installed. This document is the whole protocol: detect your host tool, pick a route, install, verify, report. No other page needed.
 
-**What you are installing**: a study-coach skill set (5 skills — `ask-coach` main entry + `study-coach` / `study-doctor` / `study-recap` / `study-podcast` thin commands) **and** a `kit/` directory (~1.3 MB, 155 files: a mini-repo snapshot of the quiz-app + a demo theme). The kit is what lets you later scaffold the user's study site from scratch without cloning anything. Both routes below install this full payload — they differ only in who manages updates.
+**What you are installing**: a study-coach skill set (5 skills — `ask-coach` main entry + `study-coach` / `study-doctor` / `study-recap` / `study-podcast` thin commands) **and** a `kit/` directory (a mini-repo snapshot of the quiz-app + a demo theme — every git-tracked file needed to scaffold and build the study site; exact size and file count vary by version). The kit is what lets you later scaffold the user's study site from scratch without cloning anything. Both routes below install this full payload — they differ only in who manages updates.
 
 ## Step 0 — Detect your host tool
 
@@ -57,9 +57,10 @@ curl -fsSL https://codeload.github.com/jerryjiao/ai-study-kit/tar.gz/refs/heads/
 tar -xzf "$TMP/ask.tar.gz" -C "$TMP"
 ```
 
-Fallback for networks where GitHub is unreachable — fetch per-file via jsDelivr (list, then loop):
+Fallback for networks where GitHub is unreachable — fetch per-file via jsDelivr (list, then loop). Self-contained: it creates its own temp dir, so you can copy this block alone:
 
 ```bash
+TMP=$(mktemp -d)
 ROOT="$HOME/.agents"   # adjust to your ROOT from B1
 curl -fsSL "https://data.jsdelivr.com/v1/packages/gh/jerryjiao/ai-study-kit@main?structure=flat" \
 | python3 -c '
@@ -105,6 +106,15 @@ cp -R "$SRC/kit" "$ROOT/kit"
 ## Uninstall
 
 Route B: remove the five dirs under `SKILLS_DIR/` (`ask-coach`, `study-coach`, `study-doctor`, `study-recap`, `study-podcast`) and `ROOT/kit/`. Route A: uninstall the plugin from the host's plugin manager.
+
+## Already installed via the other route?
+
+The two routes are not meant to coexist. If both are installed you have **two copies of the five skills and two kit snapshots**, and which copy answers `/ask-coach` depends on the host's resolution order — confusing and easy to misdiagnose. Where each route's payload lives:
+
+- **Route A (plugin)**: inside the host's managed plugin storage — skills at `<plugin-root>/skills/`, kit at `<plugin-root>/kit/` (the skill finds it by climbing three levels from itself). Location and removal are managed by the host's plugin manager.
+- **Route B (manual)**: plain files — skills under `SKILLS_DIR/`, kit at `ROOT/kit/` (e.g. `~/.agents/skills/` + `~/.agents/kit/`).
+
+Switching routes? Uninstall the old one first using the **Uninstall** guidance above (Route A: remove the plugin in the host's plugin manager; Route B: delete the five skill dirs and `ROOT/kit/`), then install via the new route.
 
 ## Notes for the installing agent
 

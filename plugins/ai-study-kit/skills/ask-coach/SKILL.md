@@ -66,7 +66,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 10. 题全答完 且 正确率 ≥ 80% → **F5 做播客**（转被动巩固）或 **F2 开新主题**
 11. 题全答完 且 正确率 < 80% → **F4 错题串讲**，仍不达标则 **F6 补课**（课程讲解质量不够）
 
-顺序为什么是「升级 → 闪卡 → 冲刺 → 续站」：版本漂移是功能层在静默失血（升级保数据、一趟几分钟），复习是每天都欠的账，冲刺是 deadline 前一周的收割窗口，续站随时能续——四者的紧迫度就这么排（与 flows.md F11 的档位一致）。
+顺序为什么是「升级 → 闪卡 → 冲刺 → 续站」：版本漂移是功能层在静默失血（升级保数据、一趟几分钟），复习是每天都欠的账，冲刺是 deadline 前一周的收割窗口，续站随时能续——四者的紧迫度就这么排（与 references/flows/F11.md 的档位一致）。
 
 ### 意图路由表（用户话里带了这些词，直接跳对应流程，仍要先跑 Step 1 验前置）
 
@@ -93,16 +93,16 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 
 ## Step 3 · 执行选定流程
 
-读 [`references/flows.md`](references/flows.md) 中对应 playbook，逐步执行：
+读 [`references/flows.md`](references/flows.md) 中对应 playbook，逐步执行（其文件头有「流程 → 文件」目录：低频流程在 flows.md 本体；F4/F5/F6/F10/F11 高频流程拆在 [`references/flows/`](references/flows) 各自独立文件）：
 
 - 每个流程末尾都有**完成标志**，达到才算完；达不到要如实说卡在哪。
 - playbook 里的选择点（主题名、播客风格、改哪节课）才问用户；其余步骤直接做。
 - 流程之间有接力：F2 完成接 F3 开始学；F4 读完串讲接「重做错题集」（错因根子是概念缺口的，交棒 F10 开补站）；F8 全绿才算可发布，接 F9；F10 阶段教完主动交棒 F3 刷对应题集；F11 冲刺包背熟交棒 F3 模考。
 
-## 硬红线（执行任何流程前自查；完整版见仓库 `AGENTS.md`）
+## 硬红线（执行任何流程前自查；下面五条即插件用户所需的全部红线，自足不依赖仓库文档。贡献者形态另有仓库级约定——官网 sync 产物、git 历史敏感等——见仓库 `AGENTS.md`）
 
 1. `apps/quiz-app/src/data/*.json` 和 `public/study/` 是**同步产物，禁止手编**——内容只改主题源目录下的源文件：仓库内 `examples/<theme>/`，或 `EXAMPLE_THEME` 指向的外部主题包目录（套件仓库外，见 ADR 0004）。
 2. `apps/quiz-app/progress.json` 是**运行期数据**：禁止提交、禁止手编；需要清进度用 app 内的「重置」入口，绝不手改文件。
-3. 切换主题只改 `EXAMPLE_THEME` 环境变量一处——课程入口 `Courses.tsx` 读 sync 产物 `theme.json` 自动跟随；首页分组/显示名等呈现定制走主题包的 `theme-config.json`（可选文件，无配置优雅回退，见 docs/theming.md）。
+3. 切换主题只改 `EXAMPLE_THEME` 环境变量一处——课程入口 `Courses.tsx` 读 sync 产物 `theme.json` 自动跟随；首页分组/显示名等呈现定制走主题包的 `theme-config.json`（可选文件，缺什么回退什么、绝不出错；常用字段：显示名 `topicLabels`、分组顺序 `topicOrder`、子主题 `subtopics`、课→题集直达 `lessonTopics`，示例照快照内 `examples/dev-intro/theme-config.json`——字段全表为仓库 `docs/theming.md`，贡献者参考）。
 4. 改任何发布内容（课程/题/闪卡/文档）后必跑 `pnpm run scan`，命中数必须为 0——发布物里不许出现真实企业品牌名。
 5. 多选题判分是**全对才算对**；改题尽量保留旧题 id（进度按 id 存，换 id 会丢进度）。

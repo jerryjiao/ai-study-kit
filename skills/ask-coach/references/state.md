@@ -125,7 +125,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" 
 node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" --panorama --json
 ```
 
-- 三信号：**讲过** = 契约二学习记录（`study/records/*.md` 的已过考点，显式 EP 前缀或考点名精确匹配）∪ 课已学完（全部课读完才点亮课程通道——部分读完不归因到考点，宁少报不虚报）；**练过** = 该考点有答题记录，或口头问答 > 0（弱信号；v0.14 起口头计数唯一真源 = 口头答题流水 `study/records/oral-attempts.json`，旧记录手写「口头题计数」节照读合并）；**掌握** = 掌握度四态判据不变。无 records、无流水、无进度时只报客观侧（答题驱动或全 false），不虚报。
+- 三信号：**讲过** = 契约二学习记录（格式单源 [`contracts.md`](contracts.md)——`study/records/*.md` 的已过考点，显式 EP 前缀或考点名精确匹配）∪ 课已学完（全部课读完才点亮课程通道——部分读完不归因到考点，宁少报不虚报）；**练过** = 该考点有答题记录，或口头问答 > 0（弱信号；v0.14 起口头计数唯一真源 = 口头答题流水 `study/records/oral-attempts.json`，旧记录手写「口头题计数」节照读合并）；**掌握** = 掌握度四态判据不变。无 records、无流水、无进度时只报客观侧（答题驱动或全 false），不虚报。
 - 聊天层**永远现算最新**（每次报进度重跑本命令；web 首页面板消费的是上次 build 时点的覆盖快照，两端口径一致、新鲜度不同）。
 - **全景卡模板**（数字全部来自实测 JSON，按此渲染后紧跟一句推荐）：
 
@@ -143,9 +143,10 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" 
 ```bash
 test -f .env && grep -cE '^(LLM_BASE_URL|LLM_API_KEY|LLM_MODEL)=..' .env   # =3 才算配齐
 grep -cE '^TTS_PROVIDER=..' .env 2>/dev/null                                # TTS 有无（播客合成音频用）
+echo "study-lang=${STUDY_LANG:-zh}"                                         # 可选：AI CLI 生成内容语言，缺省中文
 ```
 
-`.env` 不存在或计数 < 3 → AI 缺配。分项就绪矩阵（哪个流程还差什么，一眼可见）：
+`.env` 不存在或计数 < 3 → AI 缺配。生成内容语言（可选项，不配不算缺）：非中文学习者建议显式设——CLI 带 `--lang zh|en|es|ru`、或会话前置 `STUDY_LANG` 环境变量（上式已探当前值）；agent 直产路径（flows/F4.md、flows/F6.md）生成内容语言直接跟随用户对话语言。分项就绪矩阵（哪个流程还差什么，一眼可见）：
 
 | 能力 | LLM 三项 | 还需要 |
 |------|----------|--------|
@@ -153,7 +154,7 @@ grep -cE '^TTS_PROVIDER=..' .env 2>/dev/null                                # TT
 | F4 串讲（grill CLI 路径） | 必需 | 后端在线（拉 `/api/progress`） |
 | F5 播客（podcast） | 必需 | TTS 可选——缺则 `--no-tts` 只出逐字稿，不算阻塞 |
 
-答题站/闪卡/考点掌握报告（mastery-report）不受影响（零 LLM）。补配走 `cp .env.example .env` 后填三项（细节见仓库 `docs/configuration.md`）。
+答题站/闪卡/考点掌握报告（mastery-report）不受影响（零 LLM）。补配走 `cp .env.example .env` 后填 `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL` 三项（播客合成音频另加 `TTS_PROVIDER`）——插件用户填好即可用；贡献者形态的 provider 细节见仓库 `docs/configuration.md`。
 
 ## 5. 服务
 
@@ -176,7 +177,7 @@ grep -m1 '^mode:' "$D/COACH.md" 2>/dev/null        # 教学模式；COACH.md 缺
 grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有就亮 ⚠
 ```
 
-**读哪条记录**：在 `study/records/`（或旧目录 `learning-records/`）里找最新的**进行中**站——新格式看记录 frontmatter `status: in-progress`；无 frontmatter 的旧记录按 F10 契约二兼容规则识别：文件名带 `-in-progress` 后缀、或正文含「待办」节，也算进行中（只报事实，不要求手工补格式）。多条进行中取编号（文件名前缀 NN）最大的。
+**读哪条记录**：在 `study/records/`（或旧目录 `learning-records/`）里找最新的**进行中**站——新格式看记录 frontmatter `status: in-progress`；无 frontmatter 的旧记录按 [`contracts.md`](contracts.md) 契约二的兼容规则识别：文件名带 `-in-progress` 后缀、或正文含「待办」节，也算进行中（只报事实，不要求手工补格式）。多条进行中取编号（文件名前缀 NN）最大的。
 
 **快照第 8 行三形态**（只报事实，不解析语义）：
 
@@ -207,7 +208,7 @@ cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
 cat <插件根>/kit/kit-version.json
 ```
 
-- 两处都有 → 按号判断落后与否（不做语义化比较）；落后时报「落后 N 版」（N 用仓库 CHANGELOG 的版本数数出来），快照行指 F13。
+- 两处都有 → 按号判断落后与否（不做语义化比较）；落后时报「落后 N 版」——N 优先读 `<插件根>/CHANGELOG.md`（随插件分发，本期起新增）数版本号；取不到 CHANGELOG 时降级为只报两处版本号、不数 N。快照行指 F13。
 - 用户项目无版本文件 → 报「版本未知，按最老处理」，同样指 F13——不给错误的安全感。
 - 版本号相等 → 「已对齐」。
 

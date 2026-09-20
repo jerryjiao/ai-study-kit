@@ -11,6 +11,8 @@
 //     skills/<skill-name>/...      # skills/ 下每个含 SKILL.md 的源目录原样拷入（多 skill：v0.13 起）
 //     kit/                         # 迷你仓库快照（apps/quiz-app + examples/dev-intro 跟踪面）
 //     icon.png                     # 插件包根图标
+//     README.md                    # 插件包 README（定位/五命令/安装入口；DESCRIPTION 同源顺产）
+//     CHANGELOG.md                 # 根 CHANGELOG 全文拷贝（F13「落后 N 版」数它；每版重生成）
 //   .claude-plugin/marketplace.json  # repo 根市集清单（add marketplace 用仓库完整 URL）
 //   .agents/plugins/marketplace.json # repo 根 Codex 市集清单（codex plugin marketplace add <owner>/<repo>）
 //
@@ -25,7 +27,9 @@
 //
 // 版本：默认取根 package.json 的 version（发版改一处，plugin 跟随）；--version 可临时覆盖。
 //
-// 用法：node scripts/sync-plugin.mjs [--version 0.4.0]
+// 用法：node scripts/sync-plugin.mjs [--version 0.4.0] [--allow-missing]
+//   --allow-missing：工作树缺跟踪文件时降级为警告继续（默认 exit 1）。只在明确知道自己在
+//   删文件且暂未 staged 的场合用；正常流程应当 git add 后重跑，保持快照完整。
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
@@ -52,6 +56,7 @@ function copyTree(src, dest) {
 
 const args = process.argv.slice(2);
 const vIdx = args.indexOf('--version');
+const allowMissing = args.includes('--allow-missing');
 const pkg = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf-8'));
 const VERSION = vIdx >= 0 ? args[vIdx + 1] : pkg.version;
 
@@ -168,7 +173,14 @@ for (const rel of tracked) {
   mkdirSync(dirname(dest), { recursive: true });
   copyFileSync(src, dest);
 }
-if (missing.length) console.warn(`[sync-plugin] ⚠ 工作树缺失（删除未 staged？快照不含）：\n  ${missing.join('\n  ')}`);
+if (missing.length) {
+  const lines = missing.join('\n  ');
+  if (!allowMissing) {
+    console.error(`[sync-plugin] ✗ 工作树缺失（删除未 staged？）——快照会缺文件，已中止：\n  ${lines}\n  确认在删文件请先 git add 后重跑；确要带着缺口出包，加 --allow-missing。`);
+    process.exit(1);
+  }
+  console.error(`[sync-plugin] ⚠⚠ --allow-missing 生效：以下工作树缺失文件被排除出快照（仅限明确有意的删除场景）：\n  ${lines}`);
+}
 console.log(`[sync-plugin] apps/quiz-app + examples/dev-intro 跟踪面 ${tracked.length - missing.length} 文件 → plugins/${PLUGIN_NAME}/kit/`);
 
 // kit-version.json：kit 快照的版本标记（ADR-0006）——每个装出去/拷出去的 kit 由此「自报版本」。
@@ -183,6 +195,37 @@ console.log(`[sync-plugin] → kit/kit-version.json  (v${VERSION})`);
 
 // icon.png 拷进插件包根（对照 cloudflare 插件带 logo.svg 的做法，覆盖从插件包找图标的消费方）
 copyFileSync(join(REPO_ROOT, 'assets', 'logo.png'), join(PLUGIN_DIR, 'icon.png'));
+
+// CHANGELOG.md 全文拷进插件包根（每版重生成）：F13 升级流「落后 N 版」要数 CHANGELOG，
+// 发行物里此前没有——市集用户只看得到版本号，看不到每版改了什么。
+copyFileSync(join(REPO_ROOT, 'CHANGELOG.md'), join(PLUGIN_DIR, 'CHANGELOG.md'));
+console.log(`[sync-plugin] → plugins/${PLUGIN_NAME}/CHANGELOG.md`);
+
+// README.md（DESCRIPTION 同源顺产）：市集详情页/插件目录给用户看的定位 + 命令面 + 安装入口。
+// 部分宿主（zcode）给命令加插件命名空间前缀（/ai-study-kit:ask-coach），写明免得用户找不到命令。
+const README = `# ${PLUGIN_NAME} — 学习教练 skill 套件
+
+${DESCRIPTION}
+
+## 命令（五件）
+
+| 命令 | 直入什么 |
+|------|----------|
+| \`/ask-coach\` | 主入口：探测学习状态 → 快照+推荐 → 带执行（其余四件都是它的直入快捷方式） |
+| \`/study-coach\` | 陪练直入：坐下就学（F10 陪练教学） |
+| \`/study-doctor\` | 一站式体检：四门校验 + 环境探测 |
+| \`/study-recap\` | 错题串讲直入（F4） |
+| \`/study-podcast\` | 播客直入（F5） |
+
+部分宿主会给命令加插件命名空间前缀，如 zcode 下敲 \`/ai-study-kit:ask-coach\`（薄命令同理：\`/ai-study-kit:study-coach\` 等）。
+
+## 安装 / 更新 / 文档
+
+- 安装协议（Claude Code / zcode / Codex / 手动通用）：https://aistudykit.dev/install.md
+- 官网 https://aistudykit.dev · 仓库 https://github.com/jerryjiao/ai-study-kit · 更新日志 [CHANGELOG.md](./CHANGELOG.md)
+`;
+writeFileSync(join(PLUGIN_DIR, 'README.md'), README);
+console.log(`[sync-plugin] → plugins/${PLUGIN_NAME}/README.md`);
 
 // repo 根市集：marketplace.json（zcode/Claude 添加 marketplace 时读这份清单）
 mkdirSync(join(REPO_ROOT, '.claude-plugin'), { recursive: true });

@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 *.tsbuildinfo
+# tsc -b 编译产物（vite.config.ts 编出，本地 build 重新生成；曾误入跟踪面随 kit 分发，2026-09-19 untrack）
+apps/quiz-app/vite.config.js
+apps/quiz-app/vite.config.d.ts
 
 # Runtime data
 .env

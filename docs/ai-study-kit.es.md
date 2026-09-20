@@ -4,15 +4,7 @@
 
 ai-study-kit tiene muchas funciones — app de práctica, cursos, tarjetas, repaso a fondo de erróneas, podcasts, despliegue — y eso, para quien estudia, se convierte en una carga: **¿qué toca hacer exactamente hoy?** `/ask-coach` existe para responder a eso. Es el skill de entrada principal que trae el propio repositorio: lo instalas una vez, empiezas cada sesión de estudio desde él, y dejas que escanee tu estado, te recomiende y ejecute contigo — sin memorizar la cadena de herramientas.
 
-**Los nombres de los comandos son el menú** — el plugin ai-study-kit (nombre permanente) instala cinco comandos:
-
-| Comando | Qué hace |
-|---------|----------|
-| `/ask-coach` | Preguntar al coach: instantánea de estado + recomendación + ejecución guiada (entrada principal; el resto se enruta desde aquí) |
-| `/study-coach` | Sentarse a estudiar: entrada directa a la tutoría (F10 abrir/reanudar; al abrir reporta «qué tocar hoy y por qué») |
-| `/study-doctor` | Chequeo integral: cuatro puertas de calidad + sondas de entorno, informe de estado y orden de reparación |
-| `/study-recap` | Entrada directa al análisis de erróneas (F4, cuando los prerrequisitos están) |
-| `/study-podcast` | Entrada directa al podcast (F5, convierte material de estudio en un audio a dos voces para el camino) |
+**Los nombres de los comandos son el menú** — el plugin ai-study-kit (nombre permanente) instala cinco comandos: `/ask-coach` es la entrada principal (instantánea de estado + recomendación + ejecución guiada; el resto se enruta desde aquí), más cuatro comandos finos de entrada directa — `/study-coach` tutoría acompañada (F10), `/study-doctor` chequeo integral, `/study-recap` análisis de erróneas (F4), `/study-podcast` podcast (F5). El mapa completo de comandos y la tabla de enrutamiento por intención están en `skills/ask-coach/SKILL.md`.
 
 ---
 
@@ -20,7 +12,7 @@ ai-study-kit tiene muchas funciones — app de práctica, cursos, tarjetas, repa
 
 Los códigos fuente de los skills viven en el repositorio bajo `skills/` (fuente única de verdad: la entrada principal `ask-coach` + cuatro comandos finos `study-coach` / `study-doctor` / `study-recap` / `study-podcast` que comparten los `references/` de la entrada principal). Dos rutas de instalación:
 
-**① Marketplace de plugins (zcode / Claude Code, recomendado)**: el repositorio trae su propio manifiesto de marketplace (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` genera `plugins/ai-study-kit/` a partir del código fuente). Añade el marketplace `https://github.com/jerryjiao/ai-study-kit` en tu cliente e instala el plugin `ai-study-kit` — las actualizaciones del skill llegan con cada refresco del marketplace, **sin reinstalación manual** (las versiones siguen los releases del repositorio). **Tras actualizar el plugin, abrir `/ask-coach` en un proyecto antiguo informa del desfase de versión y te guía por la actualización F13** (segura para los datos, rellena los huecos — ver la tabla de flujos; la instantánea del kit autoinforma su versión vía `kit-version.json`). **El nombre del plugin es ai-study-kit de por vida; los comandos son la familia ask-coach** (renombrado desde `/ai-study-kit` en v0.13, septiembre de 2026 — los nombres de marketplace son permanentes, así que el del plugin no cambia).
+**① Marketplace de plugins (zcode / Claude Code, recomendado)**: el repositorio trae su propio manifiesto de marketplace (`.claude-plugin/marketplace.json`; `scripts/sync-plugin.mjs` genera `plugins/ai-study-kit/` a partir del código fuente). Añade el marketplace `https://github.com/jerryjiao/ai-study-kit` en tu cliente e instala el plugin `ai-study-kit` — las actualizaciones del skill llegan con cada refresco del marketplace, **sin reinstalación manual** (las versiones siguen los releases del repositorio). **Tras actualizar el plugin, abrir `/ask-coach` en un proyecto antiguo informa del desfase de versión y te guía por la actualización F13** (segura para los datos, rellena los huecos — ver F13; la instantánea del kit autoinforma su versión vía `kit-version.json`). **El nombre del plugin es ai-study-kit de por vida; los comandos son la familia ask-coach** (renombrado desde `/ai-study-kit` en v0.13, septiembre de 2026 — los nombres de marketplace son permanentes, así que el del plugin no cambia).
 
 **② Instalación manual (cualquier cliente que respete `~/.agents/skills/`)**:
 
@@ -46,41 +38,13 @@ Cada invocación sigue siempre tres pasos:
 
 1. **Sondeo del estado** (solo lectura, ≤1 min) — tema, inventario de preguntas/tarjetas/cursos/análisis, progreso de respuestas, erróneas sin graduarse, tarjetas vencidas, lecciones completadas, objetivos orales débiles del interrogatorio (derivados del registro de intentos), sesiones de tutoría y fecha del examen, configuración de IA, backend en línea o no, desfase de versión del kit (tu proyecto vs la instantánea del plugin — versión atrasada o desconocida conduce a la actualización F13, ver abajo); si se indica la ruta al grafo de conocimiento, también las señales del grafo (cuatro estados por nodo, relaciones de prerrequisito — ver F12).
 2. **Informe + recomendación** — una tabla de instantánea + una acción recomendada con su razón + un menú numerado.
-3. **Ejecución acompañada** — una vez elegida la opción, sigue el playbook de `skills/ask-coach/references/flows.md` paso a paso y, al terminar, verifica contra los «criterios de cierre».
+3. **Ejecución acompañada** — una vez elegida la opción, sigue el playbook del flujo correspondiente en `skills/ask-coach/references/` paso a paso y, al terminar, verifica contra los «criterios de cierre».
 
-Sin una intención explícita, la recomendación toma el primer acierto en orden (versión completa en `skills/ask-coach/SKILL.md`). El orden de los tres primeros de estudio es «tarjetas → sprint → retomar tutoría»: el repaso es una deuda que se acumula a diario, el sprint es la ventana de cosecha de la semana previa al examen, y la tutoría se puede retomar en cualquier momento (el desfase de versión va antes que los de estudio — primero alinear la capa funcional; tus datos nunca están en riesgo):
-
-| Orden | Condición | Recomendación |
-|-------|-----------|---------------|
-| 1 | El repositorio no existe | **F1** inicializar el proyecto (primero pon la app de práctica en marcha) |
-| 2 | Versión del kit del proyecto atrasada o desconocida | **F13** actualizar (primero alinear la capa funcional — con desfase, las funciones nuevas están degradadas en silencio; seguro para los datos, unos minutos) |
-| 3 | El tema activo es el demo dev-intro y tienes algo propio que aprender | **F2** nuevo tema (las preguntas git/Linux del demo no son tu material de estudio) |
-| 4 | Tarjetas vencidas > 0 | **F3** estudio diario (primero liquida el repaso — la memoria se está desvaneciendo; el conocimiento nuevo puede esperar) |
-| 5 | ≤ 7 días para el deadline de MISSION.md | **F11** sprint preexamen (la ventana de repetición intensiva ya está abierta; sin deadline configurado esta fila nunca se activa, y la instantánea ya muestra ⚠) |
-| 6 | Hay una sesión de tutoría en curso | **F10** tutoría acompañada, retomar la sesión (informa el nombre + los pendientes; **solo corre con tu visto bueno**: retomar es una sugerencia, no una orden) |
-| 7 | Erróneas sin graduarse ≥ 3 | **F4** repaso a fondo de erróneas (agrupado y excavado con LLM) |
-| 8 | Hay preguntas sin responder y lecciones sin completar | **F3** estudio diario (primero conceptos, luego práctica — lee la lección del día según el calendario; una lección solo cuenta cuando marcas «✓ completada», abrirla no cuenta) |
-| 9 | Hay preguntas sin responder y lecciones completas | **F3** estudio diario (los conceptos están listos; practica directamente para validar) |
-| 10 | Todas las preguntas respondidas y tasa de acierto ≥ 80 % | **F5** hacer un podcast (consolidación pasiva) o **F2** nuevo tema |
-| 11 | Todas las preguntas respondidas y tasa de acierto < 80 % | **F4** repaso a fondo de erróneas; si sigue sin llegar, **F6** reforzar el curso (la calidad de las lecciones no basta) |
+Sin una intención explícita, la recomendación toma el primer acierto en orden: las comprobaciones de entorno (desfase de versión) van antes que los apartados de estudio — primero alinear la capa funcional; tus datos nunca están en riesgo. La cabeza del lado de estudio es «tarjetas → sprint → retomar tutoría»: el repaso es una deuda que se acumula a diario, el sprint es la ventana de cosecha de la semana previa al examen, y la tutoría se puede retomar en cualquier momento. Las 11 condiciones completas, con la razón de cada una, están en la sección «algoritmo de recomendación» de `skills/ask-coach/SKILL.md`.
 
 ## Los trece flujos
 
-| # | Flujo | Cuándo usarlo | Comandos clave |
-|---|-------|---------------|----------------|
-| F1 | Inicializar el proyecto | poner el demo en marcha desde cero | `pnpm install && pnpm dev` |
-| F2 | Nuevo tema | convertir lo que quieres aprender en un ciclo completo | temario + tabla de distribución de puntos → materiales → `teach-generate` → producir preguntas/tarjetas según la tabla → cambiar de tema → verificar |
-| F3 | Estudio diario | «¿qué estudio hoy?» | tarjetas vencidas → estudiar lecciones → practicar → rehacer erróneas |
-| F4 | Repaso a fondo de erróneas | ≥3 erróneas acumuladas | `pnpm run ai:grill -- --theme <t>` |
-| F5 | Hacer un podcast | consolidar en trayectos/entrenamiento | `pnpm run ai:podcast -- --input <file>` |
-| F6 | Generar/ampliar curso | añadir explicaciones de curso | `pnpm run ai:teach -- --theme <t>` |
-| F7 | Editar contenido | cambiar preguntas/cursos/tarjetas/calendario | cadena de operaciones de las cuatro alineaciones + verificación |
-| F8 | Verificar y publicar | puerta de calidad previa al release | `pnpm run scan` / `test` / `build` + `scripts/bidirectional-check.py` |
-| F9 | Desplegar | subir al servidor en la nube | pm2 (arrancar desde `apps/quiz-app/`) |
-| F10 | Tutoría acompañada | enseñar cada punto por diálogo hasta dominarlo + evaluar en el momento + continuar entre días | conjunto mínimo de puntos desde la tabla → explicación en tres partes + frases ancla → evaluar por modo → guardar punto por punto en `study/records/` (las preguntas orales van al registro oral-attempts.json) → pasar el testigo a F3 |
-| F11 | Sprint preexamen | ≤ 7 días para el examen, o pides «sprint / preexamen / intensivo» | cosechar frases de records + archivo de erróneas → paquete de sprint de cuatro piezas + versión imprimible en `study/sprint/` → pasar el testigo al simulacro de F3 |
-| F12 | Proyección del grafo de conocimiento | Tienes una base knowflow (graph.json) y quieres ver el coloreado por dominio y las conexiones entre puntos en el grafo | crear/confirmar el mapeo punto↔nodo (`study/records/graph-map.json`, propuesto por el agente y confirmado por ti punto por punto) → `pnpm run mastery -- --graph <graph.json> --write-projection` escribe la proyección de solo lectura; sin grafo / sin mapeo degrada en silencio y jamás se reescriben las páginas de conocimiento |
-| F13 | Actualizar | El plugin se actualizó y tu proyecto quedó atrás (desfase de versión / versión desconocida) | respaldar el progreso → recopiar el kit (progreso preservado) → rellenar las plantillas de archivos que falten → recorrer cada hueco de contrato (tabla de puntos / etiquetas examPoint / mapeo de tarjetas — guiado, nunca escrito por el agente) → cerrar con el chequeo |
+Los trece flujos se agrupan en cuatro líneas, numerados como el menú: **enseñanza** F10 tutoría acompañada · F11 sprint preexamen · F12 proyección del grafo de conocimiento; **preparación de examen** F3 estudio diario · F4 repaso a fondo de erróneas · F5 hacer un podcast; **contenido** F2 nuevo tema · F6 generar/ampliar curso · F7 editar contenido; **operaciones** F1 inicializar el proyecto · F13 actualizar · F8 verificar y publicar · F9 desplegar. El playbook de cada flujo (propósito / prerrequisitos / pasos / criterios de cierre) vive en `skills/ask-coach/references/` — ese directorio es la fuente única de verdad del detalle de F1–F13; esta página solo ofrece el mapa general.
 
 Además, dos entradas de operaciones: el **chequeo** (`/study-doctor` — orquestación integral de las cuatro puertas de calidad + sondas de entorno, con informe de estado y orden de reparación) y el **diagnóstico** (progreso que no sincroniza, 404 de cursos, errores de configuración del CLI, aciertos del scan… una tabla de consulta rápida síntoma → causa raíz → solución).
 
@@ -94,7 +58,7 @@ Además, dos entradas de operaciones: el **chequeo** (`/study-doctor` — orques
 
 ## Extensión
 
-Para añadir un flujo nuevo: añade una sección de playbook (propósito / prerrequisitos / pasos / criterios de cierre) en `skills/ask-coach/references/flows.md`, más una fila en el menú y en la tabla de enrutamiento por intención de `SKILL.md`. Al terminar, ejecuta `pnpm run sync:plugin` para regenerar los artefactos del plugin (quienes lo instalaron manualmente deben además correr `pnpm run skill:install` para redistribuirlo). Para añadir un comando fino: crea un directorio nuevo en `skills/` con un SKILL.md corto (~15 líneas, comparte `../ask-coach/references/`) — sync:plugin lo incorpora automáticamente.
+Para añadir un flujo nuevo: añade una sección (propósito / prerrequisitos / pasos / criterios de cierre) en los playbooks de flujo de `skills/ask-coach/references/`, más una fila en el menú y en la tabla de enrutamiento por intención de `SKILL.md`. Al terminar, ejecuta `pnpm run sync:plugin` para regenerar los artefactos del plugin (quienes lo instalaron manualmente deben además correr `pnpm run skill:install` para redistribuirlo). Para añadir un comando fino: crea un directorio nuevo en `skills/` con un SKILL.md corto (~15 líneas, comparte `../ask-coach/references/`) — sync:plugin lo incorpora automáticamente.
 
 ## Preguntas frecuentes
 

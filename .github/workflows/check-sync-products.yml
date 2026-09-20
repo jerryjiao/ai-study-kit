@@ -1,0 +1,41 @@
+# 同步产物门禁：plugins/ + .claude-plugin/ + .agents/ 是 sync-plugin 的 committed 产物，
+# 改源（skills/、apps/quiz-app、examples/dev-intro、根 package.json/CHANGELOG）必须重跑
+# pnpm run sync:plugin 并把产物一起提交。本门禁重放 sync 后做零漂移检查：
+# git status --porcelain 输出非空即红（untracked 也算——比 git diff --exit-code 严），
+# 能同时拦「改源忘重跑 sync」与「产物漏 add」两类事故（后者 v0.17.0 实际发生过）。
+name: Check sync products
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  sync-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Regenerate sync products
+        run: node scripts/sync-plugin.mjs
+      - name: Zero drift check (modified or untracked both fail)
+        run: |
+          status="$(git status --porcelain -- plugins/ .claude-plugin/ .agents/)"
+          if [[ -n "$status" ]]; then
+            echo "::error::Sync products drifted — source changed without re-running sync, or regenerated products not committed:"
+            echo "$status"
+            echo "Fix: run 'pnpm run sync:plugin', then commit everything it writes under plugins/ .claude-plugin/ .agents/"
+            exit 1
+          fi
+          echo "Sync products clean (zero drift)."
