@@ -1,0 +1,5 @@
+interface:
+  display_name: "study-recap"
+  short_description: "Wrong-question deep-dive: know why you got them wrong"
+policy:
+  allow_implicit_invocation: false

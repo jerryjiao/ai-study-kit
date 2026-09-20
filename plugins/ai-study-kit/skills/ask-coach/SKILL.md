@@ -1,6 +1,6 @@
 ---
 name: ask-coach
-description: /ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置、kit 版本漂移），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署、升级。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.
+description: "/ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置、kit 版本漂移），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署、升级。 Study coach for ai-study-kit: scans your learning state and tells you what to do next."
 disable-model-invocation: true
 ---
 
@@ -12,7 +12,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 
 ## Step 1 · 探测状态（永远先做；全程只读，≤1 分钟）
 
-按 [`references/state.md`](references/state.md) 的探测协议采集十个字段，拼成「学习状态快照」：
+按 [`../../references/state.md`](../../references/state.md) 的探测协议采集十个字段，拼成「学习状态快照」：
 
 | 字段 | 回答的问题 |
 |------|-----------|

@@ -1,0 +1,5 @@
+interface:
+  display_name: "study-coach"
+  short_description: "Sit down and study: opens or resumes a tutoring session"
+policy:
+  allow_implicit_invocation: false

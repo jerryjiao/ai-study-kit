@@ -19,7 +19,7 @@
 | F12 知识图谱投影 · F13 升级 | 本文件 |
 | 体检 · 诊断 | 本文件 |
 
-配套单源（不在本文件）：落盘契约一/契约二（COACH.md 与学习记录格式、口头答题流水写入口径）在 [`contracts.md`](contracts.md)——F4 产档案、F10 落盘、F11 收割、state.md §7 探测共用；陪练教学法在 [`coach.md`](coach.md)——F10 用。
+配套单源（不在本文件）：落盘契约一/契约二（COACH.md 与学习记录格式、口头答题流水写入口径）在 [`../../../references/contracts.md`](../../../references/contracts.md)——F4 产档案、F10 落盘、F11 收割、state.md §7 探测共用；陪练教学法在 [`coach.md`](coach.md)——F10 用。
 
 ---
 

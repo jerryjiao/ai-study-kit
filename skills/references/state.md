@@ -146,7 +146,7 @@ grep -cE '^TTS_PROVIDER=..' .env 2>/dev/null                                # TT
 echo "study-lang=${STUDY_LANG:-zh}"                                         # 可选：AI CLI 生成内容语言，缺省中文
 ```
 
-`.env` 不存在或计数 < 3 → AI 缺配。生成内容语言（可选项，不配不算缺）：非中文学习者建议显式设——CLI 带 `--lang zh|en|es|ru`、或会话前置 `STUDY_LANG` 环境变量（上式已探当前值）；agent 直产路径（flows/F4.md、flows/F6.md）生成内容语言直接跟随用户对话语言。分项就绪矩阵（哪个流程还差什么，一眼可见）：
+`.env` 不存在或计数 < 3 → AI 缺配。生成内容语言（可选项，不配不算缺）：非中文学习者建议显式设——CLI 带 `--lang zh|en|es|ru`、或会话前置 `STUDY_LANG` 环境变量（上式已探当前值）；agent 直产路径（../ask-coach/references/flows/F4.md、F6.md）生成内容语言直接跟随用户对话语言。分项就绪矩阵（哪个流程还差什么，一眼可见）：
 
 | 能力 | LLM 三项 | 还需要 |
 |------|----------|--------|
@@ -204,7 +204,7 @@ grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有�
 ```bash
 # 用户项目 kit 版本——无此文件 = 版本未知，按最老处理（不是故障，版本标记前的项目都这样）
 cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
-# 插件快照版本：本文件位于 <插件根>/skills/ask-coach/references/state.md，向上三级即插件根
+# 插件快照版本：本文件插件形态在 <插件根>/references/state.md（向上一级即插件根）；手动安装在 <安装根>/skills/references/state.md（向上两级即安装根，kit 同层）
 cat <插件根>/kit/kit-version.json
 ```
 

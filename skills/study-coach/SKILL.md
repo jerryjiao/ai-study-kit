@@ -1,6 +1,6 @@
 ---
 name: study-coach
-description: /study-coach 陪练直入：坐下就学——先探测状态、开场报「今天最该练+为什么」，进站/续站 F10 陪练教学。 Direct coaching entry: probes state, opens or resumes an F10 tutoring station.
+description: "/study-coach 陪练直入：坐下就学——先探测状态、开场报「今天最该练+为什么」，进站/续站 F10 陪练教学。 Direct coaching entry: probes state, opens or resumes an F10 tutoring station."
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 坐下就学的零绕路入口——直进 F10 陪练教学。主入口与完整协议见 [`../ask-coach/SKILL.md`](../ask-coach/SKILL.md)。
 
-1. **先探测**（只读）：按 [`../ask-coach/references/state.md`](../ask-coach/references/state.md) 跑 Step 1，重点看 §7 陪练站（有没有进行中的站）与主题目录。
+1. **先探测**（只读）：按 [`../references/state.md`](../references/state.md) 跑 Step 1，重点看 §7 陪练站（有没有进行中的站）与主题目录。
 2. **进流程**：按 [`../ask-coach/references/flows/F10.md`](../ask-coach/references/flows/F10.md) 执行——
    - 有进行中站 → **续站**（报站名 + 待办数，**用户点头才开跑**）；
    - 没有 → 从 **F10 第 0 步开场纪律**进：报「今天最该练 + 为什么」→ 开新站。

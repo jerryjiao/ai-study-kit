@@ -53,7 +53,7 @@ Plus two ops entries: **health check** (`/study-doctor` — one-stop orchestrati
 ## Design notes
 
 - **A routing skill, not another CLI**: it introduces no new runtime — it encodes "read state → recommend → run existing commands/flows" as agent-followable instructions. All underlying capabilities already exist in the repo (three AI CLIs, sync scripts, verification gates).
-- **State before advice**: the coach is forbidden from recommending on vibes — every snapshot field has a probe command (`skills/ask-coach/references/state.md`), and progress statistics match `apps/quiz-app/src/lib/progress.ts` exactly (tombstone filtering, random-sandbox exclusion, wrong-graduation thresholds, SRS due).
+- **State before advice**: the coach is forbidden from recommending on vibes — every snapshot field has a probe command (`skills/references/state.md`), and progress statistics match `apps/quiz-app/src/lib/progress.ts` exactly (tombstone filtering, random-sandbox exclusion, wrong-graduation thresholds, SRS due).
 - **Methodology embedded**: the recommendation order is [`methodology.en.md`](./methodology.en.md) "syllabus → materials → quizzes" made executable; the F2 flow forces MISSION (with the exam-point table) / RESOURCES before any course or question generation — authoring isn't free-form JSON writing, it's point-by-point production against the table, closed out by three green gates (qa / scan / four-alignment).
 
 ## Extending

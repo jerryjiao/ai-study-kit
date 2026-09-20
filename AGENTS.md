@@ -61,9 +61,9 @@ ai-study-kit/
 │   ├── configuration.md       # .env 配置（LLM/TTS provider）
 │   └── theming.md             # theme-config.json 呈现层字段表（不入官网 sync 清单）
 ├── skills/
-│   └── ai-study-kit/           # 学习教练 skill 单一事实源（探测状态 → 推荐 → 带执行；主入口 + 四薄命令共五个目录）
-│       ├── SKILL.md           # 路由指令本体
-│       └── references/        # state.md 探测协议 + flows.md 十三流程 playbook + coach.md 教学法
+│   ├── references/              # 五 skill 共享协议层（state.md 探测协议 + contracts.md 落盘契约；无 SKILL.md 不算 skill；产物落插件根 references/，sync 做确定性路径改写）
+│   ├── ask-coach/               # 主入口 skill（SKILL.md 路由 + references/ coach.md 教学法 + flows.md 索引 + flows/F*.md 高频流程分册）
+│   └── study-{coach,doctor,recap,podcast}/  # 四薄命令（十几行直入；各自 agents/openai.yaml 为 Codex 侧 policy 元数据，zcode/Claude 侧惰性）
 ├── plugins/
 │   └── ai-study-kit/           # zcode/Claude plugin（sync 产物，sync-plugin.mjs 生成，勿手编）
 ├── .claude-plugin/

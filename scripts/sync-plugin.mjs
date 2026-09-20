@@ -8,7 +8,12 @@
 //     .claude-plugin/plugin.json   # Claude Code 兼容（同内容）
 //     .codex-plugin/plugin.json    # Codex CLI 清单（该目录只放这一个文件，Codex 约束）
 //     plugin.json                  # Agent Plugins 1.0 标准清单（agent-plugins.org）
-//     skills/<skill-name>/...      # skills/ 下每个含 SKILL.md 的源目录原样拷入（多 skill：v0.13 起）
+//     skills/<skill-name>/...      # skills/ 下每个含 SKILL.md 的源目录拷入（多 skill：v0.13 起；含每 skill 的
+//                                   #   agents/openai.yaml——Codex 隐式触发关闭，见下 #18；md 里指共享层的
+//                                   #   ../references/ 链接确定性补一级 ../，见下共享协议层节）
+//     references/                  # 共享协议层（state.md 探测协议 + contracts.md 落盘契约，五 skill 公共；无
+//                                   #   SKILL.md，放插件根而非 skills/ 下——Codex 契约要求 skills/ 子目录各有
+//                                   #   SKILL.md：#12）
 //     kit/                         # 迷你仓库快照（apps/quiz-app + examples/dev-intro 跟踪面）
 //     icon.png                     # 插件包根图标
 //     README.md                    # 插件包 README（定位/五命令/安装入口；DESCRIPTION 同源顺产）
@@ -44,12 +49,16 @@ const PLUGIN_DIR = join(REPO_ROOT, 'plugins', PLUGIN_NAME);
 
 // 逐文件复制替代 cpSync 递归：同 sync-study.mjs 的坑——部分 Windows/受限环境下
 // cpSync 目录级递归会被安全策略直接终止进程（exit 127 无输出，此前已把 plugin 目录清到一半）。
-function copyTree(src, dest) {
+// transform（可选）：只作用于 .md 文本文件（utf-8 读→改→写），其余文件仍逐字节拷贝。
+// 用于插件产物侧的确定性相对路径改写（见下方共享协议层注释）；agents/openai.yaml 等
+// 非 md 文件永不改写。改写全是字面量/单一正则的确定性替换，CI 重放 sync 零漂移。
+function copyTree(src, dest, transform) {
   mkdirSync(dest, { recursive: true });
   for (const e of readdirSync(src, { withFileTypes: true })) {
     const s = join(src, e.name);
     const d = join(dest, e.name);
-    if (e.isDirectory()) copyTree(s, d);
+    if (e.isDirectory()) copyTree(s, d, transform);
+    else if (transform && e.name.endsWith('.md')) writeFileSync(d, transform(readFileSync(s, 'utf-8')));
     else copyFileSync(s, d);
   }
 }
@@ -97,10 +106,43 @@ const manifest = {
 
 // plugin 目录：清重建（skills 拷贝 + app 源码快照 + 双 manifest）
 rmSync(PLUGIN_DIR, { recursive: true, force: true });
+// skill 文件改写①：源树里共享层是 skill 目录的平级兄弟（skills/references/），插件产物里
+// 挪到插件根 references/（对 skill 文件而言深了一层）——凡指共享层的 ../references/
+// 相对链接，产物侧一律多补一级 ../。((?:\.\./)+) 只命中「≥1 个 ../ 前缀 + references/」，
+// skill 自有的 references/（无 ../ 前缀，如 ask-coach 的 references/flows.md）不受影响。
+const rebaseSharedRefs = (content) => content.replace(/((?:\.\.\/)+)references\//g, '$1../references/');
 for (const skill of skillDirs) {
-  copyTree(join(SKILLS_SRC, skill), join(PLUGIN_DIR, 'skills', skill));
-  console.log(`[sync-plugin] skills/${skill} → plugins/${PLUGIN_NAME}/skills/${skill}/`);
+  copyTree(join(SKILLS_SRC, skill), join(PLUGIN_DIR, 'skills', skill), rebaseSharedRefs);
+  console.log(`[sync-plugin] skills/${skill} → plugins/${PLUGIN_NAME}/skills/${skill}/  (md: 指共享层的 ../references/ 补一级 ../)`);
 }
+// 共享协议层（#12）：skills/references/ 是五 skill 公共的探测协议/落盘契约单源（state.md +
+// contracts.md），无 SKILL.md——上面的 skill 发现循环不会带走它，须单独拷进产物。
+// 落点在**插件根** references/（不在 skills/ 下）：Codex 官方插件契约（codex 仓
+// plugin-creator 的 validate_plugin.py，validate_skill_manifests 一节）把 skills/ 下每个
+// 非点前缀子目录都当 skill、强制各有 SKILL.md——平级放 skills/references/ 会被判
+// 「skill `references` is missing `SKILL.md`」（v0.18.0 后实测报错）。挪出 skills/ 后
+// 契约不再枚举它；zcode/Claude 侧本就只认含 SKILL.md 的目录，无影响。
+// 代价是产物 md 不再与源逐字节一致，拷贝时做两族确定性改写：
+//   ① skill 文件里指共享层的链接多补一级 ../（rebaseSharedRefs，见上）；
+//   ② 共享层文件里指 skill 目录的相对路径补 skills/ 段（rebaseSkillRefs，见下）。
+// 源树 skills/<skill>/ 与手动安装 ~/.agents/skills/<skill>/ 两套布局仍然同构（共享层
+// 都是 skill 目录的平级兄弟，源里的 ../references/ 原样可用），源文件零改写负担。
+// 缺了它五个 SKILL.md 的 state.md 链接全断，硬失败。
+const SHARED_REF_SRC = join(SKILLS_SRC, 'references');
+if (!existsSync(SHARED_REF_SRC)) {
+  console.error(`[sync-plugin] ✗ 共享协议层缺失：${SHARED_REF_SRC}/（state.md/contracts.md 单源所在）`);
+  process.exit(1);
+}
+// 改写②：共享层文件 → skill 目录。产物里 skill 们都在 skills/ 段下，从插件根 references/
+// 出发要先下 skills/ 段（源树/手动安装里 ../<skill>/ 直接就是兄弟目录，不用改）。
+// 按全部 skill 名做字面量替换（目录名无正则特殊字符，不 escape）。
+const rebaseSkillRefs = (content) => {
+  let out = content;
+  for (const skill of skillDirs) out = out.split(`../${skill}/`).join(`../skills/${skill}/`);
+  return out;
+};
+copyTree(SHARED_REF_SRC, join(PLUGIN_DIR, 'references'), rebaseSkillRefs);
+console.log(`[sync-plugin] skills/references/ → plugins/${PLUGIN_NAME}/references/  (shared protocol layer，插件根——Codex 契约不认 skills/ 下无 SKILL.md 的目录)`);
 mkdirSync(join(PLUGIN_DIR, '.zcode-plugin'), { recursive: true });
 mkdirSync(join(PLUGIN_DIR, '.claude-plugin'), { recursive: true });
 mkdirSync(join(PLUGIN_DIR, '.codex-plugin'), { recursive: true });
@@ -123,6 +165,10 @@ const codexManifest = {
   interface: {
     displayName: 'ai-study-kit',
     shortDescription: 'Study coach: turn any topic into a full learning loop',
+    // longDescription / defaultPrompt 是 Codex 契约必填（validate_plugin.py 对 interface
+    // 两者都 require_non_empty_string）——v0.18.0 前缺失，实测各报一条。
+    longDescription: 'Scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline) and coaches the next step — bootstrap, daily study, wrong-question grill, podcast, health check, deploy, upgrade. 五命令：/ask-coach 主入口 + /study-coach /study-doctor /study-recap /study-podcast 直入。',
+    defaultPrompt: '/ask-coach 帮我看下当前学习状态，推荐接下来最该学什么、做什么',
     developerName: 'ai-study-kit',
     category: 'Productivity',
     capabilities: ['Interactive', 'Read', 'Write'],

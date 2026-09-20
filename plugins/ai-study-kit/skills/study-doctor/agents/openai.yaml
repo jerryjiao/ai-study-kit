@@ -1,0 +1,5 @@
+interface:
+  display_name: "study-doctor"
+  short_description: "One-stop health check of quality gates and environment"
+policy:
+  allow_implicit_invocation: false

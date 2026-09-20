@@ -45,7 +45,7 @@ Find your host's skills directory in the table, and define:
 
 Unknown host → ask the user once which skills directory to use; default `~/.agents/skills`.
 
-**Layout constraint (do not rearrange)**: after install, `SKILLS_DIR/ask-coach/references/flows.md` must resolve `../../..` (= `ROOT`) and find `ROOT/kit/`. The skill's site-building flow locates the kit exactly that way. So: skills go under `SKILLS_DIR/`, kit goes at `ROOT/kit/`.
+**Layout constraint (do not rearrange)**: after install, `SKILLS_DIR/ask-coach/references/flows.md` must resolve `../../..` (= `ROOT`) and find `ROOT/kit/`. The skill's site-building flow locates the kit exactly that way. So: skills go under `SKILLS_DIR/`, kit goes at `ROOT/kit/`. There is also a **shared protocol layer** — `skills/references/` (state.md probe protocol + contracts.md, consumed by all five skills via `../references/`) — which installs to `SKILLS_DIR/references/`, beside the skill dirs; keep it there.
 
 ### B2. Download the payload
 
@@ -91,6 +91,8 @@ for s in ask-coach study-coach study-doctor study-recap study-podcast; do
   rm -rf "$SKILLS_DIR/$s"
   cp -R "$SRC/skills/$s" "$SKILLS_DIR/$s"
 done
+rm -rf "$SKILLS_DIR/references"   # shared protocol layer (state.md + contracts.md)
+cp -R "$SRC/skills/references" "$SKILLS_DIR/references"
 rm -rf "$ROOT/kit"
 cp -R "$SRC/kit" "$ROOT/kit"
 ```
@@ -99,13 +101,13 @@ cp -R "$SRC/kit" "$ROOT/kit"
 
 ## Verify
 
-1. 5 skill dirs exist, each with a `SKILL.md`; `ask-coach` additionally has `references/{flows.md,state.md,coach.md}`.
+1. 5 skill dirs exist, each with a `SKILL.md`; `ask-coach` additionally has `references/{flows.md,coach.md}`; the shared protocol layer exists at `SKILLS_DIR/references/{state.md,contracts.md}`.
 2. `$ROOT/kit/kit-version.json` (Route B) or the plugin's kit version (Route A) exists — report the version string to the user.
 3. Ask the user to restart the host tool if new skills aren't listed yet, then try the coach: type `/ask-coach` or just tell the agent 「我想学 X」/ "I want to learn X".
 
 ## Uninstall
 
-Route B: remove the five dirs under `SKILLS_DIR/` (`ask-coach`, `study-coach`, `study-doctor`, `study-recap`, `study-podcast`) and `ROOT/kit/`. Route A: uninstall the plugin from the host's plugin manager.
+Route B: remove the five dirs under `SKILLS_DIR/` (`ask-coach`, `study-coach`, `study-doctor`, `study-recap`, `study-podcast`), plus `SKILLS_DIR/references/` (shared protocol layer), and `ROOT/kit/`. Route A: uninstall the plugin from the host's plugin manager.
 
 ## Already installed via the other route?
 

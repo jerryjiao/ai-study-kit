@@ -4,6 +4,31 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
+## [0.18.1] — 2026-09-20
+
+主题：**skill 打包布局契约对齐（三路审查 #12/#18 收口）——state.md/contracts.md 迁五 skill 共享层 `skills/references/`，产物侧按官方 Codex 摄取契约落插件根 `references/`，sync-plugin 对产物做确定性路径改写；五 skill 各配 `agents/openai.yaml` 关闭 Codex 隐式触发；`allowed-tools` 调研定案不实施。**
+
+### 升级与存量影响
+
+- **新文件/新契约**：源侧新增 `skills/references/` 共享协议层（state.md 探测协议 + contracts.md 落盘契约，原在 `skills/ask-coach/references/`）与 5 份 `skills/<skill>/agents/openai.yaml`（Codex 侧 policy 元数据）；产物侧新增插件根 `plugins/ai-study-kit/references/`（官方 Codex 摄取契约要求 skills/ 下目录必须含 SKILL.md，共享层不能塞进 skill 目录）。**kit 快照内容零变化**——仅 `kit-version.json` 版本号随版走 0.18.1。
+- **老项目缺了会怎样**：用户项目零影响；已装旧版 skill 自洽照常工作（旧布局内部引用完整），不升级无感。
+- **怎么补**：zcode / Claude Code 用户 marketplace refresh，Codex 用户重跑 `codex plugin marketplace add jerryjiao/ai-study-kit`，手动安装用户重跑 `pnpm run skill:install`（会同时带 references 共享层与 openai.yaml）；存量学习项目无需动作（kit 内容无变化，重拷无损）。
+- **是否破坏性**：非破坏。
+
+### Added
+
+- **五 skill 共享协议层 `skills/references/`**（#12）：state.md（探测协议）与 contracts.md（落盘契约）从 `skills/ask-coach/references/` 迁出，成为五 skill 共享的单源层（无 SKILL.md 不算 skill）；sync-plugin 对共享层缺失硬失败（缺源即红，不再静默出残包）；安装器 install/uninstall 对称处理共享层（装/卸都带上）。
+- **`agents/openai.yaml` ×5**（#18）：每个 skill 各一份——interface 显示元数据 + `policy.allow_implicit_invocation: false`，Codex 侧隐式触发关闭（编排型主入口只走显式命令）；zcode / Claude Code 侧为惰性文件不受影响。plugin.json **不加** policy 字段——官方摄取契约 allowed_keys 不含，已实证会拒；顺带补 `interface.longDescription` / `interface.defaultPrompt` 官方必填字段。
+- **文档注记**：`apps/site/public/install.md` Route B 补 references 共享层的拷贝 / Verify / Uninstall 三处指引（此前手动路线只讲 skill 目录会漏装共享层）；`docs/ai-study-kit.md` 四语 L56 断链路径同步；AGENTS.md 结构树与 CONTEXT.md skill 词条同步迁移后事实。
+
+### Changed
+
+- **产物侧确定性路径改写与插件根落位**（#12）：共享层源侧住 `skills/references/`、产物侧落 `plugins/ai-study-kit/references/`，两侧相对路径不同（源 `../references/` ↔ 产物 `../../references/`）——sync-plugin 对产物 skill 文件按固定规则做确定性改写，逐字节可对拍（规则固定、无启发式）。这是**插件产物面的行为变化**：升级后插件包内 skill 引用路径与旧版不同，安装后用户视角零差异。官方 validate_plugin.py 报错 8→5；残量 5 条为 disable-model-invocation: true 与 Codex 契约的有意双宿主取舍，非缺陷。
+
+### 调研定案（不实施）
+
+- **`allowed-tools` 不加**（#13）：zcode 官方文档明确 skill frontmatter 识别键仅 name / description / when_to_use / license / metadata——allowed-tools 在 skill 上是被静默忽略的死字段；Claude Code 上该字段语义是「调用轮免确认预授予」而非限制白名单，与 ask-coach 编排型多阶段工具面（pnpm×24 / bash×15 等）不匹配，加了反而误导。五件 SKILL.md 的 frontmatter 均未新增 allowed-tools 字段（本版 SKILL.md 其余改动来自 #12 路径迁移）。
+
 ## [0.18.0] — 2026-09-20
 
 主题：**三路审查 15 项修复——分发与安装链路加固（安装器补装 kit、CI 同步产物零漂移门禁、缺文件硬拦、插件包补 README/CHANGELOG、vite 产物 untrack、install.md 三处修）+ skill 上下文经济学（flows.md 720→436 拆分、契约一/二单源化、--lang 全链落位、插件自足化、出站路由归一）+ docs 四语三表瘦身。**（三路审查 #1-#11、#14-#17）

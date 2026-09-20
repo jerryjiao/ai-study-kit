@@ -1,0 +1,5 @@
+interface:
+  display_name: "study-podcast"
+  short_description: "Turn study material into a two-host audio show"
+policy:
+  allow_implicit_invocation: false
