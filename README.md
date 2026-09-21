@@ -189,5 +189,6 @@ pnpm run skill:install    # 安装学习教练指令到 ~/.agents/skills/
 
 - 内容包工作区结构（MISSION → RESOURCES → lessons 的组织）与出题纪律（选项等长、格式不给线索）借鉴 [Matt Pocock 的 teach skill](https://github.com/mattpocock)，决策源流见 [`docs/adr/0001-agent-authored-questions-not-cli.md`](docs/adr/0001-agent-authored-questions-not-cli.md)
 - 数据闭环（交互痕迹 → 学习者事实 → 反哺推荐）与口头掌握度范式（近期加权正确率 + 置信度封顶，确定性零 LLM）借鉴 [DeepTutor](https://github.com/HKUDS/DeepTutor)，决策源流见 [`docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md`](docs/adr/0005-projection-bridge-not-mastery-in-knowflow.md)
+- 教练声音纪律（口表语域底座，`skills/references/voice.md`）蒸馏重写自 [辞达（cida）](https://github.com/mizzlelover/cida)，作者「谁是专家」（mizzlelover），MIT License，决策源流见 [`docs/adr/0008-distill-rewrite-not-runtime-dep.md`](docs/adr/0008-distill-rewrite-not-runtime-dep.md)
 - 间隔重复算法参考 [Anki 的 SM-2 实现](https://faqs.ankiweb.net/what-spaced-repetition-algorithm.html)
 - 示例主题（dev-intro）的 git 知识参考 [Pro Git Book](https://git-scm.com/book/zh/v2)（官方，免费）
