@@ -4,6 +4,30 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
+## [0.20.0] — 2026-09-22
+
+主题：**日文（ja）五语化——工具、README、docs、官网全链路加入第五语言。** 工具 UI 词典 `ja.ts`（185 key 全译）与语言切换器、AI CLI `--lang ja`（teach/grill/podcast 生成内容日文化）；新 `README.ja.md` 与五份 README 语言栏互通；docs 七篇日文译本 + 28 个存量语言栏更新；官网 `/ja/` 全站（locales/侧栏/手写页/生成页/浏览器语言映射）。**版本号调度注记**：原预留给教练说话第二刀（CLI 产物 prompt 腔调接线）的 v0.20.0 由本版先落地使用，第二刀顺延 v0.21.0。
+
+### 升级与存量影响
+
+- **新文件/新契约**：前端词典 `apps/quiz-app/src/i18n/locales/ja.ts`（`Record<TKey, string>` 锚定 zh 的 key 集，漏译编译报错）与 `UiLang` 联合扩展；CLI 注册表 `SUPPORTED_LANGS.ja`；docs `*.ja.md` ×7；官网 `src/content/docs/ja/`（手写层 index/get-started + sync 生成页）。kit 快照随 quiz-app i18n 与 langs 面改动刷新，`kit-version.json` 版本号随版走 0.20.0。
+- **老项目缺了会怎样**：零影响——纯增量语言项，默认语言（zh）与既有四语行为不变；题库/进度/课程不含语言假设，不升级无感。
+- **怎么补**：想要日文界面的用户升级工具即可——插件用户 marketplace refresh（kit 快照含新词典），手动安装用户重跑 `pnpm run skill:install`；存量学习项目无需任何动作。
+- **是否破坏性**：非破坏。
+
+### Added
+
+- **工具 UI 日文化**：`ja.ts` 全量词典（です・ます調，占位符逐一保留）；注册点全量打通——`UiLang` 联合、语言切换器「日本語」选项、`detectLang`/`HTML_LANG`、i18n.test.ts 与 langs.test.mjs 的语言枚举。
+- **AI CLI `--lang ja`**：`langs.mjs` 加 ja 条目（directive 日文指令 + teach/grill/podcast 的 ui 固定文案日文化，`{n}` 占位符保留）；三个 CLI 用法注释的枚举同步。
+- **README 五语**：新 `README.ja.md`（以中文基准为内容源、结构对齐 en 版；不带 zh 独有的英文 tagline 不对称项）；README.md/en/es/ru 语言栏各加日本語；五份语言数量声明更新五语口径。
+- **docs 五语**：七篇 `.ja.md` 完整译本（交叉链接指向同语言版本）；28 个存量文件语言栏加日本語；`--lang zh|en|es|ru` 枚举全部加 ja（四个语言版本同步）。
+- **官网 `/ja/` 全站**：astro locales 与侧栏 translations、sync-docs 的 LANGS/DESCRIPTIONS、ja 手写层（index/get-started）、patch-404 五语 fallback（ja 内容齐整，无 noindex 回退页）、Header/SiteFooter 语言清单、浏览器语言自适应含 ja。
+- **AGENTS.md**：语言体系提法（README/docs/UI/CLI/官网）由四语更新为五语。
+
+### Changed
+
+- 全仓语言数量声明由四语口径更新为五语（README ×5、docs ×35、官网首页 FAQ JSON-LD 与正文、CLI 用法注释、patch-404 日志）；「四对齐」为方法论术语，不受影响。
+
 ## [0.19.0] — 2026-09-21
 
 主题：**教练声音纪律单源化（spec #82，ADR-0008）——外部表达引擎 skill「辞达（cida）」蒸馏重写进仓，落五 skill 共享的 `skills/references/voice.md`（五节：语域底座 / 快照措辞 / 对话增补 / 产物成文 / 排除边界），教练的三张嘴（陪练对话、快照推荐行、手写产物）全部接线到单源；「吸收外部 skill 一律蒸馏重写、不做运行时依赖」定案为 ADR-0008。CLI 产物 prompt（错题精讲 / 播客稿 / 课程 HTML）的腔调接线留 v0.20.0 第二刀。**
