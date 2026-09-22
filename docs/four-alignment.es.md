@@ -1,6 +1,6 @@
 # Principio de las cuatro alineaciones
 
-[简体中文](four-alignment.md) · [English](four-alignment.en.md) · **Español** · [Русский](four-alignment.ru.md)
+[简体中文](four-alignment.md) · [English](four-alignment.en.md) · **Español** · [Русский](four-alignment.ru.md) · [日本語](four-alignment.ja.md)
 
 Al estudiar cualquier tema, cuatro artefactos deben permanecer alineados en torno a **un mismo conjunto de puntos de conocimiento**: el curso (explicación), las preguntas (práctica), las tarjetas (anclas de memoria) y el análisis a fondo de erróneas (excavación de los fallos). Son cuatro archivos independientes del repositorio: si editas uno, los otros tres no se mueven. La desalineación no lanza ningún error — solo deja huecos de aprendizaje silenciosos: preguntas que evalúan lo que nunca se enseñó, lecciones terminadas sin nada que practicar, conceptos que hay que memorizar sin tarjeta alguna.
 

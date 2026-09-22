@@ -1,6 +1,6 @@
 # Bidirectional Check · the verification script
 
-[简体中文](bidirectional-check.md) · **English** · [Español](bidirectional-check.es.md) · [Русский](bidirectional-check.ru.md)
+[简体中文](bidirectional-check.md) · **English** · [Español](bidirectional-check.es.md) · [Русский](bidirectional-check.ru.md) · [日本語](bidirectional-check.ja.md)
 
 The Four-Alignment principle only has teeth if it's verifiable automatically. The repo ships [`scripts/bidirectional-check.py`](https://github.com/jerryjiao/ai-study-kit/blob/main/scripts/bidirectional-check.py), turning "quiz → course", "syllabus → quiz" and "flashcard coverage" into one command. Semantic issues ("the course teaches it wrong") still need human review (rules in [`four-alignment.en.md`](./four-alignment.en.md)).
 

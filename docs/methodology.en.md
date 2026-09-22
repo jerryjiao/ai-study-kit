@@ -1,6 +1,6 @@
 # Methodology
 
-[简体中文](methodology.md) · **English** · [Español](methodology.es.md) · [Русский](methodology.ru.md)
+[简体中文](methodology.md) · **English** · [Español](methodology.es.md) · [Русский](methodology.ru.md) · [日本語](methodology.ja.md)
 
 This toolkit encodes a learning pattern distilled from real practice. The one-line version: **a syllabus defines what to learn → reference materials build the concepts → quizzes validate the result**. Each step has its own source of authority and the order matters — drilling before defining a syllabus, or quizzing concepts you never grounded in material, wastes effort. Below is the neutralized pattern you can apply to any topic.
 

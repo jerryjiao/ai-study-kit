@@ -62,7 +62,7 @@ if (!INPUT) {
   console.error('  --input     学习素材文件（HTML / MD / questions.json / txt）');
   console.error('  --segments  目标对话段数（默认 12）');
   console.error('  --style     风格：conversational / lecture / interview（默认 conversational）');
-  console.error('  --lang      对白输出语言：zh / en / es / ru（默认 zh，也可用 STUDY_LANG 环境变量）');
+  console.error('  --lang      对白输出语言：zh / en / es / ru / ja（默认 zh，也可用 STUDY_LANG 环境变量）');
   console.error('  --no-tts    只产脚本+逐字稿，不调 TTS（省 TTS 成本）');
   console.error('  --json      机器可读输出：人读日志走 stderr，stdout 只出结果 JSON');
   process.exit(1);

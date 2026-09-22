@@ -1,6 +1,6 @@
 # Coach de estudio · el comando `/ask-coach`
 
-[简体中文](ai-study-kit.md) · [English](ai-study-kit.en.md) · **Español** · [Русский](ai-study-kit.ru.md)
+[简体中文](ai-study-kit.md) · [English](ai-study-kit.en.md) · **Español** · [Русский](ai-study-kit.ru.md) · [日本語](ai-study-kit.ja.md)
 
 ai-study-kit tiene muchas funciones — app de práctica, cursos, tarjetas, repaso a fondo de erróneas, podcasts, despliegue — y eso, para quien estudia, se convierte en una carga: **¿qué toca hacer exactamente hoy?** `/ask-coach` existe para responder a eso. Es el skill de entrada principal que trae el propio repositorio: lo instalas una vez, empiezas cada sesión de estudio desde él, y dejas que escanee tu estado, te recomiende y ejecute contigo — sin memorizar la cadena de herramientas.
 

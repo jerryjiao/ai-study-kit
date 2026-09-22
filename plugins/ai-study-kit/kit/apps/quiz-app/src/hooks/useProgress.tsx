@@ -34,7 +34,7 @@ interface ProgressCtxValue {
   dismissWrong: (id: string) => void;
   /** 设置 UI 主题偏好（light/dark/system），同步到服务器跨设备跟随。 */
   setTheme: (mode: ThemeMode) => void;
-  /** 设置 UI 语言偏好（zh/en/es/ru），同步到服务器跨设备跟随。 */
+  /** 设置 UI 语言偏好（zh/en/es/ru/ja），同步到服务器跨设备跟随。 */
   setLang: (l: UiLang) => void;
   /** 更新学习偏好（设置面板）：patch 合入 progress.settings 整块 LWW 同步（settingsUpdatedAt 仲裁）。 */
   updateSettings: (patch: Partial<LearnSettings>) => void;

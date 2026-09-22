@@ -60,7 +60,7 @@ head:
       {"@type":"Question","name":"How do I deploy it?","acceptedAnswer":{"@type":"Answer","text":"Static frontend plus a small Hono server: pnpm build && pnpm exec pm2 start on any Node host — or run purely locally with pnpm dev."}},
       {"@type":"Question","name":"What question types are supported?","acceptedAnswer":{"@type":"Answer","text":"Single-choice, multiple-choice (all-correct grading) and true/false, stored as plain JSON — no lock-in."}},
       {"@type":"Question","name":"Can I use my own question bank?","acceptedAnswer":{"@type":"Answer","text":"You don't have to. Tell the built-in /ask-coach “I want to learn X”: it aligns an exam outline with you, then drafts questions, cards and lessons to match. Prefer your own? Questions are plain JSON per theme — import past papers anytime."}},
-      {"@type":"Question","name":"Can I turn my study material into a podcast?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any material — lessons, questions, wrong-answer deep-dives — can be synthesized into a two-host audio show with a transcript. Generated with your own API key, in four languages, for passive review on your commute or while exercising."}}
+      {"@type":"Question","name":"Can I turn my study material into a podcast?","acceptedAnswer":{"@type":"Answer","text":"Yes. Any material — lessons, questions, wrong-answer deep-dives — can be synthesized into a two-host audio show with a transcript. Generated with your own API key, in five languages, for passive review on your commute or while exercising."}}
       ]}
       ]}
 ---
@@ -263,7 +263,7 @@ head:
     </details>
     <details>
       <summary>Can I turn my study material into a podcast?</summary>
-      <p>Yes. Any material — lessons, questions, wrong-answer deep-dives — can be synthesized into a two-host audio show with a transcript. Generated with your own API key, in four languages, for passive review on your commute or while exercising.</p>
+      <p>Yes. Any material — lessons, questions, wrong-answer deep-dives — can be synthesized into a two-host audio show with a transcript. Generated with your own API key, in five languages, for passive review on your commute or while exercising.</p>
     </details>
   </div>
 </section>

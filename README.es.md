@@ -4,7 +4,7 @@
 
 # ai-study-kit
 
-[简体中文](README.md) · [English](README.en.md) · **Español** · [Русский](README.ru.md)
+[简体中文](README.md) · [English](README.en.md) · **Español** · [Русский](README.ru.md) · [日本語](README.ja.md)
 
 **Instala con una frase**: envía esta línea a tu IA —Claude Code, zcode, Cursor, cualquier herramienta— y seguirá el protocolo para instalar el coach y el código del sitio. Sin clonar, sin comandos que memorizar:
 
@@ -15,7 +15,7 @@ Install ai-study-kit from https://aistudykit.dev/install.md
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/web-online-blue" alt="Sitio web" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Estado del deploy" /></a>
-  <img src="https://img.shields.io/badge/i18n-4%20idiomas-blue" alt="Interfaz en 4 idiomas" />
+  <img src="https://img.shields.io/badge/i18n-5%20idiomas-blue" alt="Interfaz en 5 idiomas" />
   <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
@@ -113,7 +113,7 @@ Configura con `cp .env.example .env` y rellena al menos `LLM_BASE_URL / LLM_API_
 
 ## 🌍 Idiomas
 
-Este README existe en cuatro idiomas (cambia con la barra superior); la **interfaz** alterna con un clic entre 中文 / English / Español / Русский — detecta el idioma del navegador en la primera visita y sincroniza la preferencia entre dispositivos; el **contenido generado por IA** acepta `--lang zh|en|es|ru`. Los diccionarios y sus verificaciones viven en [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/).
+Este README existe en cinco idiomas (cambia con la barra superior); la **interfaz** alterna con un clic entre 中文 / English / Español / Русский / 日本語 — detecta el idioma del navegador en la primera visita y sincroniza la preferencia entre dispositivos; el **contenido generado por IA** acepta `--lang zh|en|es|ru|ja`. Los diccionarios y sus verificaciones viven en [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/).
 
 ---
 
@@ -133,7 +133,7 @@ Este README existe en cuatro idiomas (cambia con la barra superior); la **interf
 
 ## 📚 Documentación
 
-Toda la documentación existe en cuatro idiomas, con un selector de idioma arriba (简体中文 / English / Español / Русский).
+Toda la documentación existe en cinco idiomas, con un selector de idioma arriba (简体中文 / English / Español / Русский / 日本語).
 
 | Documento | Qué aprenderás |
 |------|-----------|

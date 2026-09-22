@@ -1,6 +1,6 @@
 # Configuración de presentación del tema (theme-config.json)
 
-[简体中文](theming.md) · [English](theming.en.md) · **Español** · [Русский](theming.ru.md)
+[简体中文](theming.md) · [English](theming.en.md) · **Español** · [Русский](theming.ru.md) · [日本語](theming.ja.md)
 
 Toda la personalización de la capa de presentación de la app de práctica — orden de la página de inicio, nombres visibles, despliegue de subtemas, insignias de origen, capas núcleo/extensión, insignias de profundidad de los puntos de examen, colores de las tarjetas — vive en el `theme-config.json` del paquete de tema, **sin tocar ni una línea de código de la app**. El archivo es totalmente opcional: sin él, la app corre con la semántica de respaldo y jamás da error.
 

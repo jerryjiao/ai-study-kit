@@ -3,12 +3,13 @@ import { zh } from './locales/zh';
 import { en } from './locales/en';
 import { es } from './locales/es';
 import { ru } from './locales/ru';
+import { ja } from './locales/ja';
 
-/** i18n 词典完整性测试：en/es/ru 必须覆盖 zh 的全部 key，
+/** i18n 词典完整性测试：en/es/ru/ja 必须覆盖 zh 的全部 key，
  *  占位符集合一致（{n} 之类丢了会导致运行时出现未替换的裸占位符或空缺值），
  *  且不允许空串。TS 已用 Record<TKey, string> 在编译期锚定 key 集，这里做运行期兜底。 */
 
-const locales: Record<string, Record<string, string>> = { en, es, ru };
+const locales: Record<string, Record<string, string>> = { en, es, ru, ja };
 const zhDict: Record<string, string> = zh;
 const zhKeys = Object.keys(zh).sort();
 

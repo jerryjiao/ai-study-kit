@@ -1,6 +1,6 @@
 # Configuration · 配置指南
 
-**简体中文** · [English](configuration.en.md) · [Español](configuration.es.md) · [Русский](configuration.ru.md)
+**简体中文** · [English](configuration.en.md) · [Español](configuration.es.md) · [Русский](configuration.ru.md) · [日本語](configuration.ja.md)
 
 三个 AI CLI 的 `.env` 配置说明。要配的东西很少：LLM provider 任选一家（OpenAI / GLM / DeepSeek / Kimi / 通义 / 豆包），想做播客再配 TTS（当前仅 GLM-TTS）。全部走 OpenAI 兼容协议，换 provider 只改三个变量。
 
@@ -65,7 +65,7 @@ SERVER=https://your-server.example.com node apps/quiz-app/scripts/grill-wrong.mj
 
 ## 输出语言（STUDY_LANG，可选）
 
-三个 AI CLI 的**生成内容**语言，支持 `zh`（默认）/ `en` / `es` / `ru`：
+三个 AI CLI 的**生成内容**语言，支持 `zh`（默认）/ `en` / `es` / `ru` / `ja`：
 
 ```bash
 STUDY_LANG=en   # .env 里配，或跑 CLI 时临时 STUDY_LANG=es node ...

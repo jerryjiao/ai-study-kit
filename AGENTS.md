@@ -29,20 +29,20 @@ ai-study-kit/
 ├── apps/
 │   └── quiz-app/              # 答题站 web app（React + Vite + TS + Tailwind 前端 + Hono 后端）
 │       ├── src/               # React 前端源码
-│       │   └── i18n/          # UI 多语言（中/EN/ES/RU 词典 + I18nProvider）
+│       │   └── i18n/          # UI 多语言（中/EN/ES/RU/JA 词典 + I18nProvider）
 │       ├── server/            # Hono 后端（进度 API + 静态托管）
 │       ├── scripts/           # 数据同步、QA 校验、mastery-report 掌握报告、AI CLI 脚本
 │       │   └── lib/langs.mjs  # AI CLI 输出语言注册表（--lang）
 │       ├── public/study/      # 课程 HTML 同步产物（gitignored，build 时重建）
 │       └── ecosystem.config.cjs  # pm2 部署配置
-│   └── site/                  # 官网（Astro Starlight，四语 zh/en/es/ru + 根路径按浏览器语言自适应，GitHub Pages）
-│       ├── astro.config.mjs   # zh 在 /、en/es/ru 各挂 /<lang>/，旅程四组侧栏
-│       ├── scripts/sync-docs.mjs   # docs/*.md 四语 → 站内页（根=中文，en/es/ru 挂 /<lang>/；生成物，勿手编）
+│   └── site/                  # 官网（Astro Starlight，五语 zh/en/es/ru/ja + 根路径按浏览器语言自适应，GitHub Pages）
+│       ├── astro.config.mjs   # zh 在 /、en/es/ru/ja 各挂 /<lang>/，旅程四组侧栏
+│       ├── scripts/sync-docs.mjs   # docs/*.md 五语 → 站内页（根=中文，en/es/ru/ja 挂 /<lang>/；生成物，勿手编）
 │       ├── scripts/build-demo.mjs  # QUIZ_BASE 构建 quiz-app → public/demo/
 │       ├── scripts/patch-404.mjs   # 根 404.html 注入 demo 深链 SPA 兜底（build 后跑）
 │       ├── scripts/gen-og.py       # OG 分享图（产物 og.png 入库，改视觉时本地重跑）
-│       ├── public/install.md  # agent 安装协议（英文单份，有意不进四语体系；发布为 aistudykit.dev/install.md，见 ADR-0007）
-│       └── src/content/docs/  # 站内页（method/ai/maintain 及其 en/es/ru 译本均为 sync 产物；各语言 index/get-started 为手工层）
+│       ├── public/install.md  # agent 安装协议（英文单份，有意不进五语体系；发布为 aistudykit.dev/install.md，见 ADR-0007）
+│       └── src/content/docs/  # 站内页（method/ai/maintain 及其 en/es/ru/ja 译本均为 sync 产物；各语言 index/get-started 为手工层）
 ├── examples/
 │   └── dev-intro/             # 默认示例主题（git + Linux 基础入门）
 │       ├── questions.json     # 题库（schema 见 types.ts）
@@ -52,7 +52,7 @@ ai-study-kit/
 │       ├── study/             # 学习痕迹伞目录（records 私有含学习者档案 profile.json / notes / wrong-questions 错题精讲 / sprint 冲刺包）
 │       ├── assets/styles.css  # 共享样式表
 │       └── MISSION.md / RESOURCES.md
-├── docs/                      # 方法论文档（四语：中文基准 + .en/.es/.ru 译本，顶部语言栏互链，README 同构）
+├── docs/                      # 方法论文档（五语：中文基准 + .en/.es/.ru/.ja 译本，顶部语言栏互链，README 同构）
 │   ├── methodology.md         # 学习方法论
 │   ├── four-alignment.md      # 四对齐原则
 │   ├── bidirectional-check.md # 自动化校验脚本说明
@@ -75,7 +75,7 @@ ai-study-kit/
 │   ├── sync-plugin.mjs        # skills/（多 skill）→ plugins/ai-study-kit + 市集清单（含 kit-version.json 写入，ADR-0006）
 │   ├── render_ascii_slide.py  # ASCII → PNG 渲染（给示例画图用）
 │   └── drill/                 # F13 升级演练（存量项目夹具生成 + 断言器 + REPORT.md 留档，spec #55 行为级验收面）
-├── README.md                  # 项目主页（四语：中文基准 + README.en/es/ru.md 译本，顶部切换栏互链）
+├── README.md                  # 项目主页（五语：中文基准 + README.en/es/ru/ja.md 译本，顶部切换栏互链）
 ├── CHANGELOG.md               # 版本日志
 ├── LICENSE                    # MIT
 └── AGENTS.md                  # 本文件
@@ -136,7 +136,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **`apps/quiz-app/progress.json` 是运行期数据，禁止提交、禁止手编**（已在 .gitignore）。已写坏会被 server 当作空进度重置。
   - ⭐ **写 progress.json 的 `submittedAt`/`updatedAt` 必须用真实 `Date.now()`，绝不能用任意固定值或未来时间戳**。`mergeProgress`（progress.ts）按时间戳取新来合并多端写入——未来时间戳会永久压制所有真实时间的写入。
 - **`apps/quiz-app/public/study/` 是 sync 产物**（gitignored），由 `scripts/sync-study.mjs` 从 `examples/<theme>/` 同步，build 时自动重建。改课程请走 `examples/<theme>/lessons/*.html`，别手编 `public/study/`。
-- **官网 sync 产物禁止手编**：`apps/site/src/content/docs/{method,ai,maintain}/` 及其 `en/es/ru/` 下的译本目录由 `sync-docs.mjs` 从根 `docs/` 四语生成（中文挂站根、译本挂 `/<lang>/`）；`apps/site/public/demo/` 由 `build-demo.mjs` 生成。改文档走根 `docs/`，改 demo 走 quiz-app。官网部署走 GitHub Actions（`.github/workflows/deploy-site.yml`，push main 自动发布 Pages），不占 pm2。
+- **官网 sync 产物禁止手编**：`apps/site/src/content/docs/{method,ai,maintain}/` 及其 `en/es/ru/ja/` 下的译本目录由 `sync-docs.mjs` 从根 `docs/` 五语生成（中文挂站根、译本挂 `/<lang>/`）；`apps/site/public/demo/` 由 `build-demo.mjs` 生成。改文档走根 `docs/`，改 demo 走 quiz-app。官网部署走 GitHub Actions（`.github/workflows/deploy-site.yml`，push main 自动发布 Pages），不占 pm2。
 - **⭐ 切换示例主题只改 `EXAMPLE_THEME` 环境变量一处**（默认 `dev-intro`）。`EXAMPLE_THEME` 支持两种形态：仓库内主题名，或**外部主题包路径**（含路径分隔符即外部形态，主题目录可住仓库外，解析见 `apps/quiz-app/scripts/lib/theme-path.mjs` 与 ADR 0004；`src/data/theme.json` 对外部形态额外记 `dir` 供粘滞回退）。课程入口 `Courses.tsx` 的 `COURSE_URL` 读 sync 产物 `src/data/theme.json` 自动跟随激活主题（2026-08-18 前需手改两处，已收敛为一处）。首页分组顺序、主题显示名等呈现定制走 `examples/<theme>/theme-config.json`（2026-08-25 前需改 `src/lib/topicOrder.ts` 代码，已配置化）。
 - **⭐ 任何发布内容禁止出现真实品牌/企业名**（课程 HTML、闪卡、公开 md 等所有同步到 `apps/quiz-app/public/study/` 的文件）。这是开源协议 MIT 之外的<strong>额外中性化要求</strong>——避免把任何具体企业的商标/品牌带入开源工具。校验用 `pnpm run scan`，命中数必须为 0 才能发布。
   - 必须中性化的词列表见 `scripts/brand-scan.py` 的 `BRAND_PATTERNS` 常量（持续补充）。常见类别：车企、互联网大厂、能源/电信央企、EV 新势力。技术专名（如 Spring Cloud Alibaba 等开源技术栈）作为技术术语保留，扫描时人工确认即可。
@@ -169,12 +169,12 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - `teach-generate.mjs`：从 `examples/<theme>/course-spec.json` 产课程 HTML
   - `grill-wrong.mjs`：从 `/api/progress` 拉错题 + LLM 聚类 + 产错题精讲 HTML + 顺产学习者档案 `study/records/profile.json`
   - `podcast-generate.mjs`：从任一学习素材产男女双播播客（脚本 + 逐字稿 + WAV）
-  - 全部支持 `--lang zh|en|es|ru`（或 `STUDY_LANG` 环境变量）指定**生成内容**语言；注册表在 `scripts/lib/langs.mjs`，CLI 日志始终中文。
+  - 全部支持 `--lang zh|en|es|ru|ja`（或 `STUDY_LANG` 环境变量）指定**生成内容**语言；注册表在 `scripts/lib/langs.mjs`，CLI 日志始终中文。
   - 全部支持 `--json`（agent 管道消费）：人读日志走 stderr，stdout 只出结果 JSON（产物路径清单；noop 路径出 `status: "noop"`），与 mastery-report `--json` 同约定。
   - teach 额外做**出处回链**：主题目录有 `RESOURCES.md` 时解析其链接与 `course-spec.json` 的 resources 按 URL 去重合并，进 LLM 备课参考 + 每课页尾「出处」块（「以参考材料建概念」的产物面）。
   - 全部需要 `.env` 配 LLM/TTS provider。详见 [`docs/ai-cli-guide.md`](./docs/ai-cli-guide.md) + [`docs/configuration.md`](./docs/configuration.md)。
-- **⭐ UI 多语言（中/EN/ES/RU）**：词典在 `apps/quiz-app/src/i18n/locales/`（zh 是基准，en/es/ru 以 `Record<TKey, string>` 锚定 key 集）。改/加 UI 文案必须四份词典同步改，`i18n.test.ts` 会校验 key 完整性 + 占位符一致性。**禁止在组件里写死用户可见文案**（题库/闪卡内容除外——那是数据）。语言偏好持久化与 theme 同构：localStorage `ask-lang` + `progress.lang/langUpdatedAt`（LWW）。逻辑里不要用展示文案做比较（如"其他"桶用 `isOther` flag，别比字符串）。**README 同为四语**（README.md 中文基准 + README.en/es/ru.md 完整译本，顶部切换栏互链），改 README 内容必须四份同步改，es/ru 术语以 UI 词典为准（tab 名、功能名与 locale 文件一致）。唯一例外：README.md 中文基准的 tagline blockquote 里带一行英文一句话简介（给国际读者的可发现性），这是有意的不对称，不要同步到 en/es/ru。
-- **⭐ 项目文档（docs/）同为四语**：`docs/<name>.md` 中文基准 + `docs/<name>.en/.es/.ru.md` 完整译本，顶部语言栏互链（与 README 同构）。改任何一篇必须四份同步改，文档间交叉链接用同语言版本（如 `./four-alignment.en.md`）。官网 `sync-docs.mjs` 自动把译本挂到 `/<lang>/` 对应路径，GitHub 语言栏会被站内剥离（Starlight 有自己的语言切换）。es/ru 术语沿用官网既有译本（temario/materiales de referencia、программа/справочные материалы 等）。
+- **⭐ UI 多语言（中/EN/ES/RU/JA）**：词典在 `apps/quiz-app/src/i18n/locales/`（zh 是基准，en/es/ru/ja 以 `Record<TKey, string>` 锚定 key 集）。改/加 UI 文案必须五份词典同步改，`i18n.test.ts` 会校验 key 完整性 + 占位符一致性。**禁止在组件里写死用户可见文案**（题库/闪卡内容除外——那是数据）。语言偏好持久化与 theme 同构：localStorage `ask-lang` + `progress.lang/langUpdatedAt`（LWW）。逻辑里不要用展示文案做比较（如"其他"桶用 `isOther` flag，别比字符串）。**README 同为五语**（README.md 中文基准 + README.en/es/ru/ja.md 完整译本，顶部切换栏互链），改 README 内容必须五份同步改，es/ru/ja 术语以 UI 词典为准（tab 名、功能名与 locale 文件一致）。唯一例外：README.md 中文基准的 tagline blockquote 里带一行英文一句话简介（给国际读者的可发现性），这是有意的不对称，不要同步到 en/es/ru/ja。
+- **⭐ 项目文档（docs/）同为五语**：`docs/<name>.md` 中文基准 + `docs/<name>.en/.es/.ru/.ja.md` 完整译本，顶部语言栏互链（与 README 同构）。改任何一篇必须五份同步改，文档间交叉链接用同语言版本（如 `./four-alignment.en.md`）。官网 `sync-docs.mjs` 自动把译本挂到 `/<lang>/` 对应路径，GitHub 语言栏会被站内剥离（Starlight 有自己的语言切换）。es/ru/ja 术语沿用官网既有译本（temario/materiales de referencia、программа/справочные материалы 等）。
 - **⭐ 各处 description 统一中文为主（2026-09-11 起）**：GitHub About、根 `package.json`、市集清单与 SKILL frontmatter 的 description 以中文为主，可尾缀一句英文给国际可发现性（与 README tagline 的不对称先例同构）；manifest 全文双语走 `description_i18n`（en/zh-CN 分存，zcode 按 locale 取）。源：`scripts/sync-plugin.mjs` 的 DESCRIPTION 常量 + `skills/ask-coach/SKILL.md`，改后必重跑 `pnpm run sync:plugin`。官网 meta description（astro.config.mjs + index.md）本就是中文。
 - **⭐ 数据闭环（学习者档案 + 考点掌握度）**：串讲与推荐之间的机器层，让推荐理由从「错题多」具体到「EP-03 连错 2 次，错因：权限位组合不熟」。
   - **学习者档案** `examples/<theme>/study/records/profile.json`：grill 串讲顺产的考点级错因档案（wrongReasons/advice/串讲次数）。合并语义在 `lib/grill-utils.mjs` 的 `mergeProfile`（新旧考点题 id 重叠即同一考点）。**学习者私有**：随 `study/records/` 被 sync-study 排除不上站、被 .gitignore 排除不提交，agent 直产路径照同语义手写。

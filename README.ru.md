@@ -4,7 +4,7 @@
 
 # ai-study-kit
 
-[简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · **Русский**
+[简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · **Русский** · [日本語](README.ja.md)
 
 **Установка одной фразой**: отправьте эту строку своему ИИ — Claude Code, zcode, Cursor, любому инструменту — и он по протоколу установит коуча и исходник сайта. Без clone и без команд наизусть:
 
@@ -15,7 +15,7 @@ Install ai-study-kit from https://aistudykit.dev/install.md
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/site-online-blue" alt="Сайт" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Статус деплоя" /></a>
-  <img src="https://img.shields.io/badge/i18n-4%20%D1%8F%D0%B7%D1%8B%D0%BA%D0%B0-blue" alt="Интерфейс на 4 языках" />
+  <img src="https://img.shields.io/badge/i18n-5%20%D1%8F%D0%B7%D1%8B%D0%BA%D0%BE%D0%B2-blue" alt="Интерфейс на 5 языках" />
   <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
@@ -113,7 +113,7 @@ cd ai-study-kit && pnpm install && pnpm dev
 
 ## 🌍 Языки
 
-Этот README существует на четырёх языках (переключатель вверху); **интерфейс** переключается одним кликом между 中文 / English / Español / Русский — при первом визите берётся язык браузера, выбор синхронизируется между устройствами; **ИИ-контент** принимает `--lang zh|en|es|ru`. Словари и проверки живут в [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/).
+Этот README существует на пяти языках (переключатель вверху); **интерфейс** переключается одним кликом между 中文 / English / Español / Русский / 日本語 — при первом визите берётся язык браузера, выбор синхронизируется между устройствами; **ИИ-контент** принимает `--lang zh|en|es|ru|ja`. Словари и проверки живут в [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/).
 
 ---
 
@@ -133,7 +133,7 @@ cd ai-study-kit && pnpm install && pnpm dev
 
 ## 📚 Документация
 
-Каждый документ существует на четырёх языках с переключателем вверху (简体中文 / English / Español / Русский).
+Каждый документ существует на пяти языках с переключателем вверху (简体中文 / English / Español / Русский / 日本語).
 
 | Документ | Чему учит |
 |------|-----------|

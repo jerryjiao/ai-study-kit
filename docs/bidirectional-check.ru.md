@@ -1,6 +1,6 @@
 # Bidirectional Check · скрипт двусторонней проверки
 
-[简体中文](bidirectional-check.md) · [English](bidirectional-check.en.md) · [Español](bidirectional-check.es.md) · **Русский**
+[简体中文](bidirectional-check.md) · [English](bidirectional-check.en.md) · [Español](bidirectional-check.es.md) · **Русский** · [日本語](bidirectional-check.ja.md)
 
 Принцип четырёхсторонней выверки имеет силу, только если он проверяется автоматически. В репозиторий встроен [`scripts/bidirectional-check.py`](https://github.com/jerryjiao/ai-study-kit/blob/main/scripts/bidirectional-check.py), собирающий три направления — «вопросы → курс», «программа → вопросы», «покрытие карточками» — в одну команду. Семантический уровень «курс объясняет неверно» по-прежнему остаётся за ручной выверкой (правила — в [`four-alignment.ru.md`](./four-alignment.ru.md)).
 

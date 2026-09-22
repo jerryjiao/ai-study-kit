@@ -1,6 +1,6 @@
 # AI CLI Guide · 三个 AI 命令行工具
 
-**简体中文** · [English](ai-cli-guide.en.md) · [Español](ai-cli-guide.es.md) · [Русский](ai-cli-guide.ru.md)
+**简体中文** · [English](ai-cli-guide.en.md) · [Español](ai-cli-guide.es.md) · [Русский](ai-cli-guide.ru.md) · [日本語](ai-cli-guide.ja.md)
 
 ai-study-kit 内置三个 AI CLI，把学习素材变成闭环里的三样产物：`teach-generate` 产课程、`grill-wrong` 产错题精讲、`podcast-generate` 产复习播客。全部用你自己的 LLM/TTS API key 驱动，支持任何 OpenAI 兼容协议的服务（OpenAI / 智谱 GLM / DeepSeek / Kimi / 通义 / 豆包等）。
 
@@ -264,7 +264,7 @@ pnpm run ai:podcast -- --input Y --lang ru   # 俄语播客对白
 STUDY_LANG=en pnpm run ai:teach -- --theme X
 ```
 
-支持 `zh`（默认）/ `en` / `es` / `ru`。语言注册表在 [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs)，加新语言就是注册表加一项。
+支持 `zh`（默认）/ `en` / `es` / `ru` / `ja`。语言注册表在 [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs)，加新语言就是注册表加一项。
 
 行为约定：
 
@@ -273,7 +273,7 @@ STUDY_LANG=en pnpm run ai:teach -- --theme X
 - 题库原文（题干/选项）不会被翻译——精讲里的引用保持原样，这是刻意的：题目和解析必须与你刷的题一致；
 - **podcast 注意**：TTS 当前只接了 GLM-TTS，非中文对白能否合成取决于 provider 的多语支持。建议先 `--lang X --no-tts` 看脚本，确认 TTS 支持后再合成音频。
 
-前端答题站 UI 的多语言（顶栏切换中/EN/ES/RU）是另一套机制，见 README 的「多语言」章节。
+前端答题站 UI 的多语言（顶栏切换中/EN/ES/RU/JA）是另一套机制，见 README 的「多语言」章节。
 
 ---
 

@@ -13,7 +13,7 @@
  *   node apps/quiz-app/scripts/grill-wrong.mjs                       # 默认 dev-intro
  *   node apps/quiz-app/scripts/grill-wrong.mjs --theme react-basics
  *   node apps/quiz-app/scripts/grill-wrong.mjs --theme X --max-clusters 5
- *   node apps/quiz-app/scripts/grill-wrong.mjs --lang en             # 精讲用英语产（zh/en/es/ru）
+ *   node apps/quiz-app/scripts/grill-wrong.mjs --lang en             # 精讲用英语产（zh/en/es/ru/ja）
  *   node apps/quiz-app/scripts/grill-wrong.mjs --json                # 机器可读输出（agent 消费）
  *   SERVER=http://my-server:8787 node apps/quiz-app/scripts/grill-wrong.mjs
  *

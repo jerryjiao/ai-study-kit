@@ -1,6 +1,6 @@
 # Theme presentation config (theme-config.json)
 
-[简体中文](theming.md) · **English** · [Español](theming.es.md) · [Русский](theming.ru.md)
+[简体中文](theming.md) · **English** · [Español](theming.es.md) · [Русский](theming.ru.md) · [日本語](theming.ja.md)
 
 Every presentation-layer customization of the quiz app — home-page ordering, display names, subtopic expansion, source badges, core/extension layers, exam-point depth badges, card colors — lives in the theme pack's `theme-config.json`, **no app code required**. The file is fully optional: without it the app runs on fallback semantics and never errors.
 

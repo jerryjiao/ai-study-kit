@@ -1,6 +1,6 @@
 # Metodología
 
-[简体中文](methodology.md) · [English](methodology.en.md) · **Español** · [Русский](methodology.ru.md)
+[简体中文](methodology.md) · [English](methodology.en.md) · **Español** · [Русский](methodology.ru.md) · [日本語](methodology.ja.md)
 
 Este kit de herramientas destila una práctica real de aprendizaje. La versión en una línea: **el temario define qué se evalúa → los materiales de referencia construyen los conceptos → las preguntas de práctica validan el resultado**. Las tres cosas tienen su propia fuente de autoridad y el orden no se puede alterar: ponerse a responder preguntas antes de definir el temario, o practicar al aire conceptos sin ningún respaldo en materiales, es esfuerzo desperdiciado. A continuación, el patrón general despojado de todo vínculo con un dominio concreto: sirve para cualquier tema.
 

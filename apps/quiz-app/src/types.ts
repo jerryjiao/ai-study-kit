@@ -1,7 +1,7 @@
 export type QType = 'single' | 'multi' | 'judge';
 
 /** UI 界面语言（顶栏可切换）。词典在 src/i18n/locales/。 */
-export type UiLang = 'zh' | 'en' | 'es' | 'ru';
+export type UiLang = 'zh' | 'en' | 'es' | 'ru' | 'ja';
 
 export interface Question {
   id: string;                 // "GIT-001" | "LNX-002" 等，全局唯一稳定

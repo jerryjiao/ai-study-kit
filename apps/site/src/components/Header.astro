@@ -3,7 +3,7 @@
 // 结构复刻 @astrojs/starlight/components/Header.astro，右上角改为两组——
 // 站内入口（文档 + 在线试玩胶囊）在左、竖线分隔、工具组（GitHub/主题/语言）在右。
 // 注意：Starlight utility 只有 sl-flex/sl-block，没有 sl-inline-flex（写过一次，文档入口因此永久 display:none）。
-// 页尾另挂语言自适应脚本（is:inline 同步执行）：首访根路径按浏览器语言跳 /en|es|ru/，
+// 页尾另挂语言自适应脚本（is:inline 同步执行）：首访根路径按浏览器语言跳 /en|es|ru|ja/，
 // localStorage ask-site-lang 记用户最后浏览的语言，深链不劫持。GitHub Pages 纯静态，只能客户端做。
 import config from 'virtual:starlight/user-config';
 
@@ -21,13 +21,14 @@ import { SITE_BASE } from '../../site.config.mjs';
 const shouldRenderSearch =
 	config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
 
-// 页头入口文案跟随页面语言（root=中文 / en / es / ru），措辞与各语言首页 hero actions 对齐：
-// 在线试用 = Try the demo / Prueba la demo / Демо；「文档」指向快速上手（文档体系的第一页）。
+// 页头入口文案跟随页面语言（root=中文 / en / es / ru / ja），措辞与各语言首页 hero actions 对齐：
+// 在线试用 = Try the demo / Prueba la demo / Демо / デモを試す；「文档」指向快速上手（文档体系的第一页）。
 const lang = Astro.locals.starlightRoute.lang;
 const HEADER_LABELS: Record<string, { site: string; docs: string; demo: string }> = {
 	en: { site: 'Site', docs: 'Docs', demo: 'Demo' },
 	es: { site: 'Sitio', docs: 'Docs', demo: 'Demo' },
 	ru: { site: 'Сайт', docs: 'Документация', demo: 'Демо' },
+	ja: { site: 'サイト', docs: 'ドキュメント', demo: 'デモ' },
 };
 const labels = HEADER_LABELS[lang] ?? { site: '站内入口', docs: '文档', demo: '在线试用' };
 const demoHref = `${SITE_BASE}/demo/`;
@@ -45,7 +46,7 @@ const docsHref = `${SITE_BASE}${lang === 'zh-CN' ? '' : `/${lang}`}/get-started/
 			var root = siteBase.replace(/\/+$/, '');
 			var here = location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
 			var pageLang = (document.documentElement.lang || 'zh').split('-')[0].toLowerCase();
-			if (['zh', 'en', 'es', 'ru'].indexOf(pageLang) < 0) pageLang = 'zh';
+			if (['zh', 'en', 'es', 'ru', 'ja'].indexOf(pageLang) < 0) pageLang = 'zh';
 
 			// 爬虫豁免：渲染 JS 的爬虫（Googlebot 等）环境语言是 en-US，会被跳去 /en/，
 			// GSC 把 / 判成「网页有重定向」不进索引（2026-09 实测 sitemap 34 提交 0 索引）。
@@ -63,13 +64,13 @@ const docsHref = `${SITE_BASE}${lang === 'zh-CN' ? '' : `/${lang}`}/get-started/
 							: [navigator.language || ''];
 					for (var i = 0; i < langs.length; i++) {
 						var b = String(langs[i] || '').split('-')[0].toLowerCase();
-						if (b === 'en' || b === 'es' || b === 'ru') {
+						if (b === 'en' || b === 'es' || b === 'ru' || b === 'ja') {
 							pref = b;
 							break;
 						}
 					}
 				}
-				if (pref === 'en' || pref === 'es' || pref === 'ru') {
+				if (pref === 'en' || pref === 'es' || pref === 'ru' || pref === 'ja') {
 					try {
 						localStorage.setItem(KEY, pref);
 					} catch (e) {}

@@ -1,6 +1,6 @@
 # AI CLI Guide · the three AI command-line tools
 
-[简体中文](ai-cli-guide.md) · **English** · [Español](ai-cli-guide.es.md) · [Русский](ai-cli-guide.ru.md)
+[简体中文](ai-cli-guide.md) · **English** · [Español](ai-cli-guide.es.md) · [Русский](ai-cli-guide.ru.md) · [日本語](ai-cli-guide.ja.md)
 
 ai-study-kit ships three AI CLIs that turn study material into loop artifacts: `teach-generate` produces courses, `grill-wrong` produces wrong-question deep-dives, and `podcast-generate` produces review podcasts. All driven by your own LLM/TTS API keys, and all work with any OpenAI-compatible service (OpenAI / Zhipu GLM / DeepSeek / Kimi / Qwen / Doubao, etc.).
 
@@ -266,7 +266,7 @@ pnpm run ai:podcast -- --input Y --lang ru   # Russian podcast dialogue
 STUDY_LANG=en pnpm run ai:teach -- --theme X
 ```
 
-Supported: `zh` (default) / `en` / `es` / `ru`. The registry lives in [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs); adding a language is one registry entry.
+Supported: `zh` (default) / `en` / `es` / `ru` / `ja`. The registry lives in [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs); adding a language is one registry entry.
 
 Behavior notes:
 
@@ -275,7 +275,7 @@ Behavior notes:
 - question text (stems/options) is never translated — quotes inside deep-dives stay verbatim, deliberately: questions must match what you drilled;
 - **podcast caveat**: TTS currently only integrates GLM-TTS; whether non-Chinese dialogue can be synthesized depends on the provider's multilingual support. Verify the script first with `--lang X --no-tts`, then synthesize.
 
-The quiz-app UI's languages (top-bar zh/EN/ES/RU switch) are a separate mechanism — see the README's "Multilingual" section.
+The quiz-app UI's languages (top-bar zh/EN/ES/RU/JA switch) are a separate mechanism — see the README's "Multilingual" section.
 
 ---
 

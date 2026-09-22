@@ -58,7 +58,7 @@ head:
       {"@type":"Question","name":"¿Cómo se despliega?","acceptedAnswer":{"@type":"Answer","text":"Frontend estático más un pequeño servidor Hono: pnpm build && pnpm exec pm2 start en cualquier host con Node — o corre solo en local con pnpm dev."}},
       {"@type":"Question","name":"¿Qué tipos de pregunta soporta?","acceptedAnswer":{"@type":"Answer","text":"Opción única, opción múltiple (todo correcto para puntuar) y verdadero/falso, guardadas como JSON plano — sin encadenarte a nada."}},
       {"@type":"Question","name":"¿Necesito traer mi propio banco de preguntas?","acceptedAnswer":{"@type":"Answer","text":"No hace falta. Di al /ask-coach integrado «quiero aprender X»: alinea un temario contigo y redacta preguntas, tarjetas y cursos a juego. ¿Prefieres los tuyos? Las preguntas son JSON plano por tema — importa exámenes reales cuando quieras."}},
-      {"@type":"Question","name":"¿Puedo convertir mi material en un pódcast?","acceptedAnswer":{"@type":"Answer","text":"Sí. Cualquier material — cursos, preguntas, análisis de erróneas — se sintetiza en un audio a dos voces con transcripción. Generado con tu propia API key, en cuatro idiomas, para repasar en el camino o mientras haces ejercicio."}}
+      {"@type":"Question","name":"¿Puedo convertir mi material en un pódcast?","acceptedAnswer":{"@type":"Answer","text":"Sí. Cualquier material — cursos, preguntas, análisis de erróneas — se sintetiza en un audio a dos voces con transcripción. Generado con tu propia API key, en cinco idiomas, para repasar en el camino o mientras haces ejercicio."}}
       ]}
       ]}
 ---
@@ -261,7 +261,7 @@ head:
     </details>
     <details>
       <summary>¿Puedo convertir mi material en un pódcast?</summary>
-      <p>Sí. Cualquier material — cursos, preguntas, análisis de erróneas — se sintetiza en un audio a dos voces con transcripción. Generado con tu propia API key, en cuatro idiomas, para repasar en el camino o mientras haces ejercicio.</p>
+      <p>Sí. Cualquier material — cursos, preguntas, análisis de erróneas — se sintetiza en un audio a dos voces con transcripción. Generado con tu propia API key, en cinco idiomas, para repasar en el camino o mientras haces ejercicio.</p>
     </details>
   </div>
 </section>

@@ -1,6 +1,6 @@
 # Study Coach · `/ask-coach` 学习教练指令
 
-**简体中文** · [English](ai-study-kit.en.md) · [Español](ai-study-kit.es.md) · [Русский](ai-study-kit.ru.md)
+**简体中文** · [English](ai-study-kit.en.md) · [Español](ai-study-kit.es.md) · [Русский](ai-study-kit.ru.md) · [日本語](ai-study-kit.ja.md)
 
 ai-study-kit 的功能多——答题站、课程、闪卡、错题串讲、播客、部署，但对学习者来说这反而成了负担：**今天到底该干嘛？** `/ask-coach` 就是回答这个问题的。它是仓库自带的主入口 skill：装一次，每次学习从它开始，由它扫状态、给推荐、带你执行，不用背工具链。
 

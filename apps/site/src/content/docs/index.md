@@ -60,7 +60,7 @@ head:
       {"@type":"Question","name":"错题精讲是怎么做的？","acceptedAnswer":{"@type":"Answer","text":"AI 把错题按考点聚类，逐个考点生成精讲页，顺带沉淀考点级错因档案，下一次复习直接点名弱项。"}},
       {"@type":"Question","name":"需要联网或服务器吗？数据存在哪？","acceptedAnswer":{"@type":"Answer","text":"不需要。pnpm dev 本地跑，答题和闪卡全在浏览器里；想跨设备同步时再部署一个小服务器。数据只有两处：本地模式存浏览器，自部署模式存你自己的服务器（一个 JSON 文件），不经任何第三方。"}},
       {"@type":"Question","name":"不配 AI 能用吗？","acceptedAnswer":{"@type":"Answer","text":"能。AI 生成是增量能力：只想要答题站 + 闪卡的话，不配 LLM、不跑任何命令，pnpm dev 就够用；题库、闪卡都是纯 JSON，手写永远可行。"}},
-      {"@type":"Question","name":"能把学习内容做成播客听吗？","acceptedAnswer":{"@type":"Answer","text":"能。任一学习素材（课程、题目、错题精讲）都能合成男女双播音频，附带逐字稿；用你自己的 API key 生成，支持四语输出，通勤、运动时被动巩固。"}}
+      {"@type":"Question","name":"能把学习内容做成播客听吗？","acceptedAnswer":{"@type":"Answer","text":"能。任一学习素材（课程、题目、错题精讲）都能合成男女双播音频，附带逐字稿；用你自己的 API key 生成，支持五语输出，通勤、运动时被动巩固。"}}
       ]}
       ]}
 ---
@@ -263,7 +263,7 @@ head:
     </details>
     <details>
       <summary>能把学习内容做成播客听吗？</summary>
-      <p>能。任一学习素材（课程、题目、错题精讲）都能合成男女双播音频，附带逐字稿；用你自己的 API key 生成，支持四语输出，通勤、运动时被动巩固。</p>
+      <p>能。任一学习素材（课程、题目、错题精讲）都能合成男女双播音频，附带逐字稿；用你自己的 API key 生成，支持五语输出，通勤、运动时被动巩固。</p>
     </details>
   </div>
 </section>

@@ -4,7 +4,7 @@
 
 # ai-study-kit
 
-[简体中文](README.md) · **English** · [Español](README.es.md) · [Русский](README.ru.md)
+[简体中文](README.md) · **English** · [Español](README.es.md) · [Русский](README.ru.md) · [日本語](README.ja.md)
 
 **Install in one sentence**: send this line to your AI — Claude Code, zcode, Cursor, any tool — and it follows the protocol to install the coach and the site source. No clone, no commands to memorize:
 
@@ -15,7 +15,7 @@ Install ai-study-kit from https://aistudykit.dev/install.md
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/website-online-blue" alt="Website" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Deploy status" /></a>
-  <img src="https://img.shields.io/badge/i18n-4%20languages-blue" alt="UI in 4 languages" />
+  <img src="https://img.shields.io/badge/i18n-5%20languages-blue" alt="UI in 5 languages" />
   <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
@@ -113,7 +113,7 @@ Configure with `cp .env.example .env`, then fill at least `LLM_BASE_URL / LLM_AP
 
 ## 🌍 Multi-language
 
-This README ships in four languages (switch via the language bar); the **UI** switches between 中文 / English / Español / Русский in one click — detected from the browser on first visit, preference synced across devices; **AI-generated content** takes `--lang zh|en|es|ru`. Dictionaries and checks live in [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/).
+This README ships in five languages (switch via the language bar); the **UI** switches between 中文 / English / Español / Русский / 日本語 in one click — detected from the browser on first visit, preference synced across devices; **AI-generated content** takes `--lang zh|en|es|ru|ja`. Dictionaries and checks live in [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/).
 
 ---
 
@@ -133,7 +133,7 @@ This README ships in four languages (switch via the language bar); the **UI** sw
 
 ## 📚 Documentation
 
-Every doc ships in four languages with a language bar on top (简体中文 / English / Español / Русский).
+Every doc ships in five languages with a language bar on top (简体中文 / English / Español / Русский / 日本語).
 
 | Doc | What it teaches |
 |-----|-----------------|

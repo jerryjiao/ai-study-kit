@@ -18,7 +18,7 @@ import { DEMO_BASE } from '../site.config.mjs';
 const siteRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 // —— fallback noindex：zh 内容 = docs 根目录的 .md（排除语言目录），逐一检查各语言目录 ——
-const LANGS = ['en', 'es', 'ru'];
+const LANGS = ['en', 'es', 'ru', 'ja'];
 const docsDir = resolve(siteRoot, 'src/content/docs');
 
 function collectSlugs(dir, prefix = '') {
@@ -52,7 +52,7 @@ if (fallbackUrls.length) {
     `patch-404: fallback 页注入 noindex × ${fallbackUrls.length}\n  ${fallbackUrls.join('\n  ')}`,
   );
 } else {
-  console.log('patch-404: 无 fallback 页，四语内容齐整');
+  console.log('patch-404: 无 fallback 页，五语内容齐整');
 }
 
 // sitemap 剪除：noindex 的 URL 留在 sitemap 里是矛盾信号，按上面的集合同步删

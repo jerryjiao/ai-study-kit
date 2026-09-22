@@ -1,6 +1,6 @@
 # Configuration · the `.env` guide
 
-[简体中文](configuration.md) · **English** · [Español](configuration.es.md) · [Русский](configuration.ru.md)
+[简体中文](configuration.md) · **English** · [Español](configuration.es.md) · [Русский](configuration.ru.md) · [日本語](configuration.ja.md)
 
 `.env` configuration for the three AI CLIs. There's little to configure: pick one LLM provider (OpenAI / GLM / DeepSeek / Kimi / Qwen / Doubao), and add TTS (GLM-TTS only, currently) if you want podcasts. Everything speaks the OpenAI-compatible protocol, so switching providers is three variables.
 
@@ -65,7 +65,7 @@ The other CLIs (teach / podcast) don't fetch over the network; they don't use th
 
 ## Output language (STUDY_LANG, optional)
 
-The **generated content** language of the three AI CLIs, supporting `zh` (default) / `en` / `es` / `ru`:
+The **generated content** language of the three AI CLIs, supporting `zh` (default) / `en` / `es` / `ru` / `ja`:
 
 ```bash
 STUDY_LANG=en   # set in .env, or ad hoc: STUDY_LANG=es node ...

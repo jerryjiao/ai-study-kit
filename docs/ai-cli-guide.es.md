@@ -1,6 +1,6 @@
 # Guía de CLI con IA · las tres herramientas de línea de comandos
 
-[简体中文](ai-cli-guide.md) · [English](ai-cli-guide.en.md) · **Español** · [Русский](ai-cli-guide.ru.md)
+[简体中文](ai-cli-guide.md) · [English](ai-cli-guide.en.md) · **Español** · [Русский](ai-cli-guide.ru.md) · [日本語](ai-cli-guide.ja.md)
 
 ai-study-kit incluye tres CLI de IA que convierten el material de estudio en tres productos del ciclo: `teach-generate` produce cursos, `grill-wrong` produce análisis a fondo de erróneas y `podcast-generate` produce podcasts de repaso. Todos funcionan con tus propias API keys de LLM/TTS y soportan cualquier servicio con protocolo compatible OpenAI (OpenAI / Zhipu GLM / DeepSeek / Kimi / Qwen / Doubao, etc.).
 
@@ -268,7 +268,7 @@ pnpm run ai:podcast -- --input Y --lang ru   # 俄语播客对白
 STUDY_LANG=en pnpm run ai:teach -- --theme X
 ```
 
-Soporta `zh` (por defecto) / `en` / `es` / `ru`. El registro de lenguas vive en [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs); añadir una lengua nueva es añadir una entrada al registro.
+Soporta `zh` (por defecto) / `en` / `es` / `ru` / `ja`. El registro de lenguas vive en [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs); añadir una lengua nueva es añadir una entrada al registro.
 
 Convenciones de comportamiento:
 
@@ -277,7 +277,7 @@ Convenciones de comportamiento:
 - el texto original del banco (enunciados/opciones) nunca se traduce — las citas dentro del análisis quedan literales, a propósito: las preguntas y explicaciones deben coincidir con las que practicaste;
 - **aviso sobre el podcast**: el TTS por ahora solo integra GLM-TTS; que un diálogo no chino llegue a sintetizarse depende del soporte multilingüe del proveedor. Recomendación: revisa primero el guion con `--lang X --no-tts` y sintetiza el audio cuando confirmes que el TTS lo soporta.
 
-Los idiomas de la UI de la app de práctica (conmutador zh/EN/ES/RU en la barra superior) son otro mecanismo; véase la sección «Multilingüe» del README.
+Los idiomas de la UI de la app de práctica (conmutador zh/EN/ES/RU/JA en la barra superior) son otro mecanismo; véase la sección «Multilingüe» del README.
 
 ---
 

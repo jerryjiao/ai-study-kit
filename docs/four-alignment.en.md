@@ -1,6 +1,6 @@
 # Four-Alignment Principle
 
-[简体中文](four-alignment.md) · **English** · [Español](four-alignment.es.md) · [Русский](four-alignment.ru.md)
+[简体中文](four-alignment.md) · **English** · [Español](four-alignment.es.md) · [Русский](four-alignment.ru.md) · [日本語](four-alignment.ja.md)
 
 When learning any topic, four artifacts must stay aligned around **the same knowledge points**: the course (explanation), the quiz (practice), the flashcards (memory anchors), and the wrong-question deep-dive (mistake forensics). They are four independent files in the repo — edit any one of them and the other three don't move. Misalignment fails silently: it just leaves hidden learning gaps — drilling questions you were never taught, finishing lessons with nothing to practice, core concepts with no cards.
 

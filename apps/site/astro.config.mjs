@@ -1,8 +1,8 @@
 // ai-study-kit 官网（wayfinder map #9 / #10 选型：Astro Starlight）。
 // 部署形态：GitHub Pages 项目页 + 自定义域名 → https://aistudykit.dev/
 // （2026-09-15 迁移；老 URL https://jerryjiao.github.io/ai-study-kit/* 由 GitHub Pages 自动 301 到新域）
-// 四语（与项目 UI/CLI/README 的 zh/en/es/ru 对齐，#13 分层策略）：zh-cn 为默认语言挂在根路径，
-// en/es/ru 各挂 /<lang>/，未翻译页 fallback 到中文 + 提示条。
+// 五语（与项目 UI/CLI/README 的 zh/en/es/ru/ja 对齐，#13 分层策略）：zh-cn 为默认语言挂在根路径，
+// en/es/ru/ja 各挂 /<lang>/，未翻译页 fallback 到中文 + 提示条。
 // demo（#12）：构建时把 quiz-app 静态产物拷进 public/demo/（见 scripts/build-demo + CI）。
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
@@ -48,11 +48,12 @@ export default defineConfig({
       defaultLocale: 'root',
       locales: {
         // root = 中文（内容在 src/content/docs/ 根，URL 不带前缀）；
-        // en/es/ru 各挂 /<lang>/，未翻译页 fallback 到中文原文 + 提示条（#13 分层策略）
+        // en/es/ru/ja 各挂 /<lang>/，未翻译页 fallback 到中文原文 + 提示条（#13 分层策略）
         root: { label: '简体中文', lang: 'zh-CN' },
         en: { label: 'English', lang: 'en' },
         es: { label: 'Español', lang: 'es' },
         ru: { label: 'Русский', lang: 'ru' },
+        ja: { label: '日本語', lang: 'ja' },
       },
       customCss: ['./src/styles/custom.css'],
       // 页头覆盖：Starlight 默认 Header + 右上角「文档 / 在线试用」常驻入口（src/components/Header.astro）；
@@ -78,68 +79,69 @@ export default defineConfig({
       sidebar: [
         {
           label: '开始',
-          translations: { en: 'Get started', es: 'Primeros pasos', ru: 'Начало работы' },
+          translations: { en: 'Get started', es: 'Primeros pasos', ru: 'Начало работы', ja: 'はじめる' },
           items: [
             {
               label: '快速上手',
-              translations: { en: 'Quick Start', es: 'Inicio rápido', ru: 'Быстрый старт' },
+              translations: { en: 'Quick Start', es: 'Inicio rápido', ru: 'Быстрый старт', ja: 'クイックスタート' },
               slug: 'get-started',
             },
             {
               label: '换成你的主题',
-              translations: { en: 'Make It Yours', es: 'Hazlo tuyo', ru: 'Сделайте его своим' },
+              translations: { en: 'Make It Yours', es: 'Hazlo tuyo', ru: 'Сделайте его своим', ja: '自分のトピックに変える' },
               slug: 'your-theme',
             },
           ],
         },
         {
           label: '方法',
-          translations: { en: 'Method', es: 'Método', ru: 'Метод' },
+          translations: { en: 'Method', es: 'Método', ru: 'Метод', ja: 'メソッド' },
           items: [{ autogenerate: { directory: 'method' } }],
         },
         {
           label: 'AI 工具',
-          translations: { en: 'AI tools', es: 'Herramientas de IA', ru: 'ИИ-инструменты' },
+          translations: { en: 'AI tools', es: 'Herramientas de IA', ru: 'ИИ-инструменты', ja: 'AI ツール' },
           // 显式条目而非 autogenerate：非中文站这几页是 Starlight 的中文 fallback，
           // 侧栏标题取不到各语言页 frontmatter，需在 translations 显式给。
           // slug 与 scripts/sync-docs.mjs 的 SYNC 清单耦合，新增文档需同步改这里。
           items: [
             {
               label: 'AI CLI Guide · 三个 AI 命令行工具',
-              translations: { en: 'AI CLI Guide', es: 'Guía de los CLI de IA', ru: 'Руководство по ИИ-CLI' },
+              translations: { en: 'AI CLI Guide', es: 'Guía de los CLI de IA', ru: 'Руководство по ИИ-CLI', ja: 'AI CLI ガイド' },
               slug: 'ai/ai-cli',
             },
             {
               label: 'Study Coach · `/ask-coach` 学习教练指令',
-              translations: { en: 'Study Coach', es: 'Study Coach', ru: 'Study Coach' },
+              translations: { en: 'Study Coach', es: 'Study Coach', ru: 'Study Coach', ja: '学習コーチ' },
               slug: 'ai/ai-study-kit',
             },
             {
               label: 'Configuration · 配置指南',
-              translations: { en: 'Configuration', es: 'Configuración', ru: 'Конфигурация' },
+              translations: { en: 'Configuration', es: 'Configuración', ru: 'Конфигурация', ja: '設定ガイド' },
               slug: 'ai/configuration',
             },
           ],
         },
         {
           label: '维护',
-          translations: { en: 'Maintaining', es: 'Mantenimiento', ru: 'Поддержка' },
+          translations: { en: 'Maintaining', es: 'Mantenimiento', ru: 'Поддержка', ja: 'メンテナンス' },
           items: [
             {
               label: 'Bidirectional Check · 双向校验脚本',
-              translations: { en: 'Bidirectional Check', es: 'Verificación bidireccional', ru: 'Двусторонняя проверка' },
+              translations: { en: 'Bidirectional Check', es: 'Verificación bidireccional', ru: 'Двусторонняя проверка', ja: '双方向チェック' },
               slug: 'maintain/bidirectional-check',
             },
           ],
         },
         // 更新日志：sync-docs 从仓库根 CHANGELOG.md 生成（slug 与 SYNC 清单耦合）；
-        // 中文内容，en/es/ru 走 fallback + 提示条，与 AI 工具/维护两组同策略
+        // 中文内容，en/es/ru/ja 走 fallback + 提示条，与 AI 工具/维护两组同策略
         {
           label: `更新日志 · v${KIT_VERSION}`,
           translations: {
             en: `Changelog · v${KIT_VERSION}`,
             es: `Registro de cambios · v${KIT_VERSION}`,
             ru: `Список изменений · v${KIT_VERSION}`,
+            ja: `更新履歴 · v${KIT_VERSION}`,
           },
           slug: 'changelog',
         },

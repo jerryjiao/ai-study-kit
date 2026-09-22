@@ -1,6 +1,6 @@
 # 四对齐原则
 
-**简体中文** · [English](four-alignment.en.md) · [Español](four-alignment.es.md) · [Русский](four-alignment.ru.md)
+**简体中文** · [English](four-alignment.en.md) · [Español](four-alignment.es.md) · [Русский](four-alignment.ru.md) · [日本語](four-alignment.ja.md)
 
 学任何主题，四个产物必须围绕**同一套知识点**对齐：课程（讲解）、题目（练习）、闪卡（记忆锚点）、错题精讲（错点深挖）。它们是仓库里四份独立的文件，改任何一份，另外三份不会跟着动——不对齐不会报错，只会留下隐性学习漏洞：刷到没学过的题、学完没题练、该记的概念没有卡。
 

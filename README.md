@@ -4,7 +4,7 @@
 
 # ai-study-kit
 
-**简体中文** · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md)
+**简体中文** · [English](README.en.md) · [Español](README.es.md) · [Русский](README.ru.md) · [日本語](README.ja.md)
 
 > 对 AI 说一句「我想学 X」，教练先和你对齐考点，再出题、产课，带你练到会——不用先准备题库。错题按考点讲透，复习自动排队，进度跨设备同步。免费开源，装个插件就能开始。
 >
@@ -19,7 +19,7 @@
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/官网-online-blue" alt="官网" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="部署状态" /></a>
-  <img src="https://img.shields.io/badge/i18n-%E5%9B%9B%E8%AF%AD-blue" alt="界面四语" />
+  <img src="https://img.shields.io/badge/i18n-%E4%BA%94%E8%AF%AD-blue" alt="界面五语" />
   <a href="https://github.com/jerryjiao/ai-study-kit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/commits/main/"><img src="https://img.shields.io/github/last-commit/jerryjiao/ai-study-kit" alt="last commit" /></a>
@@ -117,7 +117,7 @@ cd ai-study-kit && pnpm install && pnpm dev
 
 ## 🌍 多语言 / Multi-language
 
-本 README 四语同构（顶部语言栏切换）；**UI 界面**一键切换 中文 / English / Español / Русский，首次访问按浏览器语言选择，偏好跨设备同步；**AI 生成内容**用 `--lang zh|en|es|ru` 指定输出语言。词典与校验机制见 [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/)。
+本 README 五语同构（顶部语言栏切换）；**UI 界面**一键切换 中文 / English / Español / Русский / 日本語，首次访问按浏览器语言选择，偏好跨设备同步；**AI 生成内容**用 `--lang zh|en|es|ru|ja` 指定输出语言。词典与校验机制见 [`apps/quiz-app/src/i18n/`](apps/quiz-app/src/i18n/)。
 
 ---
 
@@ -137,7 +137,7 @@ cd ai-study-kit && pnpm install && pnpm dev
 
 ## 📚 文档导航
 
-每篇文档都是四语，顶部语言栏互链（简体中文 / English / Español / Русский）。
+每篇文档都是五语，顶部语言栏互链（简体中文 / English / Español / Русский / 日本語）。
 
 | 文档 | 看它学什么 |
 |------|-----------|

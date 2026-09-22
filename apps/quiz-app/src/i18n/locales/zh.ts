@@ -4,7 +4,7 @@
  * 约定：
  * - key 用扁平的点分命名（页面/组件.用途），新增文案先加到这里；
  * - 占位符写 {name}，t() 里做字符串替换；
- * - en/es/ru 以 `Record<TKey, string>` 引用本文件的 key 集合——漏翻译会直接编译报错；
+ * - en/es/ru/ja 以 `Record<TKey, string>` 引用本文件的 key 集合——漏翻译会直接编译报错；
  * - i18n.test.ts 会再校验 key 完整性与占位符一致性。
  */
 export const zh = {

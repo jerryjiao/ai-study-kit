@@ -12,8 +12,8 @@ import { buildPodcastPrompt, renderTranscript } from './podcast-utils.mjs';
 
 // ── 注册表结构 ────────────────────────────────────────────
 
-test('SUPPORTED_LANGS 覆盖 zh/en/es/ru 四语', () => {
-  assert.deepEqual(Object.keys(SUPPORTED_LANGS), ['zh', 'en', 'es', 'ru']);
+test('SUPPORTED_LANGS 覆盖 zh/en/es/ru/ja 五语', () => {
+  assert.deepEqual(Object.keys(SUPPORTED_LANGS), ['zh', 'en', 'es', 'ru', 'ja']);
 });
 
 test('每语配置字段齐全（code/htmlLang/native/directive/ui）', () => {
@@ -32,7 +32,7 @@ test('每语配置字段齐全（code/htmlLang/native/directive/ui）', () => {
   }
 });
 
-test('indexCount 占位符 {n} 四语都在', () => {
+test('indexCount 占位符 {n} 五语都在', () => {
   for (const conf of Object.values(SUPPORTED_LANGS)) {
     assert.match(conf.ui.indexCount, /\{n\}/);
   }
@@ -54,7 +54,7 @@ test('resolveLang: 无 flag 时用环境变量', () => {
 
 test('resolveLang: 非法值抛错并列出支持语言', () => {
   assert.throws(() => resolveLang('fr', undefined), /fr/);
-  assert.throws(() => resolveLang('fr', undefined), /zh \/ en \/ es \/ ru/);
+  assert.throws(() => resolveLang('fr', undefined), /zh \/ en \/ es \/ ru \/ ja/);
 });
 
 test('langConf: 未知 code 兜底 zh', () => {

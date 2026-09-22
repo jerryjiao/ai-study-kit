@@ -1,6 +1,6 @@
 # 主题显示配置（theme-config.json）
 
-**简体中文** · [English](theming.en.md) · [Español](theming.es.md) · [Русский](theming.ru.md)
+**简体中文** · [English](theming.en.md) · [Español](theming.es.md) · [Русский](theming.ru.md) · [日本語](theming.ja.md)
 
 答题站的一切呈现层定制——首页排序、显示名、子主题展开、来源徽标、核心/拓展层、考点深度徽标、卡片配色——都住在主题包的 `theme-config.json` 里，**不需要动任何应用代码**。这个文件完全可选：不提供时应用按回退语义运行，绝不出错。
 

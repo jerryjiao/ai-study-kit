@@ -20,7 +20,7 @@
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme D:/x/theme/react-basics   # 外部主题包路径
  *   node apps/quiz-app/scripts/teach-generate.mjs --theme react-basics --lessons 5
- *   node apps/quiz-app/scripts/teach-generate.mjs --lang en            # 课程用英语产（zh/en/es/ru）
+ *   node apps/quiz-app/scripts/teach-generate.mjs --lang en            # 课程用英语产（zh/en/es/ru/ja）
  *   node apps/quiz-app/scripts/teach-generate.mjs --json               # 机器可读输出（agent 消费）
  *
  * 资源合并：主题目录有 RESOURCES.md 时解析其链接，与 course-spec.resources 按 URL 去重合并

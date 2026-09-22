@@ -1,6 +1,6 @@
 # 学习方法论
 
-**简体中文** · [English](methodology.en.md) · [Español](methodology.es.md) · [Русский](methodology.ru.md)
+**简体中文** · [English](methodology.en.md) · [Español](methodology.es.md) · [Русский](methodology.ru.md) · [日本語](methodology.ja.md)
 
 这套工具沉淀自真实的学习实践，一句话版本：**大纲定考什么 → 材料讲概念 → 做题验效果**。三件事各有权威来源，顺序不能乱——先刷题再找大纲，或在没有任何材料铺垫的概念上凭空做题，都会白费功夫。下面是去掉领域绑定后的通用模式，任何主题都能套。
 

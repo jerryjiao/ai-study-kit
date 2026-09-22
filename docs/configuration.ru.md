@@ -1,6 +1,6 @@
 # Configuration · руководство по настройке
 
-[简体中文](configuration.md) · [English](configuration.en.md) · [Español](configuration.es.md) · **Русский**
+[简体中文](configuration.md) · [English](configuration.en.md) · [Español](configuration.es.md) · **Русский** · [日本語](configuration.ja.md)
 
 Настройка `.env` для трёх AI CLI. Настраивать нужно немного: выберите одного LLM-провайдера (OpenAI / GLM / DeepSeek / Kimi / Qwen / Doubao), а если хочется подкасты — добавьте TTS (пока только GLM-TTS). Всё работает по OpenAI-совместимому протоколу, смена провайдера — это три переменные.
 
@@ -67,7 +67,7 @@ SERVER=https://your-server.example.com node apps/quiz-app/scripts/grill-wrong.mj
 
 ## Язык вывода (STUDY_LANG, опционально)
 
-Язык **генерируемого контента** трёх AI CLI; поддерживается `zh` (по умолчанию) / `en` / `es` / `ru`:
+Язык **генерируемого контента** трёх AI CLI; поддерживается `zh` (по умолчанию) / `en` / `es` / `ru` / `ja`:
 
 ```bash
 STUDY_LANG=en   # задаётся в .env, или разово при запуске: STUDY_LANG=es node ...

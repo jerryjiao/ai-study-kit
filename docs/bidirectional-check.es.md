@@ -1,6 +1,6 @@
 # Verificación bidireccional · el script de comprobación
 
-[简体中文](bidirectional-check.md) · [English](bidirectional-check.en.md) · **Español** · [Русский](bidirectional-check.ru.md)
+[简体中文](bidirectional-check.md) · [English](bidirectional-check.en.md) · **Español** · [Русский](bidirectional-check.ru.md) · [日本語](bidirectional-check.ja.md)
 
 El principio de las cuatro alineaciones solo tiene dientes si es verificable automáticamente. El repositorio incluye [`scripts/bidirectional-check.py`](https://github.com/jerryjiao/ai-study-kit/blob/main/scripts/bidirectional-check.py), que convierte las tres direcciones «preguntas → curso», «temario → preguntas» y «cobertura de tarjetas» en un solo comando. Lo semántico («el curso lo enseña mal») sigue requiriendo revisión humana (las reglas, en [`four-alignment.es.md`](./four-alignment.es.md)).
 

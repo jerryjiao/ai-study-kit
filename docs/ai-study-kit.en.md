@@ -1,6 +1,6 @@
 # Study Coach · the `/ask-coach` command
 
-[简体中文](ai-study-kit.md) · **English** · [Español](ai-study-kit.es.md) · [Русский](ai-study-kit.ru.md)
+[简体中文](ai-study-kit.md) · **English** · [Español](ai-study-kit.es.md) · [Русский](ai-study-kit.ru.md) · [日本語](ai-study-kit.ja.md)
 
 ai-study-kit has many features — quiz app, courses, flashcards, wrong-question grilling, podcasts, deployment — which itself becomes a burden for a learner: **what exactly should I do today?** `/ask-coach` answers that. It's the repo's built-in main-entry skill: install it once, start every study session from it, and let it scan your state, recommend, and execute with you — no need to memorize the toolchain.
 

@@ -1,6 +1,6 @@
 # Руководство по AI CLI · три инструмента командной строки
 
-[简体中文](ai-cli-guide.md) · [English](ai-cli-guide.en.md) · [Español](ai-cli-guide.es.md) · **Русский**
+[简体中文](ai-cli-guide.md) · [English](ai-cli-guide.en.md) · [Español](ai-cli-guide.es.md) · **Русский** · [日本語](ai-cli-guide.ja.md)
 
 В ai-study-kit встроены три AI CLI, превращающие учебные материалы в три артефакта цикла: `teach-generate` производит курсы, `grill-wrong` — глубокий разбор ошибок, `podcast-generate` — подкасты для повторения. Всё работает на ваших собственных API-ключах LLM/TTS и с любым сервисом по OpenAI-совместимому протоколу (OpenAI / Zhipu GLM / DeepSeek / Kimi / Qwen / Doubao и др.).
 
@@ -268,7 +268,7 @@ pnpm run ai:podcast -- --input Y --lang ru   # диалоги подкаста �
 STUDY_LANG=en pnpm run ai:teach -- --theme X
 ```
 
-Поддерживаются `zh` (по умолчанию) / `en` / `es` / `ru`. Реестр языков — [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs); добавить новый язык — одна запись в реестре.
+Поддерживаются `zh` (по умолчанию) / `en` / `es` / `ru` / `ja`. Реестр языков — [`scripts/lib/langs.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/langs.mjs); добавить новый язык — одна запись в реестре.
 
 Соглашения о поведении:
 
@@ -277,7 +277,7 @@ STUDY_LANG=en pnpm run ai:teach -- --theme X
 - текст вопросов (формулировки/варианты) не переводится никогда — цитаты в разборе остаются дословными, и это сознательно: вопросы обязаны совпадать с теми, что вы отрабатывали;
 - **нюанс про podcast**: в TTS сейчас интегрирован только GLM-TTS; синтезируется ли не-китайский диалог — зависит от мультиязычности провайдера. Рекомендуем сначала прогнать `--lang X --no-tts` и посмотреть сценарий, а синтезировать аудио после подтверждения поддержки.
 
-Многоязычность интерфейса тренажёра (переключатель zh/EN/ES/RU в верхней панели) — отдельный механизм, см. раздел «Многоязычность» в README.
+Многоязычность интерфейса тренажёра (переключатель zh/EN/ES/RU/JA в верхней панели) — отдельный механизм, см. раздел «Многоязычность» в README.
 
 ---
 

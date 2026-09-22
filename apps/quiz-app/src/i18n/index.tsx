@@ -3,6 +3,7 @@ import { zh } from './locales/zh';
 import { en } from './locales/en';
 import { es } from './locales/es';
 import { ru } from './locales/ru';
+import { ja } from './locales/ja';
 import { useProgress } from '../hooks/useProgress';
 import type { UiLang } from '../types';
 
@@ -18,12 +19,13 @@ export const LANGUAGES: { code: UiLang; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
   { code: 'ru', label: 'Русский' },
+  { code: 'ja', label: '日本語' },
 ];
 
-const DICTS: Record<UiLang, Record<TKey, string>> = { zh, en, es, ru };
+const DICTS: Record<UiLang, Record<TKey, string>> = { zh, en, es, ru, ja };
 
 /** <html lang> 属性值（BCP 47），供读屏/浏览器翻译识别。 */
-const HTML_LANG: Record<UiLang, string> = { zh: 'zh-CN', en: 'en', es: 'es', ru: 'ru' };
+const HTML_LANG: Record<UiLang, string> = { zh: 'zh-CN', en: 'en', es: 'es', ru: 'ru', ja: 'ja' };
 
 const LS_KEY = 'ask-lang';
 const LS_UPDATED_KEY = 'ask-lang-updated-at';
@@ -47,7 +49,7 @@ function detectLang(): UiLang {
     const tags = navigator.languages?.length ? navigator.languages : [navigator.language];
     for (const tag of tags) {
       const primary = String(tag).toLowerCase().split('-')[0];
-      if (primary === 'zh' || primary === 'en' || primary === 'es' || primary === 'ru') return primary;
+      if (primary === 'zh' || primary === 'en' || primary === 'es' || primary === 'ru' || primary === 'ja') return primary;
     }
   } catch { /* SSR / 隐私模式 */ }
   return 'en';
@@ -57,7 +59,7 @@ function detectLang(): UiLang {
 function readLocalLang(): UiLang {
   try {
     const v = localStorage.getItem(LS_KEY);
-    if (v === 'zh' || v === 'en' || v === 'es' || v === 'ru') return v;
+    if (v === 'zh' || v === 'en' || v === 'es' || v === 'ru' || v === 'ja') return v;
   } catch { /* 配额/隐私模式 */ }
   return detectLang();
 }
