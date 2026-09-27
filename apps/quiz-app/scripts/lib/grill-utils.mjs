@@ -4,6 +4,7 @@
  * 处理：错题筛选、聚类准备、HTML 包装、prompt 构建。
  */
 import { langConf } from './langs.mjs';
+import { voiceBlock } from './voice.mjs';
 
 /** HTML 转义（与 teach-utils 一致，但保持模块独立避免循环依赖）。 */
 export function escapeHTML(s) {
@@ -171,7 +172,10 @@ ${conf.directive}（题干引用保持原样）
 - **易错警示**：用 <div class="callout callout-warn"> 列每个错根
 - **变体训练**：用 <div class="callout"> 列 2-3 道变体题（同考点换个问法）
 - **四对齐**：开头加 <div class="quiz-anchor"> 列本簇题 id 和对应考点
-- 风格：具体、有例子、避免空洞术语。800-1500 字（非中文按同等信息量折算）。
+- 长度：800-1500 字（非中文按同等信息量折算）。
+
+## 表达纪律
+${voiceBlock('grill', lang)}
 
 直接从 <h2> 开始写，不要前后解释。`,
     user: `考点：${cluster.topic}

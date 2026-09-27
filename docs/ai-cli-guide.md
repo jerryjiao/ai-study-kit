@@ -251,6 +251,24 @@ pnpm run ai:podcast -- --input examples/dev-intro/questions.json --no-tts --json
 
 ---
 
+## 表达纪律（生成内容的行文风格）
+
+三个 CLI 的生成 prompt 各内嵌一段**表达纪律**（v0.21.0 起）——课程、错题精讲、播客稿的行文要「像当面说话，不像伏案写作」。纪律文本的五语单源在 [`scripts/lib/voice.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/voice.mjs)：`--lang` 切到哪个语言，纪律段就用哪个语言写进 prompt。
+
+结构是**底座 + 按产物形态分形**：
+
+| 产物 | 分形要点 |
+|------|---------|
+| teach 课程 | 成文体：第一个 `<h2>` 直接给本课落点（这课管什么、从哪下手）；行序跟着依赖走（先主张、再机制与例子、后边界与易错）；反讲义腔——不写「概念定义 / 主要特征 / 应用场景」式栏目填空 |
+| grill 错题精讲 | 诊断体：开头一句话点破本簇错根；易错警示指到具体题（题 id + 实际错选 + 累计错次，只引用输入里实际给出的记录、不编造）；错因落到具体概念/操作——「粗心」「不熟」不算错因 |
+| podcast 播客 | 口播体：写给耳朵（句子以一口气念完为上限）、接住话头再推进、预答下一问、话题回环（支线出口给回归信号）；目标段数大于 12（`--segments` > 12）时追加「中段收拢」条款——过半处一两句对白点一下主线，不占独立段 |
+
+底座三产物共用五条：开门即入题 / 词落到实物 / 判断钉在依据上 / 分寸跟着判断走 / 先删后改。
+
+skill 层教练声音的母本是 [`skills/references/voice.md`](https://github.com/jerryjiao/ai-study-kit/blob/main/skills/references/voice.md)（蒸馏重写自辞达 cida，ADR-0008「不做运行时依赖」）；voice.mjs 是同一纪律在 CLI 生成 prompt 面的落点，两侧同步维护。
+
+---
+
 ## 输出语言（`--lang` / `STUDY_LANG`）
 
 三个 CLI 都支持指定**生成内容**的输出语言：

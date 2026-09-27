@@ -169,6 +169,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
   - `teach-generate.mjs`：从 `examples/<theme>/course-spec.json` 产课程 HTML
   - `grill-wrong.mjs`：从 `/api/progress` 拉错题 + LLM 聚类 + 产错题精讲 HTML + 顺产学习者档案 `study/records/profile.json`
   - `podcast-generate.mjs`：从任一学习素材产男女双播播客（脚本 + 逐字稿 + WAV）
+  - 全部生成 prompt 内嵌**表达纪律**（v0.21.0「教练说人话」第二刀的 CLI 面，ADR-0008）：口表语域底座 + 按产物分形——teach 成文体 / grill 诊断体 / podcast 口播体（目标段数 >12 追加「中段收拢」），五语单源 `scripts/lib/voice.mjs`（skill 层母本 `skills/references/voice.md`，防漂移双注记、双侧同步改）。
   - 全部支持 `--lang zh|en|es|ru|ja`（或 `STUDY_LANG` 环境变量）指定**生成内容**语言；注册表在 `scripts/lib/langs.mjs`，CLI 日志始终中文。
   - 全部支持 `--json`（agent 管道消费）：人读日志走 stderr，stdout 只出结果 JSON（产物路径清单；noop 路径出 `status: "noop"`），与 mastery-report `--json` 同约定。
   - teach 额外做**出处回链**：主题目录有 `RESOURCES.md` 时解析其链接与 `course-spec.json` 的 resources 按 URL 去重合并，进 LLM 备课参考 + 每课页尾「出处」块（「以参考材料建概念」的产物面）。

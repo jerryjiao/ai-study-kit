@@ -253,6 +253,24 @@ Audio synthesis needs a TTS provider configured (GLM-TTS by default) — see [`c
 
 ---
 
+## Voice discipline (how generated content reads)
+
+Each of the three CLIs embeds a **voice discipline** block in its generation prompt (since v0.21.0) — courses, wrong-question deep-dives, and podcast scripts should read "like speech face-to-face, not like desk writing". The discipline text lives in one five-language source, [`scripts/lib/voice.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/voice.mjs): whichever language `--lang` selects, the discipline block enters the prompt in that language.
+
+The structure is a **shared base + a shape per product**:
+
+| Product | Shape |
+|---------|-------|
+| teach course | Written form: the first `<h2>` goes straight to what this lesson is for and where to start; rows ordered by dependency (claim first, then mechanism and examples, then boundaries and pitfalls); no textbook voice — no uniform "Definition / Key Features / Use Cases" filler sections |
+| grill wrong-question deep-dive | Diagnostic form: open with one sentence naming the cluster's common error root; every pitfall warning points at a concrete question (question id + actual wrong pick + accumulated wrong count — quoting only records the input actually gives, never inventing); root causes land on concrete concepts or operations — "careless" is not a cause |
+| podcast | Spoken form: write for the ear (a sentence is as long as one breath), pick up the thread before moving on, answer the next question, topic return (every detour exits with a return signal); when the target segment count exceeds 12 (`--segments` > 12), a "mid-show recap" clause is appended — a line or two of dialogue around the halfway point, no separate segment |
+
+The base is shared by all three products, five rules: open on substance / anchor every word to a thing / tie every verdict to evidence / keep the hedges / delete before rewriting.
+
+The skill-layer source of the coach's voice is [`skills/references/voice.md`](https://github.com/jerryjiao/ai-study-kit/blob/main/skills/references/voice.md) (distilled and rewritten from cida; ADR-0008, no runtime dependency). voice.mjs is the same discipline applied to CLI generation prompts; the two sides are maintained in sync.
+
+---
+
 ## Output language (`--lang` / `STUDY_LANG`)
 
 All three CLIs accept an output language for **generated content**:

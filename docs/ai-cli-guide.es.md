@@ -255,6 +255,24 @@ La síntesis de audio necesita un proveedor TTS configurado (GLM-TTS por defecto
 
 ---
 
+## Disciplina de voz (cómo suena lo generado)
+
+Cada uno de los tres CLI incrusta en su prompt de generación un bloque de **disciplina de voz** (desde v0.21.0): los cursos, los análisis de erróneas y los guiones de podcast deben sonar «como se habla en persona, no como se escribe en un escritorio». El texto de la disciplina vive en una única fuente en cinco idiomas, [`scripts/lib/voice.mjs`](https://github.com/jerryjiao/ai-study-kit/blob/main/apps/quiz-app/scripts/lib/voice.mjs): el idioma que elija `--lang` es el idioma en que el bloque entra en el prompt.
+
+La estructura es **base común + una forma por producto**:
+
+| Producto | Forma |
+|----------|-------|
+| curso de teach | Forma escrita: el primer `<h2>` va directo a para qué sirve la lección y por dónde empezar; orden por dependencia (primero la afirmación, luego mecanismo y ejemplos, al final límites y trampas); nada de tono de manual — sin secciones uniformes de «Definición / Características / Casos de uso» |
+| análisis de grill | Forma diagnóstica: abre con una frase que nombre la raíz común de los errores del clúster; cada advertencia apunta a una pregunta concreta (id + opción equivocada real + veces acumuladas de error — citando solo los registros que la entrada realmente da, sin inventar); las causas caen en conceptos u operaciones concretas — «descuido» no es una causa |
+| podcast | Forma hablada: escribe para el oído (una frase dura lo que dura una respiración), retoma el hilo antes de avanzar, responde la siguiente pregunta, vuelta al tema (cada desvío sale con señal de regreso); cuando el número de segmentos objetivo supera 12 (`--segments` > 12) se añade la cláusula de «recuento a mitad de guion» — un par de líneas de diálogo hacia la mitad, sin segmento aparte |
+
+La base es común a los tres productos, cinco reglas: entra directo al grano / ancla las palabras a cosas / cada veredicto con su base / conserva los matices / borrar antes de reescribir.
+
+El origen de la voz del entrenador en la capa skill es [`skills/references/voice.md`](https://github.com/jerryjiao/ai-study-kit/blob/main/skills/references/voice.md) (destilado y reescrito desde cida; ADR-0008, sin dependencia en tiempo de ejecución). voice.mjs es la misma disciplina aplicada a los prompts de generación de los CLI; ambos lados se mantienen en sincronía.
+
+---
+
 ## Idioma de salida (`--lang` / `STUDY_LANG`)
 
 Los tres CLI permiten especificar el idioma de salida del **contenido generado**:
