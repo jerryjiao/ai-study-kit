@@ -4,6 +4,30 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
+## [0.21.0] — 2026-09-27
+
+主题：**教练说人话第二刀（spec #82，ADR-0008 的 CLI 面）——三个 AI CLI 的生成 prompt 接表达纪律。** 新 `apps/quiz-app/scripts/lib/voice.mjs`（CLI 层纪律五语单源：口表语域底座压缩版 + teach 成文体 / grill 诊断体 / podcast 口播体按产物分形），teach / grill / podcast 三个 prompt builder 各嵌「## 表达纪律」节；podcast prompt 的开头 / 结尾行同步收紧，目标段数 >12 追加「中段收拢」条款。v0.19.0 落 skill 层、本版补 CLI 层，ADR-0008 两刀版本边界就此收口（原计划 v0.20.0，因日文五语化占用版本号顺延，见 0.20.0 调度注记）。
+
+### 升级与存量影响
+
+- **新文件/新契约**：`apps/quiz-app/scripts/lib/voice.mjs`（表达纪律五语单源 + `voiceBlock` 组装器）与 `voice.test.mjs`（13 测试，其中 kit 快照门禁 2 断言——新文件先 `git add` 再重跑 `pnpm run sync:plugin` 才转绿，防未跟踪新文件零警告漏出 kit 快照）；三个 builder 的 system prompt 新增「## 表达纪律」节（软契约，只影响新生成产物的行文）。kit 快照随 quiz-app scripts 面刷新，`kit-version.json` 版本号随版走 0.21.0。
+- **老项目缺了会怎样**：存量课程 / 精讲 / 播客产物与进度零影响——纪律只作用于**新生成**的 prompt；老项目用旧 kit 重跑 CLI 只是产物行文维持旧腔调，无落盘契约变化、无数据迁移、探测协议零改动，不升级无感。
+- **怎么补**：插件用户 marketplace refresh（kit 快照含 voice.mjs），手动安装用户重跑 `pnpm run skill:install`（同时刷新 skill 与 kit）；存量学习项目无需动作，想要新行文风格重跑对应 CLI 覆盖旧产物即可。
+- **是否破坏性**：非破坏。`--lang` / `--json` / `{n}` 占位符 / langs.mjs 词典 / teach 出处回链 / podcast `--style` 三态与段数 ±3 契约全部不动；grill 的 800-1500 字数契约保留。
+
+### Added
+
+- **`voice.mjs` CLI 表达纪律单源（五语）**：`VOICE_BASE` = voice.md §1 的 prompt 尺寸压缩（五条最小集：开门即入题 / 词落到实物 / 判断钉在依据上 / 分寸跟着判断走 / 先删后改；「立场先亮」「先接话头」不入底座——前者是快照推荐行场景、后者归 podcast 口播体分形，取舍注记写在常量注释）；`VOICE_KIND` 三产物分形——teach 成文体（首行给落点 / 行序跟依赖走 / 反讲义腔）、grill 诊断体（开头点破错根 / 警示指到题 id 实际错选错次 / 只引用输入记录防编造）、podcast 口播体 `{ base, recap }` 两段结构（接话头 / 预答下一问 / 话题回环 / 密度气口 / 口语真实性尺度 / 写给耳朵）；`RECAP_THRESHOLD=12`（源流是 cida podcast 适配器「每 10-15 分钟收拢一次」，重标定为段数粒度的代码条件）；`voiceBlock(kind, lang, opts)` 未知 kind 抛错、未知 lang 兜底 zh（同 langs.mjs langConf 防御路径）。模块头防漂移双注记：指向 voice.md 母本、cida 源流（MIT、重写非照抄）、不能物理单源两条理由（kit 自包含 / 五语指令）、排除清单（文体参数值 / 时长原值 / `--style` 已覆盖 / 其余平台适配器）、recap 按意图段数注入的 ±3 浮动注记。
+- **`voice.test.mjs` 四组 13 测试**：①结构（五语非空 ×3 形态、未知 kind 抛错、未知 lang 兜底、组装底座在前）；②三 builder 接线（system prompt 原样含 voiceBlock 输出，五语全轮 + 旧腔调行已删锚定 + 800-1500 字契约保留）；③收拢分支（18 段含 recap / 缺省与 =12 不含 / 非数值 NaN 安全，五语全轮 + buildPodcastPrompt 布线级复测 20 含 12 不含）；④kit 快照门禁（voice.mjs / voice.test.mjs 进 kit 快照且与源字节相等，报错点名「先 git add 再重跑 sync:plugin」——sync 只收 git 跟踪面且不警告未跟踪新文件）。
+- **voice.md CLI 注记**：`skills/references/voice.md` 头部补防漂移双注记的 skill 侧——点名 CLI 面落点 `voice.mjs` 与双侧同步纪律（与该文件头的 ⭐ 双注记互为呼应）。
+- **docs/ai-cli-guide 五语**：新增「表达纪律」节（三 CLI prompt 内嵌纪律、底座 + 三分形要点表、podcast 中段收拢触发条件、五语单源路径与 voice.md 母本关系），中文 + en / es / ru / ja 四译本同步。
+
+### Changed
+
+- **三 builder prompt 接线**：teach `buildLessonPrompt` 删「风格：口语化、有具体例子、避免空洞术语堆砌」行（不留双口径）、在内容要求与风格参考之间加「## 表达纪律」节（长度 800-1500 字与 SVG / quiz-anchor / callout 结构要求一字未动；`buildOutlinePrompt` 未接——结构任务）；grill `buildClusterGrillPrompt` 风格行改「长度：800-1500 字」保留字数契约、加表达纪律节（聚类与档案 prompt 未接——档案既有「不写粗心」条款判定已合规）；podcast `buildPodcastPrompt` 开头 / 结尾行收紧（开头简短欢迎引入后立刻进主题、结尾把主线总结收拢后再道别）、加表达纪律节（`--style` 三态、speaker 交替、不照念原文、角色标签契约不动）。
+- **AGENTS.md AI CLI 节**：补「全部生成 prompt 内嵌表达纪律」条目（五语单源 `scripts/lib/voice.mjs`、母本 voice.md、双侧同步维护）。
+- **CONTEXT.md**：「口表语域」词条补 CLI 生成 prompt 面落点一句。
+
 ## [0.20.0] — 2026-09-22
 
 主题：**日文（ja）五语化——工具、README、docs、官网全链路加入第五语言。** 工具 UI 词典 `ja.ts`（185 key 全译）与语言切换器、AI CLI `--lang ja`（teach/grill/podcast 生成内容日文化）；新 `README.ja.md` 与五份 README 语言栏互通；docs 七篇日文译本 + 28 个存量语言栏更新；官网 `/ja/` 全站（locales/侧栏/手写页/生成页/浏览器语言映射）。**版本号调度注记**：原预留给教练说话第二刀（CLI 产物 prompt 腔调接线）的 v0.20.0 由本版先落地使用，第二刀顺延 v0.21.0。

@@ -4,6 +4,7 @@
  * 处理：输入源解析、对话脚本 schema 校验、逐字稿渲染、文件名生成、prompt 构建。
  */
 import { langConf } from './langs.mjs';
+import { voiceBlock } from './voice.mjs';
 
 /** HTML 转义。 */
 export function escapeHTML(s) {
@@ -172,10 +173,13 @@ ${conf.directive}（title 和所有 text 都用目标语言；素材里的技术
 - speaker 严格交替 female / male
 - 每段一小段自然口语（中文约 30-150 字，其他语言按同等信息量折算）
 - 风格：${styleHint}
-- 开头要有"欢迎来到 XX 播客"之类的引入
+- 开头简短欢迎引入，随后立刻进主题
 - 中间要覆盖素材的核心知识点（用口语化方式讲，不要照念原文）
-- 结尾要有总结和"下期再见"
-- 不要在 text 里写"主持人："或"男："之类的角色标签——speaker 字段已经标了`,
+- 结尾把主线总结收拢后再道别
+- 不要在 text 里写"主持人："或"男："之类的角色标签——speaker 字段已经标了
+
+## 表达纪律
+${voiceBlock('podcast', lang, { targetSegments })}`,
     user: `素材标题：${sourceTitle}
 
 素材内容：
