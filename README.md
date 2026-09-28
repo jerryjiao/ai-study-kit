@@ -16,6 +16,8 @@
 请根据 https://aistudykit.dev/install.md，安装 ai-study-kit
 ```
 
+装好之后，日常学习只需要五个命令——`/ask-coach` 一族，全在聊天框里敲（见下文 🧭 一节）；下文的 pnpm / clone 是想先跑跑 demo 的开发者路线，学习者不用碰。
+
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/官网-online-blue" alt="官网" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="部署状态" /></a>

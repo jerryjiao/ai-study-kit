@@ -12,6 +12,8 @@
 Install ai-study-kit from https://aistudykit.dev/install.md
 ```
 
+После установки для повседневной учёбы достаточно пяти команд — семейство `/ask-coach`, всё вводится в чате (см. раздел 🧭 ниже); pnpm / clone дальше по тексту — маршрут разработчика, чтобы сначала посмотреть демо, — учащимся они не нужны.
+
 <p align="center">
   <a href="https://aistudykit.dev/"><img src="https://img.shields.io/badge/site-online-blue" alt="Сайт" /></a>
   <a href="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml"><img src="https://github.com/jerryjiao/ai-study-kit/actions/workflows/deploy-site.yml/badge.svg" alt="Статус деплоя" /></a>

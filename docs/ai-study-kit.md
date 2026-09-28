@@ -10,6 +10,8 @@ ai-study-kit 的功能多——答题站、课程、闪卡、错题串讲、播�
 
 ## 安装
 
+**装好之后，日常学习只需要五个命令**——`/ask-coach` 主入口加四个 `/study-*` 直入命令，全在聊天框里敲，想学什么直接说就行。本节下面出现的 pnpm 是装机/贡献者操作，只在安装（或参与开发）时碰一次——让 agent 代跑也行；日常学习用不到它们，不用记。
+
 skill 源文件在仓库 `skills/` 下（单一事实源：`ask-coach` 主入口 + `study-coach` / `study-doctor` / `study-recap` / `study-podcast` 四个薄命令，薄命令共享主入口的 `references/`）。两条安装路径：
 
 **① plugin 市集（zcode / Claude Code，推荐）**：仓库自带 marketplace 清单（`.claude-plugin/marketplace.json`，由 `scripts/sync-plugin.mjs` 从源生成 `plugins/ai-study-kit/`）。在客户端里添加 marketplace `https://github.com/jerryjiao/ai-study-kit`，安装 `ai-study-kit` 插件——后续 skill 更新随市集刷新到达，**无需手动重装**（版本跟仓库 release）。**插件更新后，旧项目打开 `/ask-coach` 会被报出版本差并引导 F13 升级**（保数据、补缺口，见 F13；kit 快照自报版本 `kit-version.json`）。**插件名终身 ai-study-kit，命令名是 ask-coach 一族**（2026-09 v0.13 由 `/ai-study-kit` 更名，市集名不可改所以插件名不动）。

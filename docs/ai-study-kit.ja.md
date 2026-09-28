@@ -10,6 +10,8 @@ ai-study-kit の機能は多い——クイズアプリ、コース、フラッ�
 
 ## インストール
 
+**インストールが済めば、日々の学習に必要なのは五つのコマンドだけ**です——メインエントリ `/ask-coach` と直接起動の四つのコマンド `/study-*` 系。すべてチャット欄に入力します。学びたいことをそのまま話しかければ十分です。この節に出てくる pnpm はインストール／開発者向けの作業で、インストール時に一度触れるだけ（agent に代行してもらっても構いません）。日常の学習で使うことはなく、覚える必要もありません。
+
 skill のソースはリポジトリの `skills/` 以下にあります（単一の信頼できる情報源：メインエントリ `ask-coach` ＋薄いコマンド四つ `study-coach` / `study-doctor` / `study-recap` / `study-podcast`。薄いコマンドはメインエントリの `references/` を共有します）。インストール経路は二つ：
 
 **① プラグインマーケット（zcode / Claude Code、おすすめ）**：リポジトリ同梱の marketplace マニフェスト（`.claude-plugin/marketplace.json`。`scripts/sync-plugin.mjs` がソースから `plugins/ai-study-kit/` を生成）。クライアントで marketplace `https://github.com/jerryjiao/ai-study-kit` を追加し、`ai-study-kit` プラグインをインストールします——以降の skill の更新はマーケットのリフレッシュで届き、**手動での再インストールは不要**です（バージョンはリポジトリの release に追従）。**プラグインの更新後、古いプロジェクトで `/ask-coach` を開くとバージョン差が報告され、F13 アップグレードへ誘導されます**（データを守り、不足を補完。F13 を参照。kit スナップショットは `kit-version.json` で自らのバージョンを報告）。**プラグイン名は生涯 ai-study-kit、コマンド名は ask-coach 一族です**（2026-09 の v0.13 で `/ai-study-kit` から改名。マーケット名は変更できないためプラグイン名はそのまま）。
