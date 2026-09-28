@@ -4,6 +4,32 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
+## [0.22.0] — 2026-09-28
+
+主题：**学习计划与进度对账（spec #89，ADR-0009）——进度信号第一次挂上「带日程的计划」维度。** 主题可选数据 `examples/<theme>/plan.json`（`deadline` + `units[]`，单元状态四态 planned / in-progress / done / paused）；kit 从 plan + progress **确定性派生**四组信号（无 LLM，mastery-report 同风格）：覆盖（done/total、当前单元、剩余清单）、节奏·日历对照（今天该到哪 vs 实际到哪 → 落后/富余天数）、节奏·速率外推（近 14 天完成速率 → 预计完成日 vs deadline → 富余/缺口）、断档天数（距最后一次学习接触）。落五个面：`plan-report` CLI（`--json` 供 agent）、首页「学习计划」面板、全景页轻量结合（摘要行 + day 卡状态 chip）、skill 快照「计划」行、F10 陪练按契约三维护单元状态。**无 plan.json 的主题（dev-intro）全链路现状零变化**——sync 写空计划回退、面板零 DOM、快照整行省略、CLI 出 noop。
+
+### 升级与存量影响
+
+- **新文件/新契约**：主题侧新增**可选**数据文件 `examples/<theme>/plan.json`（要不要排计划、粒度切多大是内容决策，kit 只在计划已存在时维护它）；仓库侧新增 `apps/quiz-app/scripts/lib/plan.mjs`（sync 契约 + 派生判据单源，头注写死四组信号口径）与 `plan.test.mjs`（31 测试，含三套 sync 夹具 plan-with / plan-none / plan-broken-malformed）、`apps/quiz-app/scripts/plan-report.mjs`（CLI）、`src/lib/plan.ts` + `plan.test.ts`（TS 移植 31 测试——脚本侧与前端侧判据同步改，mastery.ts 先例）、`src/data/plan.ts`（committed import 入口，coverage.ts 先例；`src/data/plan.json` 为 gitignored sync 产物）、`src/types.ts` 的 `PlanFile`/`PlanUnit`/`PlanUnitStatus`；UI 词典新增 26 个 plan key ×5 语；skill 层 state.md §3「学习计划」探测节、contracts.md **契约三**（plan.json 单元状态维护）、SKILL.md 快照第十一字段与「计划」行、F10 三触发点；文档侧 `docs/adr/0009` 与 CONTEXT.md 四词条（学习计划 / 计划单元 / 覆盖 / 节奏）。kit 快照随 quiz-app 与 skill 面刷新，`kit-version.json` 版本号随版走 0.22.0。
+- **老项目缺了会怎样**：零影响。plan.json 是可选文件——无计划主题 sync 写空计划回退 `{units:[]}`（theme-config 的 `{}` 回退同风格，import 恒可解析），首页/全景页零 DOM、快照零行、`plan-report` 出 `status:"noop"`（reason missing/broken，exit 0——缺可选文件不是故障）；progress 契约零改动（计划不进 progress，ADR-0009：progress 是按题 id 键控、跨设备 LWW 合并的运行期信号，塞计划结构要发明一套没有消费方的合并语义，且 progress 单份全局、plan 随主题走，装载位置互相冲突）。不升级无感。
+- **怎么补**：想要计划面 → 在 `examples/<theme>/plan.json` 手写或让教练排一份（`deadline` + 单元的 `plannedDate`/`day`/`topic`/`status`），重跑 sync/build 即上面板；插件用户 marketplace refresh（kit 快照含计划面），手动安装用户重跑 `pnpm run skill:install`；存量学习项目照 F13 重拷 kit 后同样只是多一个可选项。
+- **是否破坏性**：非破坏。既有 sync 产物（theme.json / courses.json / theme-config.json）与探测协议向后兼容（快照 noop 输出与没有计划功能前逐字节一致）；外部主题包路径（EXAMPLE_THEME 外部形态）同一代码路径生效。
+
+### Added
+
+- **`plan.json` 数据契约与 sync 链路（#90）**：`PlanFile`/`PlanUnit` 类型——`status` 四态由学习流程维护（不是从答题进度派生）、`plannedDate` 缺失只进清单不进日历对照、`day` 与 `theme.json` examDays **同一命名空间**（同源 MISSION 排布表 day 列）、`topic` 关联题库做题集直达。`syncPlan`：有则原样拷贝（byte 级不改写主题数据）、无/损坏/畸形（units 非数组）写空计划回退 + warn 不硬崩 build（theme.json 损坏同款态度）；外部主题包路径天然生效。CONTEXT.md 四词条 + `_Avoid_`（不把单元完成态写进 progress、不手编 `src/data/plan.json`、不写回派生值——双源必漂移）。
+- **派生判据单源 `lib/plan.mjs` + `plan-report` CLI（#91）**：四组信号全部现算不写回。覆盖：排序真源是 `order`（缺失排最后）；current = 第一个 in-progress，无则第一个 planned（「接下来该做的」），只剩 done/paused → null；remaining 含 paused（搁置了也是没完成）。日历对照：`plannedDate` 可解析才参与（坏日期披露 invalidDateUnits 不崩）；逾期判定严格小于今天（今天到期当天不算拖）；diffDays 锚「逾期单元的最大 plannedDate」不是最早逾期的拖龄（逐单元拖龄在 `overdue[].daysOverdue`）；paused 不豁免日程。速率外推：窗口 = 含今天往前 14 自然日、分母固定窗口长不随事件间隔伸缩、ceil 整天、剩余含 paused 保守；三态诚实降级 no-units / complete / no-recent-completions（近 14 天零完成事件不硬算编数）。断档：answers / srs / 课学完三通道取最大；按本主题题/卡 id 集求交做多主题隔离（读端过滤红线）；墓碑答案算接触（提交发生过）、课学完墓碑不算；无时间戳 → no-contact（不是 0 天）。时区口径：自然日按本地时区（srs.ts 先例）。CLI 支持 `--theme`（仓库内/外部主题包两种形态）/`--progress` / `--json`（stdout 只出结果 JSON、人读日志走 stderr，mastery-report 同约定；noop 路径 exit 0）。
+- **首页「学习计划」面板（#92）**：统计仪表正下方，仅当激活主题有计划（sync 产物 units 非空）才渲染——打开首页第一眼即见，无需导航。进度条 + 完成 X/Y + 剩余清单（带合法 `unit.topic` 的单元可点进对应题集，题库无此 topic 降级纯展示）+ 距 deadline 天数（未设不显示）+ 节奏双行（日历对照：落后红 / 富余绿 / 今天到期琥珀 / 日程已清；速率外推：预计完成日 ± 对 deadline 富余/缺口）+ 断档行（距上次学习 N 天）。数据不足走降级文案（无日程 / 速率不足 / 无接触），绝不显示编造数字；判据全从 `src/lib/plan.ts` 现算，数字与 `plan-report --json` 一致。
+- **全景页轻量结合（#93）**：顶部汇总带加一行计划摘要（完成 X/Y + 节奏，复用 `home.plan*` 词典 key——同一派生状态两处同文防措辞漂移）；有 `day` 映射的单元在对应 day 卡头带状态 chip 四态（计划中 / 在学 / 完成 / 搁置，`panorama.planStatus*`）。只取覆盖 + 日历对照与 day→单元映射，不算断档/外推——范围受控，不展开成第二个计划面板。day 命名空间契约落地：`unit.day ≡ examDays` 的 day，首页与全景页两个呈现面同源显示，同一天两处不一致即 bug、不是呈现自由度（ADR-0009）。
+- **skill 快照「计划」行 + 探测协议（#94）**：state.md §3 新增「学习计划」节——`plan-report --theme --progress --json` 一条命令自己说有无（不要先 ls 试探再决定跑不跑）；noop → 快照整行跳过（输出与没有计划功能前逐字节一致，dev-intro 即此基准）；ok → 拼「计划」行，字段全从命令实测不许编（覆盖 / 节奏 / 断档 / deadline；速率外推快照行不消费，用户追问「照这个速度来得及吗」再引用其 available/note）。SKILL.md 快照十 → 十一字段（「计划」行：完成 N/M · 当前单元 · 落后/富余 ±N 天 · 断档 N 天）；与「陪练」行考期的口径区分写死——本行 deadline 是**学习计划期限**（plan.json），陪练行「距考期」是 MISSION frontmatter deadline，两个源两个行不互替不合并（F11 冲刺的硬前置始终是后者）。
+- **契约三 + F10 维护接线（#95）**：contracts.md 新增**契约三 · 计划单元状态维护**——三动作：开站（翻 `in-progress`，paused 复学也是开站）/ 收站（翻 `done` + 补当天真实 `doneDate`）/ 搁置（翻 `paused`）。写入口径：无计划文件三动作整体跳过且**不替用户发明计划**；读-改-写（与口头流水同款并发纪律）；**只许改 `status` 与 `doneDate` 两个字段**（`plannedDate`/`deadline`/`order`/`title`/`day`/`topic` 是用户的内容决策，agent 不改）；`doneDate` = 写入当天真实日历日，禁固定值禁未来日期（progress `submittedAt` 同款红线），已 done 不重写（首次完成日是真源）；幂等且单向（`done` 终态不回翻，复习性重学照常开站只是不动单元状态）；搁置只在用户明确说时做（逾期/落后是节奏事实不自动搁置）；单元 ↔ 站不强求一一对应（按 `unit.topic`/`unit.day`/用户点名对号，对不上不硬凑）；派生值永不写入（写回 = 双源漂移）+ 产物时滞注记（主题文件改完要等下次 sync/build 上 UI；`plan-report --theme` 直读主题文件立即生效）。F10 playbook 三触发点接线（第 1 步开站、第 4 步收站、用户明确暂停时搁置）+ 完成标志补计划收站 + deadline 两口径注记（计划期限不是考期，F10 不拿它催办）。
+- **ADR-0009 与测试面**：分层决策两条（计划数据住主题——不进 progress；派生与展示住 kit——现算不写回）+ day 命名空间契约；Considered Options 三拒（计划进 progress / 计划写 MISSION.md 再解析——排布表的 day 是内容组织、计划是执行安排，让机器频繁改写人写的内容文件会污染 MISSION 权威性 / 派生值写回缓存）。已知边界留后续刀：有 plan.json 的主题其文件随 sync-study 全目录拷贝上 `public/study/<theme>/`，status/doneDate 是学习流程写的执行痕迹、与「学习痕迹不上站」的隐私精神有张力，是否排除单文件待裁决（dev-intro 无 plan.json 故现行发布面零变化）。测试：node:test 31（sync/readPlan 契约 6 + 覆盖 4 + 日历对照 8 + 速率外推 6 + 断档 4 + 总装/降级/脏数据 3）+ vitest 35（`plan.test.ts` 31：日期工具 / 覆盖 / 日历对照 / 速率外推 / 断档 / planUnitsByDay / 总装，本地正午锚「今天」跨时区确定；`Home.planPanel.test.ts` 2：空计划零 DOM 门控 + 有计划全要素渲染；`Panorama.plan.test.ts` 2：计划摘要行与 day 卡四态 chip + 空 plan 零 DOM）；UI 词典 26 个 plan key ×5 语（i18n.test 的 key 完整性校验覆盖）。
+
+### Changed
+
+- **README 五语功能面补一笔**：「换成你自己的主题」一节的可选项步骤并入 `plan.json`——带日程的学习计划（首页「学习计划」面板对账完成 X/Y、落后/富余天数、距上次学习几天），五语同步，术语随 UI 词典（study plan / plan de estudio / план обучения / 学習計画）。
+- **`.gitignore`**：增 `apps/quiz-app/src/data/plan.json`（sync 产物，与 questions.json / theme-config.json 等同一族）。
+
 ## [0.21.0] — 2026-09-27
 
 主题：**教练说人话第二刀（spec #82，ADR-0008 的 CLI 面）——三个 AI CLI 的生成 prompt 接表达纪律。** 新 `apps/quiz-app/scripts/lib/voice.mjs`（CLI 层纪律五语单源：口表语域底座压缩版 + teach 成文体 / grill 诊断体 / podcast 口播体按产物分形），teach / grill / podcast 三个 prompt builder 各嵌「## 表达纪律」节；podcast prompt 的开头 / 结尾行同步收紧，目标段数 >12 追加「中段收拢」条款。v0.19.0 落 skill 层、本版补 CLI 层，ADR-0008 两刀版本边界就此收口（原计划 v0.20.0，因日文五语化占用版本号顺延，见 0.20.0 调度注记）。
