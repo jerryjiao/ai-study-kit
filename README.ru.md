@@ -105,7 +105,7 @@ cd ai-study-kit && pnpm install && pnpm dev
 | `grill-wrong.mjs` | Группирует ошибки по пунктам программы и разбирает каждую группу | `wrong-questions/*.html` + профиль ошибок по пунктам |
 | `podcast-generate.mjs` | Превращает любой учебный материал в аудио с двумя ведущими | `.wav` + сценарий JSON + транскрипт |
 
-Настройка: `cp .env.example .env`, затем заполните как минимум `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` (см. [`docs/configuration.ru.md`](docs/configuration.ru.md)); использование и параметры — в [`docs/ai-cli-guide.ru.md`](docs/ai-cli-guide.ru.md).
+Настройка: `cp .env.example .env`, затем заполните как минимум `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` (см. [`docs/configuration.ru.md`](docs/configuration.ru.md)); использование и параметры — в [`docs/ai-cli-guide.ru.md`](docs/ai-cli-guide.ru.md). В повседневной учёбе запускать их самому не нужно: чтобы сделать курс, разбор ошибок или подкаст, скажите коучу `/ask-coach` — он поведёт выполнение по шагам; то руководство — «механика» для тех, кто хочет производить контент вручную или подстраивать параметры на собственном сервере.
 
 > 💡 **ИИ необязателен**: три CLI — дополнительные возможности. Нужен только тренажёр + карточки? LLM можно вообще не настраивать — достаточно `pnpm dev`.
 

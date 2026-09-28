@@ -109,7 +109,7 @@ cd ai-study-kit && pnpm install && pnpm dev
 | `grill-wrong.mjs` | 把错题按考点聚类深度展开 | `wrong-questions/*.html` + 考点错因档案 |
 | `podcast-generate.mjs` | 任一学习素材合成男女双播音频 | `.wav` + 脚本 + 逐字稿 |
 
-配置只需 `cp .env.example .env` 后填 `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL`（详见 [`docs/configuration.md`](docs/configuration.md)），跑法与参数见 [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md)。
+配置只需 `cp .env.example .env` 后填 `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL`（详见 [`docs/configuration.md`](docs/configuration.md)），跑法与参数见 [`docs/ai-cli-guide.md`](docs/ai-cli-guide.md)。日常不用自己跑：产课、错题串讲、做播客跟 `/ask-coach` 的教练说一声、由教练带执行；那份指南是手动档，写给想手动产内容或自托管调参的人。
 
 > 💡 **不用 AI 也能用**。三个 CLI 是增量能力，只想要答题站 + 闪卡的话，不配 LLM、不跑 CLI，`pnpm dev` 就够用。
 

@@ -105,7 +105,7 @@ El repositorio incluye tres herramientas de línea de comandos con IA (cualquier
 | `grill-wrong.mjs` | Agrupa tus erróneas por punto de examen y desarrolla cada grupo | `wrong-questions/*.html` + perfil de errores por punto |
 | `podcast-generate.mjs` | Convierte cualquier material de estudio en un audio a dos voces | `.wav` + guion JSON + transcripción |
 
-Configura con `cp .env.example .env` y rellena al menos `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` (ver [`docs/configuration.es.md`](docs/configuration.es.md)); uso y parámetros en [`docs/ai-cli-guide.es.md`](docs/ai-cli-guide.es.md).
+Configura con `cp .env.example .env` y rellena al menos `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` (ver [`docs/configuration.es.md`](docs/configuration.es.md)); uso y parámetros en [`docs/ai-cli-guide.es.md`](docs/ai-cli-guide.es.md). En el día a día no hace falta ejecutarlos tú: para generar cursos, análisis de erróneas o pódcast, díselo al coach de `/ask-coach` y deja que él guíe la ejecución; esa guía es la versión manual, para quien quiere producir contenido a mano o ajustar parámetros en un despliegue autoalojado.
 
 > 💡 **La IA es opcional**: los tres CLI son capacidades incrementales. Si solo quieres el sitio de práctica + tarjetas, no configures ningún LLM — `pnpm dev` basta.
 

@@ -105,7 +105,7 @@ The repo ships three AI command-line tools (any OpenAI-compatible LLM works; TTS
 | `grill-wrong.mjs` | Clusters wrong answers by exam point and expands each | `wrong-questions/*.html` + per-point error profile |
 | `podcast-generate.mjs` | Synthesizes any study material into a two-host audio show | `.wav` + script JSON + transcript |
 
-Configure with `cp .env.example .env`, then fill at least `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` (see [`docs/configuration.en.md`](docs/configuration.en.md)); usage and flags in [`docs/ai-cli-guide.en.md`](docs/ai-cli-guide.en.md).
+Configure with `cp .env.example .env`, then fill at least `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` (see [`docs/configuration.en.md`](docs/configuration.en.md)); usage and flags in [`docs/ai-cli-guide.en.md`](docs/ai-cli-guide.en.md). Day to day you don't run them yourself: to produce lessons, deep-dive wrong answers, or make a podcast, tell the `/ask-coach` coach and let it guide the execution; that guide is the manual option, for people who want to produce content by hand or tune a self-hosted deployment.
 
 > 💡 **Works without AI too.** The three CLIs are incremental capabilities. If you just want the quiz app + flashcards, skip the LLM entirely — `pnpm dev` is enough.
 

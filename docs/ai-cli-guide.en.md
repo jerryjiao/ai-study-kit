@@ -4,6 +4,8 @@
 
 ai-study-kit ships three AI CLIs that turn study material into loop artifacts: `teach-generate` produces courses, `grill-wrong` produces wrong-question deep-dives, and `podcast-generate` produces review podcasts. All driven by your own LLM/TTS API keys, and all work with any OpenAI-compatible service (OpenAI / Zhipu GLM / DeepSeek / Kimi / Qwen / Doubao, etc.).
 
+**In day-to-day study you don't run these commands yourself.** To produce a course, deep-dive wrong answers, or make a podcast, just tell the `/ask-coach` coach — that layer is guided execution by the coach, and the artifacts land straight in the directories in the table below. This page is the manual option, written for people who want to produce content by hand, bypassing the coach, or who run a self-hosted deployment and need to tune flags and debug; for how to install and use the coach, see [`ai-study-kit.en.md`](./ai-study-kit.en.md).
+
 Each CLI has a shortcut at the repo root; this guide uses the short forms (equivalent to `node apps/quiz-app/scripts/<script>.mjs`):
 
 | Shortcut | Script | Output |

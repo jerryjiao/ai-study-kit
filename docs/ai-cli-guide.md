@@ -4,6 +4,8 @@
 
 ai-study-kit 内置三个 AI CLI，把学习素材变成闭环里的三样产物：`teach-generate` 产课程、`grill-wrong` 产错题精讲、`podcast-generate` 产复习播客。全部用你自己的 LLM/TTS API key 驱动，支持任何 OpenAI 兼容协议的服务（OpenAI / 智谱 GLM / DeepSeek / Kimi / 通义 / 豆包等）。
 
+**日常学习里你不用自己跑这些命令。**产课、错题串讲、做播客，跟 `/ask-coach` 的教练说一声就行——这一层由教练带执行，产物直接落到下表那些目录。这页指南是手动档，写给想绕开教练手动产内容、或自托管部署要调参排障的人；教练怎么装、怎么用，见 [`ai-study-kit.md`](./ai-study-kit.md)。
+
 三个 CLI 在仓库根都有快捷命令，下文统一用短形式（等价于 `node apps/quiz-app/scripts/<脚本名>.mjs`）：
 
 | 快捷命令 | 脚本 | 产物 |

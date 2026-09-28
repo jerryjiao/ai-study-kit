@@ -4,6 +4,8 @@
 
 ai-study-kit incluye tres CLI de IA que convierten el material de estudio en tres productos del ciclo: `teach-generate` produce cursos, `grill-wrong` produce análisis a fondo de erróneas y `podcast-generate` produce podcasts de repaso. Todos funcionan con tus propias API keys de LLM/TTS y soportan cualquier servicio con protocolo compatible OpenAI (OpenAI / Zhipu GLM / DeepSeek / Kimi / Qwen / Doubao, etc.).
 
+**En el estudio cotidiano no tienes que ejecutar estos comandos tú mismo.** Para producir un curso, un análisis de erróneas o un podcast, basta con decírselo al coach de `/ask-coach` — esa capa va con ejecución guiada del coach, y los productos caen directamente en los directorios de la tabla de abajo. Esta guía es la versión manual, escrita para quien quiere producir contenido a mano al margen del coach, o quien mantiene un despliegue autoalojado y necesita ajustar parámetros y depurar; cómo instalar y usar el coach, en [`ai-study-kit.es.md`](./ai-study-kit.es.md).
+
 Los tres CLI tienen un comando abreviado en la raíz del repositorio; esta guía usa las formas cortas (equivalentes a `node apps/quiz-app/scripts/<script>.mjs`):
 
 | Comando abreviado | Script | Salida |

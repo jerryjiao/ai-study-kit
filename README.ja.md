@@ -105,7 +105,7 @@ git＋Linux のサンプルテーマが同梱されています：**クイズ**�
 | `grill-wrong.mjs` | 間違えた問題を出題ポイントごとにクラスタリングして深掘りする | `wrong-questions/*.html` ＋ 出題ポイント別の誤りプロファイル |
 | `podcast-generate.mjs` | 任意の学習素材を男女 2 人のナレーターによる音声番組に合成する | `.wav` ＋ 台本 JSON ＋ 文字起こし |
 
-設定は `cp .env.example .env` のあと `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` を埋めるだけです（詳細は [`docs/configuration.ja.md`](docs/configuration.ja.md)）。実行方法とパラメータは [`docs/ai-cli-guide.ja.md`](docs/ai-cli-guide.ja.md) を参照してください。
+設定は `cp .env.example .env` のあと `LLM_BASE_URL / LLM_API_KEY / LLM_MODEL` を埋めるだけです（詳細は [`docs/configuration.ja.md`](docs/configuration.ja.md)）。実行方法とパラメータは [`docs/ai-cli-guide.ja.md`](docs/ai-cli-guide.ja.md) を参照してください。日々の運用で自分で実行する必要はありません。コース生成・間違えた問題の徹底解説・ポッドキャスト制作は `/ask-coach` のコーチに一声かけ、コーチが実行をガイドします。そちらのガイドはマニュアル車版で、手動でコンテンツを作りたい人やセルフホストのパラメータを調整したい人向けです。
 
 > 💡 **AI なしでも使えます**。3 つの CLI は追加機能です。クイズアプリ＋フラッシュカードだけでよければ、LLM を設定せず、CLI を実行しなくても、`pnpm dev` で十分です。
 
