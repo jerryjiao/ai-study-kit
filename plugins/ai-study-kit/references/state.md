@@ -215,7 +215,7 @@ grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有�
 
 ## 8. kit 版本（快照「版本」行，ADR-0006）
 
-用户学习项目（F1/F13 建的，根下有 `kit/`）才探；仓库本体贡献者形态恒与 skill 文档同代，报「仓库本体」即可。
+按形态分开探（快照「版本」行两形态两套值）：用户学习项目（F1/F13 建的，根下有 `kit/`）走下面两处本地 + 第三处最新发布；仓库本体（§0 命中的 ai-study-kit checkout）**不假设与 skill 文档恒同代**——「恒同代」只对贡献者成立（工作区文档随编辑同步），对把 checkout 当学习项目用的学习者（ruankao 型）不成立（checkout 停在拉取时点，会落后 origin/main），该形态探 git 落后程度（见本节末「仓库本体形态」）。
 
 ```bash
 # 用户项目 kit 版本——无此文件 = 版本未知，按最老处理（不是故障，版本标记前的项目都这样）
@@ -238,6 +238,16 @@ curl --max-time 3 -sf "${ASK_KIT_VERSION_URL:-https://aistudykit.dev/version.jso
 - **探测时机三站**：① /ask-coach Step 1（快照「版本」行的本体信号）；② F13 第 1 步复探（flows.md——绝不把项目对齐到旧快照）；③ 体检版本行（flows.md「体检」节）。其余场合不探。
 - **软失败语义**：超时 / 解析失败（`latest=unknown`、非 JSON、无 `version` 字段）→ 注一句「最新版探测失败」，照报本地两态，**绝不报错、绝不阻塞**——快照「只读 ≤1 分钟」的离线性不因网络破。
 - **判读**（同两处本地的按号口径，不做语义化比较）：最新发布 = 快照版本 → 本体最新；快照版本在 `<插件根>/CHANGELOG.md` 版本序列里早于最新发布，或最新发布不在序列里（快照还不认识的已发布版）→ **本体落后**——报「快照 v<x> → 最新 v<y>」，引导先刷新插件本体（它是 F13 的前置，Route A/B 见 flows.md F13 第 1 步）；快照版本晚于最新发布（未发版的开发态）→ 本体最新。
+
+**仓库本体形态（仓库 checkout 当学习项目用）**：上面三处都是插件/用户项目口径（项目 `kit/` + 插件快照 + 最新发布），仓库本体没有 kit 目录、也没装插件——探 **git 落后程度**：
+
+```bash
+git fetch -q origin && git rev-list --count HEAD..origin/main 2>/dev/null || echo "behind=unknown"
+```
+
+- 输出数字 N → N = 0 报「仓库本体 · 与 origin/main 同步」；N > 0 报「仓库本体 · 落后 origin/main N 提交」，更新走 agent 代跑 git pull + 重建（意图路由表「升级/更新」仓库本体支线，路径见 flows.md F13「什么时候不用」）。
+- `behind=unknown`（无 origin 远端 / fetch 失败 / origin/main 不存在）→ **同一软失败协议**：注一句「落后探测失败」，报「仓库本体」两个字，绝不报错、绝不阻塞。fetch 失败时不拿旧的 origin/main 参考算数（上面命令的 `&&` 链保证——fetch 不通一律 `behind=unknown`，不报过期数字）。
+- git fetch / pull / rev-list 是工具链命令：agent 代跑可叙述，不派发给学习者手敲（CONTEXT.md「用户命令 / 工具链命令」的「可跑不可派」）。
 
 ## 快照之外的加分项（顺手看，不强制）
 

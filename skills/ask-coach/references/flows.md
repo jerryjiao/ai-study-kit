@@ -284,6 +284,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
 - 干净目录 → F1 从零初始化（F13 只对已存在的项目）。
 - 主题内容要改 → F7。F13 不代写内容，只补模板与点名缺口。
+- 仓库本体（ai-study-kit checkout 本身，state.md §0 命中）→ 不走 F13——它的前置是 kit 目录存在，仓库形态没有。更新 = **agent 代跑 git pull + 重建**：先 `git status --porcelain` 看有无本地未提交改动（有则先停下来问，别硬拉），再 `git pull --ff-only`，然后 `pnpm install && pnpm run build` 重建产物；落后程度探测见 state.md §8「仓库本体形态」。全程工具链命令 agent 代跑（可跑不可派），不派给学习者手敲。
 
 **步骤**：
 
@@ -381,7 +382,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
    ```bash
    # ① 版本漂移：用户项目 kit 版本 vs 插件快照版本，再叠第三信号——最新发布（state.md §8；
-   #    仅用户学习项目形态，仓库本体恒与 skill 同代，报「仓库本体」即可）
+   #    用户学习项目形态探三处；仓库本体形态不假设恒同代，探 HEAD vs origin/main——state.md §8 末）
    cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
    cat <插件根>/kit/kit-version.json
    curl --max-time 3 -sf "${ASK_KIT_VERSION_URL:-https://aistudykit.dev/version.json}" || echo "latest=unknown"
@@ -417,7 +418,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
      主题 … <theme>（dir ok / MISSING / 外部主题包路径）
      sync 新鲜度 … ✅ / ❌（重跑 pnpm build——常连带解掉假红）
    版本与契约（ADR-0006；只报事实与补法）：
-     版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体 · 本体 ✅ 已最新（v<x>）/ ⚠ 落后（快照 v<x> → 最新 v<y>，先刷新插件——F13 第 1 步分叉）/ 最新版探测失败（注一句，本地两态照报）
+     版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体（✅ 与 origin/main 同步 / ⚠ 落后 N 提交，agent 代跑 git pull + 重建 / 落后探测失败注一句）· 本体 ✅ 已最新（v<x>）/ ⚠ 落后（快照 v<x> → 最新 v<y>，先刷新插件——F13 第 1 步分叉）/ 最新版探测失败（注一句，本地两态照报）
      契约完整性 … ✅ 无缺口 / ⚠ <排布表缺失 · 题缺考点标记 N/M · 卡缺映射 N/M>（补法见 F13 第 5 步）
    建议修复顺序：<只列红项，按下面的固定优先级>
    ```
