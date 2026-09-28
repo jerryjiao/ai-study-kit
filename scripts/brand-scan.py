@@ -79,9 +79,11 @@ SCAN_EXTENSIONS = {
 }
 
 # Directories we never scan into.
+# .mimosa 是 mimosa 插件的本地 hook-state（.gitignore 排除、不进发布面），文件名与内容
+# 带随机哈希子串——会随机撞上短个人语境词造成假阳性（v0.22.0 workflow 收官时实测撞过）。
 SKIP_DIRS = {
     ".git", "node_modules", "dist", ".zcode", ".playwright-mcp",
-    "__pycache__", "podcast-out", ".quizbuild", ".astro",
+    "__pycache__", "podcast-out", ".quizbuild", ".astro", ".mimosa",
 }
 
 # Built-artifact directories we never scan into (suffix match on relative path):
