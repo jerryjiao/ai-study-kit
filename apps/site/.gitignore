@@ -5,6 +5,10 @@ dist/
 # demo：CI/本地构建时从 apps/quiz-app 拷入的静态产物（wayfinder #12）
 public/demo/
 
+# version.json：prebuild 由 gen-version.mjs 从仓库根 package.json 生成的版本产物
+# （探测协议第三处「最新发布」的取数源，spec #99/#100；与 kit-version.json 同构）
+public/version.json
+
 # docs 同步产物：由 scripts/sync-docs.mjs 从仓库根 docs/ 生成（真源在 docs/）
 src/content/docs/method/
 src/content/docs/ai/

@@ -9,7 +9,14 @@
 //      且旧格式学习记录原样可读
 // 退出码：全绿 0；任一断言红 1（供演练管道 / 回归复用）。
 //
-// 用法：node scripts/drill/check-upgrade.mjs <项目目录> [<插件快照 kit 目录>]
+// 场景二 --scenario=stalled（#100 假绿探测）：F13 第 1 步复探（ASK_KIT_VERSION_URL 指夹具
+// .drill-stubs/version-ahead.json 桩）发现插件本体落后于最新发布 → 停在复探。断言集换成：
+//   ①② 同上（progress 与主题分毫未失——停下的流程什么都不能动）
+//   ③' kit 未重拷：kit/kit-version.json 仍缺失（夹具是 v0.13.1 形态；重拷会带进快照版本文件）
+//   ④' refresh 引导给出：.drill-refresh-guidance.md（演练者按 F13 Route A 文案输出的引导留档）
+//      存在，且含「代不了」声明、marketplace refresh 步骤、快照版本号与桩的「最新发布」版本号
+//
+// 用法：node scripts/drill/check-upgrade.mjs <项目目录> [<插件快照 kit 目录>] [--scenario=stalled]
 //   项目目录默认 /tmp/ask-drill/project；快照默认 <repo>/plugins/ai-study-kit/kit
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -18,8 +25,10 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
-const project = resolve(process.argv[2] || '/tmp/ask-drill/project');
-const snapshot = resolve(process.argv[3] || join(REPO_ROOT, 'plugins', 'ai-study-kit', 'kit'));
+const scenario = process.argv.includes('--scenario=stalled') ? 'stalled' : 'upgraded';
+const positional = process.argv.slice(2).filter((a) => !a.startsWith('--'));
+const project = resolve(positional[0] || '/tmp/ask-drill/project');
+const snapshot = resolve(positional[1] || join(REPO_ROOT, 'plugins', 'ai-study-kit', 'kit'));
 
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 const failures = [];
@@ -39,6 +48,7 @@ function listFiles(dir, base = dir) {
 
 console.log(`[drill-check] 项目：${project}`);
 console.log(`[drill-check] 快照：${snapshot}`);
+console.log(`[drill-check] 场景：${scenario === 'stalled' ? '本体落后（停在 F13 复探）' : '升级完成'}`);
 
 const manifest = JSON.parse(readFileSync(join(project, '.drill-manifest.json'), 'utf-8'));
 const themeDir = join(project, manifest.themeDir || 'theme/net-basics');
@@ -57,6 +67,33 @@ for (const [rel, want] of Object.entries(manifest.themeShas)) {
   if (!existsSync(p)) { bad(`主题文件丢失：${manifest.themeDir}/${rel}`); continue; }
   const got = sha256(readFileSync(p));
   got === want ? ok(`主题不动：${rel}`) : bad(`主题被改动：${rel}`, '升级不许碰 kit 外的主题包');
+}
+
+if (scenario === 'stalled') {
+  // ③' kit 未重拷：夹具 v0.13.1 形态本无版本文件，重拷会把快照的 kit-version.json 带进来
+  existsSync(join(project, 'kit', 'kit-version.json'))
+    ? bad('kit 被重拷', '本体落后应停在 F13 第 1 步复探——重拷只会把项目对齐到旧快照')
+    : ok('kit 未重拷（v0.13.1 形态原样，无 kit-version.json）');
+
+  // ④' refresh 引导给出：Route A 文案四要素——「代不了」声明 / marketplace refresh 步骤 / 快照版本号 / 桩的最新版本号
+  const snapshotVersion = JSON.parse(readFileSync(join(snapshot, 'kit-version.json'), 'utf-8')).version;
+  const aheadVersion = manifest.stubs?.aheadVersion;
+  const guidancePath = join(project, '.drill-refresh-guidance.md');
+  if (!existsSync(guidancePath)) {
+    bad('refresh 引导缺失', '.drill-refresh-guidance.md 不存在——复探停下时必须给出 Route A/B 引导');
+  } else {
+    const g = readFileSync(guidancePath, 'utf-8');
+    const need = [
+      ['代不了', /代不了/],
+      ['marketplace refresh 步骤', /marketplace\s*(update|add|refresh)|Plugin Management/],
+      [`快照版本号 v${snapshotVersion}`, new RegExp(snapshotVersion)],
+    ];
+    if (aheadVersion) need.push([`最新发布版本号 v${aheadVersion}`, new RegExp(aheadVersion)]);
+    for (const [label, re] of need) re.test(g) ? ok(`引导含：${label}`) : bad(`引导缺：${label}`, 'Route A 文案按 flows.md F13 第 1 步');
+  }
+
+  console.log(failures.length ? `\n[drill-check] ❌ ${failures.length} 项红：${failures.join('；')}` : '\n[drill-check] ✅ 全绿：本体落后场景停在复探——kit 未动、数据未动、引导已给');
+  process.exit(failures.length ? 1 : 0);
 }
 
 // ③ 版本对齐

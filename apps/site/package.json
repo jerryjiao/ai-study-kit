@@ -6,7 +6,7 @@
   "scripts": {
     "predev": "node scripts/sync-docs.mjs",
     "dev": "astro dev",
-    "prebuild": "node scripts/sync-docs.mjs",
+    "prebuild": "node scripts/sync-docs.mjs && node scripts/gen-version.mjs",
     "build": "astro build && node scripts/patch-404.mjs",
     "build:demo": "node scripts/build-demo.mjs",
     "preview": "astro preview",

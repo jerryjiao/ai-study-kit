@@ -287,7 +287,13 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
 **步骤**：
 
-1. **读两处版本，报漂移**（只读）：用户项目 `kit/kit-version.json` vs 插件快照 `<插件根>/kit/kit-version.json`（定位法同 F1）。无版本文件 = **版本未知，按最老处理**——如实告知「项目建于版本标记出现之前」，不给错误的安全感。落后 N 版优先读 `<插件根>/CHANGELOG.md`（随插件分发，本期起新增）数版本号，不做语义化比较；取不到 CHANGELOG 时降级为只报两处版本号、不数 N。
+1. **读两处本地版本报漂移 + 复探最新发布（假绿防线，state.md §8 第三处）**（只读）：
+
+   - 本地两处：用户项目 `kit/kit-version.json` vs 插件快照 `<插件根>/kit/kit-version.json`（定位法同 F1）。无版本文件 = **版本未知，按最老处理**——如实告知「项目建于版本标记出现之前」，不给错误的安全感。落后 N 版优先读 `<插件根>/CHANGELOG.md`（随插件分发，本期起新增）数版本号，不做语义化比较；取不到 CHANGELOG 时降级为只报两处版本号、不数 N。
+   - 第三处复探：`curl --max-time 3 -sf "${ASK_KIT_VERSION_URL:-https://aistudykit.dev/version.json}"`。**探测失败（超时/解析失败）→ 软失败**：注一句「最新版探测失败」，按本地两处继续第 2 步，绝不报错阻塞。
+   - **本体落后（插件快照 v<x> 旧于最新发布 v<y>）→ 在这里停下，不执行第 2 步及以后**——重拷只会把项目对齐到旧快照，升级完还得再升一趟（假绿防线：两处本地文件都看不出本体落后）。报三处版本（项目 vS · 插件快照 v<x> · 最新发布 v<y>），按安装形态分叉引导：
+     - **Route A（plugin 装的：Claude Code / zcode / Codex）**：明说「**刷新插件是你工具里的 UI 操作，我代不了**」+ 给具体步骤——Claude Code 会话里敲 `/plugin marketplace update ai-study-kit`（或终端 `claude plugin marketplace update`）；zcode 在 设置 → Plugin Management 里刷新该 marketplace；Codex 终端重跑安装命令 `codex plugin marketplace add jerryjiao/ai-study-kit`（同款命令，见安装协议 Route A）。请用户**刷新完回来说一声，从本步复探继续**（复探过才动 kit）。
+     - **Route B（install.md 直装的：协议在 `https://aistudykit.dev/install.md`，仓库内 `apps/site/public/install.md`）**：更新本来就是 agent 的活——**幂等重跑安装协议**（按协议重新下载 payload 覆盖安装，协议本身设计为可重复执行），全程聊天内闭环；跑完从本步复探继续。
 
 2. **备份 progress**（唯一必保数据）：
 
@@ -374,10 +380,11 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 3. **版本漂移 + 契约完整性**（ADR-0006 两探测项，只读、只报事实与补法、不代修）：
 
    ```bash
-   # ① 版本漂移：用户项目 kit 版本 vs 插件快照版本（state.md §8；仅用户学习项目形态——
-   #    仓库本体恒与 skill 同代，报「仓库本体」即可）
+   # ① 版本漂移：用户项目 kit 版本 vs 插件快照版本，再叠第三信号——最新发布（state.md §8；
+   #    仅用户学习项目形态，仓库本体恒与 skill 同代，报「仓库本体」即可）
    cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
    cat <插件根>/kit/kit-version.json
+   curl --max-time 3 -sf "${ASK_KIT_VERSION_URL:-https://aistudykit.dev/version.json}" || echo "latest=unknown"
    # ② 契约完整性：排布表 / 题库考点标记 / 闪卡映射三件（D=主题源目录，同 §1 两形态）
    grep -c '^## 考点排布表' "$D/MISSION.md" 2>/dev/null || echo "table=missing"
    THEME_DIR="$D" node -e '
@@ -390,6 +397,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
    ```
 
    - 漂移三态：两处版本相等 = 已对齐；用户项目版本旧 = 落后 N 版（N 优先用 `<插件根>/CHANGELOG.md` 数——随插件分发，本期起新增；取不到时降级为只报两处版本号、不数 N）→ 补法走 F13；无版本文件 = 版本未知按最老 → 同样 F13。
+   - **本体信号同款（第三处）**：插件快照旧于最新发布 = 本体落后（快照 v<x> → 最新 v<y>）→ 先刷新插件本体（它挡在 F13 前面，Route A/B 见 F13 第 1 步）；相等 = 本体最新；`latest=unknown` / 解析失败 = 注一句「最新版探测失败」，本地两态照报——软失败，不进红项。
    - 契约缺口判定：`table=missing` 或 0 = 排布表缺失；`questionsTagged` 低于全量 = 掌握度/全景的考点维度失明；`flashcardsMapped=0`（或排布表声明有卡考点却无映射）= 掌握度退纯题维度。补法都在 F13 第 5 步的表里——只报事实，不虚报也不代修。
    - 已对齐 + 无缺口的项目：两项报 ✅，不输出多余噪音。
 
@@ -409,12 +417,12 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
      主题 … <theme>（dir ok / MISSING / 外部主题包路径）
      sync 新鲜度 … ✅ / ❌（重跑 pnpm build——常连带解掉假红）
    版本与契约（ADR-0006；只报事实与补法）：
-     版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体
+     版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体 · 本体 ✅ 已最新（v<x>）/ ⚠ 落后（快照 v<x> → 最新 v<y>，先刷新插件——F13 第 1 步分叉）/ 最新版探测失败（注一句，本地两态照报）
      契约完整性 … ✅ 无缺口 / ⚠ <排布表缺失 · 题缺考点标记 N/M · 卡缺映射 N/M>（补法见 F13 第 5 步）
    建议修复顺序：<只列红项，按下面的固定优先级>
    ```
 
-5. **修复顺序**（固定优先级，只报红项）：**sync 不新鲜 → 校验门红**（先重跑 `pnpm build` 再复检——产物落后会造成假红）→ **版本漂移**（走 F13——旧 kit 跑新 skill 文档会撞墙，先对齐再修别的）→ **契约缺口**（F13 第 5 步引导补，学习者的活）→ **.env 缺项** → **后端离线**。为什么 sync 在最前：它是「环境在说谎」的那一类，先排除假信号再修真问题；漂移排在其后同理——kit 代际差会让校验结果本身不可信。
+5. **修复顺序**（固定优先级，只报红项）：**sync 不新鲜 → 校验门红**（先重跑 `pnpm build` 再复检——产物落后会造成假红）→ **本体漂移**（先刷新插件本体——它挡在 F13 前面，Route A/B 见 F13 第 1 步；本体不先对齐，项目升级只能落在旧快照上）→ **项目版本漂移**（走 F13——旧 kit 跑新 skill 文档会撞墙，先对齐再修别的）→ **契约缺口**（F13 第 5 步引导补，学习者的活）→ **.env 缺项** → **后端离线**。为什么 sync 在最前：它是「环境在说谎」的那一类，先排除假信号再修真问题；两类漂移排在其后同理——kit 代际差会让校验结果本身不可信，而本体是项目对齐的源头。
 
 **完成标志**：报告已输出（全绿加一句「可发布，发布前再走 F8 过 build 门」；有红则修复顺序已给出）。修复后重跑体检确认转绿。
 

@@ -114,7 +114,7 @@ export interface PlanUnit {
   doneDate?: string;
 }
 
-/** 学习计划：examples/&lt;theme&gt;/plan.json（可选主题数据；sync-examples 拷进
+/** 学习计划：examples/<theme>/plan.json（可选主题数据；sync-examples 拷进
  *  src/data/plan.json，缺失/损坏时回退空计划 {units:[]}，import 恒可解析）。
  *  **主题数据不是运行期数据，不进 progress**——单元完成态由 status/doneDate 字段承载
  *  （学习流程写回主题文件），与答题进度（progress.answers）分家；派生（覆盖/节奏/断档）

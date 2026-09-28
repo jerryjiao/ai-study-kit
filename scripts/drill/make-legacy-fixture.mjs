@@ -166,7 +166,21 @@ status: done
 - EP-01 OSI 分层：问 3 对 2
 `);
 
-// ── 4. 夹具指纹（.drill-manifest.json）──
+// ── 4. 假 version.json 桩（#100 假绿探测演练）──
+// 最新发布的探测源是官网 version.json（state.md §8 第三处）；演练用 ASK_KIT_VERSION_URL
+// 指桩（file:// curl 直读），不出网。两桩：
+//   version-ahead.json  最新发布 > 插件快照 → F13 第 1 步复探应停（本体落后场景，--scenario=stalled）
+//   version-same.json   最新发布 = 插件快照 → 复探通过，照常升级（本体最新回归场景）
+const snapshotVersion = JSON.parse(
+  readFileSync(join(REPO_ROOT, 'plugins/ai-study-kit/kit/kit-version.json'), 'utf-8'),
+).version;
+const aheadVersion = snapshotVersion.replace(/^(\d+)\.(\d+)\.(\d+).*$/, (_, a, b, c) => `${a}.${b}.${Number(c) + 1}`);
+const stubDir = join(dest, '.drill-stubs');
+mkdirSync(stubDir, { recursive: true });
+writeFileSync(join(stubDir, 'version-ahead.json'), JSON.stringify({ version: aheadVersion }) + '\n');
+writeFileSync(join(stubDir, 'version-same.json'), JSON.stringify({ version: snapshotVersion }) + '\n');
+
+// ── 5. 夹具指纹（.drill-manifest.json）──
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 const themeShas = {};
 for (const rel of ['MISSION.md', 'questions.json', 'flashcards.json', 'lessons/lesson-01.html', 'lessons/lesson-02.html', 'study/records/01-osi-layers.md']) {
@@ -179,6 +193,7 @@ const manifest = {
   generatedAt: new Date(now).toISOString(),
   progressSha: sha256(readFileSync(join(dest, 'kit/apps/quiz-app/progress.json'))),
   themeShas,
+  stubs: { dir: '.drill-stubs', aheadVersion, sameVersion: snapshotVersion }, // #100 假 version.json 桩（check-upgrade --scenario=stalled 读 aheadVersion）
   notes: 'check-upgrade.mjs 用它断言：progress 与主题内容在升级前后逐字节一致（F13 完成标志）',
 };
 writeFileSync(join(dest, '.drill-manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
@@ -187,3 +202,6 @@ console.log(`[drill] 存量项目夹具已生成：${dest}`);
 console.log(`[drill] kit 代际：${SOURCE_TAG}（无 kit-version.json → 版本未知）`);
 console.log(`[drill] 契约缺口：闪卡 6 张全部无 examPoint 映射（掌握度退纯题维度）；记录为 v0.13 旧格式；无 oral-attempts.json`);
 console.log(`[drill] 指纹：.drill-manifest.json（progress sha=${manifest.progressSha.slice(0, 12)}…）`);
+console.log(`[drill] 探测桩：${stubDir}/version-ahead.json（最新 v${aheadVersion} > 快照 v${snapshotVersion} → 本体落后，复探应停）`);
+console.log(`[drill]          ${stubDir}/version-same.json（最新 v${snapshotVersion} = 快照 → 本体最新，照常升级）`);
+console.log(`[drill] 演练指引用法：ASK_KIT_VERSION_URL=file://${stubDir}/version-ahead.json（或 version-same.json）`);

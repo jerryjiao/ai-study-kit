@@ -39,3 +39,51 @@
 
 - 演练未在夹具项目里跑 `npm install` / build / 四门校验——那是仓库形态体检的活，演练聚焦升级机制本身（版本/拷贝/契约三个接缝）。升级后的 kit 可构建性由快照与仓库同源保证（kit 快照字节契约 + CI 测试带）。
 - 契约缺口选择「稍后补」路径演练；「当场补」路径 = 学习者按 F13 第 5 步补法编辑 `flashcards.json` 后重跑体检，断言器 ⑥ 认两种合法终态（如实保留 / 全量补齐）。
+
+---
+
+# 假绿探测演练留档（#100 / spec #99 行为级验收面）
+
+> 2026-09-28 首跑。F13 第 1 步新增**复探**（state.md §8 第三处「最新发布」，`ASK_KIT_VERSION_URL` 可覆盖）：本体落后 → 停在复探不重拷（绝不把项目对齐到旧快照）+ Route A/B 引导；本体最新 → 照常升级。断言器加 `--scenario=stalled` 场景（断言先行，先红后绿验证）。
+
+## 夹具新增
+
+- 假 version.json 两桩（`.drill-stubs/`，随 `make-legacy-fixture.mjs` 生成）：`version-ahead.json`（最新 v0.22.1 > 快照 v0.22.0 → 本体落后）、`version-same.json`（最新 = 快照 → 本体最新）。演练用 `ASK_KIT_VERSION_URL=file://<桩路径>` 指桩，不出网。
+- 桩版本记入 `.drill-manifest.json` 的 `stubs` 字段（断言器读 `aheadVersion` 验引导文本里的版本号）。
+
+## 断言器新增（--scenario=stalled）
+
+- ③' kit 未重拷：`kit/kit-version.json` 仍缺失（v0.13.1 形态原样——重拷会带进快照版本文件）。
+- ④' refresh 引导给出：`.drill-refresh-guidance.md`（演练者按 F13 Route A 文案输出的引导留档）含四要素——「代不了」声明、marketplace refresh 步骤、快照版本号、桩的最新版本号。
+- ①② 复用（progress 与主题分毫未失——停下的流程什么都不能动）；upgraded 场景断言面不变（向后兼容，不带 flag 即旧口径）。
+
+## 带跑实录（agent 按 flows.md F13 改后文案逐步执行）
+
+| 步骤 | 命令/动作 | 实测结果 |
+|------|-----------|---------|
+| 断言红验证 A | 生成夹具后直接跑 `check-upgrade --scenario=stalled`（未跑场景） | `❌ refresh 引导缺失` · exit 1——新断言在缺引导时真红 |
+| F13 ① 本地两处 | `cat` 项目/快照 kit-version.json | 项目 `unknown`（v0.13.1 形态）· 快照 `0.22.0` |
+| F13 ① 复探（ahead 桩） | `ASK_KIT_VERSION_URL=file://…/.drill-stubs/version-ahead.json curl --max-time 3 -sf "$ASK_KIT_VERSION_URL"` | `{"version":"0.22.1"}`；0.22.1 不在 CHANGELOG 已知序列 → 快照旧于最新发布 → **本体落后，停下**（不执行第 2 步及以后），报三处版本 + Route A 引导（`/plugin marketplace update ai-study-kit` 等 + 明说「代不了」+ 刷新完回来复探），引导留档 `.drill-refresh-guidance.md` |
+| stalled 断言 | `check-upgrade /tmp/ask-drill/project --scenario=stalled` | **12 项全绿，exit 0**（progress 逐字节一致 · 主题 6 文件不动 · kit 未重拷 · 引导四要素齐） |
+| F13 ① 复探（same 桩，模拟刷新完回来） | 同上，指 `version-same.json` | `{"version":"0.22.0"}` = 快照 → 本体最新，继续第 2 步 |
+| F13 ②③ 备份 + 重拷 | 备份 progress → 挪运行期文件 → `rm -rf kit` → `cp -r 快照` → 拷回 | `kit-version.json = 0.22.0` ✅ · `no-nesting=ok` ✅ · progress 与备份逐字节一致（sha `da449401d24a…`） |
+| F13 ④⑤⑥ 补缺失 + 契约缺口 + 收尾体检 | diff 文件清单 / 探测命令 / 三信号 | 重拷后无缺失（168 文件全到位，含 `oral.mjs`）；`排布表=有` · `questionsTagged=8/8` · `flashcardsMapped=0/6` ⚠ 如实点名（学习者稍后补）；收尾体检：项目 0.22.0 = 快照 0.22.0 = 最新发布 0.22.0 → **已对齐 + 本体最新** |
+| upgraded 回归断言 | `check-upgrade /tmp/ask-drill/project` | **12 项全绿，exit 0**（既有六断言面全数回归通过） |
+| 断言红验证 B | 升级后的项目再跑 `--scenario=stalled` | `❌ kit 被重拷` · exit 1——「没停在复探就重拷」会被抓红 |
+| 软失败验证 | 探真实 URL（未部署，404）/ 坏 JSON 桩 | `latest=unknown` 或解析不出 version 字段 → 注一句照报本地两态，管道不阻塞——**软失败语义成立** |
+
+## 结论
+
+#100 的行为级验收达成：假绿被三处版本探测暴露（本体落后 → 快照「版本」行报三态、推荐算法第 2 条先引导刷新、F13 复探绝不落在旧快照上）；停在复探时 kit/progress/主题分毫未动、Route A 引导四要素齐；本体最新时既有升级面零回归。
+
+## 回归用法（#100 后）
+
+```bash
+node scripts/drill/make-legacy-fixture.mjs /tmp/ask-drill/project
+# 本体落后场景：ASK_KIT_VERSION_URL=file:///tmp/ask-drill/project/.drill-stubs/version-ahead.json
+#   → 按 flows.md F13 第 1 步复探停下（不重拷），引导留档后：
+node scripts/drill/check-upgrade.mjs /tmp/ask-drill/project --scenario=stalled
+# 本体最新回归：ASK_KIT_VERSION_URL=file:///tmp/ask-drill/project/.drill-stubs/version-same.json
+#   → 复探通过，按 F13 完整升级后：
+node scripts/drill/check-upgrade.mjs /tmp/ask-drill/project
+```

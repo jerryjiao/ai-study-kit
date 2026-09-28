@@ -74,7 +74,8 @@ if (!PLAN_PRESENT && reason === 'broken') {
 // 进度（可选）：不存在 = 空进度不是故障；损坏 = 空进度 + warn
 let progress = null;
 if (existsSync(PROGRESS_PATH)) {
-  try { progress = JSON.parse(readFileSync(PROGRESS_PATH, 'utf-8')); } catch { progress = null; }
+  try { progress = JSON.parse(readFileSync(PROGRESS_PATH, 'utf-8')); }
+  catch (e) { progress = null; say(`⚠️ 进度文件损坏（${PROGRESS_PATH}：${e.message}）→ 按空进度处理`); }
 }
 
 const now = Date.now();
