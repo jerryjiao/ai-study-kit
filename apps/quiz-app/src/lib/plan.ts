@@ -292,6 +292,7 @@ export function deriveGap(
     if (fSet && !fSet.has(id)) continue;
     consider((s as unknown as Record<string, unknown> | undefined)?.updatedAt, 'srs');
   }
+  // 课学完撤销（墓碑）也算接触——断档采事件口径（#98 裁决；与 scripts/lib/plan.mjs 头注同步）
   for (const [key, at] of Object.entries(progress?.coursesRead ?? {})) {
     if (theme && !key.startsWith(`${theme}/`)) continue;             // key 自带主题前缀
     consider(at, 'coursesRead');
