@@ -4,6 +4,7 @@ import { questions } from '../data/questions';
 import { flashcards } from '../data/flashcards';
 import themeMeta from '../data/theme.json';
 import { coverage } from '../data/coverage';
+import { plan } from '../data/plan';
 import {
   buildPanorama,
   shouldRenderGraph,
@@ -13,9 +14,17 @@ import {
   type PanoramaGroup,
   type PanoramaGraphEdge,
 } from '../lib/panorama';
+import {
+  deriveCalendarDiff,
+  deriveCoverage,
+  planUnitsByDay,
+  type PlanCalendarDiff,
+  type PlanUnitView,
+} from '../lib/plan';
 import type { MasteryStatus } from '../lib/mastery';
+import type { PlanUnitStatus } from '../types';
 import { useProgress } from '../hooks/useProgress';
-import { useI18n } from '../i18n';
+import { useI18n, type TFn, type TKey } from '../i18n';
 
 /**
  * 考点全景独立页（/panorama，v0.17 自首页折叠面板迁出）：顶部四态汇总带（讲/练/掌 x/N +
@@ -41,6 +50,29 @@ const STATUS_LEGEND: { status: MasteryStatus; key: 'panorama.dotMastered' | 'pan
   { status: 'untouched', key: 'panorama.dotUntouched' },
 ];
 
+/** day 卡计划 chip：单元状态 → 词典 key + 配色（在学 indigo / 完成绿 / 搁置灰边与首页
+ *  剩余清单 chip 同语言，计划中为全景新增面 → 中性灰）。 */
+const PLAN_CHIP: Record<PlanUnitStatus, { labelKey: TKey; cls: string }> = {
+  planned: { labelKey: 'panorama.planStatusPlanned', cls: 'bg-bg-subtle text-text-muted border border-border' },
+  'in-progress': { labelKey: 'panorama.planStatusInProgress', cls: 'bg-indigo-100 text-indigo-700' },
+  done: { labelKey: 'panorama.planStatusDone', cls: 'bg-green-100 text-green-700' },
+  paused: { labelKey: 'panorama.planStatusPaused', cls: 'bg-bg-subtle text-text-faint border border-border' },
+};
+
+/** 脏 status 兜底 chip（sync 只保证 units 是数组，status 可能缺/坏——只出标题不出状态）。 */
+const PLAN_CHIP_FALLBACK_CLS = 'bg-bg-subtle text-text-muted border border-border';
+
+/** 日历对照 → 摘要行节奏文案。state→key 映射与首页 PlanPanel 同款（复用 home.plan*
+ *  词典 key：同一派生状态两处同文，防措辞漂移）；颜色语义一致（落后红/富余绿/今天到期
+ *  琥珀/降级灰）。改判据语义时两处一起改（src/lib/plan.ts 双实现纪律的面）。 */
+function planPaceLine(cd: PlanCalendarDiff, t: TFn): { text: string; cls: string } {
+  if (!cd.available) return { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
+  if (cd.state === 'behind') return { text: t('home.planBehind', { n: -(cd.diffDays ?? 0) }), cls: 'text-red-600' };
+  if (cd.state === 'due-today') return { text: t('home.planDueToday'), cls: 'text-amber-600' };
+  if (cd.state === 'cleared') return { text: t('home.planCleared'), cls: 'text-green-600' };
+  return { text: t('home.planSlack', { n: cd.diffDays ?? 0 }), cls: 'text-green-600' };
+}
+
 export function Panorama() {
   const { progress } = useProgress();
   const { t } = useI18n();
@@ -61,6 +93,21 @@ export function Panorama() {
   );
   // 筛选只收窄 day 卡片列表；汇总带保持全局口径（grill 定案：筛选时不丢全局感）
   const visibleGroups = useMemo(() => filterPanoramaGroups(panorama.groups, filter), [panorama.groups, filter]);
+
+  // 学习计划轻量结合（#93）：仅当激活主题有 plan.json（sync 产物 units 非空）——dev-intro
+  // 等无计划主题 sync 写空计划回退 {units:[]} → planView=null → 摘要行与 day 卡 chip 零
+  // DOM（全景页零变化）。判据与首页计划面板同源（src/lib/plan.ts 同一组纯函数，数字与
+  // plan-report --json 一致）；这里只取摘要行要的覆盖 + 日历对照和 day→单元映射，不算
+  // 断档/外推（范围受控：全景页不做第二个计划面板）。计划信号不依赖 progress，派生一次即可。
+  const planView = useMemo(() => {
+    if (plan.units.length === 0) return null;
+    return {
+      coverage: deriveCoverage(plan),
+      calendarDiff: deriveCalendarDiff(plan, Date.now()),
+      unitsByDay: planUnitsByDay(plan),
+    };
+  }, []);
+  const planPace = planView ? planPaceLine(planView.calendarDiff, t) : null;
 
   if (panorama.summary.examPoints === 0) {
     return (
@@ -100,11 +147,19 @@ export function Panorama() {
         </div>
       </header>
 
-      {/* 汇总带：全局三信号数字 + 四态图例（始终全局口径，后续筛选不收窄它） */}
+      {/* 汇总带：全局三信号数字 + 计划摘要行（有 plan.json 才有）+ 四态图例（始终全局口径，后续筛选不收窄它） */}
       <section className="rounded-xl border border-border bg-bg-surface px-4 py-3 space-y-2">
         <p className="text-sm font-medium text-text-secondary tabular-nums">
           {t('panorama.summary', { ...panorama.summary, total: panorama.summary.examPoints })}
         </p>
+        {planView && planPace && (
+          <p className="text-sm text-text-muted tabular-nums flex flex-wrap items-baseline gap-x-2">
+            <span className="shrink-0">
+              {t('panorama.planDone', { done: planView.coverage.done, total: planView.coverage.total })}
+            </span>
+            <span className={planPace.cls}>{planPace.text}</span>
+          </p>
+        )}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
           {STATUS_LEGEND.map(({ status, key }) => (
             <span key={status} className="inline-flex items-center gap-1.5 text-xs text-text-muted">
@@ -115,14 +170,25 @@ export function Panorama() {
         </div>
       </section>
 
-      <PanoramaGroups groups={visibleGroups} edges={coverage.graph?.edges ?? null} />
+      <PanoramaGroups
+        groups={visibleGroups}
+        edges={coverage.graph?.edges ?? null}
+        unitsByDay={planView?.unitsByDay ?? null}
+      />
     </div>
   );
 }
 
 /** day 卡片 + 连线层：SVG 叠加在全部卡片之上（绝对定位天然盖过静态卡片背景），
- *  开了连线时考点行转 relative 让文字盖回连线上——沿原首页面板的分层方案原样迁入。 */
-function PanoramaGroups({ groups, edges }: { groups: PanoramaGroup[]; edges: PanoramaGraphEdge[] | null }) {
+ *  开了连线时考点行转 relative 让文字盖回连线上——沿原首页面板的分层方案原样迁入。
+ *  计划 chip（#93）：unitsByDay 非空时 day 卡头带该 day 映射单元的状态 chip（计划中/
+ *  在学/完成/搁置）；day 命名空间与 examDays 同源（ADR-0009），无 plan 的主题传 null
+ *  → 头部零变化。chip 描述的是 day 的计划单元，不受考点筛选收窄（与汇总带全局口径同精神）。 */
+function PanoramaGroups({ groups, edges, unitsByDay }: {
+  groups: PanoramaGroup[];
+  edges: PanoramaGraphEdge[] | null;
+  unitsByDay: Map<string, PlanUnitView[]> | null;
+}) {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const dotRefs = useRef<Map<string, HTMLSpanElement | null>>(new Map());
@@ -205,49 +271,68 @@ function PanoramaGroups({ groups, edges }: { groups: PanoramaGroup[]; edges: Pan
         {t('panorama.stale')}
         {drawGraph && <span className="ml-1">{t('panorama.graphHint')}</span>}
       </p>
-      {groups.map((g) => (
-        <section key={g.day} className="rounded-xl border border-border bg-bg-surface overflow-hidden">
-          <header className="px-4 py-2.5 border-b border-border bg-bg-subtle/60 flex items-baseline gap-2.5">
-            <h2 className="text-sm font-semibold text-text-secondary shrink-0">{g.day}</h2>
-            <span className="text-xs text-text-faint tabular-nums truncate">
-              {t('panorama.summary', g.summary)}
-            </span>
-          </header>
-          <div className="px-4 py-3 space-y-2.5">
-            {g.points.map((p) => (
-              <div key={p.ep} className={`flex items-center gap-2 text-sm ${drawGraph ? 'relative' : ''}`}>
-                <span
-                  ref={(el) => {
-                    dotRefs.current.set(p.ep, el);
-                    return undefined;
-                  }}
-                  title={dotTitle[p.status] ?? undefined}
-                  className={`shrink-0 h-2.5 w-2.5 rounded-full ring-2 ring-bg ${STATUS_DOT_CLS[p.status]}`}
-                />
-                {sig(p.taught, t('panorama.taught'), 'bg-sky-50 text-sky-700')}
-                {sig(p.practiced, t('panorama.practiced'), 'bg-indigo-50 text-indigo-700')}
-                {sig(p.mastered, t('panorama.mastered'), 'bg-green-50 text-green-700')}
-                <span className="font-medium text-text-secondary truncate min-w-0">
-                  {p.ep} {p.name}
+      {groups.map((g) => {
+        const planChips = unitsByDay?.get(g.day) ?? [];
+        return (
+          <section key={g.day} className="rounded-xl border border-border bg-bg-surface overflow-hidden">
+            <header className="px-4 py-2.5 border-b border-border bg-bg-subtle/60 flex items-baseline gap-2.5">
+              <h2 className="text-sm font-semibold text-text-secondary shrink-0">{g.day}</h2>
+              <span className="text-xs text-text-faint tabular-nums truncate">
+                {t('panorama.summary', g.summary)}
+              </span>
+              {planChips.length > 0 && (
+                <span className="ml-auto shrink-0 flex flex-wrap items-baseline justify-end gap-1.5 max-w-[60%]">
+                  {planChips.map((u) => {
+                    const chip = u.status ? PLAN_CHIP[u.status] : null;   // 脏 status → 只出标题
+                    return (
+                      <span
+                        key={u.id}
+                        className={`inline-flex items-baseline gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium ${chip?.cls ?? PLAN_CHIP_FALLBACK_CLS}`}
+                      >
+                        <span className="truncate max-w-[10rem]">{u.title}</span>
+                        {chip && <span className="shrink-0">{t(chip.labelKey)}</span>}
+                      </span>
+                    );
+                  })}
                 </span>
-                <span className="shrink-0 text-xs text-text-faint tabular-nums">
-                  {t('panorama.answered', { answered: p.answered, total: p.total })}
-                </span>
-                {p.oral && (
-                  <span className="shrink-0 text-[11px] text-text-faint tabular-nums">
-                    {t('panorama.oral', { correct: p.oral.correct, asked: p.oral.asked })}
+              )}
+            </header>
+            <div className="px-4 py-3 space-y-2.5">
+              {g.points.map((p) => (
+                <div key={p.ep} className={`flex items-center gap-2 text-sm ${drawGraph ? 'relative' : ''}`}>
+                  <span
+                    ref={(el) => {
+                      dotRefs.current.set(p.ep, el);
+                      return undefined;
+                    }}
+                    title={dotTitle[p.status] ?? undefined}
+                    className={`shrink-0 h-2.5 w-2.5 rounded-full ring-2 ring-bg ${STATUS_DOT_CLS[p.status]}`}
+                  />
+                  {sig(p.taught, t('panorama.taught'), 'bg-sky-50 text-sky-700')}
+                  {sig(p.practiced, t('panorama.practiced'), 'bg-indigo-50 text-indigo-700')}
+                  {sig(p.mastered, t('panorama.mastered'), 'bg-green-50 text-green-700')}
+                  <span className="font-medium text-text-secondary truncate min-w-0">
+                    {p.ep} {p.name}
                   </span>
-                )}
-                {p.openWrong > 0 && (
-                  <span className="shrink-0 ml-auto px-1.5 py-0.5 rounded text-[11px] bg-red-50 text-red-600">
-                    {t('panorama.wrong', { n: p.openWrong })}
+                  <span className="shrink-0 text-xs text-text-faint tabular-nums">
+                    {t('panorama.answered', { answered: p.answered, total: p.total })}
                   </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
+                  {p.oral && (
+                    <span className="shrink-0 text-[11px] text-text-faint tabular-nums">
+                      {t('panorama.oral', { correct: p.oral.correct, asked: p.oral.asked })}
+                    </span>
+                  )}
+                  {p.openWrong > 0 && (
+                    <span className="shrink-0 ml-auto px-1.5 py-0.5 rounded text-[11px] bg-red-50 text-red-600">
+                      {t('panorama.wrong', { n: p.openWrong })}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

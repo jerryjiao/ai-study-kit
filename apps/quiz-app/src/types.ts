@@ -90,6 +90,42 @@ export interface SrsMeta {
   newTodayDate: string;
 }
 
+// —— 学习计划（plan.json，主题数据）——
+/** 计划单元状态：planned 计划中 / in-progress 在学 / done 完成 / paused 搁置。
+ *  由学习流程维护（F10 开站/收站/搁置更新 plan.json 的字段），不是从答题进度派生。 */
+export type PlanUnitStatus = 'planned' | 'in-progress' | 'done' | 'paused';
+
+/** 计划单元：plan.json 的一行，主题自定义粒度（考点/站/章均可，不与 kit 固有粒度绑定）。
+ *  术语（计划单元/覆盖/节奏）见仓库 CONTEXT.md；分层决策见 docs/adr/0009。 */
+export interface PlanUnit {
+  id: string;               // 单元 id，主题内唯一（如 "U-01"）
+  title: string;            // 单元标题（剩余清单/计划面板展示）
+  order: number;            // 学习顺序（排序用，1 起）
+  /** 计划完成日（YYYY-MM-DD）。缺失 = 只进剩余清单、不参与日历对照（"今天该到哪"）。 */
+  plannedDate?: string;
+  /** 学程块映射（可选）：与 theme.json examDays 的 day 是**同一命名空间**（MISSION 排布表
+   *  day 列）——unit.day ≡ examDays 的 day；首页计划面板与全景页 day 卡是同一 day 的两个
+   *  呈现面，必须同源显示（ADR-0009 命名空间契约，禁止两处各写一套口径）。 */
+  day?: string;
+  /** 题库 topic id 关联（可选）：计划单元 → 题集直达；缺省无跳转。 */
+  topic?: string;
+  status: PlanUnitStatus;
+  /** 实际完成日（YYYY-MM-DD，可选）：status=done 时由学习流程记录。 */
+  doneDate?: string;
+}
+
+/** 学习计划：examples/&lt;theme&gt;/plan.json（可选主题数据；sync-examples 拷进
+ *  src/data/plan.json，缺失/损坏时回退空计划 {units:[]}，import 恒可解析）。
+ *  **主题数据不是运行期数据，不进 progress**——单元完成态由 status/doneDate 字段承载
+ *  （学习流程写回主题文件），与答题进度（progress.answers）分家；派生（覆盖/节奏/断档）
+ *  与展示住 kit，从本文件 + progress 现算，绝不写回。 */
+export interface PlanFile {
+  /** 目标完成日（可选，YYYY-MM-DD）：速率外推的对照锚点。 */
+  deadline?: string;
+  units: PlanUnit[];
+}
+
+
 export interface Progress {
   version: number;            // 固定 1
   answers: Record<string, AnswerRecord>;  // key = question id

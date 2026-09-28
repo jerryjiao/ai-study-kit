@@ -15,14 +15,19 @@ import {
   FlaskConical,
   Lock,
   History,
+  CalendarDays,
 } from 'lucide-react';
 import { questions } from '../data/questions';
+import { flashcards } from '../data/flashcards';
+import { plan } from '../data/plan';
+import themeMeta from '../data/theme.json';
 import { computeStats, wrongIds, readCount, isAnswerDeleted } from '../lib/progress';
 import { clearPos } from '../lib/posMemory';
 import { useProgress } from '../hooks/useProgress';
 import { StatBadge } from '../components/StatBadge';
 import { TOPIC_ORDER, orderedSubtopics as buildOrderedSubs, topicLabel, stripSubtopicPrefix, epDepthOf, isPlanned, LAYER_TOPICS } from '../lib/topicOrder';
 import { themeConfig, iconFor } from '../lib/themeConfig';
+import { derivePlanReport, diffCalendarDays, type PlanReport } from '../lib/plan';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useI18n } from '../i18n';
 
@@ -149,6 +154,24 @@ export function Home() {
   // 多主题隔离：本页 reset 类操作只清激活主题的进度（题 id 集），不误伤其他主题。
   const themeQuestionIds = useMemo(() => questions.map((q) => q.id), []);
 
+  // 学习计划面板数据（#92）：仅当激活主题有 plan.json——sync 产物 units 非空才派生；
+  // dev-intro 等无计划主题 sync 写空计划回退 {units:[]} → planReport=null → 面板整块不渲染，
+  // 首页 DOM 零变化。判据 src/lib/plan.ts（scripts/lib/plan.mjs 的 TS 移植，双实现纪律）；
+  // 断档的读端过滤传本主题题/卡 id 集求交（多主题隔离红线），课学完按 theme 前缀过滤。
+  const planReport = useMemo(() => {
+    if (plan.units.length === 0) return null;
+    return derivePlanReport({
+      plan,
+      progress,
+      now: Date.now(),
+      questionIds: themeQuestionIds,
+      cardIds: flashcards.map((f) => f.id),
+      theme: (themeMeta as { theme: string }).theme,
+    });
+  }, [progress, themeQuestionIds]);
+  // 剩余清单里 unit.topic 的题集直达：只对本主题真实存在的 topic 建 Link（脏 topic id 降级纯展示）
+  const planTopicIds = useMemo(() => new Set(questions.map((q) => q.topic || '')), []);
+
   // 展开状态：默认全部收起，点开才展开。
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const toggleExpand = (topic: string) =>
@@ -180,6 +203,10 @@ export function Home() {
         <StatBadge label={t('home.statWrong')} value={wrongCount} color="red" icon={ListChecks} />
         <StatBadge label={t('home.statRead')} value={`${pct(readNum)}%`} color="sky" icon={BookOpen} />
       </div>
+
+      {/* 学习计划面板（#92）：有 plan.json 的主题第一眼可见（统计仪表正下方）；
+          无计划主题 planReport=null 整块不渲染（dev-intro 首页零变化） */}
+      {planReport && <PlanPanel report={planReport} topicIds={planTopicIds} />}
 
       {/* 上次答到的主题：继续上次入口（无答题记录时不显示） */}
       {lastTopic && (() => {
@@ -462,6 +489,143 @@ function AnsweredDetailPanel({
         })}
       </div>
     </div>
+  );
+}
+
+/** 学习计划面板（#92，spec #89 第 3 条）：覆盖（进度条 + 完成 X/Y + 剩余清单）、
+ *  节奏（日历对照落后/富余 + 速率外推富余/缺口 + 距 deadline 天数）、断档（距上次学习 N 天）。
+ *  判据全部来自 src/lib/plan.ts 现算（与 scripts/lib/plan.mjs 双实现同步，数字与
+ *  plan-report --json 一致）；数据不足的信号走降级文案（无日程/速率不足/无接触），绝不显示编造数字。
+ *  剩余清单里带合法 unit.topic 的单元可点进对应题集（题库无此 topic 的降级纯展示）。 */
+function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<string> }) {
+  const { t } = useI18n();
+  const { coverage, calendarDiff, projection, gap } = report;
+  const pct = coverage.total === 0 ? 0 : Math.round((coverage.done / coverage.total) * 100);
+
+  // 节奏·日历对照：落后（红）/富余（绿）/今天到期（琥珀）/日程已清；不可对照 → 降级文案
+  let pace: { text: string; cls: string };
+  if (!calendarDiff.available) {
+    pace = { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
+  } else if (calendarDiff.state === 'behind') {
+    pace = { text: t('home.planBehind', { n: -(calendarDiff.diffDays ?? 0) }), cls: 'text-red-600' };
+  } else if (calendarDiff.state === 'due-today') {
+    pace = { text: t('home.planDueToday'), cls: 'text-amber-600' };
+  } else if (calendarDiff.state === 'cleared') {
+    pace = { text: t('home.planCleared'), cls: 'text-green-600' };
+  } else {
+    pace = { text: t('home.planSlack', { n: calendarDiff.diffDays ?? 0 }), cls: 'text-green-600' };
+  }
+
+  // 距 deadline 天数（无 deadline 不显示；负数 = 已过）
+  let deadlineLine: string | null = null;
+  if (projection.deadline) {
+    const d = diffCalendarDays(calendarDiff.today, projection.deadline);
+    if (d !== null) {
+      deadlineLine =
+        d > 0 ? t('home.planDeadlineIn', { n: d })
+        : d === 0 ? t('home.planDeadlineToday')
+        : t('home.planDeadlineOver', { n: -d });
+    }
+  }
+
+  // 节奏·速率外推：可算 → 预计完成日（+ 对 deadline 富余/缺口）；数据不足 → 降级文案不硬算
+  let projLine: { text: string; cls: string } | null = null;
+  if (projection.available) {
+    const base = t('home.planProjection', { window: projection.windowDays, date: projection.estimatedDoneDate ?? '' });
+    if (projection.state === 'slack') {
+      projLine = { text: `${base} · ${t('home.planProjSlack', { n: projection.slackDays ?? 0 })}`, cls: 'text-green-600' };
+    } else if (projection.state === 'deficit') {
+      projLine = { text: `${base} · ${t('home.planProjDeficit', { n: -(projection.slackDays ?? 0) })}`, cls: 'text-red-600' };
+    } else {
+      projLine = { text: base, cls: 'text-text-secondary' };   // 无 deadline：只外推不对照
+    }
+  } else if (projection.reason === 'no-recent-completions') {
+    projLine = { text: t('home.planProjNoData', { window: projection.windowDays }), cls: 'text-text-faint' };
+  } else if (projection.reason === 'complete') {
+    projLine = { text: t('home.planProjComplete'), cls: 'text-green-600' };
+  } // no-units 到不了 UI（面板渲染前提 = units 非空）
+
+  const gapLine = gap.available
+    ? { text: t('home.planGap', { n: gap.daysSinceLastContact ?? 0 }), cls: 'text-text-secondary' }
+    : { text: t('home.planNoContact'), cls: 'text-text-faint' };
+
+  return (
+    <section className="rounded-xl border border-border bg-bg-surface overflow-hidden">
+      <header className="px-4 py-2.5 border-b border-border bg-bg-subtle/60 flex items-center gap-2.5">
+        <CalendarDays className="h-4 w-4 text-text-muted shrink-0" strokeWidth={2} />
+        <h2 className="text-sm font-semibold text-text-secondary shrink-0">{t('home.planTitle')}</h2>
+        <span className="ml-auto text-xs text-text-muted tabular-nums shrink-0">
+          {t('home.planDone', { done: coverage.done, total: coverage.total })}
+        </span>
+        {deadlineLine && <span className="text-xs text-text-muted tabular-nums shrink-0">{deadlineLine}</span>}
+      </header>
+      <div className="px-4 py-3 space-y-2.5">
+        {/* 进度条（覆盖主数字在面板头「完成 X/Y」） */}
+        <div
+          className="h-2 rounded-full bg-bg-subtle overflow-hidden"
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+        </div>
+        {/* 节奏三行：日历对照 / 速率外推 / 断档 */}
+        <div className="space-y-1 text-xs tabular-nums">
+          <div className="flex items-baseline gap-2">
+            <span className="text-text-muted shrink-0">{t('home.planPace')}</span>
+            <span className={pace.cls}>{pace.text}</span>
+          </div>
+          {projLine && <div className={projLine.cls}>{projLine.text}</div>}
+          <div className={gapLine.cls}>{gapLine.text}</div>
+        </div>
+        {/* 剩余清单：非 done 单元（含在学/搁置）；带合法 topic 的可点进对应题集 */}
+        {coverage.remaining.length > 0 && (
+          <div className="pt-0.5">
+            <p className="text-[11px] text-text-faint mb-1.5 tabular-nums">
+              {t('home.planRemaining', { n: coverage.remaining.length })}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {coverage.remaining.map((unit) => {
+                const inner = (
+                  <>
+                    <span className="truncate">{unit.title}</span>
+                    {unit.plannedDate && (
+                      <span className="text-[10px] opacity-60 tabular-nums shrink-0">{unit.plannedDate}</span>
+                    )}
+                    {unit.status === 'in-progress' && (
+                      <span className="shrink-0 px-1 rounded text-[10px] font-medium bg-indigo-100 text-indigo-700">
+                        {t('home.planStatusInProgress')}
+                      </span>
+                    )}
+                    {unit.status === 'paused' && (
+                      <span className="shrink-0 px-1 rounded text-[10px] font-medium bg-bg-subtle text-text-faint border border-border">
+                        {t('home.planStatusPaused')}
+                      </span>
+                    )}
+                  </>
+                );
+                const cls = `inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs border transition-colors ${
+                  unit.status === 'in-progress'
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
+                    : unit.status === 'paused'
+                    ? 'bg-bg-subtle border-border text-text-faint'
+                    : 'bg-bg-subtle border-border text-text-secondary hover:bg-bg-hover'
+                }`;
+                const known = !!unit.topic && topicIds.has(unit.topic);
+                return known ? (
+                  <Link key={unit.id} to={`/practice/all?topic=${encodeURIComponent(unit.topic!)}`} className={cls}>
+                    {inner}
+                  </Link>
+                ) : (
+                  <span key={unit.id} className={cls}>{inner}</span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

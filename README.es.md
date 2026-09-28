@@ -88,7 +88,7 @@ Ejemplo: aprender **bases de React**. Solo tocas archivos bajo `examples/`, sin 
 
 3. **Edita las tarjetas** `flashcards.json`: pregunta delante, detalle detrás — igual de simple
 4. **Cambia**: `EXAMPLE_THEME=react-basics pnpm dev` — recarga y ya está dentro
-5. **(Opcional) cursos y presentación**: los cursos van en `lessons/*.html`; la agrupación y nombres del inicio en `theme-config.json` (ver [`docs/theming.es.md`](docs/theming.es.md)); sin él, retroceso elegante
+5. **(Opcional) cursos, plan de estudio y presentación**: los cursos van en `lessons/*.html`; la agrupación y nombres del inicio en `theme-config.json` (ver [`docs/theming.es.md`](docs/theming.es.md)); un plan de estudio con fechas va en `plan.json` (`deadline` opcional + fechas y estado por unidad — el panel «Plan de estudio» del inicio concilia completadas X/Y, días de retraso/margen y días desde el último contacto de estudio); sin ellos, retroceso elegante
 6. **Cuatro verificaciones**: `pnpm run scan` (cero marcas) + `pnpm test` + `pnpm run build` + `python3 scripts/bidirectional-check.py examples/react-basics/` (alineación cuádruple)
 
 **¿No quieres redactar preguntas a mano?** Con `/ask-coach` instalado, pide «genera un banco de preguntas para react-basics» — el agente primero alinea contigo una **tabla de puntos de examen** en MISSION.md (qué se examina, con qué profundidad, cuántas preguntas por tipo, cuántas tarjetas), luego genera preguntas y tarjetas punto por punto tras tu confirmación, y cierra con las tres puertas de calidad (`qa` / `scan` / alineación cuádruple) antes de entregar. El camino manual sigue siendo el principal; la tabla es el contrato entre tú y el agente.

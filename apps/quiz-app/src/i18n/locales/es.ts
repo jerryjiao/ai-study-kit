@@ -45,6 +45,30 @@ export const es: Record<TKey, string> = {
   'home.confirmResetAll':
     '¿Vaciar TODO el progreso (respuestas + erróneas + lecturas)? No se puede deshacer y se sincronizará con todos tus dispositivos.',
 
+  // Inicio · panel del plan de estudio (solo se muestra si el tema activo tiene plan.json; criterios en src/lib/plan.ts,
+  // sincronizados con scripts/lib/plan.mjs. Los textos de degradación (sin fechas / ritmo insuficiente / sin contacto) también están traducidos)
+  'home.planTitle': 'Plan de estudio',
+  'home.planDone': 'Completadas {done}/{total}',
+  'home.planDeadlineIn': 'Quedan {n} días para la fecha límite',
+  'home.planDeadlineToday': 'La fecha límite es hoy',
+  'home.planDeadlineOver': 'La fecha límite pasó hace {n} días',
+  'home.planPace': 'Ritmo',
+  'home.planBehind': '{n} días de retraso',
+  'home.planSlack': '{n} días de margen',
+  'home.planDueToday': 'La próxima unidad vence hoy',
+  'home.planCleared': 'Unidades programadas completadas',
+  'home.planNoCalendar': 'El plan no tiene fechas programadas; el ritmo no es comparable',
+  'home.planProjection': 'Al ritmo de los últimos {window} días, terminaría hacia {date}',
+  'home.planProjSlack': '{n} días de margen respecto a la fecha límite',
+  'home.planProjDeficit': '{n} días de déficit respecto a la fecha límite',
+  'home.planProjNoData': 'Sin unidades completadas en los últimos {window} días; ritmo insuficiente, sin proyección',
+  'home.planProjComplete': 'Todas las unidades completadas',
+  'home.planGap': 'Hace {n} días del último contacto de estudio',
+  'home.planNoContact': 'Aún sin contacto de estudio',
+  'home.planRemaining': 'Quedan {n} unidades',
+  'home.planStatusInProgress': 'En curso',
+  'home.planStatusPaused': 'En pausa',
+
   // Página de panorama por punto de examen /panorama (señales visto/practicado/dominado + bloques day, ver src/lib/panorama.ts)
   'panorama.title': 'Panorama de puntos (visto · practicado · dominado)',
   'panorama.summary': 'Vistos {taught}/{total} · Practicados {practiced}/{total} · Dominados {mastered}/{total}',
@@ -65,6 +89,15 @@ export const es: Record<TKey, string> = {
   'panorama.filterWeak': 'Débiles',
   'panorama.filterUnmastered': 'Sin dominar',
   'panorama.filterAria': 'Filtrar puntos de examen',
+
+  // Integración ligera del plan en el panorama (solo si el tema activo tiene plan.json;
+  // línea de resumen + chip de estado en las tarjetas de día, criterio src/lib/plan.ts,
+  // misma fuente que el panel del plan de inicio. El ritmo reutiliza las claves home.plan*)
+  'panorama.planDone': 'Plan: {done}/{total} completadas',
+  'panorama.planStatusPlanned': 'Planificada',
+  'panorama.planStatusInProgress': 'En curso',
+  'panorama.planStatusDone': 'Completada',
+  'panorama.planStatusPaused': 'En pausa',
 
   // Práctica
   'practice.readMode': 'Modo lectura',

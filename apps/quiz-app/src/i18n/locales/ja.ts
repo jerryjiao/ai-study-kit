@@ -42,6 +42,30 @@ export const ja: Record<TKey, string> = {
   'home.resetAll': 'すべての進捗を消去',
   'home.confirmResetAll': 'すべての進捗（回答 ＋ 間違い ＋ 通読）を消去しますか？この操作は元に戻せず、すべての端末に同期されます。',
 
+  // ホーム・学習計画パネル（アクティブなテーマに plan.json があるときのみ表示。判定は src/lib/plan.ts、
+  // scripts/lib/plan.mjs と同期。デグレード時の文案（日付なし・ペース不足・接触なし）も五語対応）
+  'home.planTitle': '学習計画',
+  'home.planDone': '完了 {done}/{total}',
+  'home.planDeadlineIn': '締め切りまで {n} 日',
+  'home.planDeadlineToday': '締め切りは今日です',
+  'home.planDeadlineOver': '締め切りから {n} 日過ぎました',
+  'home.planPace': 'ペース',
+  'home.planBehind': '{n} 日遅れ',
+  'home.planSlack': '{n} 日の余裕',
+  'home.planDueToday': '次のユニットは今日が期限',
+  'home.planCleared': '予定分はすべて完了',
+  'home.planNoCalendar': '計画に日付がなく、ペース比較はできません',
+  'home.planProjection': '直近 {window} 日のペースでは {date} 頃に完了予定',
+  'home.planProjSlack': '締め切りまで {n} 日の余裕',
+  'home.planProjDeficit': '締め切りまで {n} 日の不足',
+  'home.planProjNoData': '直近 {window} 日に完了なし。ペースデータ不足のため予測しません',
+  'home.planProjComplete': 'すべてのユニットが完了',
+  'home.planGap': '前回の学習から {n} 日',
+  'home.planNoContact': 'まだ学習記録がありません',
+  'home.planRemaining': '残り {n} ユニット',
+  'home.planStatusInProgress': '学習中',
+  'home.planStatusPaused': '保留',
+
   // 出題ポイントパノラマの独立ページ（講義・演習・習得の 3 シグナル + day グループ。判定は src/lib/panorama.ts、mastery-report と同じ口径）
   'panorama.title': '出題ポイントパノラマ（講義 · 演習 · 習得）',
   'panorama.summary': '講義 {taught}/{total} · 演習 {practiced}/{total} · 習得 {mastered}/{total}',
@@ -62,6 +86,15 @@ export const ja: Record<TKey, string> = {
   'panorama.filterWeak': '苦手',
   'panorama.filterUnmastered': '未習得',
   'panorama.filterAria': '出題ポイントの絞り込み',
+
+  // パノラマの計画ライト統合（plan.json を持つテーマのみ描画；サマリー行 + デイカードの
+  // ステータスチップ。判定は src/lib/plan.ts でホームの計画パネルと同ソース。ペース
+  // 表現は home.plan* のキーを再利用）
+  'panorama.planDone': '計画：{done}/{total} 完了',
+  'panorama.planStatusPlanned': '計画中',
+  'panorama.planStatusInProgress': '学習中',
+  'panorama.planStatusDone': '完了',
+  'panorama.planStatusPaused': '保留',
 
   // 練習ページ
   'practice.readMode': '通読モード',

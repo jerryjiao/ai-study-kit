@@ -1,0 +1,10 @@
+[
+  {
+    "id": "Q-001",
+    "source": "plan-none-fixture",
+    "type": "single",
+    "question": "占位题：本 fixture 验证「主题目录正常、只是没有 plan.json」的回退路径",
+    "options": { "A": "空计划回退" },
+    "answer": ["A"]
+  }
+]

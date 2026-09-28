@@ -45,6 +45,30 @@ export const en: Record<TKey, string> = {
   'home.confirmResetAll':
     'Clear ALL progress (answers + wrong + reading)? This cannot be undone and will sync to all your devices.',
 
+  // Home · study plan panel (rendered only when the active theme has a plan.json; criteria in src/lib/plan.ts,
+  // kept in sync with scripts/lib/plan.mjs. Degraded-path copy (no dates / not enough pace data / no contact) is translated too)
+  'home.planTitle': 'Study plan',
+  'home.planDone': '{done}/{total} done',
+  'home.planDeadlineIn': '{n} days to deadline',
+  'home.planDeadlineToday': 'Deadline is today',
+  'home.planDeadlineOver': 'Deadline passed {n} days ago',
+  'home.planPace': 'Pace',
+  'home.planBehind': '{n} days behind',
+  'home.planSlack': '{n} days ahead',
+  'home.planDueToday': 'Next unit is due today',
+  'home.planCleared': 'All scheduled units done',
+  'home.planNoCalendar': 'No scheduled dates in the plan; pace comparison unavailable',
+  'home.planProjection': 'At the last {window}-day rate, finishing around {date}',
+  'home.planProjSlack': '{n} days ahead of deadline',
+  'home.planProjDeficit': '{n} days short of deadline',
+  'home.planProjNoData': 'No completions in the last {window} days; not enough pace data, no projection',
+  'home.planProjComplete': 'All units completed',
+  'home.planGap': '{n} days since last study contact',
+  'home.planNoContact': 'No study contact yet',
+  'home.planRemaining': '{n} units left',
+  'home.planStatusInProgress': 'In progress',
+  'home.planStatusPaused': 'Paused',
+
   // Exam-point panorama page /panorama (taught/practiced/mastered signals + day groups, see src/lib/panorama.ts)
   'panorama.title': 'Exam-point panorama (taught · practiced · mastered)',
   'panorama.summary': 'Taught {taught}/{total} · Practiced {practiced}/{total} · Mastered {mastered}/{total}',
@@ -65,6 +89,15 @@ export const en: Record<TKey, string> = {
   'panorama.filterWeak': 'Weak',
   'panorama.filterUnmastered': 'Not mastered',
   'panorama.filterAria': 'Filter exam points',
+
+  // Panorama plan integration (renders only when the active theme has plan.json; summary
+  // line + day-card status chips, derived in src/lib/plan.ts, same source as the home plan
+  // panel. Pace wording reuses the home.plan* keys)
+  'panorama.planDone': 'Plan: {done}/{total} done',
+  'panorama.planStatusPlanned': 'Planned',
+  'panorama.planStatusInProgress': 'In progress',
+  'panorama.planStatusDone': 'Done',
+  'panorama.planStatusPaused': 'Paused',
 
   // Practice
   'practice.readMode': 'Reading mode',

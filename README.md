@@ -92,7 +92,7 @@ cd ai-study-kit && pnpm install && pnpm dev
 
 3. **改闪卡** `flashcards.json`：正面提问 + 背面展开，同样简单
 4. **切换**：`EXAMPLE_THEME=react-basics pnpm dev`，刷新即生效
-5. **（可选）课程与呈现**：课程走 `lessons/*.html`，首页分组/显示名等走 `theme-config.json`（见 [`docs/theming.md`](docs/theming.md)），不配置则优雅回退
+5. **（可选）课程、计划与呈现**：课程走 `lessons/*.html`，首页分组/显示名等走 `theme-config.json`（见 [`docs/theming.md`](docs/theming.md)）；带日程的学习计划走 `plan.json`（可选 `deadline` + 单元日期与状态，首页「学习计划」面板对账完成 X/Y、落后/富余天数、距上次学习几天），三者不配置则优雅回退
 6. **校验四连**：`pnpm run scan`（零泄露）+ `pnpm test` + `pnpm run build` + `python3 scripts/bidirectional-check.py examples/react-basics/`（四对齐）
 
 **不想手写题？** 装好 `/ask-coach` 后直接说「帮我给 react-basics 产一套题库」——agent 先在考点排布表上和你对齐，确认后照表产题产卡，自动过三门质量校验才交付。手工路径永远是主路，排布表是人机之间的契约。

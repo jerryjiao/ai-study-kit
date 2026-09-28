@@ -88,7 +88,7 @@ git＋Linux のサンプルテーマが同梱されています：**クイズ**�
 
 3. **フラッシュカードを編集** `flashcards.json`：表に問い、裏に展開——同じくらいシンプルです
 4. **切り替え**：`EXAMPLE_THEME=react-basics pnpm dev`、再読み込みで反映
-5. **（任意）コースと見た目**：コースは `lessons/*.html`、ホームのグルーピング／表示名などは `theme-config.json`（[`docs/theming.ja.md`](docs/theming.ja.md) 参照）。未設定なら適切にフォールバックします
+5. **（任意）コース・学習計画・見た目**：コースは `lessons/*.html`、ホームのグルーピング／表示名などは `theme-config.json`（[`docs/theming.ja.md`](docs/theming.ja.md) 参照）；日程付きの学習計画は `plan.json`（任意の `deadline` ＋ ユニットごとの日付と状態——ホームの「学習計画」パネルが完了 X/Y、遅れ／余裕の日数、前回の学習からの日数を突き合わせます）。未設定なら適切にフォールバックします
 6. **検証の 4 点セット**：`pnpm run scan`（ゼロリーク）＋ `pnpm test` ＋ `pnpm run build` ＋ `python3 scripts/bidirectional-check.py examples/react-basics/`（四つの整合）
 
 **手で問題を書きたくない？** `/ask-coach` を入れた状態で「react-basics 用の問題バンクを一式作って」と伝えるだけです——エージェントはまず出題ポイント配置表であなたとすり合わせを行い、確認後に表どおり問題とカードを作成し、3 つの品質検証を自動で通してから納品します。手作業のルートはあくまでメインであり、配置表は人間とエージェントの間の契約です。

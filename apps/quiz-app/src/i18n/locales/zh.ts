@@ -45,6 +45,30 @@ export const zh = {
   'home.resetAll': '清空全部进度',
   'home.confirmResetAll': '清空全部进度（答题 + 错题 + 看题）？此操作不可恢复，且会同步到所有设备。',
 
+  // 首页·学习计划面板（仅当激活主题有 plan.json 时渲染；判据 src/lib/plan.ts，
+  // 与 scripts/lib/plan.mjs 双实现同步。降级路径文案（无日程/速率不足/无接触）同四语）
+  'home.planTitle': '学习计划',
+  'home.planDone': '完成 {done}/{total}',
+  'home.planDeadlineIn': '距 deadline 还有 {n} 天',
+  'home.planDeadlineToday': 'deadline 就是今天',
+  'home.planDeadlineOver': 'deadline 已过 {n} 天',
+  'home.planPace': '节奏',
+  'home.planBehind': '落后 {n} 天',
+  'home.planSlack': '富余 {n} 天',
+  'home.planDueToday': '下一单元今天到期',
+  'home.planCleared': '日程已全部完成',
+  'home.planNoCalendar': '计划无日程日期，节奏对照不可算',
+  'home.planProjection': '按近 {window} 天速率，预计 {date} 完成',
+  'home.planProjSlack': '比 deadline 富余 {n} 天',
+  'home.planProjDeficit': '比 deadline 缺口 {n} 天',
+  'home.planProjNoData': '近 {window} 天无完成记录，速率不足，不硬算外推',
+  'home.planProjComplete': '全部单元已完成',
+  'home.planGap': '距上次学习 {n} 天',
+  'home.planNoContact': '尚无学习接触记录',
+  'home.planRemaining': '剩余 {n} 单元',
+  'home.planStatusInProgress': '在学',
+  'home.planStatusPaused': '搁置',
+
   // 考点全景独立页（讲/练/掌三信号 + day 分组，判据见 src/lib/panorama.ts，与 mastery-report 同口径）
   'panorama.title': '考点全景（讲 · 练 · 掌）',
   'panorama.summary': '已讲 {taught}/{total} · 已练 {practiced}/{total} · 已掌握 {mastered}/{total}',
@@ -65,6 +89,14 @@ export const zh = {
   'panorama.filterWeak': '弱项',
   'panorama.filterUnmastered': '未掌握',
   'panorama.filterAria': '考点筛选',
+
+  // 全景页·计划轻量结合（仅当激活主题有 plan.json 时渲染；摘要行 + day 卡状态 chip，
+  // 判据 src/lib/plan.ts 与首页计划面板同源。节奏措辞复用 home.plan* 同款 key）
+  'panorama.planDone': '计划：完成 {done}/{total}',
+  'panorama.planStatusPlanned': '计划中',
+  'panorama.planStatusInProgress': '在学',
+  'panorama.planStatusDone': '完成',
+  'panorama.planStatusPaused': '搁置',
 
   // 练习页
   'practice.readMode': '看题模式',

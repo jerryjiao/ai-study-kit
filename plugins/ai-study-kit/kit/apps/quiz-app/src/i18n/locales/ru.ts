@@ -45,6 +45,30 @@ export const ru: Record<TKey, string> = {
   'home.confirmResetAll':
     'Очистить ВЕСЬ прогресс (ответы + ошибки + чтение)? Отменить нельзя, изменение синхронизируется на все устройства.',
 
+  // Главная · панель плана обучения (показывается только когда у активной темы есть plan.json; критерии в src/lib/plan.ts,
+  // синхронизированы с scripts/lib/plan.mjs. Тексты деградации (нет дат / мало данных о темпе / нет контакта) тоже переведены)
+  'home.planTitle': 'План обучения',
+  'home.planDone': 'Выполнено {done} из {total}',
+  'home.planDeadlineIn': 'До дедлайна {n} дн.',
+  'home.planDeadlineToday': 'Дедлайн — сегодня',
+  'home.planDeadlineOver': 'Дедлайн прошёл {n} дн. назад',
+  'home.planPace': 'Темп',
+  'home.planBehind': 'Отставание {n} дн.',
+  'home.planSlack': 'Запас {n} дн.',
+  'home.planDueToday': 'Следующий модуль — сегодня',
+  'home.planCleared': 'Все модули по расписанию выполнены',
+  'home.planNoCalendar': 'В плане нет дат; темп не с чем сравнить',
+  'home.planProjection': 'По темпу последних {window} дн. завершение около {date}',
+  'home.planProjSlack': 'Запас {n} дн. до дедлайна',
+  'home.planProjDeficit': 'Дефицит {n} дн. до дедлайна',
+  'home.planProjNoData': 'Нет завершённых модулей за последние {window} дн.; данных о темпе мало, без прогноза',
+  'home.planProjComplete': 'Все модули завершены',
+  'home.planGap': 'Последнее занятие {n} дн. назад',
+  'home.planNoContact': 'Занятий пока не было',
+  'home.planRemaining': 'Осталось модулей: {n}',
+  'home.planStatusInProgress': 'В работе',
+  'home.planStatusPaused': 'На паузе',
+
   // Страница панорамы по пунктам экзамена /panorama (сигналы изучено/отработано/освоено + блоки day, см. src/lib/panorama.ts)
   'panorama.title': 'Панорама пунктов (изучено · отработано · освоено)',
   'panorama.summary': 'Изучено {taught}/{total} · Отработано {practiced}/{total} · Освоено {mastered}/{total}',
@@ -65,6 +89,15 @@ export const ru: Record<TKey, string> = {
   'panorama.filterWeak': 'Слабые',
   'panorama.filterUnmastered': 'Не освоено',
   'panorama.filterAria': 'Фильтр пунктов экзамена',
+
+  // Лёгкая связка плана на панораме (только если у активной темы есть plan.json; строка
+  // сводки + чип статуса на карточках дней, критерий src/lib/plan.ts — тот же источник, что у
+  // панели плана на главной. Формулировки темпа переиспользуют ключи home.plan*)
+  'panorama.planDone': 'План: выполнено {done} из {total}',
+  'panorama.planStatusPlanned': 'Запланировано',
+  'panorama.planStatusInProgress': 'В работе',
+  'panorama.planStatusDone': 'Выполнено',
+  'panorama.planStatusPaused': 'На паузе',
 
   // Тренировка
   'practice.readMode': 'Режим чтения',

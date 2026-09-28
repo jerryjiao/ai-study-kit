@@ -19,6 +19,7 @@ import { buildPanorama } from './lib/panorama.mjs';
 import { buildCoverageSnapshot, readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
 import { readOralAttempts } from './lib/oral.mjs';
 import { loadGraphMap, loadKnowledgeGraph, projectEdgesToEps } from './lib/graph-bridge.mjs';
+import { syncPlan } from './lib/plan.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → repo root
@@ -63,6 +64,14 @@ if (existsSync(themeConfigSrc)) {
   writeFileSync(join(DATA_DIR, 'theme-config.json'), '{}\n');
   console.log(`[sync-examples] theme-config.json 不存在 → 写空配置（无配置回退行为）  (theme: ${EXAMPLE_THEME})`);
 }
+
+// 学习计划（可选文件，ADR-0009）：examples/<theme>/plan.json → src/data/plan.json。
+// 有则原样拷贝；无/损坏/畸形写空计划回退（{units:[]}，theme-config 的 {} 回退同风格，
+// import 恒可解析）——无计划主题（如 dev-intro）全链路现状零变化。
+// 计划数据住主题、派生与展示住 kit：本步只落数据，覆盖/节奏派生与 UI 是后续刀。
+// 外部主题包路径经 EXAMPLE_DIR 同一生效（lib/plan.mjs 只收主题目录绝对路径）。
+const planState = syncPlan(EXAMPLE_DIR, DATA_DIR);
+console.log(`[sync-examples] plan.json → src/data/plan.json  (${planState.present ? `计划 ${planState.units} 单元` : '无计划 → 空计划回退'})  (theme: ${EXAMPLE_THEME})`);
 
 // 记录激活主题：Courses 页据此拼课程 URL（study/<theme>/），保证内容与课程永远同主题，
 // 也让「切换主题」只需改 EXAMPLE_THEME 一处（原需同步手改 Courses.tsx 的 COURSE_URL）。

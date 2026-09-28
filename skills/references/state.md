@@ -138,6 +138,22 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" 
   👉 下一步：<点名最该补的考点（弱考点优先，引用 mastery 报告）+ 一句为什么>
   ```
 
+**学习计划（plan.json，快照「计划」行）**：进度/弱考点之外的第三条派生信号。主题可选数据 `plan.json`（带日程的学习计划：`deadline` + `units[]`，单元状态四态 planned/in-progress/done/paused 由学习流程维护——写入口径单源在 [`contracts.md`](contracts.md) 契约三，探测只读不改；派生值现算不写回，分层决策见仓库 ADR-0009）。有无计划一条命令自己会说，不要先 ls 试探再决定跑不跑：
+
+```bash
+node apps/quiz-app/scripts/plan-report.mjs --theme "$THEME" --progress "$CP" --json
+```
+
+- **`status: "noop"`（无 plan.json → reason missing；损坏 → broken）**：快照**跳过「计划」行**——输出与没有这个功能之前逐字节一致（dev-intro 即此基准）。noop 不是故障、不进诊断流程。
+- **`status: "ok"` → 拼快照「计划」行**，字段全从本命令实测，不许编：
+  - **覆盖**：`coverage.done/total`；当前单元 `coverage.current` 取 `<id> <title>`（`current` 为 null = 全完成或只剩搁置，如实报）。
+  - **节奏·日历对照**：`calendarDiff.diffDays` + `state`——`behind` 报「落后 N 天」（N = −diffDays，锚逾期单元的最大 plannedDate；逐单元拖龄在 `overdue[].daysOverdue`，追问再展开）、`slack` 报「富余 N 天」、`due-today` 报「下一单元今天到期」、`cleared` 报「日程已清空」；`available=false`（计划里没有任何可解析的 `plannedDate`）→ 该段省略，不硬凑。
+  - **断档**：`gap.daysSinceLastContact`（距最后一次学习接触的自然日数，answers/srs/课学完三通道取最大，按本主题题/卡 id 集隔离）；`available=false` → 报「无接触记录」，**不是 0 天**。
+  - **deadline**：`plan.deadline`（可选；未设就不报这一段）。
+  - **单元状态概览**：`coverage.byStatus` 四态计数——快照行不逐个列，用户追问剩余单元时用 `coverage.remaining` 展开（含 in-progress 与 paused：搁置了也是没完成）。
+- **与「陪练」行考期的口径区分**：本行的 deadline 是**学习计划期限**（plan.json）；「陪练」行的「距考期」是 **MISSION.md frontmatter deadline**——两个源两个行，不互替不合并（F11 冲刺的硬前置始终是后者）。
+- `--progress` 缺省读本地 `apps/quiz-app/progress.json`；要看线上进度先 curl 再传（同 §3 的 `$CP` 变量）。`--theme` 两种形态都认（同 §1）。速率外推（`projection`）快照行**不消费**——窗口 14 天无完成事件时脚本诚实降级不硬算；用户追问「照这个速度来得及吗」再引用其 `available/note`。
+
 ## 4. AI 配置（只报配齐与否，绝不回显值）
 
 ```bash

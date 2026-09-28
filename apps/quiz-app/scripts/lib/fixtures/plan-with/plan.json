@@ -1,0 +1,9 @@
+{
+  "deadline": "2026-10-15",
+  "units": [
+    { "id": "U-01", "title": "基础概念", "order": 1, "plannedDate": "2026-09-01", "day": "D1", "topic": "basics", "status": "done", "doneDate": "2026-09-02" },
+    { "id": "U-02", "title": "进阶操作", "order": 2, "plannedDate": "2026-09-08", "day": "D3", "status": "in-progress" },
+    { "id": "U-03", "title": "综合应用", "order": 3, "day": "D5", "status": "planned" },
+    { "id": "U-04", "title": "查漏补缺", "order": 4, "status": "paused" }
+  ]
+}

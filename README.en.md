@@ -88,7 +88,7 @@ Say you're learning **React basics**. Everything happens under `examples/`, no a
 
 3. **Edit the flashcards** `flashcards.json`: prompt on the front, details on the back — just as simple
 4. **Switch**: `EXAMPLE_THEME=react-basics pnpm dev` — refresh and it's live
-5. **(Optional) lessons & home presentation**: lessons go in `lessons/*.html`; home grouping/labels go in `theme-config.json` (see [`docs/theming.en.md`](docs/theming.en.md)); graceful fallback without one
+5. **(Optional) lessons, study plan & presentation**: lessons go in `lessons/*.html`; home grouping/labels go in `theme-config.json` (see [`docs/theming.en.md`](docs/theming.en.md)); a dated study plan goes in `plan.json` (optional `deadline` + per-unit dates & status — the home "Study plan" panel reconciles done X/Y, days behind/ahead, and days since your last study contact); graceful fallback without any of them
 6. **Four checks**: `pnpm run scan` (zero leaks) + `pnpm test` + `pnpm run build` + `python3 scripts/bidirectional-check.py examples/react-basics/` (four-way alignment)
 
 **Don't want to write questions by hand?** With `/ask-coach` installed, just say "generate a question set for react-basics" — the agent first aligns with you on an **exam-point table** in MISSION.md (what's covered, how deep, how many questions per type, how many cards), then writes questions and cards point by point after your confirmation, and runs the three quality gates (`qa` / `scan` / four-way alignment) before delivering. The manual path stays the main path; the table is the contract between you and the agent.
