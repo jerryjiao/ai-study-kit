@@ -85,7 +85,9 @@ if (!skillDirs.includes(MAIN_SKILL)) {
 
 // 主 description 中文为主（与 README/官网默认语言一致），尾缀一句英文给国际市集可发现性；
 // en/zh-CN 全文分存在 description_i18n（zcode 客户端按 locale 取）。
-const DESCRIPTION = '/ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置、kit 版本漂移），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署、升级。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.';
+// ⭐ 双源契约：DESCRIPTION 必须与 skills/ask-coach/SKILL.md frontmatter 的 description 逐字一致
+// （AGENTS.md「各处 description 统一」节）——改任一侧，另一侧同改并重跑 pnpm run sync:plugin。
+const DESCRIPTION = '/ask-coach 学习教练：先扫学习状态（进度、错题、到期闪卡、考期、版本），再告诉你现在最该做什么、为什么——刷题、串讲、冲刺、产课到部署升级，每个动作都从这进。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.';
 const KEYWORDS = ['study', 'learning', 'flashcards', 'srs', 'spaced-repetition', 'quiz', 'tutor', 'ai-study-kit'];
 // 插件图标：源是仓库根 assets/logo.png（与 quiz-app/官网三端同源）。marketplace 的 icon 走 jsDelivr
 // 绝对 URL（zcode 官方源同款做法；raw.githubusercontent 直连会撞 429/墙，jsDelivr 是 CDN 更稳）。
@@ -96,8 +98,8 @@ const manifest = {
   version: VERSION,
   description: DESCRIPTION,
   description_i18n: {
-    en: 'Study coach for ai-study-kit: scans your learning state (theme, progress, due flashcards, wrong questions, tutoring records, sprint deadline, AI config, kit version drift) and tells you what to do next — bootstrap, new theme, coached tutoring, pre-deadline sprint, daily study, wrong-question grill, podcast, content edits, verify, deploy, upgrade.',
-    'zh-CN': 'ai-study-kit 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置、kit 版本漂移），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署、升级。',
+    en: 'Study coach for ai-study-kit: scans your learning state and tells you what to do next.',
+    'zh-CN': '/ask-coach 学习教练：先扫学习状态（进度、错题、到期闪卡、考期、版本），再告诉你现在最该做什么、为什么——刷题、串讲、冲刺、产课到部署升级，每个动作都从这进。',
   },
   author: { name: 'ai-study-kit', url: 'https://github.com/jerryjiao/ai-study-kit' },
   homepage: 'https://github.com/jerryjiao/ai-study-kit',

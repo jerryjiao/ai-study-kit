@@ -1,6 +1,6 @@
 # ai-study-kit — 学习教练 skill 套件
 
-/ask-coach 学习教练：扫描学习状态（主题、进度、到期闪卡、错题、陪练记录、考期、AI 配置、kit 版本漂移），推荐下一步该学什么、做什么——初始化、开新主题、陪练教学、考前冲刺、每日刷题、错题串讲、播客、改内容、校验、部署、升级。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.
+/ask-coach 学习教练：先扫学习状态（进度、错题、到期闪卡、考期、版本），再告诉你现在最该做什么、为什么——刷题、串讲、冲刺、产课到部署升级，每个动作都从这进。 Study coach for ai-study-kit: scans your learning state and tells you what to do next.
 
 ## 命令（五件）
 

@@ -6,10 +6,25 @@
 
 ## [Unreleased]
 
+### Added
+
+- **三处版本探测：假绿收口（#100，ADR-0010 #104）**：kit 版本此前只比两处本地文件（用户项目 vs 插件快照 `kit-version.json`，ADR-0006）——插件**本体**落后于最新发布时两处照样相等，快照一路报绿（活例：本地插件 0.21.0、仓库已发 0.22.0）。补**第三处**「最新发布」：官网版本产物 `apps/site/public/version.json`（新脚本 `gen-version.mjs` 挂 site prebuild，从根 package.json 写、产物 gitignored 零手工同步），探测进快照 Step 1「版本」行本体信号 + F13 第 1 步**复探**（本体落后 → 停下不重拷，绝不把项目对齐到旧快照；按安装形态分叉 Route A「marketplace refresh 我代不了」/ Route B 幂等重跑安装协议）+ 体检版本行，三站之外不探。全部**软失败**：超时/解析失败注一句照报本地两态，绝不阻塞；`ASK_KIT_VERSION_URL` 环境变量可覆盖默认 URL（演练桩/内网自托管）。推荐算法插条：本体落后 → 先引导刷新插件本体，排在「项目 kit 落后 → F13」之前；F13 语义增强为「复探过才动 kit」，由演练器 `--scenario=stalled` 断言面锁死（scripts/drill，spec #55 行为级验收面先例）。**存量影响**：skill 层软契约，无落盘变化；老项目零动作，插件用户下版 marketplace refresh 才拿到第三信号（skill 文档随版本走）。
+- **仓库 checkout 更新路径（#101）**：把仓库 checkout 当学习项目用的形态（ruankao 型）不再假设「与 skill 文档恒同代」（那只对贡献者成立）——该形态探 **git 落后程度**（`git fetch` + `rev-list --count HEAD..origin/main`；`behind=unknown` 同软失败协议，fetch 失败不拿旧参考算数）：N = 0 报同步、N > 0 报「落后 N 提交」并由 agent 代跑 `git pull` + 重建（工具链命令**可跑不可派**，不派给学习者手敲）。快照「版本」行两形态两套值。
+- **命令面分层纪律三处成文（#102）**：**用户命令**（五个斜杠命令 + 聊天框自然语言）与**工具链命令**（pnpm/npm/git/cp 全族，agent 代跑）定名分层，纪律「可跑不可派」——AGENTS.md ⭐ 条目 + CONTEXT.md 词条 + SKILL.md/state.md/flows.md 注记三处同文，堵「agent 把 pnpm 派给学习者」的混淆。
+- **README/docs 五语受众分层声明（#103）**：安装节前后各加一段——装好之后日常学习只需要五个命令（全在聊天框里敲），下文的 pnpm/clone 是开发者路线，学习者不用碰；README ×5 + `docs/ai-study-kit.md` ×5 同步。
+
+### Changed
+
+- **`/ask-coach` 描述收口（#103）**：SKILL.md frontmatter 与市集/plugin 元数据换短描述——「先扫学习状态（进度、错题、到期闪卡、考期、版本），再告诉你现在最该做什么、为什么……每个动作都从这进」（原为功能全枚举长句）。
+
 ### 修复
 
 - **sync-study 剔除 plan.json 上站拷贝（#97 裁决）**：计划数据里 F10 写回的执行痕迹（status/doneDate——哪天开学/学完/搁置）与笔记、错因同属学习者私有数据，不再随 `public/study/<theme>/` 发布（此前整目录拷贝会带上）。站点计划面板/全景页消费的是 build 时 `src/data/` 的 sync 产物，上站那份无任何消费端，零功能影响。
 - **断档天数口径注解对齐（#98 裁决）**：课学完撤销（墓碑）**也算接触**——断档采事件口径（来过就算来过，衡量「多久没学」），撤销只回退完成度、不抹掉接触历史；修正与实现不符的头注，行为与测试零变化。
+- **brand-scan 排 `.firecrawl/` 本地爬取工件误报**：与 `.mimosa/` 同款（v0.22.0 收尾先例）——本地爬取产物是 gitignored 工件不是发布面，基线实测 9 命中全在其中。
+- **描述双源对齐（独立评审）**：#103 收口时只改了 SKILL.md，`sync-plugin.mjs` 的 `DESCRIPTION` 常量与 `description_i18n` 未跟——`sync:plugin` 重跑把旧描述重新烙进市集清单 / plugin.json / 插件 README 三处 committed 产物，市集页元数据与 skill 实际描述互相矛盾。常量已对齐 SKILL.md 逐字（并在常量旁写死双源注记），重跑 sync 落三处产物。
+- **发版提交触发 Pages 部署（独立评审）**：`deploy-site.yml` 的 paths 过滤器不含根 `package.json`/`CHANGELOG.md`——纯发版提交（版本号 + 插件重同步）不触发部署，线上 `version.json` 停在旧版，第三处「最新发布」探测恰在发版窗口退回 #100 要消灭的假绿（ADR-0010「push main 触发 Pages 部署」的假设不成立）。两文件已入 paths。
+- **推荐算法顺序句计数（独立评审）**：插条后顺序句枚举五档「刷本体 → 升级 → 闪卡 → 冲刺 → 续站」却写「四者的紧迫度」，已改「五者」（源与插件副本同修）。
 
 ## [0.22.0] — 2026-09-28
 

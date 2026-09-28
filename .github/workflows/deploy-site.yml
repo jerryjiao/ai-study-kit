@@ -1,5 +1,6 @@
 # 官网部署：GitHub Pages（wayfinder map #9）。
-# push main（站点/文档/题库相关路径变化）→ 构建 demo + Starlight 站 → 发布 Pages。
+# push main（站点/文档/题库相关路径变化，或发版——根 package.json 是 version.json 产物的版本真源，
+# ADR-0010「push main 触发 Pages 部署，产物自动跟上」依赖此处含发版提交面）→ 构建 demo + Starlight 站 → 发布 Pages。
 # 首次启用：仓库 Settings → Pages → Source 选 GitHub Actions（或 gh api，见 map #9 完成评论）。
 name: Deploy site to GitHub Pages
 
@@ -12,6 +13,12 @@ on:
       - 'docs/**'
       - 'examples/**'
       - 'scripts/**'
+      # 发版提交面：版本号（package.json）+ 版本日志（CHANGELOG.md）。纯发版提交（版本号 + 插件重同步，
+      # 不动站点/文档/题库）也要触发——否则线上 version.json 停在旧版，第三处「最新发布」探测在发版
+      # 窗口集体软失败（ADR-0010）。plugins/skills/.claude-plugin 不列：它们不影响站点构建产物，
+      # 且发版提交必含 package.json，已足以触发。
+      - 'package.json'
+      - 'CHANGELOG.md'
       - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
