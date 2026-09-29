@@ -4,6 +4,31 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
+## [0.25.0] — 2026-09-29
+
+主题：**全站视觉重构 + 全景功能重构（spec #110，七票 #111-#117）——答题站第一次有成体系的设计系统。** 视觉面：以原型 `.firecrawl/ui-directions/proto.css` 为唯一视觉事实源，`src/index.css` 建成 `--st-*` 状态色令牌单源（绿/金/红/蓝/浅绿 + soft/ink/dark/low 变体，明暗各一套），Tailwind 以 `st-*` 工具族消费；六组件基元（Button3D/Card/Ring/StepDot/Pips/Switch）+ 3D 阴影/条纹进度条；TopNav 换装（logo 图片资产 + 绿胶囊激活态）；全站 indigo 旧主色按语义清零（主行动→绿、选中/看题→蓝、在学→金、错题→红）；首页换圆环闯关版式、练习/闪卡换红绿反馈 + 四键评分实色键、课程站样式表与答题站令牌同源生成。功能面：全景页重做成「着色地图 + 节点详情」（四态构成条 + 糖果节点路径 + 学习轨迹弹层）+ 下一站导引（`nextStation.ts`：落后插队 > 补弱 > 拓扑序，次选换轨道）；无 deadline 主题零催办（behind 措辞 deadline 门控）。
+
+### 升级与存量影响
+
+- **新文件/新契约**：前端新增 `src/components/ui/` 六基元（Button3D/Card/Ring/StepDot/Pips/Switch）、`src/lib/panoramaTrace.ts`（学习轨迹零新基建派生：首答/答对/连错合并/闪卡毕业/掌握事件全从 progress 既有时间戳确定性派生）、`src/lib/nextStation.ts`（下一站导引纯函数）、`src/lib/topicOrder.ts` 的 `deriveTopicLevels`（闯关三态派生）；构建链新增 `apps/quiz-app/scripts/lib/course-theme.mjs`（`parseDesignTokens` → `buildCourseStyles` 确定性生成）+ `gen-course-styles.mjs` CLI（`gen:course-css`）；`sync-study.mjs` 拷主题后按同一生成器重写 `public/study/<theme>/assets/styles.css`——**`examples/<theme>/assets/styles.css` 自本版起是生成产物禁手编**（AGENTS.md 红线同步）。UI 词典五语 211→252 个 key（新增 67、移除 26，含 tab 改名；`i18n.test.ts` key 完整性锚定）。kit 快照随 quiz-app 全部改动刷新，`kit-version.json` 版本号随版走 0.25.0。
+- **老项目缺了会怎样**：零影响、零动作。progress 落盘契约**零改动**（answers/srs/coursesRead 语义不变，轨迹与导引全部现算不写回）；主题内容文件零强制——`theme-config.json` 本就可选（无配置优雅回退默认卡面），外部主题包不更新照样跑，只是视觉维持旧样；存量课程 HTML 零改动（重跑 sync 即令牌换肤，旧变量别名层保 grill/sprint 手写页与外部包内联 `var()` 继续成立）；TopNav tab 结构变化（「练习」tab 并入首页闯关入口）是 UI 呈现变化不是数据契约变化，旧进度照常派生。
+- **怎么补**：插件用户 marketplace refresh（kit 快照含全部视觉与导引面）；手动安装用户重跑 `pnpm run skill:install`；存量学习项目照 F13 重拷 kit 后重跑 build 即换装；想要新课程视觉重跑 `pnpm -C apps/quiz-app run sync:study` 即可（或整个 build）。
+- **是否破坏性**：非破坏。既有 sync 产物契约（theme.json/courses.json/theme-config.json）与探测协议向后兼容；`/api/health`、progress API 零变化；删掉的 i18n key 均为已无消费方的死 key（五语同步删，编译期 `Record<TKey,string>` 锚定兜底）。
+
+### Added
+
+- **设计令牌基座（#111）**：`src/index.css` 的 `--st-*` 状态色令牌单源（绿 `#58CC02` / 金 `#FFC800` / 红 `#FF4B4B` / 蓝 `#1CB0F6` / 浅绿 `#86D92C` + soft/ink/dark/low 变体，`:root` 与 `.dark` 各一套值；原型无暗色值，暗色 soft 用同色相深色井 + ink 提亮保对比度，真浏览器验证无未定义变量）；中性面同源换原型 ink 系。`tailwind.config.js` 以 `st-*` 工具族消费，新增 3D 阴影/条纹进度条/JSON content 扫描。`src/components/ui/` 六基元均有真实使用面（提交答案、翻页、确认弹窗、总结圆环、课程目录三态、错题连对涂卡格、设置开关）。TopNav 换装：去「练习」tab（首项改 `nav.home` 首页，五语同步改名）、logo 用 `public/logo.png` 图片资产（与原型逐字节同 MD5）、实底 + 2px 描边 + 绿胶囊激活态。全站 indigo 旧主色按语义清零；`examples/dev-intro/theme-config.json` 源改中性卡面并重 sync。
+- **首页圆环闯关（#112）**：大类卡带 conic 圆环（<25% 浅绿不惩罚、0% 灰字）+「已答 x/总数」直接上卡；当前在学主题默认展开闯关子话题步进（✓ 答满 / ▶ 当前关卡金高亮 + 绿涂卡格 / 数字未到），三态派生抽纯函数 `deriveTopicLevels`（vitest 4 用例直测）；「进度管理」折叠区与已答覆盖明细面板整删、深度徽标删、纯拓展块灰徽标顺手 i18n 化（原写死中文违例）；四件重置迁设置弹层「数据重置」红色危险区，其中「清空本主题全部进度（含闪卡）」为新增主题隔离版 `resetTheme`（useProgress：三段墓碑一次 setProgress 单次 POST），错题/看题沿用 ids 隔离；「按题集清」留在练习页不重复入设置。
+- **练习 + 闪卡换装（#113）**：练习页错选项新增红叉（与正确项绿勾对称）、答错揭晓态收进原型 `.feedback` 同构红调容器（裁决行 + 错题连对进度 + 解析卡四要素一屏齐）、连对进度从「仅答对展示」扩为答对答错都展示；微动效 = 答对绿勾描边画出（`.draw-check`，仅本次提交触发、回看不重播）+ 答错卡片 shake 一次，纯 CSS 不拦截事件。闪卡：入口三色计数改大数字瓦片（粗描边 + 同色 3px 立体底边）、复习页计数改软色 chips、四键评分改实色 3D 按压键（红/金/绿/蓝）；「清闪卡进度」按原型注记从闪卡入口页迁入设置弹层数据重置节（streak 键常量收口单源）。
+- **课程令牌同源（#114）**：`scripts/lib/course-theme.mjs` 纯函数解析 `src/index.css` 设计令牌 → `buildCourseStyles` 确定性出课程站样式表（按原型 `.doc` 系列重写：绿 h2 导轨 / 蓝引导块 / callout 四变体 / 圆角描边表格），保留旧变量别名层；`gen:course-css` CLI + `sync-study.mjs` 拷主题后按同一生成器重写站点副本（缺失创建、失败回退保留主题自带样式）——存量主题含外部主题包重跑 sync 即换肤、课程 HTML 零改动。Courses.tsx：打开直达下一个未学完课（用户先点目录不打扰）、暗色跟随（主题类同步进同源 iframe `<html>`，onLoad + 主题变化双时机）、iframe `min-w-0` 修 390px 溢出、目录头 done/total 计数、markDone 换 Button3D；显式确认制零写入不变。取舍：白块内容图（PNG）暗色不反转（内容资产）。AGENTS.md 红线补「styles.css 生成产物」一句。
+- **全景版式与节点详情（#115）**：全景页重做成「着色地图 + 节点详情」：顶部四态等比构成条 + 计数图例（`countStatuses`，判据与 masteryByExamPoint 同口径）；每大类一张全宽卡内横向糖果节点路径（绿✓ / 金▶光环 / 红! / 灰数字、节点下挂名、≥44px 热区、overflow-x 横滑、组内 EP 数字序 + 大类序与首页一致），原讲/练/掌 chip、口头明细、未毕业徽标收进节点详情弹层（四态 / 答 x/y / 错 N / 闪卡毕业 + 学习轨迹时间线 + 直达刷题与课程）。三处关键取舍：①节点点击按原型走「点节点→详情→CTA 直达」而非单跳；②筛选从隐藏整组改为非命中节点压暗（地图保留空间上下文，判据与旧档位同口径，`?filter=` 深链兼容不变）；③计划 day chips 撤出、#93 摘要行保留。配套 Practice `?ep=` 考点直达（scope/面包屑/空态接入）与 Courses `?lesson=` 课直达（命中清单才生效，不造死链）。`panoramaTrace.ts` 全序 tie-break 保证多端合并后顺序稳定（11 条 vitest），墓碑与随机沙盒按 mastery 读端口径剔除。
+- **下一站导引（#116）**：新增 `src/lib/nextStation.ts` 纯函数——优先级 = 落后日程插队（仅当 planGap 非空，即主题设了可解析的 deadline）> 补弱（openWrong 降序 + 排布表序平手，理由带被前置边拖住的直接下游名单，不受拓扑门控）> 拓扑序最早解锁（prerequisite 边最长路径层级 + 前置全解锁过滤；环垫底容忍、端点未知边忽略；无映射回退排布表顺序近似，`structural` 标记让 UI 措辞分流「按结构顺推/按排布表顺推」不冒称结构洞察）；次选 = 换轨道（落后→补弱??结构、补弱→结构、结构→结构下一个，撞同考点退结构下一个，全堵则 alt=null 诚实隐藏）。Panorama 第一屏接「下一站」推荐卡（🧭 图标 / 主推名 + 状态 chip / 理由行 / 次选链接 / 绿按钮直达 `?ep=` 题集，移动端按钮整行）+ 赶考细引用行（仅当 `plan.deadline`：速率可算出「预计 X 完成 · 富余/差 N 天」，速率不足诚实降级为目标日倒计时，Link 到首页完整计划面板）。无 deadline 零催办：全景摘要行与首页 PlanPanel 的 behind 措辞统一 deadline 门控（无目标日判 behind 整行/整段隐藏，中性事实照出），原则成文进 `docs/methodology` 五语「目标日是可选的」节；补弱理由数字用 openWrong（与节点详情 statWrongTimes 同源）诚实数据优先。`panorama.ts` 导出 `compareEp` + `flattenScheduleOrder`。
+
+### Changed
+
+- **UI 词典五语增删**：新增 67 个 key（导航改名 / 设置数据重置 / 闪卡瓦片 / 课程计数 / 全景构成与详情 / 下一站与赶考），移除 26 个已死 key（已答覆盖明细 / 闪卡入口清进度 / 全景旧档位 chip 等），zh 基准 + en/es/ru/ja 四译本同步，`i18n.test.ts` key 完整性 + 占位符一致性校验。
+- **进度重置 UI 收口**：散落各页的重置入口收敛进设置弹层「数据重置」危险区（红色危险样式），`resetWrong`/`resetRead`/`resetSrs` 的 ids 主题隔离参数在 UI 层统一接线；练习页「按题集重做」保留原位。
+
 ## [0.24.0] — 2026-09-29
 
 主题：**多副本运行环境治理（spec #105）——实例自报版本、副本消歧、升级链去坑、bundle 去路径。** 一起真实事故暴露的系统性盲区：agent 面对同机多份 kit 副本时不知道该操作哪份 checkout、不知道部署实例跑的什么版本。四刀：`/api/health` 自报 version+theme、多 checkout 消歧双层成文、升级后测试假红拔除、公开 bundle 零机器路径。
