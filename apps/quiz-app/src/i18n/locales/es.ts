@@ -19,31 +19,19 @@ export const es: Record<TKey, string> = {
   // Inicio
   'home.tagline': 'Sitio de práctica · {total} preguntas · el progreso se sincroniza entre dispositivos',
   'home.taglineLocal': 'Sitio de práctica · {total} preguntas · el progreso se guarda en este navegador',
+  'home.heroTitle': 'Sigue así: hoy también subes de nivel',
   'home.statAnswered': 'Respondidas',
   'home.statAccuracy': 'Precisión',
   'home.statWrong': 'Erróneas',
   'home.statRead': 'Leídas',
-  'home.resume': 'Último tema',
-  'home.resumeGo': 'Continuar →',
+  'home.resumeCta': 'Continuar',
   'home.wrongRetry': 'Repetir erróneas ({n})',
   'home.random20': '{n} al azar',
-  'home.byTopic': 'Practicar por tema (clic en un tema para ver subtemas)',
-  'home.progressManage': 'Gestión del progreso',
-  'home.coverDetail': 'Cobertura respondida (por punto de examen)',
+  'home.byTopic': 'Sube de nivel por temas',
+  'home.nowTag': 'En curso',
+  'home.qUnit': 'preguntas',
+  'home.extTag': 'Ampliación {n}',
   'home.uncategorized': '(Sin clasificar)',
-  'home.other': 'Otros',
-  'home.resetPos': 'Restablecer posiciones',
-  'home.confirmResetPos':
-    '¿Volver todas las listas de práctica (por día/tema) a la pregunta 1? (No afecta a tus respuestas)',
-  'home.resetWrong': 'Restablecer erróneas',
-  'home.confirmResetWrong':
-    '¿Vaciar todo el registro de erróneas? (La práctica de erróneas se quedará sin preguntas; no se puede deshacer)',
-  'home.resetRead': 'Restablecer lecturas',
-  'home.confirmResetRead':
-    '¿Vaciar el progreso de lectura? (No afecta a tus respuestas; no se puede deshacer)',
-  'home.resetAll': 'Vaciar todo el progreso',
-  'home.confirmResetAll':
-    '¿Vaciar TODO el progreso (respuestas + erróneas + lecturas)? No se puede deshacer y se sincronizará con todos tus dispositivos.',
 
   // Inicio · panel del plan de estudio (solo se muestra si el tema activo tiene plan.json; criterios en src/lib/plan.ts,
   // sincronizados con scripts/lib/plan.mjs. Los textos de degradación (sin fechas / ritmo insuficiente / sin contacto) también están traducidos)
@@ -258,6 +246,22 @@ export const es: Record<TKey, string> = {
   'settings.quotaMinus': 'Reducir límite',
   'settings.quotaPlus': 'Aumentar límite',
   'settings.syncHint': 'Las preferencias se sincronizan entre dispositivos con tu progreso',
+
+  // Panel de ajustes · restablecer datos (v0.25 entrada 2: las cuatro operaciones de reset que
+  // estaban en «Gestión del progreso» de la portada se reúnen aquí; solo afectan al tema actual)
+  'settings.resetTitle': 'Restablecer datos (solo el tema actual)',
+  'settings.resetPos': 'Restablecer posiciones',
+  'settings.confirmResetPos':
+    '¿Volver todas las listas de práctica (por día/tema) a la pregunta 1? (No afecta a tus respuestas)',
+  'settings.resetWrong': 'Borrar erróneas',
+  'settings.confirmResetWrong':
+    '¿Vaciar el registro de preguntas erróneas del tema actual? (La práctica de erróneas se quedará sin preguntas; no se puede deshacer)',
+  'settings.resetRead': 'Borrar lecturas',
+  'settings.confirmResetRead':
+    '¿Vaciar el progreso de lectura del tema actual? (No afecta a tus respuestas; no se puede deshacer)',
+  'settings.resetAllTheme': 'Vaciar TODO el progreso de este tema (incluidas las tarjetas)',
+  'settings.confirmResetAllTheme':
+    '¿Vaciar TODO el progreso del tema actual (respuestas + erróneas + lecturas + tarjetas)? No se puede deshacer y se sincronizará con todos tus dispositivos. Los demás temas no se ven afectados.',
 
   // Cambio de idioma
   'lang.aria': 'Cambiar idioma',

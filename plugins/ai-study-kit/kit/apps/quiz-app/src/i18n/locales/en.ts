@@ -19,31 +19,19 @@ export const en: Record<TKey, string> = {
   // Home
   'home.tagline': 'Practice site · {total} questions · progress syncs across devices',
   'home.taglineLocal': 'Practice site · {total} questions · progress is saved in this browser',
+  'home.heroTitle': 'Keep going — another level today',
   'home.statAnswered': 'Answered',
   'home.statAccuracy': 'Accuracy',
   'home.statWrong': 'Wrong',
   'home.statRead': 'Read',
-  'home.resume': 'Last studied',
-  'home.resumeGo': 'Resume →',
+  'home.resumeCta': 'Resume',
   'home.wrongRetry': 'Retry wrong ({n})',
   'home.random20': 'Random {n}',
-  'home.byTopic': 'Practice by topic (click a topic to expand subtopics)',
-  'home.progressManage': 'Progress management',
-  'home.coverDetail': 'Answered coverage (per exam point)',
+  'home.byTopic': 'Level up by topic',
+  'home.nowTag': 'Studying',
+  'home.qUnit': 'questions',
+  'home.extTag': 'Extra {n}',
   'home.uncategorized': '(Uncategorized)',
-  'home.other': 'Other',
-  'home.resetPos': 'Reset list positions',
-  'home.confirmResetPos':
-    'Move every practice list (by day/topic) back to question 1? (Answer records are not affected)',
-  'home.resetWrong': 'Reset wrong-question log',
-  'home.confirmResetWrong':
-    'Clear all wrong-question records? (Wrong-question practice will have nothing to show; this cannot be undone)',
-  'home.resetRead': 'Reset reading progress',
-  'home.confirmResetRead':
-    'Clear reading progress? (Answer records are not affected; this cannot be undone)',
-  'home.resetAll': 'Clear all progress',
-  'home.confirmResetAll':
-    'Clear ALL progress (answers + wrong + reading)? This cannot be undone and will sync to all your devices.',
 
   // Home · study plan panel (rendered only when the active theme has a plan.json; criteria in src/lib/plan.ts,
   // kept in sync with scripts/lib/plan.mjs. Degraded-path copy (no dates / not enough pace data / no contact) is translated too)
@@ -258,6 +246,22 @@ export const en: Record<TKey, string> = {
   'settings.quotaMinus': 'Decrease quota',
   'settings.quotaPlus': 'Increase quota',
   'settings.syncHint': 'Preferences sync across devices with your progress',
+
+  // Settings sheet · data reset (v0.25 ticket 2: the four reset entries formerly in the home
+  // "Progress management" section live here now; all scoped to the current theme only)
+  'settings.resetTitle': 'Data reset (current theme only)',
+  'settings.resetPos': 'Reset list positions',
+  'settings.confirmResetPos':
+    'Move every practice list (by day/topic) back to question 1? (Answer records are not affected)',
+  'settings.resetWrong': 'Clear wrong log',
+  'settings.confirmResetWrong':
+    'Clear the wrong-question records of the current theme? (Wrong-question practice will have nothing to show; this cannot be undone)',
+  'settings.resetRead': 'Clear read progress',
+  'settings.confirmResetRead':
+    'Clear the reading progress of the current theme? (Answer records are not affected; this cannot be undone)',
+  'settings.resetAllTheme': 'Clear ALL progress of this theme (incl. flashcards)',
+  'settings.confirmResetAllTheme':
+    'Clear ALL progress of the current theme (answers + wrong + reading + flashcards)? This cannot be undone and will sync to all your devices. Other themes are not affected.',
 
   // Language toggle
   'lang.aria': 'Switch language',

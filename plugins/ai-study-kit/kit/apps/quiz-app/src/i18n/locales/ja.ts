@@ -20,27 +20,19 @@ export const ja: Record<TKey, string> = {
   'home.tagline': '学習トレーニング · 全{total}問 · 進捗は端末間で自動同期',
   // ローカルモード（バックエンドなし、公式サイトのデモなど）の tagline：sync.local のバナーと同じ口径で、同期を謳わない
   'home.taglineLocal': '学習トレーニング · 全{total}問 · 進捗はこのブラウザに保存されます',
+  'home.heroTitle': '続けよう、今日もレベルをクリア',
   'home.statAnswered': '回答済み',
   'home.statAccuracy': '正答率',
   'home.statWrong': '不正解',
   'home.statRead': '既読',
-  'home.resume': '前回の学習位置',
-  'home.resumeGo': '続きから →',
+  'home.resumeCta': '続きから',
   'home.wrongRetry': '間違えた問題を再練習（{n}）',
   'home.random20': 'ランダム {n} 問',
-  'home.byTopic': 'トピック別練習（カテゴリをクリックするとサブトピックが展開します）',
-  'home.progressManage': '進捗管理',
-  'home.coverDetail': '回答済みカバー状況（出題ポイント別）',
+  'home.byTopic': 'テーマ別でレベルアップ',
+  'home.nowTag': '学習中',
+  'home.qUnit': '問',
+  'home.extTag': '応用 {n}',
   'home.uncategorized': '（未分類）',
-  'home.other': 'その他',
-  'home.resetPos': '練習位置をリセット',
-  'home.confirmResetPos': 'すべての練習リスト（日別・トピック別）の位置を第 1 問に戻しますか？（回答記録には影響しません）',
-  'home.resetWrong': '間違い記録をリセット',
-  'home.confirmResetWrong': 'すべての間違い記録を消去しますか？（間違えた問題の再練習が空になり、元に戻せません）',
-  'home.resetRead': '通読進捗をリセット',
-  'home.confirmResetRead': '通読進捗を消去しますか？（回答記録には影響しません。元に戻せません）',
-  'home.resetAll': 'すべての進捗を消去',
-  'home.confirmResetAll': 'すべての進捗（回答 ＋ 間違い ＋ 通読）を消去しますか？この操作は元に戻せず、すべての端末に同期されます。',
 
   // ホーム・学習計画パネル（アクティブなテーマに plan.json があるときのみ表示。判定は src/lib/plan.ts、
   // scripts/lib/plan.mjs と同期。デグレード時の文案（日付なし・ペース不足・接触なし）も五語対応）
@@ -252,6 +244,19 @@ export const ja: Record<TKey, string> = {
   'settings.quotaMinus': '上限を減らす',
   'settings.quotaPlus': '上限を増やす',
   'settings.syncHint': '設定は進捗とともに端末間で同期されます',
+
+  // 設定パネル・データリセット（v0.25 チケット 2：旧ホームの「進捗管理」にあった
+  // 4 つのリセット操作をここに集約。いずれも現在のテーマにのみ作用します）
+  'settings.resetTitle': 'データリセット（現在のテーマのみ）',
+  'settings.resetPos': 'リスト位置をリセット',
+  'settings.confirmResetPos': 'すべての練習リスト（日別・トピック別）の位置を第 1 問に戻しますか？（回答記録には影響しません）',
+  'settings.resetWrong': '間違い記録を消去',
+  'settings.confirmResetWrong': '現在のテーマの間違い記録を消去しますか？（間違えた問題の再練習が空になり、元に戻せません）',
+  'settings.resetRead': '通読進捗を消去',
+  'settings.confirmResetRead': '現在のテーマの通読進捗を消去しますか？（回答記録には影響しません。元に戻せません）',
+  'settings.resetAllTheme': 'このテーマの全進捗を消去（フラッシュカード含む）',
+  'settings.confirmResetAllTheme':
+    '現在のテーマの全進捗（回答 ＋ 間違い ＋ 通読 ＋ フラッシュカード）を消去しますか？この操作は元に戻せず、すべての端末に同期されます。他のテーマには影響しません。',
 
   // 言語切り替え
   'lang.aria': '言語を切り替え',

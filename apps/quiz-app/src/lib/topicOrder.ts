@@ -122,3 +122,80 @@ export function atomicLabel(topic: string, subtopic: string): string {
   if (!subtopic) return topic;
   return stripSubtopicPrefix(subtopic);
 }
+
+/** 首页闯关关卡（v0.25 票②，spec #110 Q1/Q2）：大类卡「已答 x/总数」与子话题步进
+ *  三态的唯一派生源。纯函数（题库 + 已答 id 集 + 上次答到），供 Home 渲染与 vitest 直测。
+ *
+ *  - answeredIds：主进度口径的已答题 id 集（调用方先过滤墓碑与随机沙盒记录再传入）；
+ *  - current：上次答到的 (topic, subtopic)，无答题记录时传 null。
+ *
+ *  计数只数计划内题（拓展层不进主进度分母）；大类排序与首页网格一致（topicOrder 序 +
+ *  未列出的按字母序兜底）。子关卡三态判据（闯关语义，与 StepDot 基元对齐）：
+ *  current（上次答到的关卡，优先级最高——答满了也显示「正在这关」）> done（计划内
+ *  全部答过）> todo（进行中/未开始，显示关卡序号）。 */
+export interface SubLevel {
+  sub: string;
+  answered: number;
+  total: number;
+  state: 'done' | 'current' | 'todo';
+}
+export interface TopicLevel {
+  topic: string;
+  answered: number;
+  total: number;
+  /** 有 subtopic 配置的大类才有子关卡；空 = 整卡一关（无子话题的大类）。 */
+  subs: SubLevel[];
+}
+
+export function deriveTopicLevels(
+  qs: Question[],
+  answeredIds: ReadonlySet<string>,
+  current: { topic: string; subtopic?: string } | null,
+  cfg: ThemeConfig = themeConfig,
+): TopicLevel[] {
+  // 计划内题分桶：大类与 subtopic 两级计数（拓展层不进主进度口径）
+  const topics = new Map<string, { a: number; t: number }>();
+  const subs = new Map<string, { topic: string; a: number; t: number }>();
+  for (const q of qs) {
+    if (!isPlanned(q, cfg)) continue;
+    const topic = q.topic || '';
+    const e = topics.get(topic) ?? { a: 0, t: 0 };
+    e.t++;
+    if (answeredIds.has(q.id)) e.a++;
+    topics.set(topic, e);
+    if (q.subtopic) {
+      const s = subs.get(q.subtopic) ?? { topic, a: 0, t: 0 };
+      s.t++;
+      if (answeredIds.has(q.id)) s.a++;
+      subs.set(q.subtopic, s);
+    }
+  }
+  // 大类排序：topicOrder 序，未列出的按字母序兜底（与首页网格一致）
+  const order = cfg.topicOrder ?? [];
+  const keys = [...topics.keys()].sort((a, b) => {
+    const ia = order.indexOf(a),
+      ib = order.indexOf(b);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    return a.localeCompare(b);
+  });
+  return keys.map((topic) => {
+    const { a, t } = topics.get(topic)!;
+    // 子关卡序沿用 orderedSubtopics 的学习深度序；仅保留实际有计划内题的 sub
+    const subNames = orderedSubtopics(topic, qs, cfg).filter((s) => subs.has(s));
+    return {
+      topic,
+      answered: a,
+      total: t,
+      subs: subNames.map((sub) => {
+        const { a: sa, t: st } = subs.get(sub)!;
+        const isCurrent = !!current && current.topic === topic && current.subtopic === sub;
+        return {
+          sub,
+          answered: sa,
+          total: st,
+          state: isCurrent ? 'current' : st > 0 && sa >= st ? 'done' : 'todo',
+        };
+      }),
+    };
+  });
+}

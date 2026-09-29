@@ -29,6 +29,8 @@ interface ProgressCtxValue {
   resetAnswersByIds: (ids: string[]) => void;
   resetReadByIds: (ids: string[]) => void;
   resetSrs: (ids?: string[]) => void;
+  /** 清空激活主题全部进度（主题隔离版全清，语义见实现处注释）。 */
+  resetTheme: (questionIds: string[], cardIds: string[]) => void;
   /** 单题手动移出错题集：把 streak 拉到 streakToPass 阈值，下次 wrongIds 自然过滤掉。
    *  用于错题练习时用户主动判定"已掌握"，不等连对达标。不删历史记录（wrongCount 保留）。 */
   dismissWrong: (id: string) => void;
@@ -172,6 +174,20 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     dirtyRef.current = true;
   }, []);
 
+  /** 清空激活主题的全部进度（答题 + 错题 + 看题 + 闪卡）：主题隔离版全清（v0.25 票②，
+   *  设置弹层「数据重置」节）。与全量 reset() 的区别——只对传入的题/卡 id 打墓碑，
+   *  其他主题进度原样保留；课程学完标记（coursesRead）同 reset() 一样不动。
+   *  一次 setProgress 原子组合三段墓碑，随后 dirty effect 发一次 POST。 */
+  const resetTheme = useCallback((questionIds: string[], cardIds: string[]) => {
+    setProgress((prev) => {
+      let p = resetAnswersByIdsFn(prev, questionIds);
+      p = resetReadByIdsFn(p, questionIds);
+      p = resetSrsFn(p, Date.now(), cardIds);
+      return p;
+    });
+    dirtyRef.current = true;
+  }, []);
+
   /** 单题手动移出错题集：把 streak 拉到 streakToPass(wrongCount) 阈值，下次 wrongIds 过滤掉。
    *  保留历史记录（wrongCount 不动），仅改变 streak 让题退出错题集。
    *  题不在错题集（无 streak）时无操作。 */
@@ -214,8 +230,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<ProgressCtxValue>(
-    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, dispatchCourseEvent, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings }),
-    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, dispatchCourseEvent, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, dismissWrong, setTheme, setLang, updateSettings]
+    () => ({ progress, loaded, syncStatus, retrySync, submitAnswer, markRead, dispatchCourseEvent, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, resetTheme, dismissWrong, setTheme, setLang, updateSettings }),
+    [progress, loaded, syncStatus, retrySync, submitAnswer, markRead, dispatchCourseEvent, reviewCard, reset, resetWrong, resetRead, resetAnswersByIds, resetReadByIds, resetSrs, resetTheme, dismissWrong, setTheme, setLang, updateSettings]
   );
 
   return <ProgressCtx.Provider value={value}>{children}</ProgressCtx.Provider>;

@@ -20,6 +20,7 @@ export const zh = {
   'nav.backHome': '返回首页',
 
   // 首页
+  'home.heroTitle': '继续，今天也要过关',
   'home.tagline': '学习练习站 · 共 {total} 题 · 进度自动跨设备同步',
   // 本地模式（无后端，如官网 demo）下的 tagline：与 sync.local 横幅一致，不宣称同步
   'home.taglineLocal': '学习练习站 · 共 {total} 题 · 进度保存在此浏览器',
@@ -27,23 +28,14 @@ export const zh = {
   'home.statAccuracy': '正确率',
   'home.statWrong': '错题',
   'home.statRead': '已看',
-  'home.resume': '上次答到',
-  'home.resumeGo': '继续 →',
+  'home.resumeCta': '继续上次',
   'home.wrongRetry': '错题重练（{n}）',
   'home.random20': '随机 {n} 题',
-  'home.byTopic': '按主题练习（点大类展开子主题）',
-  'home.progressManage': '进度管理',
-  'home.coverDetail': '已答覆盖明细（逐考点）',
+  'home.byTopic': '按主题闯关',
+  'home.nowTag': '在学',
+  'home.qUnit': '题',
+  'home.extTag': '拓展 {n}',
   'home.uncategorized': '(未分类)',
-  'home.other': '其他',
-  'home.resetPos': '重置练习位置',
-  'home.confirmResetPos': '把所有练习列表（按天/主题）的位置回到第 1 题？（不影响答题记录）',
-  'home.resetWrong': '重置错题记录',
-  'home.confirmResetWrong': '清空所有错题记录？（错题重练将没有题目，不可恢复）',
-  'home.resetRead': '重置看题进度',
-  'home.confirmResetRead': '清空看题进度？（不影响答题记录，不可恢复）',
-  'home.resetAll': '清空全部进度',
-  'home.confirmResetAll': '清空全部进度（答题 + 错题 + 看题）？此操作不可恢复，且会同步到所有设备。',
 
   // 首页·学习计划面板（仅当激活主题有 plan.json 时渲染；判据 src/lib/plan.ts，
   // 与 scripts/lib/plan.mjs 双实现同步。降级路径文案（无日程/速率不足/无接触）同四语）
@@ -254,6 +246,19 @@ export const zh = {
   'settings.quotaMinus': '减少配额',
   'settings.quotaPlus': '增加配额',
   'settings.syncHint': '偏好随进度跨设备同步',
+
+  // 设置面板·数据重置节（v0.25 票②：原首页「进度管理」折叠区四件收口至此，
+  // 全部只作用于当前主题；「按题集清」的细粒度重置留在练习页）
+  'settings.resetTitle': '数据重置（仅当前主题）',
+  'settings.resetPos': '清答题位置',
+  'settings.confirmResetPos': '把所有练习列表（按天/主题）的位置回到第 1 题？（不影响答题记录）',
+  'settings.resetWrong': '清错题记录',
+  'settings.confirmResetWrong': '清空当前主题的错题记录？（错题重练将没有题目，不可恢复）',
+  'settings.resetRead': '清看题记录',
+  'settings.confirmResetRead': '清空当前主题的看题进度？（不影响答题记录，不可恢复）',
+  'settings.resetAllTheme': '清空本主题全部进度（含闪卡）',
+  'settings.confirmResetAllTheme':
+    '清空当前主题的全部进度（答题 + 错题 + 看题 + 闪卡）？此操作不可恢复，且会同步到所有设备。不影响其他主题。',
 
   // 语言切换
   'lang.aria': '切换语言',
