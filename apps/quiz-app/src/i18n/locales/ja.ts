@@ -211,6 +211,7 @@ export const ja: Record<TKey, string> = {
     'コースの内容は examples/<theme>/ から取り込まれます。先に pnpm run build（sync:study を含む）を実行して public/study/ へ同期してください。',
   'courses.frameTitle': '学習コース',
   'courses.index': 'コース目次',
+  'courses.tocCount': ' · {done}/{total}',
   'courses.doneProgress': '完了したレッスン {done}/{total}',
   'courses.markDone': '✓ 学習完了',
   'courses.undoDone': '学習完了 · 元に戻す',

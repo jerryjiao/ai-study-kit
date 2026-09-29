@@ -212,6 +212,7 @@ export const ru: Record<TKey, string> = {
     'Содержимое курсов берётся из examples/<theme>/ — выполните pnpm run build (включает sync:study), чтобы синхронизировать его в public/study/.',
   'courses.frameTitle': 'Учебный сайт',
   'courses.index': 'Оглавление уроков',
+  'courses.tocCount': ' · {done}/{total}',
   'courses.doneProgress': 'Пройдено уроков {done}/{total}',
   'courses.markDone': '✓ Урок пройден',
   'courses.undoDone': 'Пройден · Отменить',

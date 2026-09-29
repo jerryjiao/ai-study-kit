@@ -6,6 +6,7 @@
   "scripts": {
     "sync:examples": "node scripts/sync-examples.mjs",
     "sync:study": "node scripts/sync-study.mjs",
+    "gen:course-css": "node scripts/gen-course-styles.mjs",
     "dev": "npm run sync:examples && npm run sync:study && vite",
     "build": "npm run sync:examples && npm run sync:study && tsc -b && vite build",
     "preview": "vite preview",

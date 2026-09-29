@@ -212,6 +212,7 @@ export const en: Record<TKey, string> = {
     'Course content comes from examples/<theme>/ — run pnpm run build (includes sync:study) to sync it into public/study/.',
   'courses.frameTitle': 'Course site',
   'courses.index': 'Lesson index',
+  'courses.tocCount': ' · {done}/{total}',
   'courses.doneProgress': 'Lessons completed {done}/{total}',
   'courses.markDone': '✓ Lesson done',
   'courses.undoDone': 'Completed · Undo',

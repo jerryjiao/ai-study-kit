@@ -1,4 +1,114 @@
-/* ai-study-kit · 课程站样式表（生成产物，勿手编）
+/**
+ * course-theme.mjs — 课程站样式表的「令牌同源」生成核心（v0.25 票④，spec #110）。
+ *
+ * 设计令牌单源 = apps/quiz-app/src/index.css 的 :root / .dark 两个块（票①建立，
+ * Tailwind 的 bg-* / text-* / st-* 工具类全部指向它）。本模块把同一份令牌
+ * 编译成课程小站的 assets/styles.css——teach 产物只链 `../assets/styles.css`
+ * 且零内联样式（spec #110 已核实），换样式表即换肤，课程 HTML 零改动。
+ *
+ * 消费链（两处，同一生成器）：
+ *   1. gen-course-styles.mjs 重新生成 examples/<theme>/assets/styles.css（提交进库的副本）；
+ *   2. sync-study.mjs 在拷贝主题到 public/study/<name>/ 后，用同一生成器覆盖
+ *      assets/styles.css——存量主题（含外部主题包）重跑 sync 即换肤，不重产课。
+ *
+ * 纯函数、确定性：同一份 index.css 输入 → 逐字节相同的输出（无时间戳、无随机序），
+ * 这是票④验收标准之一，course-theme.test.mjs 有断言。
+ */
+
+/** 从 CSS 文本里取出一个选择器块的花括号内容（平衡括号扫描，容忍注释）。
+ *  只用于 index.css 的 `:root { … }` / `.dark { … }`（无嵌套规则），不是通用 CSS 解析器。 */
+function extractBlock(css, selector) {
+  const start = css.indexOf(`${selector}{`) !== -1 ? css.indexOf(`${selector}{`) : css.indexOf(`${selector} {`);
+  if (start === -1) return null;
+  const open = css.indexOf('{', start);
+  let depth = 0;
+  for (let i = open; i < css.length; i++) {
+    if (css[i] === '{') depth++;
+    else if (css[i] === '}') {
+      depth--;
+      if (depth === 0) return css.slice(open + 1, i);
+    }
+  }
+  return null;
+}
+
+/** RGB 三元组 → #RRGGBB（小写十六进制）。88 204 2 → #58cc02。 */
+function rgbToHex(r, g, b) {
+  const h = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+  return `#${h(r)}${h(g)}${h(b)}`;
+}
+
+/**
+ * 解析 index.css 的设计令牌：`:root` 与 `.dark` 两块里的 `--name: R G B;` 声明
+ * （空格分隔三数，配合 Tailwind 的 rgb(var(…) / <alpha-value>) 语法——票①约定）。
+ * 非三元组形态的声明（如 color-scheme）自动忽略。
+ * @param {string} cssText  apps/quiz-app/src/index.css 全文
+ * @returns {{ light: Record<string,string>, dark: Record<string,string> }}  令牌名 → #rrggbb
+ */
+export function parseDesignTokens(cssText) {
+  const parse = (block) => {
+    const out = {};
+    if (!block) return out;
+    for (const m of block.matchAll(/(--[a-z0-9-]+)\s*:\s*(\d+)\s+(\d+)\s+(\d+)\s*;/g)) {
+      out[m[1]] = rgbToHex(Number(m[2]), Number(m[3]), Number(m[4]));
+    }
+    return out;
+  };
+  return { light: parse(extractBlock(cssText, ':root')), dark: parse(extractBlock(cssText, '.dark')) };
+}
+
+/**
+ * 课程 styles.css 模板里用到的令牌面（从解析结果取值；缺令牌时显式报错而不是静默降级——
+ * 生成链输出进发布物，缺色必须当场炸出来）。
+ * @param {{light:Record<string,string>,dark:Record<string,string>}} tokens
+ * @param {'light'|'dark'} mode
+ */
+function pick(tokens, mode) {
+  const t = tokens[mode];
+  const need = [
+    '--color-bg-app', '--color-bg-surface', '--color-bg-subtle',
+    '--color-text-primary', '--color-text-secondary', '--color-text-muted', '--color-text-faint',
+    '--color-border', '--color-border-strong',
+    '--st-green', '--st-green-dark', '--st-green-soft', '--st-green-ink',
+    '--st-blue', '--st-blue-dark', '--st-blue-soft', '--st-blue-ink',
+    '--st-gold', '--st-gold-dark', '--st-gold-border', '--st-gold-soft', '--st-gold-ink',
+    '--st-red', '--st-red-dark', '--st-red-soft', '--st-red-border', '--st-red-ink',
+    '--st-track',
+  ];
+  const missing = need.filter((n) => !t[n]);
+  if (missing.length) throw new Error(`设计令牌缺失（${mode}）：${missing.join(', ')}——检查 src/index.css`);
+  return t;
+}
+
+/** 令牌声明块（`--x: #hex;` 每行一条，插入顺序固定 → 输出确定）。 */
+function tokenDecls(t) {
+  return Object.entries(t).map(([k, v]) => `  ${k}: ${v};`).join('\n');
+}
+
+/**
+ * 生成课程站样式表全文。
+ *
+ * 视觉基准 = 原型 proto-courses.html 的 .doc 系列（同令牌：白卡底、粗描边、
+ * 绿系 callout、蓝系引导块、圆角描边表格），暗色经 html.dark 切换（由答题站
+ * Courses 页把主题类同步进同源 iframe，见 Courses.tsx）。
+ *
+ * 选择器面 = 既有 teach/grill 产物实际用到的全集（h1-h4 / p.lead / p.meta /
+ * .callout±warn/tip/ok / .compare / .quiz-anchor / .sources / footer / pre / table）
+ * + 旧版自定义变量的别名层（--ink/--rule/--accent…——手写页与外部主题包里
+ * 的 var(--rule) 等内联引用继续成立，值换成新令牌）。
+ *
+ * @param {{light:Record<string,string>,dark:Record<string,string>}} tokens  parseDesignTokens 的输出
+ * @returns {string}  styles.css 全文（确定性：同输入同输出）
+ */
+export function buildCourseStyles(tokens) {
+  const L = pick(tokens, 'light');
+  const D = pick(tokens, 'dark');
+
+  // 软块描边的「浅一档」边色（原型字面值）；暗色直接复用状态色 -dark 令牌。
+  const GREEN_EDGE_L = '#bfe8a6';
+  const BLUE_EDGE_L = '#bee3fb';
+
+  return `/* ai-study-kit · 课程站样式表（生成产物，勿手编）
  *
  * 由 apps/quiz-app/scripts/gen-course-styles.mjs 从 apps/quiz-app/src/index.css 的
  * 设计令牌（:root / .dark，与答题站 Tailwind 同源单源）生成——v0.25 票④「课程令牌同源」。
@@ -11,42 +121,10 @@
 
 :root {
 /* ── 设计令牌（同源：src/index.css，十六进制形态） ───────────────────── */
-  --color-bg-app: #f2f7fc;
-  --color-bg-surface: #ffffff;
-  --color-bg-subtle: #e9eff7;
-  --color-bg-hover: #e2e8f2;
-  --color-text-primary: #2b3a55;
-  --color-text-secondary: #6b7b99;
-  --color-text-muted: #7e8da8;
-  --color-text-faint: #97a3bc;
-  --color-text-accent: #46a302;
-  --color-border: #e2e8f2;
-  --color-border-strong: #cbd5e3;
-  --st-green: #58cc02;
-  --st-green-dark: #46a302;
-  --st-green-soft: #e8f6dc;
-  --st-green-ink: #46a302;
-  --st-green-low: #86d92c;
-  --st-green-low-dark: #5fa315;
-  --st-blue: #1cb0f6;
-  --st-blue-dark: #1899d6;
-  --st-blue-soft: #e1f4fd;
-  --st-blue-ink: #1899d6;
-  --st-gold: #ffc800;
-  --st-gold-dark: #c98f00;
-  --st-gold-border: #e5a600;
-  --st-gold-soft: #fff4d6;
-  --st-gold-ink: #c98f00;
-  --st-red: #ff4b4b;
-  --st-red-dark: #e13f3f;
-  --st-red-soft: #ffe5e5;
-  --st-red-border: #f5b3b3;
-  --st-red-ink: #e13f3f;
-  --st-stripe: #6fd522;
-  --st-track: #e9eff7;
+${tokenDecls(L)}
   /* 软块描边浅一档（模板常量，原型 proto.css 口径） */
-  --c-green-edge: #bfe8a6;
-  --c-blue-edge: #bee3fb;
+  --c-green-edge: ${GREEN_EDGE_L};
+  --c-blue-edge: ${BLUE_EDGE_L};
 /* ── 旧版变量别名（手写页/外部主题包的 var(--ink) 等继续成立，值并轨新令牌） ── */
   --ink: var(--color-text-primary);
   --ink-soft: var(--color-text-secondary);
@@ -67,39 +145,7 @@
 }
 
 html.dark {
-  --color-bg-app: #172134;
-  --color-bg-surface: #212e46;
-  --color-bg-subtle: #1b273d;
-  --color-bg-hover: #2b3a55;
-  --color-text-primary: #e8eef8;
-  --color-text-secondary: #b9c6dc;
-  --color-text-muted: #93a3bf;
-  --color-text-faint: #6e7f9c;
-  --color-text-accent: #89e038;
-  --color-border: #33425f;
-  --color-border-strong: #46587a;
-  --st-green: #58cc02;
-  --st-green-dark: #46a302;
-  --st-green-soft: #1a2b10;
-  --st-green-ink: #89e038;
-  --st-green-low: #86d92c;
-  --st-green-low-dark: #5fa315;
-  --st-blue: #1cb0f6;
-  --st-blue-dark: #1899d6;
-  --st-blue-soft: #0e283c;
-  --st-blue-ink: #5ec8f7;
-  --st-gold: #ffc800;
-  --st-gold-dark: #c98f00;
-  --st-gold-border: #e5a600;
-  --st-gold-soft: #2f260c;
-  --st-gold-ink: #ffd54f;
-  --st-red: #ff4b4b;
-  --st-red-dark: #e13f3f;
-  --st-red-soft: #371a1a;
-  --st-red-border: #8a3a3a;
-  --st-red-ink: #ff7b7b;
-  --st-stripe: #6fd522;
-  --st-track: #27344c;
+${tokenDecls(D)}
   --c-green-edge: var(--st-green-dark);
   --c-blue-edge: var(--st-blue-dark);
   color-scheme: dark;
@@ -323,4 +369,6 @@ footer p { margin: 0; }
   body { background: white; color: #1f2937; }
   main { padding: 1rem; max-width: none; }
   pre, .callout, .compare > div, table { page-break-inside: avoid; }
+}
+`;
 }

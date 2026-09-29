@@ -3,12 +3,18 @@
 // teach skill 持续往 examples/<course>/ 产出课程；每次 build 前跑此脚本即可同步。
 // 学习者私有数据（study/records/、根级 learning-records/、根级 plan.json）只留本地，不同步（见 LOCAL_ONLY_DIRS / LOCAL_ONLY_FILES）。
 //
+// v0.25 票④「课程令牌同源」：拷贝后用设计令牌（src/index.css 单源）重新生成
+// assets/styles.css 覆盖 public/study 副本——teach 产物零内联样式、只链该文件，
+// 重跑 sync 即整体换肤（存量主题含外部主题包零改 HTML、零重产课）。生成失败
+// （令牌缺失/源文件异常）时保留主题自带样式并打 warn，不中断同步。
+//
 // 用法：node apps/quiz-app/scripts/sync-study.mjs
 //       EXAMPLE_THEME=my-topic node apps/quiz-app/scripts/sync-study.mjs
-import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir, detectStickyTheme } from './lib/theme-path.mjs';
+import { parseDesignTokens, buildCourseStyles } from './lib/course-theme.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, '..', '..', '..');
@@ -83,5 +89,18 @@ for (const { dir: src, name, external } of COURSES) {
     }
   }
   copyTree(src, dest);
+
+  // 令牌同源换肤（v0.25 票④）：public/study 副本的 assets/styles.css 用设计令牌
+  // 重新生成——与答题站 Tailwind 同一份单源（src/index.css），明暗经 html.dark 切换。
+  // 主题源目录（含外部主题包）零改动；文件不存在则创建（缺样式表的存量主题直接补齐）。
+  const APP_ROOT = join(__dirname, '..');
+  try {
+    const tokens = parseDesignTokens(readFileSync(join(APP_ROOT, 'src', 'index.css'), 'utf-8'));
+    writeFileSync(join(dest, 'assets', 'styles.css'), buildCourseStyles(tokens), 'utf-8');
+    console.log(`[sync-study] 课程样式表已按设计令牌重生 → public/study/${name}/assets/styles.css`);
+  } catch (e) {
+    console.warn(`[sync-study] 课程样式表生成失败，保留主题自带样式（${e.message}）`);
+  }
+
   console.log(`[sync-study] 已同步课程 → public/study/${name}/`);
 }

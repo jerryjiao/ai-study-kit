@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { BookOpen, List, ChevronDown, CircleCheck, RotateCcw, ArrowRight } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { useProgress } from '../hooks/useProgress';
+import { useTheme } from '../lib/theme';
 import { isCourseRead } from '../lib/progress';
 import { practiceTopicForLesson } from '../lib/courseProgress';
 import { Button3D, StepDot } from '../components/ui';
@@ -20,11 +20,20 @@ import { questions } from '../data/questions';
  * 课程内容由 sync:study 脚本从 examples/<theme>/ 同步到 public/study/<theme>/，
  * 访问路径 /study/<theme>/index.html。dev/prod 都能跑（vite publicDir 自动托管）。
  *
- * 课已学完 = 显式确认制：左侧竖排目录栏点击定位 iframe 到对应 lesson 并高亮当前课，
- * **打开不产生任何进度写入**（旧版「打开即自动记已读」已移除——路过就算学过，进度失真）；
- * 唯一写路径是底部「✓ 学完了」按钮（lib/courseProgress.applyCourseEvent）：
- * 点击才记入 coursesRead（再点撤销），点完后按钮位变「去刷这课的题 →」直达对应题集。
- * 「课全学完」边界 = isCourseRead 命中 courses.json 清单全部 lesson，UI 与 ai-study-kit skill 同口径可机读。
+ * v0.25 票④「课程令牌同源」：课程站样式表由 gen-course-styles.mjs 从 src/index.css
+ * 设计令牌生成（sync:study 拷贝后重写 public/study 副本），正文排版与 App 同视觉；
+ * 暗色跟随 = 把答题站解析出的主题类同步进同源 iframe 的 <html>（明暗两套令牌在
+ * 生成样式表里，class 切换即换肤）。
+ *
+ * 课已学完 = 显式确认制：左侧竖排目录栏（唯一导航，三态=已学完绿✓/当前金▶/未学数字）
+ * 点击定位 iframe 到对应 lesson 并高亮当前课，**打开不产生任何进度写入**（旧版「打开即
+ * 自动记已读」已移除——路过就算学过，进度失真）；唯一写路径是底部「✓ 学完了」按钮
+ *（lib/courseProgress.applyCourseEvent）：点击才记入 coursesRead（再点撤销），点完后
+ * 按钮位变「去刷这课的题 →」直达对应题集。「课全学完」边界 = isCourseRead 命中
+ * courses.json 清单全部 lesson，UI 与 ai-study-kit skill 同口径可机读。
+ *
+ * 打开直达下一个未学完的课（原型注记②）：进度加载后自动定位到第一堂未学完的课
+ *（全学完则回第一课），不再落课程站自带首页；用户先点了目录则不再自动跳。
  */
 // BASE_URL 前缀：demo 子路径部署下课程静态站也能定位（自托管/开发时 BASE_URL='/' 不影响）
 // 主题名来自 sync-examples 产的 theme.json——课程 URL 跟随激活主题，切换主题无需手改此处。
@@ -47,12 +56,14 @@ function matchLesson(pathname: string, lessons: Lesson[]): string | null {
 
 export function Courses() {
   const { t } = useI18n();
-  const { progress, dispatchCourseEvent } = useProgress();
+  const { progress, loaded, dispatchCourseEvent } = useProgress();
+  const { resolvedDark } = useTheme();
   const [error, setError] = useState(false);
   const [showIndex, setShowIndex] = useState(true);
   const [src, setSrc] = useState(COURSE_URL);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
+  const jumpedRef = useRef(false);
   const lessons = coursesMeta.lessons as Lesson[];
 
   const doneCount = useMemo(
@@ -69,6 +80,13 @@ export function Courses() {
     return () => { cancelled = true; };
   }, []);
 
+  // 暗色跟随（票④）：课程站样式表带明暗两套令牌（同源生成），把答题站解析出的
+  // 主题类同步进同源 iframe 的 <html>。每次导航后文档会被替换，故 onLoad 里再补一次。
+  const syncFrameTheme = () => {
+    frameRef.current?.contentWindow?.document?.documentElement.classList.toggle('dark', resolvedDark);
+  };
+  useEffect(syncFrameTheme, [resolvedDark, src]);
+
   // iframe 每次导航（点击目录 / 课站内链）后按 pathname 匹配清单，只更新当前课高亮
   //（回到 index / 参考页时清空）。same-origin 才读得到 contentWindow.location
   //（课程静态站同源托管，天然满足）。进度写入走 dispatchCourseEvent({kind:'open'})：
@@ -81,10 +99,25 @@ export function Courses() {
       const file = matchLesson(loc.pathname, lessons);
       setCurrentFile(file);
       dispatchCourseEvent({ kind: 'open', theme: themeMeta.theme, file });
+      syncFrameTheme();
     } catch {
       // 跨源（理论不会发生）——读不到就跳过，高亮留在上一次点击的课上
     }
   };
+
+  // 打开直达下一个未学完的课（原型注记②）：进度加载后一次性跳转——第一堂未学完
+  // 的课，全学完则回第一课；用户已先点目录（currentFile 已定）则不打扰。跳转本身
+  // 经 onFrameLoad 的 open 事件，零进度写入。
+  useEffect(() => {
+    if (!loaded || jumpedRef.current || lessons.length === 0) return;
+    jumpedRef.current = true;
+    if (currentFile !== null) return;
+    const target =
+      lessons.find((l) => !isCourseRead(progress, themeMeta.theme, l.file)) ?? lessons[0];
+    setSrc(`${BASE}lessons/${target.file}`);
+    setCurrentFile(target.file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded]);
 
   // 底部操作栏的当前课状态：done 决定按钮形态（✓ 学完了 ↔ 已学完·撤销 + 去刷题）
   const currentLesson = currentFile ? (lessons.find((l) => l.file === currentFile) ?? null) : null;
@@ -109,22 +142,26 @@ export function Courses() {
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
       <div className="flex flex-1 min-h-0">
-        {/* 课程目录栏：左侧竖排清单 + 学完进度。点击定位 iframe 到对应 lesson（打开不计入，见底部按钮）。 */}
+        {/* 课程目录栏（唯一导航，原型 .toc）：左侧竖排清单三态（绿✓/金▶/序号）+ 学完进度。
+            点击定位 iframe 到对应 lesson（打开不计入，见底部按钮）。 */}
         <aside
-          className={`${showIndex ? 'w-60' : 'w-11'} shrink-0 flex flex-col border-r border-border bg-bg-subtle/60 transition-[width]`}
+          className={`${showIndex ? 'w-60' : 'w-11'} shrink-0 flex flex-col border-r-2 border-border bg-bg-surface transition-[width]`}
         >
-          <div className={`flex items-center py-1.5 ${showIndex ? 'px-2' : 'justify-center px-0'}`}>
+          <div className={`flex items-center py-2 ${showIndex ? 'px-3' : 'justify-center px-0'}`}>
             <button
               onClick={() => setShowIndex((v) => !v)}
               title={t('courses.index')}
-              className={`flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors select-none ${
-                showIndex ? '' : 'w-7 h-7 justify-center rounded-md'
+              className={`flex items-center gap-1.5 text-[13px] font-bold text-text-secondary hover:text-text-primary transition-colors select-none tabular-nums ${
+                showIndex ? 'w-full' : 'w-7 h-7 justify-center rounded-lg'
               }`}
             >
               <List className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
               {showIndex && (
                 <>
                   <span className="truncate">{t('courses.index')}</span>
+                  <span className="ml-0.5 text-text-faint">
+                    {t('courses.tocCount', { done: doneCount, total: lessons.length })}
+                  </span>
                   <ChevronDown
                     className="ml-auto h-3.5 w-3.5 shrink-0 opacity-50 rotate-90 transition-transform"
                     strokeWidth={2}
@@ -135,11 +172,11 @@ export function Courses() {
           </div>
           {showIndex && lessons.length > 0 && (
             <>
-              <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+              <nav className="flex-1 overflow-y-auto px-2.5 pb-2.5 space-y-1.5">
                 {lessons.map((l, i) => {
                   const done = isCourseRead(progress, themeMeta.theme, l.file);
                   const active = currentFile === l.file;
-                  // 目录三态（闯关步进基元）：已学完=绿✓ / 当前=金▶ / 未学=序号数字
+                  // 目录三态（闯关步进基元，原型 .lesson）：已学完=绿✓ / 当前=金▶ / 未学=序号数字
                   return (
                     <button
                       key={l.file}
@@ -147,7 +184,7 @@ export function Courses() {
                         setSrc(`${BASE}lessons/${l.file}`);
                         setCurrentFile(l.file);
                       }}
-                      className={`w-full flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-left text-xs font-bold border-2 transition-colors ${
+                      className={`w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[13px] font-bold border-2 transition-colors ${
                         active
                           ? 'bg-st-gold-soft border-st-gold-border text-st-gold-ink'
                           : done
@@ -161,9 +198,9 @@ export function Courses() {
                   );
                 })}
               </nav>
-              <div className="flex items-center gap-1 border-t border-border px-3 py-1.5 text-xs text-text-faint tabular-nums">
+              <div className="flex items-center gap-1.5 border-t-2 border-border px-3 py-2.5 text-xs font-bold text-text-secondary tabular-nums">
                 {doneCount === lessons.length && lessons.length > 0 ? (
-                  <CircleCheck className="h-3.5 w-3.5 text-green-500" strokeWidth={2} />
+                  <CircleCheck className="h-3.5 w-3.5 text-st-green" strokeWidth={2.5} />
                 ) : null}
                 {t('courses.doneProgress', { done: doneCount, total: lessons.length })}
               </div>
@@ -175,36 +212,38 @@ export function Courses() {
           src={src}
           onLoad={onFrameLoad}
           title={t('courses.frameTitle')}
-          className="w-full flex-1 border-0 bg-white"
+          className="w-full min-w-0 flex-1 border-0 bg-bg-app"
         />
       </div>
-      {/* 底部操作栏（显式确认制）：当前定位到某课才渲染。
+      {/* 底部操作栏（显式确认制，原型 .actionbar）：当前定位到某课才渲染。
           未学完 → 「✓ 学完了」（点击才记入学完进度）；
           已学完 → 按钮位变「去刷这课的题 →」（直达对应题集，解析不出则隐藏）+「撤销」入口（再点撤销）。 */}
       {currentLesson && (
-        <footer className="shrink-0 flex items-center justify-center gap-3 border-t border-border bg-bg-subtle/60 px-4 py-2">
+        <footer className="shrink-0 flex items-center justify-center gap-3.5 border-t-2 border-border bg-bg-surface px-4 py-2.5">
           {!currentDone ? (
-            <button
+            <Button3D
+              variant="green"
+              size="sm"
+              className="px-6"
               onClick={() => dispatchCourseEvent({ kind: 'doneToggle', theme: themeMeta.theme, file: currentLesson.file })}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-green-600 text-white px-5 py-2 text-sm font-medium shadow-soft hover:bg-green-700 transition-colors"
             >
-              <CircleCheck className="h-4 w-4" strokeWidth={2} />
+              <CircleCheck className="h-4 w-4" strokeWidth={2.5} />
               {t('courses.markDone')}
-            </button>
+            </Button3D>
           ) : (
             <>
               <button
                 onClick={() => dispatchCourseEvent({ kind: 'doneToggle', theme: themeMeta.theme, file: currentLesson.file })}
                 title={t('courses.undoDoneTitle')}
-                className="inline-flex items-center gap-1 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs text-green-700 hover:bg-green-100 transition-colors"
+                className="inline-flex items-center gap-1 rounded-xl border-2 border-st-green/50 bg-st-green-soft px-3.5 py-2 text-[13px] font-bold text-st-green-ink transition-colors hover:bg-st-green-soft/70"
               >
-                <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
+                <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.5} />
                 {t('courses.undoDone')}
               </button>
               {practiceTopic && (
-                <Button3D to={`/practice/all?topic=${encodeURIComponent(practiceTopic)}`}>
+                <Button3D variant="green" size="sm" className="px-6" to={`/practice/all?topic=${encodeURIComponent(practiceTopic)}`}>
                   {t('courses.goPractice')}
-                  <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
                 </Button3D>
               )}
             </>

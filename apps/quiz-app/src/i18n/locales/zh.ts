@@ -213,6 +213,7 @@ export const zh = {
     '课程内容来自 examples/<theme>/，需先运行 pnpm run build（含 sync:study）同步到 public/study/。',
   'courses.frameTitle': '学习课程',
   'courses.index': '课程目录',
+  'courses.tocCount': ' · {done}/{total}',
   'courses.doneProgress': '课已学完 {done}/{total}',
   'courses.markDone': '✓ 学完了',
   'courses.undoDone': '已学完 · 撤销',
