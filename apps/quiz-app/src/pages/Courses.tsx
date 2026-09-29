@@ -148,7 +148,8 @@ export function Courses() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
+    // 高度扣顶栏实际高度（TopNav h-[54px] sm:h-[60px]，票①收窄过）——用 4rem 会在底栏下悬空露出底色
+    <div className="h-[calc(100vh-54px)] sm:h-[calc(100vh-60px)] flex flex-col">
       <div className="flex flex-1 min-h-0">
         {/* 课程目录栏（唯一导航，原型 .toc）：左侧竖排清单三态（绿✓/金▶/序号）+ 学完进度。
             点击定位 iframe 到对应 lesson（打开不计入，见底部按钮）。 */}

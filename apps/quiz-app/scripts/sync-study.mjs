@@ -96,6 +96,9 @@ for (const { dir: src, name, external } of COURSES) {
   const APP_ROOT = join(__dirname, '..');
   try {
     const tokens = parseDesignTokens(readFileSync(join(APP_ROOT, 'src', 'index.css'), 'utf-8'));
+    // 先建父目录：手写/外部主题可能整个没有 assets/ 目录（无目录时 writeFileSync 会 ENOENT，
+    // 兜底 warn 会让「缺样式表的存量主题直接补齐」的承诺落空）
+    mkdirSync(join(dest, 'assets'), { recursive: true });
     writeFileSync(join(dest, 'assets', 'styles.css'), buildCourseStyles(tokens), 'utf-8');
     console.log(`[sync-study] 课程样式表已按设计令牌重生 → public/study/${name}/assets/styles.css`);
   } catch (e) {

@@ -113,11 +113,11 @@ function planPaceLine(cd: PlanCalendarDiff, t: TFn, deadline: string | null): { 
   if (!cd.available) return { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
   if (cd.state === 'behind') {
     if (!deadline) return null;                                       // 无目标日 → 零催办字样
-    return { text: t('home.planBehind', { n: -(cd.diffDays ?? 0) }), cls: 'text-red-600' };
+    return { text: t('home.planBehind', { n: -(cd.diffDays ?? 0) }), cls: 'text-st-red-ink' };
   }
-  if (cd.state === 'due-today') return { text: t('home.planDueToday'), cls: 'text-amber-600' };
-  if (cd.state === 'cleared') return { text: t('home.planCleared'), cls: 'text-green-600' };
-  return { text: t('home.planSlack', { n: cd.diffDays ?? 0 }), cls: 'text-green-600' };
+  if (cd.state === 'due-today') return { text: t('home.planDueToday'), cls: 'text-st-gold-ink' };
+  if (cd.state === 'cleared') return { text: t('home.planCleared'), cls: 'text-st-green-ink' };
+  return { text: t('home.planSlack', { n: cd.diffDays ?? 0 }), cls: 'text-st-green-ink' };
 }
 
 /** 轨迹时间锚格式化：今天 → 词典「今天」；同年 → MM-DD；跨年 → YYYY-MM-DD（纯展示，
@@ -506,7 +506,7 @@ function TopicMarch({ sections, filter, edges, knowflowOn, onOpenNode }: {
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-[1]" aria-hidden="true">
           <defs>
             <marker id="pano-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth={6} markerHeight={6} orient="auto-start-reverse">
-              <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706" />
+              <path d="M 0 1 L 10 5 L 0 9 z" className="fill-st-gold" />
             </marker>
           </defs>
           {drawableEdges.map((e) => {
@@ -518,10 +518,11 @@ function TopicMarch({ sections, filter, edges, knowflowOn, onOpenNode }: {
             // 近同列（横向路径布局里常见）时向外弓弯，避免与路径连线叠成一条直线
             const bow = Math.abs(dx) < 32 ? 28 : dx * 0.45;
             const d = `M ${a.x} ${a.y} C ${a.x + bow} ${a.y + dy * 0.3}, ${b.x + bow} ${b.y - dy * 0.3}, ${b.x} ${b.y}`;
+            // 颜色走 st-* 状态令牌（金=前置边、灰=非前置虚线），随 .dark 明暗切换
             return e.prerequisite ? (
-              <path key={`${e.from}->${e.to}`} d={d} fill="none" stroke="#d97706" strokeWidth={1.5} strokeOpacity={0.65} markerEnd="url(#pano-arrow)" />
+              <path key={`${e.from}->${e.to}`} d={d} fill="none" className="stroke-st-gold" strokeWidth={1.5} strokeOpacity={0.65} markerEnd="url(#pano-arrow)" />
             ) : (
-              <path key={`${e.from}->${e.to}`} d={d} fill="none" stroke="#94a3b8" strokeWidth={1.2} strokeOpacity={0.5} strokeDasharray="4 3" />
+              <path key={`${e.from}->${e.to}`} d={d} fill="none" className="stroke-text-muted" strokeWidth={1.2} strokeOpacity={0.5} strokeDasharray="4 3" />
             );
           })}
         </svg>

@@ -352,14 +352,14 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
     pace = { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
   } else if (calendarDiff.state === 'behind') {
     pace = projection.deadline
-      ? { text: t('home.planBehind', { n: -(calendarDiff.diffDays ?? 0) }), cls: 'text-red-600' }
+      ? { text: t('home.planBehind', { n: -(calendarDiff.diffDays ?? 0) }), cls: 'text-st-red-ink' }
       : null;                                                          // 无目标日 → 零催办字样
   } else if (calendarDiff.state === 'due-today') {
-    pace = { text: t('home.planDueToday'), cls: 'text-amber-600' };
+    pace = { text: t('home.planDueToday'), cls: 'text-st-gold-ink' };
   } else if (calendarDiff.state === 'cleared') {
-    pace = { text: t('home.planCleared'), cls: 'text-green-600' };
+    pace = { text: t('home.planCleared'), cls: 'text-st-green-ink' };
   } else {
-    pace = { text: t('home.planSlack', { n: calendarDiff.diffDays ?? 0 }), cls: 'text-green-600' };
+    pace = { text: t('home.planSlack', { n: calendarDiff.diffDays ?? 0 }), cls: 'text-st-green-ink' };
   }
 
   // 距 deadline 天数（无 deadline 不显示；负数 = 已过）
@@ -379,16 +379,16 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
   if (projection.available) {
     const base = t('home.planProjection', { window: projection.windowDays, date: projection.estimatedDoneDate ?? '' });
     if (projection.state === 'slack') {
-      projLine = { text: `${base} · ${t('home.planProjSlack', { n: projection.slackDays ?? 0 })}`, cls: 'text-green-600' };
+      projLine = { text: `${base} · ${t('home.planProjSlack', { n: projection.slackDays ?? 0 })}`, cls: 'text-st-green-ink' };
     } else if (projection.state === 'deficit') {
-      projLine = { text: `${base} · ${t('home.planProjDeficit', { n: -(projection.slackDays ?? 0) })}`, cls: 'text-red-600' };
+      projLine = { text: `${base} · ${t('home.planProjDeficit', { n: -(projection.slackDays ?? 0) })}`, cls: 'text-st-red-ink' };
     } else {
       projLine = { text: base, cls: 'text-text-secondary' };   // 无 deadline：只外推不对照
     }
   } else if (projection.reason === 'no-recent-completions') {
     projLine = { text: t('home.planProjNoData', { window: projection.windowDays }), cls: 'text-text-faint' };
   } else if (projection.reason === 'complete') {
-    projLine = { text: t('home.planProjComplete'), cls: 'text-green-600' };
+    projLine = { text: t('home.planProjComplete'), cls: 'text-st-green-ink' };
   } // no-units 到不了 UI（面板渲染前提 = units 非空）
 
   const gapLine = gap.available

@@ -212,7 +212,9 @@ ul, ol { margin: 0 0 14px 22px; padding: 0; line-height: 1.9; }
 li { margin: 3px 0; }
 
 code, pre {
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+  /* CJK 回退放在 monospace 泛型前：ASCII 示意图里的中文标注在纯等宽栈下会豆腐字 */
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", monospace;
 }
 code {
   background: var(--st-track);
