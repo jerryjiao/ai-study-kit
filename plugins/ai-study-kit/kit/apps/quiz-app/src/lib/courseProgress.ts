@@ -1,6 +1,14 @@
 import type { Progress } from '../types';
 import { isCourseRead, markCourseRead, unmarkCourseRead } from './progress';
 
+/** 课程清单单课（sync-examples 产 src/data/courses.json 的 lessons 项）。 */
+export interface Lesson {
+  file: string;
+  title: string;
+  /** 课 → 题库 topic（theme-config lessonTopics 声明或文件名同名约定；可空） */
+  topic?: string;
+}
+
 /** 课已学完（显式确认制）——课程页 UI 事件 → Progress 数据的唯一写路径。
  *
  *  背景（进度失真修复）：旧版课程页「打开即自动记已读」（iframe 每次加载命中清单就写

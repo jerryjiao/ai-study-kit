@@ -58,35 +58,51 @@ export const ja: Record<TKey, string> = {
   'home.planStatusInProgress': '学習中',
   'home.planStatusPaused': '保留',
 
-  // 出題ポイントパノラマの独立ページ（講義・演習・習得の 3 シグナル + day グループ。判定は src/lib/panorama.ts、mastery-report と同じ口径）
-  'panorama.title': '出題ポイントパノラマ（講義 · 演習 · 習得）',
-  'panorama.summary': '講義 {taught}/{total} · 演習 {practiced}/{total} · 習得 {mastered}/{total}',
+  // 出題ポイントパノラマの独立ページ（v0.25：全体構成バー + 大分類ごとのキャンディノード
+  // 経路 + ノード詳細の軌跡パネル。判定は src/lib/panorama.ts と mastery と同じ口径）
+  'panorama.title': 'パノラマ',
   'panorama.taught': '講義',
   'panorama.practiced': '演習',
   'panorama.mastered': '習得',
   'panorama.answered': '解答 {answered}/{total}',
   'panorama.oral': '口頭 {correct}/{asked}',
-  'panorama.wrong': '未卒業 {n}',
   'panorama.stale': '「講義済み・口頭」のシグナルは前回ビルド時点のものです。解答と習得はリアルタイムです。',
-  'panorama.graphHint': 'つながりはナレッジグラフの投影によるものです。実線の矢印＝前提（先に学ぶべき項目）、破線＝関連、丸点＝習得の 4 状態を表します。',
-  'panorama.dotMastered': '習得済み',
-  'panorama.dotWeak': '苦手',
-  'panorama.dotInProgress': '学習中',
-  'panorama.dotUntouched': '未着手',
+  'panorama.graphHint': 'つながりはナレッジグラフの投影によるものです。実線の矢印＝前提（先に学ぶべき項目）、破線＝関連、ノード＝習得の 4 状態を表します。',
+  'panorama.stateMastered': '習得済み',
+  'panorama.stateInProgress': '学習中',
+  'panorama.stateWeak': '苦手',
+  'panorama.stateUntouched': '未着手',
+  'panorama.totalPoints': '全 {n} ポイント',
+  'panorama.knowflowLabel': '前提関係のつながり',
+  'panorama.byTopic': '大分類ごとにポイントを見る',
+  'panorama.byTopicHint': '1 ノード = 1 ポイント · ノードをタップで軌跡と問題へ',
+  'panorama.topicMasteredPrefix': '習得済み',
+  'panorama.topicEpUnit': 'ポイント',
   'panorama.noEp': '現在の問題バンクには出題ポイントタグ（examPoint）がないため、習得度を算出できません。',
   'panorama.filterAll': 'すべて',
-  'panorama.filterWeak': '苦手',
-  'panorama.filterUnmastered': '未習得',
+  'panorama.filterWeak': '苦手のみ',
+  'panorama.filterUnmastered': '未習得のみ',
   'panorama.filterAria': '出題ポイントの絞り込み',
+  'panorama.sheetClose': '閉じる',
+  'panorama.sheetPractice': 'このポイントの問題を解く',
+  'panorama.sheetCourse': 'コースを見る',
+  'panorama.statWrongTimes': '誤答 {n} 回',
+  'panorama.statFlash': 'フラッシュカード {graduated}/{mapped} 卒業',
+  'panorama.timelineTitle': '学習軌跡',
+  'panorama.timelineEmpty': 'まだ学習の痕跡がありません——下のボタンから始めましょう',
+  'panorama.tlToday': '今日',
+  'panorama.tlFirst': '初めて触れた',
+  'panorama.tlCorrect': '正解',
+  'panorama.tlWrong': '誤答',
+  'panorama.tlWrongRun': '{n} 連続誤答',
+  'panorama.tlFlash': 'カード卒業',
+  'panorama.tlMastered': 'ポイント習得',
+  'panorama.tlMasteredSub': '全問正解 + 未卒業の誤答なし',
 
-  // パノラマの計画ライト統合（plan.json を持つテーマのみ描画；サマリー行 + デイカードの
-  // ステータスチップ。判定は src/lib/plan.ts でホームの計画パネルと同ソース。ペース
-  // 表現は home.plan* のキーを再利用）
+  // パノラマの計画サマリー行（#93 維持；plan.json を持つテーマのみ描画。計画 day チップは
+  // このページから外しました——spec #110 Q3。完全な計画パネルはホームにあります。判定は
+  // src/lib/plan.ts。ペース表現は home.plan* のキーを再利用）
   'panorama.planDone': '計画：{done}/{total} 完了',
-  'panorama.planStatusPlanned': '計画中',
-  'panorama.planStatusInProgress': '学習中',
-  'panorama.planStatusDone': '完了',
-  'panorama.planStatusPaused': '保留',
 
   // 練習ページ
   'practice.readMode': '通読モード',

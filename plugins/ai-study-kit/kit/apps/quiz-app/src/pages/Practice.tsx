@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, RotateCcw, BookOpen, PenLine, RefreshCw, SkipForward, CheckCircle2, ArrowRight } from 'lucide-react';
 import { questions } from '../data/questions';
+import themeMeta from '../data/theme.json';
 import type { Question } from '../types';
 import { useProgress } from '../hooks/useProgress';
 import { wrongIds, streakToPass, isAnswerDeleted, isRead, computeListStats } from '../lib/progress';
@@ -22,6 +23,7 @@ export function Practice() {
   const topic = params.get('topic') || '';   // ?topic=git-basics（主题标识）
   const subtopic = params.get('subtopic') || ''; // ?subtopic=工作流（主题内细分，可选）
   const day = params.get('day') || '';        // ?day=D2 按学习日程
+  const ep = params.get('ep') || '';          // ?ep=EP-03 按考点直达（全景节点详情入口，v0.25 票⑤）
   // 看题模式：URL ?view=read 携带，便于首页/外部直链（如"按 D 看题"）。默认答题。
   const [viewMode, setViewMode] = useState<ViewMode>(params.get('view') === 'read' ? 'read' : 'practice');
   const { progress, loaded, submitAnswer, markRead, resetAnswersByIds, resetReadByIds, dismissWrong } = useProgress();
@@ -58,16 +60,17 @@ export function Practice() {
   // 无层概念的主题（模考/通用主题）不参与层过滤——即使 layer 残留非空值也不生效
   const activeLayer = layerEnabled ? layer : '';
 
-  // base：按 topic/subtopic/day 过滤后的题池（顺序/错题/看题/random 共用基础过滤）
+  // base：按 topic/subtopic/day/ep 过滤后的题池（顺序/错题/看题/random 共用基础过滤）
   const base = useMemo(() => {
     let b: Question[] = extOn ? questions : questions.filter((q) => q.tier !== 'ext');
     if (topic) b = b.filter((q) => q.topic === topic);
     if (subtopic) b = b.filter((q) => q.subtopic === subtopic);
     if (day) b = b.filter((q) => q.day === day);
+    if (ep) b = b.filter((q) => q.examPoint === ep);
     if (activeLayer) b = b.filter((q) => layerOf(q.source) === activeLayer);
     if (!extOn) b = b.filter((q) => isPlanned(q)); // 拓展隐身：任何列表只含计划内题
     return b;
-  }, [topic, subtopic, day, activeLayer, extOn]);
+  }, [topic, subtopic, day, ep, activeLayer, extOn]);
 
   // ⭐ 错题模式用会话级快照，不让 list 随 progress 实时变化。
   //  根因：答对一题达到 streak 阈值后，wrongIds 自动把它移出错题集 → list 缩水 →
@@ -95,12 +98,12 @@ export function Practice() {
     return base;
   }, [mode, wrongSnapshot, base]);
 
-  // scope 带 topic/subtopic/day + view 维度：保证不同列表、看题/答题的位置记忆各自独立
+  // scope 带 topic/subtopic/day/ep + view 维度：保证不同列表、看题/答题的位置记忆各自独立
   // （之前 scope 漏了 view，导致同一列表看题和答题共用一个浏览位置，互相串）
-  const scope = `${mode}${topic ? `:t-${topic}` : ''}${subtopic ? `:s-${subtopic}` : ''}${day ? `:d-${day}` : ''}:${viewMode}`;
+  const scope = `${mode}${topic ? `:t-${topic}` : ''}${subtopic ? `:s-${subtopic}` : ''}${day ? `:d-${day}` : ''}${ep ? `:e-${ep}` : ''}:${viewMode}`;
   // 列表级 scope（不含 viewMode）：用于"进入列表自动定位"的去重——
   // 答题/看题切换不该重触发自动定位，否则每次切答题都清空重做。
-  const listScope = `${mode}${topic ? `:t-${topic}` : ''}${subtopic ? `:s-${subtopic}` : ''}${day ? `:d-${day}` : ''}`;
+  const listScope = `${mode}${topic ? `:t-${topic}` : ''}${subtopic ? `:s-${subtopic}` : ''}${day ? `:d-${day}` : ''}${ep ? `:e-${ep}` : ''}`;
   const ids = useMemo(() => list.map((q) => q.id), [list]);
 
   // 「下一题集」：按首页"按主题练习"网格的点击顺序（buildAtomicOrder），找当前 (topic,subtopic)
@@ -108,7 +111,7 @@ export function Practice() {
   // 仅当当前列表是"按 topic/subtopic 过滤"且有明确后继时才有值；顺序练习(day/无过滤)无后继→null。
   // topic 为空（如 /practice/all 无 query）时不参与"下一题集"流程。
   const nextAtomic = useMemo(() => {
-    if (!topic || day) return null;  // 按 day 练习或无过滤的顺序练习无"下一个 topic"
+    if (!topic || day || ep) return null;  // 按 day/考点练习或无过滤的顺序练习无"下一个 topic"
     // 主线只走计划内题集：纯拓展块（计划内 0 题，默认核心层会过滤成空列表）跳过，
     // 它们的入口是首页灰色"拓展 N"徽标，不在完成流"下一题集"链条里。
     const order = buildAtomicOrder(questions).filter((a) =>
@@ -118,7 +121,7 @@ export function Practice() {
     const curIdx = order.findIndex((a) => a.topic === topic && a.subtopic === (subtopic || ''));
     if (curIdx < 0 || curIdx >= order.length - 1) return null;  // 未命中或已是末尾
     return order[curIdx + 1];
-  }, [topic, subtopic, day]);
+  }, [topic, subtopic, day, ep]);
   const navigate = useNavigate();
 
   // 位置记忆：按 id 续接（顺序/错题）。random 模式从 0 开始
@@ -329,11 +332,16 @@ export function Practice() {
     if (fresh[0]) savePosId(scope, fresh[0].id);
   };
 
-  /** 当前列表的显示名（带引号，供 confirm 文案用）：day > subtopic > topic > 模式兜底。 */
+  /** 考点显示名（?ep= 直达时优先展示；theme.json examPoints 查不到就退 ep id 原样）。 */
+  const epName = ep
+    ? ((themeMeta as { examPoints?: Record<string, string> }).examPoints?.[ep] ?? ep)
+    : '';
+
+  /** 当前列表的显示名（带引号，供 confirm 文案用）：ep > day > subtopic > topic > 模式兜底。 */
   const scopeLabel = () =>
     t('practice.labelQuoted', {
       name:
-        day || subtopic || topic ||
+        epName || day || subtopic || topic ||
         (mode === 'wrong' ? t('practice.labelWrong') : t('practice.labelSequential')),
     });
 
@@ -390,8 +398,8 @@ export function Practice() {
   if (!cur) {
     const emptyMsg = mode === 'wrong'
       ? t('practice.noWrong')
-      : (day || subtopic || topic
-        ? t('practice.noQuestionsScope', { name: day || subtopic || topic })
+      : (epName || day || subtopic || topic
+        ? t('practice.noQuestionsScope', { name: epName || day || subtopic || topic })
         : t('practice.noQuestions'));
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
@@ -403,10 +411,10 @@ export function Practice() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
-      {/* 顶部信息行：左面包屑（day/topic/subtopic/看题模式），右题号。单独一行避免与操作按钮挤。
+      {/* 顶部信息行：左面包屑（ep/day/topic/subtopic/看题模式），右题号。单独一行避免与操作按钮挤。
           H5 宽度有限时面包屑 truncate 不挤压题号。 */}
       <div className="flex items-center justify-between gap-3 text-sm text-text-muted">
-        <span className="truncate min-w-0">{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topicLabel(topic)} · </span>}{subtopic && <span className="text-text-faint">{stripSubtopicPrefix(subtopic)} · </span>}{isReadMode && <span className="text-st-blue-ink">{t('practice.readMode')}</span>}</span>
+        <span className="truncate min-w-0">{epName && <span className="text-text-faint">{epName} · </span>}{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topicLabel(topic)} · </span>}{subtopic && <span className="text-text-faint">{stripSubtopicPrefix(subtopic)} · </span>}{isReadMode && <span className="text-st-blue-ink">{t('practice.readMode')}</span>}</span>
         <span className="font-medium tabular-nums shrink-0">{Math.min(pos + 1, list.length)} / {list.length}</span>
       </div>
       {/* 层筛选 chips：全部 / 核心 / 拓展（无层概念的主题不显示）。切层即时生效。 */}

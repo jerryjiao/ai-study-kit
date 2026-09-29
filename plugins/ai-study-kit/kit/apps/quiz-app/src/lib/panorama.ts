@@ -158,27 +158,71 @@ export function parsePanoramaFilter(raw: string | null | undefined): PanoramaFil
 }
 
 /**
- * 按档位过滤考点行：弱项 = 仅 status === 'weak'；未掌握 = status !== 'mastered'；
- * 筛选后空 day 组整组隐藏（不留空白组头）；「全部」原样返回（同一引用）。
- * 仅筛选可见行，不动判据；组内 summary 按可见行重算保持自洽
- * （顶部全局汇总带由页面用 buildPanorama 的全量 summary 渲染，不经本函数收窄）。
+ * 单点是否命中筛选档（v0.25 票⑤：筛选从「隐藏整组」改为「非命中节点压暗」——地图语义
+ * 保留空间上下文，构成条与节点路径都不再收缩）。弱项 = status === 'weak'；
+ * 未掌握 = status !== 'mastered'；档位判据与旧 filterPanoramaGroups 逐点同口径。
  */
-export function filterPanoramaGroups(groups: PanoramaGroup[], filter: PanoramaFilter): PanoramaGroup[] {
-  if (filter === 'all') return groups;
-  const keep = (p: PanoramaPoint) => (filter === 'weak' ? p.status === 'weak' : p.status !== 'mastered');
-  return groups
-    .map((g) => {
-      const points = g.points.filter(keep);
-      return {
-        ...g,
-        points,
-        summary: {
-          total: points.length,
-          taught: points.filter((x) => x.taught).length,
-          practiced: points.filter((x) => x.practiced).length,
-          mastered: points.filter((x) => x.mastered).length,
-        },
-      };
-    })
-    .filter((g) => g.points.length > 0);
+export function pointMatchesFilter(p: PanoramaPoint, filter: PanoramaFilter): boolean {
+  if (filter === 'all') return true;
+  return filter === 'weak' ? p.status === 'weak' : p.status !== 'mastered';
+}
+
+// —— v0.25 票⑤（spec #110 Q3）版式派生：构成条四态计数 + 按大类（topic）分组 ——
+
+/** 四态计数（构成条分段与图例的数字源；status 来自 masteryByExamPoint，判据同口径）。 */
+export interface StatusCounts { mastered: number; inProgress: number; weak: number; untouched: number }
+
+export function countStatuses(points: PanoramaPoint[]): StatusCounts {
+  const c: StatusCounts = { mastered: 0, inProgress: 0, weak: 0, untouched: 0 };
+  for (const p of points) c[p.status] += 1;
+  return c;
+}
+
+/** 大类分组（每大类一张全宽卡）：topic 取该考点下任一题的 topic（考点不跨大类时唯一；
+ *  跨了取首题并注释在实现里）。大类顺序与首页网格一致（topicOrder 序 + 未列出按字母序），
+ *  组内考点按 EP 编号数字序（EP-2 < EP-10），无数字后缀的 id 字典序兜底。 */
+export interface TopicSection {
+  topic: string;              // 题库 topic id（'' = 题库未标 topic）
+  points: PanoramaPoint[];
+  counts: StatusCounts;
+}
+
+/** EP id 排序键：EP-NN 按数字，其余按字典序（数字段优先，非数字统一排在数字段后）。 */
+function epSortKey(ep: string): [number, number | string] {
+  const m = ep.match(/(\d+)$/);
+  return m ? [0, Number(m[1])] : [1, ep];
+}
+
+export function groupByTopic(
+  questions: Question[],
+  points: PanoramaPoint[],
+  order: readonly string[] = [],
+): TopicSection[] {
+  // EP → topic：取该考点首题的 topic（考点按 examPoint 聚合，题库惯例同考点同大类）
+  const epTopic = new Map<string, string>();
+  for (const q of questions) {
+    if (!q.examPoint || epTopic.has(q.examPoint)) continue;
+    epTopic.set(q.examPoint, q.topic || '');
+  }
+  const byTopic = new Map<string, PanoramaPoint[]>();
+  for (const p of points) {
+    const topic = epTopic.get(p.ep) ?? '';
+    const list = byTopic.get(topic) ?? [];
+    list.push(p);
+    byTopic.set(topic, list);
+  }
+  const keys = [...byTopic.keys()].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    return a.localeCompare(b);
+  });
+  return keys.map((topic) => {
+    const pts = byTopic.get(topic)!.sort((a, b) => {
+      const ka = epSortKey(a.ep), kb = epSortKey(b.ep);
+      return ka[0] !== kb[0] ? ka[0] - kb[0]
+        : typeof ka[1] === 'number' && typeof kb[1] === 'number' ? ka[1] - kb[1]
+        : String(ka[1]).localeCompare(String(kb[1]));
+    });
+    return { topic, points: pts, counts: countStatuses(pts) };
+  });
 }

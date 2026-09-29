@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { BookOpen, List, ChevronDown, CircleCheck, RotateCcw, ArrowRight } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { useProgress } from '../hooks/useProgress';
 import { useTheme } from '../lib/theme';
 import { isCourseRead } from '../lib/progress';
-import { practiceTopicForLesson } from '../lib/courseProgress';
+import { practiceTopicForLesson, type Lesson } from '../lib/courseProgress';
 import { Button3D, StepDot } from '../components/ui';
 import themeMeta from '../data/theme.json';
 import coursesMeta from '../data/courses.json';
@@ -40,8 +41,6 @@ import { questions } from '../data/questions';
 const BASE = `${import.meta.env.BASE_URL}study/${themeMeta.theme}/`;
 const COURSE_URL = `${BASE}index.html`;
 
-type Lesson = { file: string; title: string; topic?: string };
-
 /** 从 iframe 的 same-origin pathname 里解析命中的 lesson 文件名。
  *  课站内链可能是 index 视角的 "lessons/x.html"，也可能是 lesson 内部视角的 "x.html"
  *  或 "../lessons/x.html"——统一剥掉前导路径段后按文件名匹配清单。 */
@@ -54,17 +53,26 @@ function matchLesson(pathname: string, lessons: Lesson[]): string | null {
   return lessons.some((l) => l.file === file) ? file : null;
 }
 
+type Lesson0 = Lesson; // 兼容旧局部名（下方清单解构沿用）
+
 export function Courses() {
   const { t } = useI18n();
   const { progress, loaded, dispatchCourseEvent } = useProgress();
   const { resolvedDark } = useTheme();
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState(false);
   const [showIndex, setShowIndex] = useState(true);
-  const [src, setSrc] = useState(COURSE_URL);
-  const [currentFile, setCurrentFile] = useState<string | null>(null);
-  const frameRef = useRef<HTMLIFrameElement>(null);
-  const jumpedRef = useRef(false);
   const lessons = coursesMeta.lessons as Lesson[];
+
+  // ?lesson= 直达（v0.25 票⑤：全景节点详情「看课程」入口）：命中清单才生效（脏值/缺省
+  // 回退默认打开行为——进度加载后自动定位第一个未学完的课）。初始定位算「用户先点了」，
+  // 不再触发自动跳转（jumpedRef 预置 true）。
+  const lessonParam = searchParams.get('lesson');
+  const initialLesson = lessonParam && lessons.some((l) => l.file === lessonParam) ? lessonParam : null;
+  const [src, setSrc] = useState(initialLesson ? `${BASE}lessons/${initialLesson}` : COURSE_URL);
+  const [currentFile, setCurrentFile] = useState<string | null>(initialLesson);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
+  const jumpedRef = useRef(initialLesson !== null);
 
   const doneCount = useMemo(
     () => lessons.filter((l) => isCourseRead(progress, themeMeta.theme, l.file)).length,

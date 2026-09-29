@@ -57,35 +57,51 @@ export const ru: Record<TKey, string> = {
   'home.planStatusInProgress': 'В работе',
   'home.planStatusPaused': 'На паузе',
 
-  // Страница панорамы по пунктам экзамена /panorama (сигналы изучено/отработано/освоено + блоки day, см. src/lib/panorama.ts)
-  'panorama.title': 'Панорама пунктов (изучено · отработано · освоено)',
-  'panorama.summary': 'Изучено {taught}/{total} · Отработано {practiced}/{total} · Освоено {mastered}/{total}',
+  // Страница панорамы по пунктам экзамена /panorama (v0.25: полоса состава + путь узлов по
+  // крупным темам + панель детали с трассой; критерий см. src/lib/panorama.ts)
+  'panorama.title': 'Панорама',
   'panorama.taught': 'Изучено',
   'panorama.practiced': 'Отработано',
   'panorama.mastered': 'Освоено',
   'panorama.answered': 'Ответы {answered}/{total}',
   'panorama.oral': 'Устно {correct}/{asked}',
-  'panorama.wrong': 'Не закрыто {n}',
   'panorama.stale': 'Сигналы «изучено/устно» — на момент последней сборки; ответы и освоение — в реальном времени.',
-  'panorama.graphHint': 'Связи из проекции графа знаний: сплошные стрелки = предпосылка (изучить сначала), пунктир = связность; точки = четыре состояния освоения.',
-  'panorama.dotMastered': 'Освоено',
-  'panorama.dotWeak': 'Слабое',
-  'panorama.dotInProgress': 'В процессе',
-  'panorama.dotUntouched': 'Не начато',
+  'panorama.graphHint': 'Связи из проекции графа знаний: сплошные стрелки = предпосылка (изучить сначала), пунктир = связность; узлы = четыре состояния освоения.',
+  'panorama.stateMastered': 'Освоено',
+  'panorama.stateInProgress': 'В изучении',
+  'panorama.stateWeak': 'Слабое',
+  'panorama.stateUntouched': 'Не начато',
+  'panorama.totalPoints': 'Всего пунктов: {n}',
+  'panorama.knowflowLabel': 'Связи предпосылок',
+  'panorama.byTopic': 'Пункты по крупным темам',
+  'panorama.byTopicHint': 'Один узел = один пункт · Нажмите узел — трасса и вопросы',
+  'panorama.topicMasteredPrefix': 'Освоено',
+  'panorama.topicEpUnit': 'пунктов',
   'panorama.noEp': 'В этом банке вопросов нет меток пунктов экзамена (examPoint) — освоение недоступно.',
   'panorama.filterAll': 'Все',
-  'panorama.filterWeak': 'Слабые',
-  'panorama.filterUnmastered': 'Не освоено',
+  'panorama.filterWeak': 'Только слабые',
+  'panorama.filterUnmastered': 'Только не освоенные',
   'panorama.filterAria': 'Фильтр пунктов экзамена',
+  'panorama.sheetClose': 'Закрыть',
+  'panorama.sheetPractice': 'Отработать этот пункт',
+  'panorama.sheetCourse': 'Открыть курс',
+  'panorama.statWrongTimes': 'Ошибок: {n}',
+  'panorama.statFlash': 'Карточки: {graduated}/{mapped} выпущены',
+  'panorama.timelineTitle': 'Трасса обучения',
+  'panorama.timelineEmpty': 'Следов обучения пока нет — начните этот пункт кнопками ниже',
+  'panorama.tlToday': 'Сегодня',
+  'panorama.tlFirst': 'Первое касание',
+  'panorama.tlCorrect': 'Верно',
+  'panorama.tlWrong': 'Ошибка',
+  'panorama.tlWrongRun': '{n} ошибок подряд',
+  'panorama.tlFlash': 'Карточка выпущена',
+  'panorama.tlMastered': 'Пункт освоен',
+  'panorama.tlMasteredSub': 'Все верно + нет незакрытых ошибок',
 
-  // Лёгкая связка плана на панораме (только если у активной темы есть plan.json; строка
-  // сводки + чип статуса на карточках дней, критерий src/lib/plan.ts — тот же источник, что у
-  // панели плана на главной. Формулировки темпа переиспользуют ключи home.plan*)
+  // Строка сводки плана на панораме (#93 сохранена; только если у активной темы есть plan.json.
+  // Чипы дней плана убраны с этой страницы — spec #110 Q3; полная панель плана — на главной.
+  // Критерий src/lib/plan.ts; формулировки темпа переиспользуют ключи home.plan*)
   'panorama.planDone': 'План: выполнено {done} из {total}',
-  'panorama.planStatusPlanned': 'Запланировано',
-  'panorama.planStatusInProgress': 'В работе',
-  'panorama.planStatusDone': 'Выполнено',
-  'panorama.planStatusPaused': 'На паузе',
 
   // Тренировка
   'practice.readMode': 'Режим чтения',
