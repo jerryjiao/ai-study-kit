@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useLayoutEffect, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { X, Play, BookOpen } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { X, Play, BookOpen, Compass } from 'lucide-react';
 import { questions } from '../data/questions';
 import { flashcards } from '../data/flashcards';
 import themeMeta from '../data/theme.json';
@@ -12,6 +12,7 @@ import {
   shouldRenderGraph,
   groupByTopic,
   countStatuses,
+  flattenScheduleOrder,
   pointMatchesFilter,
   parsePanoramaFilter,
   type PanoramaFilter,
@@ -19,9 +20,10 @@ import {
   type PanoramaGraphEdge,
   type TopicSection,
 } from '../lib/panorama';
+import { nextStation, type NextStationResult } from '../lib/nextStation';
 import { deriveEpTrace, type TraceEvent } from '../lib/panoramaTrace';
 import { isFlashGraduated, type MasteryStatus } from '../lib/mastery';
-import { deriveCalendarDiff, deriveCoverage, type PlanCalendarDiff } from '../lib/plan';
+import { deriveCalendarDiff, deriveCoverage, deriveProjection, diffCalendarDays, type PlanCalendarDiff, type PlanProjection } from '../lib/plan';
 import { TOPIC_ORDER, topicLabel } from '../lib/topicOrder';
 import type { Lesson } from '../lib/courseProgress';
 import type { AnswerRecord, SrsState } from '../types';
@@ -31,7 +33,7 @@ import { Button3D, Card, Switch } from '../components/ui';
 
 /**
  * 考点全景独立页（/panorama，v0.17 自首页折叠面板迁出；v0.25 票⑤重做成「着色地图 +
- * 节点详情」，spec #110 Q3 / 审阅轮②③）。
+ * 节点详情」，spec #110 Q3 / 审阅轮②③；票⑥加「诊断 → 导引」三新件）。
  *
  * 版式（原型 proto-panorama.html）：顶部整纲构成条——四态按考点数等比分段的横条 + 计数
  * 图例（判据与 mastery 同口径，本页 buildPanorama/masteryByExamPoint 派生）；每大类一张
@@ -40,10 +42,18 @@ import { Button3D, Card, Switch } from '../components/ui';
  * 徽标）全部收进节点详情弹层（原型 pano-history-light.html）：四态、答 x/y、错 N、
  * 闪卡毕业、学习轨迹时间线（lib/panoramaTrace 纯函数派生，零新基建）+ 直达刷题与课程。
  *
+ * 票⑥三新件（原型 pano-next-card.html）：①「下一站」推荐卡（第一屏、构成条之前）——
+ * lib/nextStation 纯函数：落后日程插队（仅有目标日）> 补弱（带拖住下游）> 拓扑序最早
+ * 解锁（无 knowflow 映射回退排布表近似），主推 + 理由 + 次选链接 + 绿按钮直达题集；
+ * ②赶考细引用——仅当主题设了目标日（plan.json deadline）才出现的一行节奏对照，点达
+ * 首页完整计划面板（完整面板仍只在首页，spec 功能轮 B）；③无 deadline 零催办——无
+ * 目标日的主题任何节奏措辞里不出「落后」类字样（planPaceLine 门控，成文进
+ * docs/methodology「目标日是可选的」）。
+ *
  * 筛选：全部/只看薄弱/只看未掌握（?filter= 深链兼容，#78）；非命中节点压暗不隐藏（地图
  * 保留空间上下文）。knowflow 前置连线默认关、开关打开叠加（v0.14 投影功能不丢；无图/
- * 超阈值不渲染开关，回退纯路径清单）。计划 day chips 已撤出本页（spec Q3；计划摘要行
- * #93 保留，完整计划面板在首页）。
+ * 超阈值不渲染开关，回退纯路径清单——注意图阈值只门控连线渲染，不门控下一站推荐计算）。
+ * 计划 day chips 已撤出本页（spec Q3；计划摘要行 #93 保留，完整计划面板在首页）。
  */
 
 /** 四态 → 构成条段色 / 图例圆点色（共用一套状态色语义）。 */
@@ -96,10 +106,15 @@ const STATE_KEY: Record<MasteryStatus, 'panorama.stateMastered' | 'panorama.stat
 };
 
 /** 日历对照 → 摘要行节奏文案（#93 保留面）。state→key 与首页 PlanPanel 同款（复用
- *  home.plan* 词典 key：同一派生状态两处同文，防措辞漂移）；改判据两处一起改。 */
-function planPaceLine(cd: PlanCalendarDiff, t: TFn): { text: string; cls: string } {
+ *  home.plan* 词典 key：同一派生状态两处同文，防措辞漂移）；改判据两处一起改。
+ *  ⭐ 无 deadline 零催办（v0.25 票⑥）：落后（behind）是催办语义——无目标日的主题即使
+ *  日历对照判 behind 也不出这个词（返回 null 隐藏），富余/今天到期/日程已清是中性事实照出。 */
+function planPaceLine(cd: PlanCalendarDiff, t: TFn, deadline: string | null): { text: string; cls: string } | null {
   if (!cd.available) return { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
-  if (cd.state === 'behind') return { text: t('home.planBehind', { n: -(cd.diffDays ?? 0) }), cls: 'text-red-600' };
+  if (cd.state === 'behind') {
+    if (!deadline) return null;                                       // 无目标日 → 零催办字样
+    return { text: t('home.planBehind', { n: -(cd.diffDays ?? 0) }), cls: 'text-red-600' };
+  }
   if (cd.state === 'due-today') return { text: t('home.planDueToday'), cls: 'text-amber-600' };
   if (cd.state === 'cleared') return { text: t('home.planCleared'), cls: 'text-green-600' };
   return { text: t('home.planSlack', { n: cd.diffDays ?? 0 }), cls: 'text-green-600' };
@@ -167,11 +182,44 @@ export function Panorama() {
   // 完整计划面板仍在首页。计划信号不依赖 progress，派生一次即可。
   const planView = useMemo(() => {
     if (plan.units.length === 0) return null;
-    return { coverage: deriveCoverage(plan), calendarDiff: deriveCalendarDiff(plan, Date.now()) };
+    return {
+      coverage: deriveCoverage(plan),
+      calendarDiff: deriveCalendarDiff(plan, Date.now()),
+      projection: deriveProjection(plan, Date.now()),
+    };
   }, []);
-  const planPace = planView ? planPaceLine(planView.calendarDiff, t) : null;
+  const planPace = planView ? planPaceLine(planView.calendarDiff, t, planView.projection.deadline) : null;
 
   const edges = coverage.graph?.edges ?? null;
+
+  // 下一站推荐（票⑥）：输入 = 排布表序四态 + knowflow 前置映射 + 计划缺口（仅有目标日）。
+  // 落后日程映射链：逾期单元（plannedDate < 今天且未完成）的 day → examDays 同 day 的
+  // 非掌握考点，按最逾期 day 优先、同 day 排布表序；无目标日 planGap=null（零催办原则）。
+  const schedulePoints = useMemo(() => flattenScheduleOrder(panorama.groups), [panorama.groups]);
+  const planGap = useMemo(() => {
+    if (!planView) return null;
+    const deadline = planView.projection.deadline;
+    if (!deadline) return null;
+    const cd = planView.calendarDiff;
+    const examDays = themeData.examDays ?? {};
+    const overdueDays: string[] = [];
+    for (const u of cd.overdue) {
+      const d = (u as { day?: unknown }).day;
+      if (typeof d === 'string' && d !== '' && !overdueDays.includes(d)) overdueDays.push(d);
+    }
+    const overdueEps: string[] = [];
+    for (const d of overdueDays) {
+      for (const p of schedulePoints) {
+        if (p.status !== 'mastered' && examDays[p.ep] === d) overdueEps.push(p.ep);
+      }
+    }
+    return { deadline, overdueEps, daysOverdue: Math.max(0, -(cd.diffDays ?? 0)) };
+  }, [planView, schedulePoints]);
+  const station = useMemo(
+    () => nextStation({ points: schedulePoints, edges, planGap }),
+    [schedulePoints, edges, planGap],
+  );
+
   const graphable = shouldRenderGraph(allPoints.length, edges);
 
   if (panorama.summary.examPoints === 0) {
@@ -223,6 +271,18 @@ export function Panorama() {
           ))}
         </div>
       </header>
+
+      {/* 下一站推荐卡（票⑥，原型 pano-next-card.html .next）：第一屏、构成条之前——
+          全景从纯诊断升级为「诊断 + 导引」。主推考点 + 理由（补弱/前置解锁/落后日程）+
+          次选链接 + 绿按钮直达题集；无可推荐（全掌握/空）整卡不渲染。 */}
+      {station.primary && <NextStationCard station={station} deadline={planGap?.deadline ?? null} />}
+
+      {/* 赶考细引用（票⑥，spec 功能轮 B）：仅当主题设了目标日才出现——按当前节奏预计完成日
+          vs 目标日的富余/差距一行，点达首页完整计划面板（完整面板仍只在首页，spec Q3）。
+          无目标日 = 这行整个不存在（零催办原则）；速率不足诚实降级为只报目标日倒计时。 */}
+      {planView && planView.projection.deadline && (
+        <PaceCitation projection={planView.projection} today={planView.calendarDiff.today} />
+      )}
 
       {/* 整纲构成条：四态按考点数等比分段（judged by masteryByExamPoint，同口径）+ 计数图例。
           计划摘要行（#93）保留在图例下；「讲过/口头」快照新鲜度提示一并收口在此。 */}
@@ -290,6 +350,103 @@ export function Panorama() {
         />
       )}
     </div>
+  );
+}
+
+/** 下一站推荐卡（原型 .next）：🧭 图标 + 「下一站」小标 + 考点名/状态 chip + 理由行 +
+ *  次选链接 + 绿按钮直达题集。理由文案按 reason 分流；次选按结构轨向（knowflow/排布表）
+ *  分流措辞——无映射主题是排布表近似，不冒称结构洞察。 */
+function NextStationCard({ station, deadline }: { station: NextStationResult; deadline: string | null }) {
+  const { t } = useI18n();
+  const p = station.primary!;
+  const alt = station.alt;
+  const epQuery = `/practice/all?ep=${encodeURIComponent(p.ep)}`;
+  const why =
+    p.reason === 'weak'
+      ? p.weak && p.weak.downstream.length > 0
+        ? t('panorama.nextWhyWeakBlocks', { n: p.weak.openWrong, m: p.weak.downstream.length, names: p.weak.downstream.join(' · ') })
+        : t('panorama.nextWhyWeak', { n: p.weak?.openWrong ?? 0 })
+      : p.reason === 'behindSchedule'
+        ? t('panorama.nextWhyBehind', { n: p.daysOverdue ?? 0, date: deadline ?? '' })
+        : station.structural === 'knowflow'
+          ? t('panorama.nextWhyUnlocked')
+          : t('panorama.nextWhySchedule');
+  // 次选措辞：主推补弱 → 「按结构/排布表顺推」；主推落后日程 → 「换个优先级」；
+  // 主推结构 → 「接下来」。链接后缀带次选自己的理由词（前置已解锁/排布表下一项/薄弱）。
+  const altPref =
+    p.reason === 'weak'
+      ? t(station.structural === 'knowflow' ? 'panorama.nextAltWeakPref' : 'panorama.nextAltWeakPrefSched')
+      : p.reason === 'behindSchedule'
+        ? t('panorama.nextAltGenPref')
+        : t('panorama.nextAltAfter');
+  const altLabel = alt
+    ? alt.reason === 'weak'
+      ? t('panorama.nextAltWeak', { name: alt.name })
+      : station.structural === 'knowflow'
+        ? t('panorama.nextAltUnlocked', { name: alt.name })
+        : t('panorama.nextAltNext', { name: alt.name })
+    : null;
+  return (
+    <Card className="flex flex-wrap items-center gap-4 px-4 sm:px-5 py-4">
+      <span className="grid place-items-center w-[46px] h-[46px] rounded-[14px] bg-st-green-soft border-2 border-st-green/30 text-st-green-ink shrink-0" aria-hidden>
+        <Compass className="h-[21px] w-[21px]" strokeWidth={2.2} />
+      </span>
+      <div className="flex-1 min-w-[230px]">
+        <div className="text-xs font-extrabold text-st-green-ink tracking-[2px]">{t('panorama.nextLabel')}</div>
+        <h3 className="mt-0.5 flex flex-wrap items-center gap-2 text-base font-extrabold text-text-primary">
+          <span className="truncate">{p.name}</span>
+          <span className={`shrink-0 rounded-full px-2 py-px text-[11px] font-extrabold border-2 ${CHIP_CLS[p.status]}`}>
+            {t(STATE_KEY[p.status])}
+          </span>
+        </h3>
+        <p className="mt-1 text-[13px] font-semibold text-text-muted tabular-nums">{why}</p>
+        {alt && altLabel && (
+          <p className="mt-1 text-xs font-bold text-text-faint">
+            {altPref}{' '}
+            <Link
+              to={`/practice/all?ep=${encodeURIComponent(alt.ep)}`}
+              className="text-st-blue-ink underline decoration-current underline-offset-2 hover:opacity-80"
+            >
+              {altLabel}
+            </Link>
+          </p>
+        )}
+      </div>
+      <Button3D variant="green" size="sm" to={epQuery} className="shrink-0 w-full sm:w-auto">
+        <Play className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+        {p.reason === 'weak' ? t('panorama.nextGoWeak') : t('panorama.nextGo')}
+      </Button3D>
+    </Card>
+  );
+}
+
+/** 赶考细引用（spec 功能轮 B）：一行「按当前节奏预计 X 完成 · 距目标差/富余 N 天 →」，
+ *  Link 到首页（完整计划面板）。速率不足（近窗无完成记录）→ 诚实降级只报目标日倒计时，
+ *  绝不硬算编数；渲染前提 = 主题设了目标日（调用方守门，无目标日零催办）。 */
+function PaceCitation({ projection, today }: { projection: PlanProjection; today: string }) {
+  const { t } = useI18n();
+  const deadline = projection.deadline!;
+  let text: string;
+  if (projection.available) {
+    const base = t('panorama.paceProj', { date: projection.estimatedDoneDate ?? '' });
+    text = (projection.slackDays ?? 0) >= 0
+      ? `${base} · ${t('panorama.paceProjSlack', { n: projection.slackDays ?? 0 })}`
+      : `${base} · ${t('panorama.paceProjDeficit', { n: -(projection.slackDays ?? 0) })}`;
+  } else {
+    const d = diffCalendarDays(today, deadline) ?? 0;
+    text = d > 0
+      ? t('panorama.paceDeadlineIn', { n: d })
+      : d === 0 ? t('panorama.paceDeadlineToday') : t('panorama.paceDeadlineOver', { n: -d });
+  }
+  return (
+    <Link
+      to="/"
+      aria-label={t('panorama.paceAria')}
+      className="flex items-center gap-1.5 -mt-1 px-1 text-[13px] font-bold text-text-muted tabular-nums hover:text-text-primary transition-colors"
+    >
+      <span className="truncate">{text}</span>
+      <span aria-hidden className="text-st-blue-ink font-extrabold">→</span>
+    </Link>
   );
 }
 

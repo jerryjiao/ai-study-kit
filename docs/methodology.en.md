@@ -45,6 +45,10 @@ Once there are many features, "what exactly should I do today?" becomes a burden
 - **F10 coached tutoring** — lessons are one-way, tutoring is a dialogue: teach each exam point thoroughly (what / why / when to use), quiz on the spot, correct misconceptions on the spot. An interactive complement to "build concepts from reference materials".
 - **F11 pre-deadline sprint** — within 7 days of the exam date you enter the harvest window: only harvest what you've already learned (anchor phrases, wrong-answer archives), no new lessons; memorize, then validate with a mock exam.
 
+### A goal date is optional (no deadline, no nagging)
+
+Exams, interviews, and delivery dates are one context for learning — not learning itself. Everywhere in this toolkit a goal date is an **optional parameter** (the theme's `plan.json` `deadline`; absent means none). Set one, and the panorama's pace citation plus the home plan panel give you a rhythm check — projected finish date at your current pace, days ahead of or short of the goal. Don't set one, and everything still works, but **no page anywhere shows nagging wording like "behind / won't make it / speed up"**, and the panorama's "next up" recommendation degrades to structural order (weak points first → earliest unlocked; the study-schedule order when no knowledge-graph mapping exists). Learning for its own sake should not be chased by a deadline that doesn't exist.
+
 ### The learning trail: `study/`
 
 Learning output inside a theme pack lives under `study/`, sorted into four kinds:

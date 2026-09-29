@@ -103,6 +103,37 @@ export const es: Record<TKey, string> = {
   // completo del plan está en inicio. Criterio src/lib/plan.ts; ritmo reutiliza home.plan*)
   'panorama.planDone': 'Plan: {done}/{total} completadas',
 
+  // Tarjeta «próxima parada» del panorama (v0.25 tique 6, spec #110 «A · tarjeta de
+  // recomendación»): motivo principal (reforzar lo débil con puntos bloqueados / prerrequisitos
+  // desbloqueados / retraso — el retraso solo si el tema tiene fecha objetivo) + enlace
+  // alternativo + botón verde directo
+  'panorama.nextLabel': 'Próxima parada',
+  'panorama.nextGoWeak': 'Refuerza esta lección',
+  'panorama.nextGo': 'Estudia esta lección',
+  'panorama.nextWhyWeak': '{n} fallos aún sin superar',
+  'panorama.nextWhyWeakBlocks': '{n} fallos aún sin superar, frenan a {m} puntos posteriores ({names})',
+  'panorama.nextWhyUnlocked': 'Prerrequisitos desbloqueados: lo siguiente en la ruta',
+  'panorama.nextWhySchedule': 'Lo siguiente según tu calendario de estudio',
+  'panorama.nextWhyBehind': '{n} días de retraso respecto al calendario (objetivo: {date})',
+  'panorama.nextAltWeakPref': '¿Prefieres no repasar? Sigue la estructura →',
+  'panorama.nextAltWeakPrefSched': '¿Prefieres no repasar? Sigue el calendario →',
+  'panorama.nextAltGenPref': 'Otra prioridad →',
+  'panorama.nextAltAfter': 'A continuación →',
+  'panorama.nextAltUnlocked': '{name} · prerrequisitos listos',
+  'panorama.nextAltNext': '{name} · siguiente en el calendario',
+  'panorama.nextAltWeak': '{name} · débil',
+
+  // Cita de ritmo del panorama (tique 6: solo si el tema tiene fecha objetivo; abre el plan
+  // completo en inicio. Sin fecha objetivo esta línea no existe — cero presión. Si no hay datos
+  // de ritmo, degrada honestamente a la cuenta atrás hacia la fecha objetivo)
+  'panorama.paceProj': 'A tu ritmo actual, terminarás hacia el {date}',
+  'panorama.paceProjSlack': '{n} días de margen sobre tu objetivo',
+  'panorama.paceProjDeficit': '{n} días de retraso respecto a tu objetivo',
+  'panorama.paceDeadlineIn': 'Faltan {n} días para tu objetivo',
+  'panorama.paceDeadlineToday': 'Tu objetivo es hoy',
+  'panorama.paceDeadlineOver': 'El objetivo pasó hace {n} días',
+  'panorama.paceAria': 'Abrir el plan de estudio completo en la página de inicio',
+
   // Práctica
   'practice.readMode': 'Modo lectura',
   'practice.layerAll': 'Todos',

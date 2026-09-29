@@ -103,6 +103,37 @@ export const ru: Record<TKey, string> = {
   // Критерий src/lib/plan.ts; формулировки темпа переиспользуют ключи home.plan*)
   'panorama.planDone': 'План: выполнено {done} из {total}',
 
+  // Карточка «следующая станция» на панораме (v0.25 тикет 6, spec #110 «A · карточка
+  // рекомендации»): главная причина (закрыть слабое место с заблокированными пунктами /
+  // предпосылки освоены / отставание — отставание только если у темы есть дата цели) +
+  // альтернативная ссылка + зелёная кнопка перехода к заданиям
+  'panorama.nextLabel': 'Следующая станция',
+  'panorama.nextGoWeak': 'Закрыть этот урок',
+  'panorama.nextGo': 'Начать этот урок',
+  'panorama.nextWhyWeak': '{n} ошибок ещё не отработано',
+  'panorama.nextWhyWeakBlocks': '{n} ошибок ещё не отработано — держат {m} пунктов ниже по пути ({names})',
+  'panorama.nextWhyUnlocked': 'Все предпосылки освоены — следующая станция на маршруте',
+  'panorama.nextWhySchedule': 'Следующий пункт по вашему плану занятий',
+  'panorama.nextWhyBehind': 'Отставание от плана на {n} дней (цель — {date})',
+  'panorama.nextAltWeakPref': 'Не хочется повторять? Идите по структуре →',
+  'panorama.nextAltWeakPrefSched': 'Не хочется повторять? Идите по плану →',
+  'panorama.nextAltGenPref': 'Другой приоритет →',
+  'panorama.nextAltAfter': 'Дальше →',
+  'panorama.nextAltUnlocked': '{name} · предпосылки освоены',
+  'panorama.nextAltNext': '{name} · следующий по плану',
+  'panorama.nextAltWeak': '{name} · слабое место',
+
+  // Строка темпа на панораме (тикет 6: только если у темы есть дата цели; открывает полный
+  // план на главной. Без даты цели строки не существует — ноль давления. При нехватке данных
+  // о темпе честно деградирует до обратного отсчёта до даты цели)
+  'panorama.paceProj': 'В текущем темпе завершите около {date}',
+  'panorama.paceProjSlack': 'Запас {n} дней до цели',
+  'panorama.paceProjDeficit': 'Отставание от цели на {n} дней',
+  'panorama.paceDeadlineIn': 'До цели {n} дней',
+  'panorama.paceDeadlineToday': 'Ваша цель — сегодня',
+  'panorama.paceDeadlineOver': 'Цель прошла {n} дней назад',
+  'panorama.paceAria': 'Открыть полный план обучения на главной',
+
   // Тренировка
   'practice.readMode': 'Режим чтения',
   'practice.layerAll': 'Все',

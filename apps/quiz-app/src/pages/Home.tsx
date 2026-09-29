@@ -344,12 +344,16 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
   const { coverage, calendarDiff, projection, gap } = report;
   const pct = coverage.total === 0 ? 0 : Math.round((coverage.done / coverage.total) * 100);
 
-  // 节奏·日历对照：落后（红）/富余（绿）/今天到期（琥珀）/日程已清；不可对照 → 降级文案
-  let pace: { text: string; cls: string };
+  // 节奏·日历对照：落后（红）/富余（绿）/今天到期（琥珀）/日程已清；不可对照 → 降级文案。
+  // ⭐ 无 deadline 零催办（v0.25 票⑥）：「落后」是催办语义——无目标日的主题即使日历对照
+  // 判 behind 也不出这个词（整行隐藏）；富余/今天到期/日程已清是中性事实照出。全景页同款。
+  let pace: { text: string; cls: string } | null;
   if (!calendarDiff.available) {
     pace = { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
   } else if (calendarDiff.state === 'behind') {
-    pace = { text: t('home.planBehind', { n: -(calendarDiff.diffDays ?? 0) }), cls: 'text-red-600' };
+    pace = projection.deadline
+      ? { text: t('home.planBehind', { n: -(calendarDiff.diffDays ?? 0) }), cls: 'text-red-600' }
+      : null;                                                          // 无目标日 → 零催办字样
   } else if (calendarDiff.state === 'due-today') {
     pace = { text: t('home.planDueToday'), cls: 'text-amber-600' };
   } else if (calendarDiff.state === 'cleared') {
@@ -412,12 +416,14 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
         >
           <div className="h-full bg-bar-green rounded-full" style={{ width: `${pct}%` }} />
         </div>
-        {/* 节奏三行：日历对照 / 速率外推 / 断档 */}
+        {/* 节奏三行：日历对照（无目标日判 behind 时整行隐藏——零催办）/ 速率外推 / 断档 */}
         <div className="space-y-1 text-xs tabular-nums">
-          <div className="flex items-baseline gap-2">
-            <span className="text-text-muted shrink-0">{t('home.planPace')}</span>
-            <span className={pace.cls}>{pace.text}</span>
-          </div>
+          {pace && (
+            <div className="flex items-baseline gap-2">
+              <span className="text-text-muted shrink-0">{t('home.planPace')}</span>
+              <span className={pace.cls}>{pace.text}</span>
+            </div>
+          )}
           {projLine && <div className={projLine.cls}>{projLine.text}</div>}
           <div className={gapLine.cls}>{gapLine.text}</div>
         </div>

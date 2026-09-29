@@ -106,6 +106,34 @@ export const zh = {
   // 本页——spec #110 Q3，完整计划面板在首页。判据 src/lib/plan.ts；节奏措辞复用 home.plan*）
   'panorama.planDone': '计划：完成 {done}/{total}',
 
+  // 全景页·下一站推荐卡（v0.25 票⑥，spec #110「A · 顶部推荐卡」）：主推理由（补弱带拖住
+  // 下游/前置已解锁/落后日程——落后日程仅当主题设了目标日）+ 次选链接 + 绿按钮直达题集
+  'panorama.nextLabel': '下一站',
+  'panorama.nextGoWeak': '去补这一课',
+  'panorama.nextGo': '去学这一课',
+  'panorama.nextWhyWeak': '有 {n} 道未毕业错题',
+  'panorama.nextWhyWeakBlocks': '有 {n} 道未毕业错题，拖住了 {m} 个下游考点（{names}）',
+  'panorama.nextWhyUnlocked': '前置已全部解锁，结构上的下一站',
+  'panorama.nextWhySchedule': '按排布表顺推的下一站',
+  'panorama.nextWhyBehind': '日程已落后 {n} 天（目标日 {date}）',
+  'panorama.nextAltWeakPref': '不想补弱？按结构顺推 →',
+  'panorama.nextAltWeakPrefSched': '不想补弱？按排布表顺推 →',
+  'panorama.nextAltGenPref': '换个优先级 →',
+  'panorama.nextAltAfter': '接下来 →',
+  'panorama.nextAltUnlocked': '{name} · 前置已解锁',
+  'panorama.nextAltNext': '{name} · 排布表下一项',
+  'panorama.nextAltWeak': '{name} · 薄弱',
+
+  // 全景页·赶考细引用（票⑥：仅当主题设了目标日才渲染，点达首页完整计划面板——完整面板
+  // 仍只在首页；无目标日零催办原则下这行不存在。速率不足诚实降级为目标日倒计时）
+  'panorama.paceProj': '按当前节奏预计 {date} 完成',
+  'panorama.paceProjSlack': '比目标富余 {n} 天',
+  'panorama.paceProjDeficit': '距目标差 {n} 天',
+  'panorama.paceDeadlineIn': '距目标日还有 {n} 天',
+  'panorama.paceDeadlineToday': '目标日就是今天',
+  'panorama.paceDeadlineOver': '目标日已过 {n} 天',
+  'panorama.paceAria': '查看首页完整学习计划',
+
   // 练习页
   'practice.readMode': '看题模式',
   'practice.layerAll': '全部',

@@ -193,6 +193,14 @@ function epSortKey(ep: string): [number, number | string] {
   return m ? [0, Number(m[1])] : [1, ep];
 }
 
+/** EP id 比较序（导出给下一站推荐的排布表序共用）：EP-2 < EP-10；无数字后缀按字典序垫后。 */
+export function compareEp(a: string, b: string): number {
+  const ka = epSortKey(a), kb = epSortKey(b);
+  return ka[0] !== kb[0] ? ka[0] - kb[0]
+    : typeof ka[1] === 'number' && typeof kb[1] === 'number' ? ka[1] - kb[1]
+    : String(ka[1]).localeCompare(String(kb[1]));
+}
+
 export function groupByTopic(
   questions: Question[],
   points: PanoramaPoint[],
@@ -217,12 +225,14 @@ export function groupByTopic(
     return a.localeCompare(b);
   });
   return keys.map((topic) => {
-    const pts = byTopic.get(topic)!.sort((a, b) => {
-      const ka = epSortKey(a.ep), kb = epSortKey(b.ep);
-      return ka[0] !== kb[0] ? ka[0] - kb[0]
-        : typeof ka[1] === 'number' && typeof kb[1] === 'number' ? ka[1] - kb[1]
-        : String(ka[1]).localeCompare(String(kb[1]));
-    });
+    const pts = byTopic.get(topic)!.sort((a, b) => compareEp(a.ep, b.ep));
     return { topic, points: pts, counts: countStatuses(pts) };
   });
+}
+
+/** 排布表顺序的考点序（v0.25 票⑥）：groups（day 数字序）拍平 + 组内 EP 数字序。
+ *  下一站推荐（lib/nextStation）的结构轨兜底序与落后日程映射都吃这个序——
+ *  「回退排布表顺序」的「排布表」就是 MISSION day 列（theme.json examDays）。 */
+export function flattenScheduleOrder(groups: PanoramaGroup[]): PanoramaPoint[] {
+  return groups.flatMap((g) => [...g.points].sort((a, b) => compareEp(a.ep, b.ep)));
 }

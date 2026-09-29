@@ -45,6 +45,10 @@ Con tantas funciones, «¿qué toca hacer exactamente hoy?» se vuelve una carga
 - **F10 tutoría acompañada** — la lección es unidireccional; la tutoría es un diálogo: explica a fondo cada punto de examen (qué es / por qué / cuándo se usa), evalúa en el momento y corrige el error en el momento. Es el complemento interactivo de «construir conceptos con materiales de referencia».
 - **F11 sprint preexamen** — a ≤ 7 días de la fecha del examen se abre la ventana de cosecha: cosecha solo lo ya aprendido (frases ancla, archivo de erróneas), no añadas lecciones nuevas; memoriza a fondo y valida con un simulacro.
 
+### La fecha objetivo es opcional (sin deadline, cero presión)
+
+Los exámenes, las entrevistas y las fechas de entrega son un contexto del aprendizaje, no el aprendizaje en sí. En todo este kit la fecha objetivo es un **parámetro opcional** (el `deadline` del `plan.json` del tema; si falta, no hay). Si la pones, la cita de ritmo del panorama y el panel del plan en inicio te dan una comparación de ritmo: fecha de finalización proyectada al ritmo actual, días de margen o de retraso respecto al objetivo. Si no la pones, todo sigue funcionando igual, pero **ninguna página muestra palabras de presión como «retraso / no llegas / acelera»**, y la recomendación «próxima parada» del panorama degrada al orden estructural (primero lo débil → lo primero desbloqueado; el orden del calendario de estudio cuando no hay mapeo de grafo de conocimiento). Aprender por interés no debería ser perseguido por una fecha límite que no existe.
+
 ### La huella de aprendizaje: `study/`
 
 Los productos de aprendizaje del paquete de tema viven unificados bajo `study/`, cada uno de los cuatro tipos en su sitio:

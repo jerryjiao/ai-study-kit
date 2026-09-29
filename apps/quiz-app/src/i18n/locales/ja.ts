@@ -104,6 +104,36 @@ export const ja: Record<TKey, string> = {
   // src/lib/plan.ts。ペース表現は home.plan* のキーを再利用）
   'panorama.planDone': '計画：{done}/{total} 完了',
 
+  // パノラマ·次の一駅カード（v0.25 チケット 6、spec #110「A · 上部おすすめカード」）：
+  // 主推薦の理由（弱点補強と足を引っ張る下流/前提 解放済み/遅れ——遅れはテーマに
+  // 目標日がある場合のみ）+ 代替リンク + 緑ボタンで問題セットへ直行
+  'panorama.nextLabel': '次の一駅',
+  'panorama.nextGoWeak': 'この課を補強する',
+  'panorama.nextGo': 'この課を学ぶ',
+  'panorama.nextWhyWeak': '未卒業の誤答が {n} 問',
+  'panorama.nextWhyWeakBlocks': '未卒業の誤答が {n} 問あり、下流の {m} 個のポイント（{names}）を滞らせています',
+  'panorama.nextWhyUnlocked': '前提はすべて解放済み。学習経路上の次の一駅',
+  'panorama.nextWhySchedule': '学習計画表を順に進めた次のポイント',
+  'panorama.nextWhyBehind': '計画より {n} 日遅れています（目標日 {date}）',
+  'panorama.nextAltWeakPref': '補強したくない？構造順で進む →',
+  'panorama.nextAltWeakPrefSched': '補強したくない？計画表順で進む →',
+  'panorama.nextAltGenPref': '別の優先度 →',
+  'panorama.nextAltAfter': 'その次 →',
+  'panorama.nextAltUnlocked': '{name} · 前提クリア',
+  'panorama.nextAltNext': '{name} · 計画表の次',
+  'panorama.nextAltWeak': '{name} · 苦手',
+
+  // パノラマ·ペース引用行（チケット 6：テーマに目標日がある場合のみ描画、クリックで
+  // ホームの完全な計画パネルへ移動——目標日がなければこの行は存在しません（ゼロ催促
+  // 原則）。ペースデータが足りない場合は目標日へのカウントダウンへ正直に格下げ）
+  'panorama.paceProj': '現在のペースでは {date} 完了見込み',
+  'panorama.paceProjSlack': '目標より {n} 日の余裕',
+  'panorama.paceProjDeficit': '目標まであと {n} 日不足',
+  'panorama.paceDeadlineIn': '目標日まであと {n} 日',
+  'panorama.paceDeadlineToday': '目標日は今日です',
+  'panorama.paceDeadlineOver': '目標日を {n} 日過ぎました',
+  'panorama.paceAria': 'ホームの完全な学習計画を開く',
+
   // 練習ページ
   'practice.readMode': '通読モード',
   'practice.layerAll': 'すべて',

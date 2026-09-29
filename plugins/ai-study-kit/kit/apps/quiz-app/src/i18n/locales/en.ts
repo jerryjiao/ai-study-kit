@@ -102,6 +102,36 @@ export const en: Record<TKey, string> = {
   // Home. Derived in src/lib/plan.ts; pace wording reuses the home.plan* keys)
   'panorama.planDone': 'Plan: {done}/{total} done',
 
+  // Panorama · next-station card (v0.25 ticket 6, spec #110 "A · top recommendation card"):
+  // primary reason (weak review with blocked downstream / prerequisites unlocked / behind
+  // schedule — behind-schedule only when the theme has a goal date) + alt link + green CTA
+  'panorama.nextLabel': 'Next up',
+  'panorama.nextGoWeak': 'Fix this lesson',
+  'panorama.nextGo': 'Start this lesson',
+  'panorama.nextWhyWeak': '{n} wrong answers still unresolved',
+  'panorama.nextWhyWeakBlocks': '{n} wrong answers still unresolved, holding back {m} downstream points ({names})',
+  'panorama.nextWhyUnlocked': 'All prerequisites unlocked — next stop on the learning path',
+  'panorama.nextWhySchedule': 'Next stop in your study schedule',
+  'panorama.nextWhyBehind': '{n} days behind schedule (goal {date})',
+  'panorama.nextAltWeakPref': 'Rather not review? Follow the structure →',
+  'panorama.nextAltWeakPrefSched': 'Rather not review? Follow the schedule →',
+  'panorama.nextAltGenPref': 'A different priority →',
+  'panorama.nextAltAfter': 'Up next →',
+  'panorama.nextAltUnlocked': '{name} · prerequisites unlocked',
+  'panorama.nextAltNext': '{name} · next in schedule',
+  'panorama.nextAltWeak': '{name} · weak',
+
+  // Panorama · pace citation (ticket 6: renders only when the theme has a goal date; opens
+  // the full plan panel on Home. With no goal date this line never exists — no nagging.
+  // Insufficient pace data degrades honestly to a goal-date countdown)
+  'panorama.paceProj': 'At your current pace, finishing around {date}',
+  'panorama.paceProjSlack': '{n} days ahead of your goal',
+  'panorama.paceProjDeficit': '{n} days short of your goal',
+  'panorama.paceDeadlineIn': '{n} days to your goal',
+  'panorama.paceDeadlineToday': 'Your goal is today',
+  'panorama.paceDeadlineOver': 'Goal passed {n} days ago',
+  'panorama.paceAria': 'Open the full study plan on the home page',
+
   // Practice
   'practice.readMode': 'Reading mode',
   'practice.layerAll': 'All',
