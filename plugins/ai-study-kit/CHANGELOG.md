@@ -4,12 +4,17 @@
 
 **固定栏目「升级与存量影响」**（ADR-0006，自本机制合入的首个版本起每版必答）：四要素——①新文件/新契约；②老项目缺了会怎样（含静默降级点名）；③怎么补（通常是 F13 升级流程或首用时自建）；④是否破坏性。每版发版时在这一节固定回答「老项目缺什么、怎么补」。
 
-## [Unreleased]
+## [0.24.0] — 2026-09-29
 
 主题：**多副本运行环境治理（spec #105）——实例自报版本、副本消歧、升级链去坑、bundle 去路径。** 一起真实事故暴露的系统性盲区：agent 面对同机多份 kit 副本时不知道该操作哪份 checkout、不知道部署实例跑的什么版本。四刀：`/api/health` 自报 version+theme、多 checkout 消歧双层成文、升级后测试假红拔除、公开 bundle 零机器路径。
 
+### Added
+
 - **`/api/health` 实例自报 version + theme（#106）**：`/api/health` 从 `{ok:true}` 扩为 `{ok:true, version, theme}`——server 启动时一次性读根 `package.json` 版本与 `src/data/theme.json` 主题名（只报主题名不带路径；pm2 restart 后自然反映新版本），任何 agent/人一条 curl 即知「这个部署实例跑什么版、什么主题」。**比 JS bundle 哈希判版本正式废弃**（gitignored 的 theme.json 曾带构建机绝对路径进 bundle，同 commit 跨机器哈希必不同，误判前科）。接线：state.md §5 服务行报版本与主题、§8 新增「部署实例」实例信号（与「最新发布」本体信号分工——实例答「这个站跑什么版」、本体答「最新发到什么版」，不可互替），flows.md 体检版本行 + F13 第 1/6 步加「更新/升级前后各 curl 一次对版本号」的更新闭环验收环；服务端测试补 health 断言。**存量影响**：API 加字段向后兼容（只读 `ok` 的旧消费方零感知），老项目零动作；v0.24.0 前的实例无自报字段，探测如实报「实例版本未知」，绝不退回比哈希。
 - **多 checkout 消歧双层成文（#107）**：同机多份 ai-study-kit checkout 并存（仓库本体/部署副本/开发副本在外观上都是普通 checkout，无可靠自动判据）时，agent **必列候选（路径 + `package.json` 版本 + git HEAD 与落后程度 + 工作树干净与否）必问用户**要操作哪份——绝不静默挑一个，也不基于任何一份启动写操作或 workflow。双层同源不同壳：skill 层 `skills/references/state.md` §0 带协议细节（覆盖走 /ask-coach 的会话），仓库根 AGENTS.md ⭐ 条目带短规则（随每个 checkout 分发、协作 agent 自动加载——覆盖不走 skill 的散聊会话，认错基座的事故形态正是散聊），两处互引；CONTEXT.md 加「多副本消歧」「实例版本自报」词条。**存量影响**：skill 文档随版本走——软契约无落盘变化，插件用户 marketplace refresh 后拿到新协议，老版本 skill 用户照旧自洽。
+
+### 修复
+
 - **Panorama.plan.test 夹具主题无关化（#108）**：`src/pages/Panorama.plan.test.ts` 的 PlanFile 内联夹具不再写死 dev-intro 的 D1/D2——day 值改从被测页面消费的真实 `src/data/theme.json` examDays 派生（import 与 Panorama 页同源）：dev-intro 下天然还是 D1/D2，粘滞主题为其他主题（day 键 W1/W2 型）时自动跟随，`unit.day ≡ examDays.day` 契约（ADR-0009）验证强度不降。仓库 checkout 升级（git pull）后 `pnpm test` 在任何粘滞主题下不再假红（此前内联 D1/D2 配真实 sync 产物必红，污染「升级是否成功」信号）；有意不钉死 `EXAMPLE_THEME` 跑测试——钉死会静默改写部署副本的构建数据，引入新陷阱。**存量影响**：纯测试改动，无存量面。
 - **`dir` 迁出 theme.json → `.theme-state.json`（#109）**：`src/data/theme.json` 被 5 个前端文件 import（打进公开 bundle），外部主题包形态时其 `dir` 绝对路径随之裸露线上——`dir` 迁到 `apps/quiz-app/.theme-state.json`（gitignored、src 之外，前端结构上碰不到）：sync-examples 写它、detectTheme 粘滞回退读它，`src/data/theme.json` 不再含 `dir`（保留 theme/examPoints/examDays 等前端消费字段）；sync 写 theme.json 时显式剔除 `dir` 键防回流，`.gitignore` 增 `.theme-state.json`。公开 bundle 零机器路径，同 commit 同主题跨机器构建哈希可复现（比哈希误判的根源就此拔除，判版本规则另见 #106）。**存量影响**：老项目 theme.json 里已有的 `dir` 兼容读（并入同一解析序），下次 sync 自动落新位置并清掉旧键——首跑自动完成零动作，不迁移也能照常探测/升级。
 
