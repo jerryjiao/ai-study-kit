@@ -1,5 +1,5 @@
-/** Anki 三色计数徽章：纯 CSS 彩色圆点 + 数字 + 标签
- *  放大版：用 flex-1 三等分撑满容器，数字醒目 */
+/** Anki 三色计数瓦片（原型 .count）：新=蓝 / 学习中=红 / 待复习=绿——状态色语义，
+ *  粗描边 + 同色 3px 立体底边 + 大数字（30px），入口页一眼读出今日任务量。 */
 export function CountBadge({
   label,
   value,
@@ -9,20 +9,16 @@ export function CountBadge({
   value: number;
   color: 'blue' | 'red' | 'green';
 }) {
-  // 三色语义（新=蓝 / 学习中=红 / 待复习=绿）走状态色令牌
+  // 三色语义（新=蓝 / 学习中=红 / 待复习=绿）走状态色令牌；描边/立体底边同色成对
   const styles = {
-    blue: { box: 'bg-st-blue-soft text-st-blue-ink ring-st-blue/30', dot: 'bg-st-blue' },
-    red: { box: 'bg-st-red-soft text-st-red-ink ring-st-red/30', dot: 'bg-st-red' },
-    green: { box: 'bg-st-green-soft text-st-green-ink ring-st-green/30', dot: 'bg-st-green' },
+    blue: 'border-st-blue/40 bg-st-blue-soft text-st-blue-ink shadow-[0_3px_0_rgb(var(--st-blue)/0.4)]',
+    red: 'border-st-red-border bg-st-red-soft text-st-red-ink shadow-[0_3px_0_rgb(var(--st-red-border))]',
+    green: 'border-st-green/50 bg-st-green-soft text-st-green-ink shadow-[0_3px_0_rgb(var(--st-green)/0.5)]',
   } as const;
-  const s = styles[color];
   return (
-    <div className={`flex-1 rounded-xl px-3 py-3 text-center ring-2 ${s.box}`}>
-      <div className="flex items-center justify-center gap-1.5">
-        <span className={`h-2 w-2 rounded-full ${s.dot}`} aria-hidden />
-        <span className="text-2xl font-bold leading-none tabular-nums">{value}</span>
-      </div>
-      <div className="text-xs mt-1.5 leading-none font-medium opacity-80">{label}</div>
+    <div className={`flex-1 rounded-2xl border-2 px-3 py-4 text-center ${styles[color]}`}>
+      <div className="text-[30px] font-extrabold leading-none tabular-nums">{value}</div>
+      <div className="text-[13px] mt-1.5 font-bold leading-none">{label}</div>
     </div>
   );
 }

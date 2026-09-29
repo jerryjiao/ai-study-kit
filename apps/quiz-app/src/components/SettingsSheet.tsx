@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, Minus, Plus, RotateCcw, Trash2, Eraser } from 'lucide-react';
+import { X, Minus, Plus, RotateCcw, Trash2, Eraser, Layers } from 'lucide-react';
 import { questions } from '../data/questions';
 import { flashcards } from '../data/flashcards';
 import { clearPos } from '../lib/posMemory';
@@ -7,6 +7,7 @@ import { useProgress } from '../hooks/useProgress';
 import { useI18n } from '../i18n';
 import { useConfirm } from './ConfirmDialog';
 import { Button3D, Switch } from './ui';
+import { lsSet, STREAK_KEY, STREAK_DATE_KEY } from '../pages/Flashcards';
 
 /** 开关行：label/desc 左，Switch 基元右（role=switch，键盘可操作——button 天然支持）。 */
 function ToggleRow({
@@ -45,7 +46,7 @@ function DangerBtn({
  *  默认值语义见 types.LearnSettings：extOn 缺省=关、autoAdvance 缺省=开、dailyNewCards 缺省=5。
  *  重置的多主题隔离：只清激活主题的进度（题/卡 id 集），不误伤其他主题。 */
 export function SettingsSheet({ onClose }: { onClose: () => void }) {
-  const { progress, updateSettings, resetWrong, resetRead, resetTheme } = useProgress();
+  const { progress, updateSettings, resetWrong, resetRead, resetSrs, resetTheme } = useProgress();
   const { t } = useI18n();
   const confirm = useConfirm();
   const extOn = progress.settings?.extOn === true;
@@ -71,7 +72,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
     if (n !== (progress.settings?.dailyNewCards ?? 5)) updateSettings({ dailyNewCards: n });
   };
 
-  // 数据重置四件（确认弹窗照旧；「按题集清」的细粒度重置留在练习页题目列表内，不在此重复）
+  // 数据重置五件（确认弹窗照旧；「按题集清」的细粒度重置留在练习页题目列表内，不在此重复）
   const onResetPos = async () => {
     if (await confirm(t('settings.confirmResetPos'))) clearPos('all');
   };
@@ -80,6 +81,15 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
   };
   const onResetRead = async () => {
     if (await confirm(t('settings.confirmResetRead'))) resetRead(themeQuestionIds);
+  };
+  // 清闪卡：只清激活主题的卡（多主题隔离）+ 本地连续天数归零。
+  // v0.25 票③从闪卡入口页迁入（原型 proto-flashcards-home 注记③）。
+  const onResetSrs = async () => {
+    if (await confirm(t('settings.confirmResetSrs'))) {
+      resetSrs(themeCardIds);
+      lsSet(STREAK_KEY, '0');
+      lsSet(STREAK_DATE_KEY, '');
+    }
   };
   const onResetTheme = async () => {
     if (await confirm(t('settings.confirmResetAllTheme'))) resetTheme(themeQuestionIds, themeCardIds);
@@ -155,7 +165,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* 数据重置节（v0.25 票②）：红色危险区隔离，四件全部只作用于当前主题。
+        {/* 数据重置节（v0.25 票②建，票③补清闪卡）：红色危险区隔离，全部只作用于当前主题。
             确认弹窗经 portal 挂 body 尾（同为 z-50、DOM 序在后），会盖在本弹层之上。 */}
         <section
           aria-label={t('settings.resetTitle')}
@@ -164,10 +174,11 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
           <h3 className="text-[13px] font-extrabold tracking-wide text-st-red-ink mb-2.5">
             {t('settings.resetTitle')}
           </h3>
-          <div className="grid grid-cols-3 gap-2 mb-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
             <DangerBtn label={t('settings.resetPos')} icon={RotateCcw} onClick={onResetPos} />
             <DangerBtn label={t('settings.resetWrong')} icon={Trash2} onClick={onResetWrong} />
             <DangerBtn label={t('settings.resetRead')} icon={Eraser} onClick={onResetRead} />
+            <DangerBtn label={t('settings.resetSrs')} icon={Layers} onClick={onResetSrs} />
           </div>
           <Button3D variant="red" className="w-full" onClick={onResetTheme}>
             <Trash2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />

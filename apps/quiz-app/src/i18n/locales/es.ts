@@ -135,6 +135,7 @@ export const es: Record<TKey, string> = {
   'q.wrongCountHistory': '· fallada {n} veces antes',
   'q.wrongCountTotal': '· {n} fallos en total',
   'q.streakProgress': '{streak}/{needed} aciertos seguidos: {left} más y sale del registro de erróneas',
+  'q.streakLabel': 'Racha de aciertos en erróneas',
   'q.mastered': 'Dominada: sale del registro de erróneas',
   'q.dismiss': 'Quitar',
   'q.dismissTitle': 'Quitar del registro de erróneas (deja de repetirse)',
@@ -142,6 +143,7 @@ export const es: Record<TKey, string> = {
   'q.selfEvalNote': 'Autoevaluada (sin respuesta canónica)',
   'q.analysis': 'Explicación:',
   'opt.correctAnswer': 'Respuesta correcta',
+  'opt.wrongAnswer': 'Tu elección incorrecta',
 
   // Diálogo de confirmación
   'confirm.cancel': 'Cancelar',
@@ -203,9 +205,6 @@ export const es: Record<TKey, string> = {
   'fch.newPerDay': 'Nuevas tarjetas por día',
   'fch.save': 'Guardar',
   'fch.cancel': 'Cancelar',
-  'fch.resetAllSrs': 'Restablecer todo el progreso de tarjetas ({n} vuelven a nuevas)',
-  'fch.confirmResetSrs':
-    '¿Vaciar todo el progreso de tarjetas? Todas vuelven a estado nuevo y la racha se pone a cero. No se puede deshacer. (No afecta a respuestas ni lecturas)',
 
   // Cursos
   'courses.notReady': 'Cursos no disponibles',
@@ -259,6 +258,9 @@ export const es: Record<TKey, string> = {
   'settings.resetRead': 'Borrar lecturas',
   'settings.confirmResetRead':
     '¿Vaciar el progreso de lectura del tema actual? (No afecta a tus respuestas; no se puede deshacer)',
+  'settings.resetSrs': 'Borrar tarjetas',
+  'settings.confirmResetSrs':
+    '¿Vaciar el progreso de tarjetas del tema actual? Todas vuelven a estado nuevo y la racha se pone a cero. No se puede deshacer. (No afecta a respuestas ni lecturas)',
   'settings.resetAllTheme': 'Vaciar TODO el progreso de este tema (incluidas las tarjetas)',
   'settings.confirmResetAllTheme':
     '¿Vaciar TODO el progreso del tema actual (respuestas + erróneas + lecturas + tarjetas)? No se puede deshacer y se sincronizará con todos tus dispositivos. Los demás temas no se ven afectados.',

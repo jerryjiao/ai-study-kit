@@ -110,12 +110,28 @@ export default {
           '60%': { opacity: '1' },
           '100%': { opacity: '1', transform: 'none' },
         },
+        // 答错卡片摇头（v0.25 票③，spec #110 微动效定案）：左右轻晃一次即停
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%': { transform: 'translateX(-6px)' },
+          '40%': { transform: 'translateX(6px)' },
+          '60%': { transform: 'translateX(-4px)' },
+          '80%': { transform: 'translateX(4px)' },
+        },
+        // 答对绿勾回弹（与 index.css 的 .draw-check 描边动画配套，套在勾图标容器上）
+        'check-pop': {
+          '0%': { transform: 'scale(.5)' },
+          '70%': { transform: 'scale(1.25)' },
+          '100%': { transform: 'scale(1)' },
+        },
       },
       animation: {
         'fade-in': 'fade-in .2s ease-out',
         'scale-in': 'scale-in .15s ease-out',
         'card-next': 'card-next .22s ease-out',
         'flip-in': 'flip-in .25s ease-out',
+        'shake': 'shake .4s ease-in-out',
+        'check-pop': 'check-pop .3s ease-out',
       },
     },
   },

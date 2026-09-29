@@ -1,26 +1,24 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Layers, Flame, Settings, CircleCheck, ChevronRight, RefreshCw, RotateCcw } from 'lucide-react';
+import { Layers, Flame, Settings, CircleCheck, ChevronRight, RefreshCw } from 'lucide-react';
 import { flashcards } from '../data/flashcards';
 import { useProgress } from '../hooks/useProgress';
 import { isDue, isLearningDueAhead, isLearningPhase, formatInterval } from '../lib/srs';
 import { newCardsToday, isCardDeleted } from '../lib/progress';
-import { lsGet, lsSet } from './Flashcards';
+import { lsGet, STREAK_KEY } from './Flashcards';
 import { CountBadge } from '../components/CountBadge';
 import { Button3D } from '../components/ui';
-import { useConfirm } from '../components/ConfirmDialog';
 import { useI18n } from '../i18n';
 
 const DAY_MS = 86_400_000;
-const STREAK_KEY = 'ask-srs-streak';
-const STREAK_DATE_KEY = 'ask-srs-last-complete-date';
 const NEW_PER_DAY_KEY = 'ask-new-per-day';
 const DEFAULT_NEW_PER_DAY = 5;
 
-/** 闪卡 dashboard：今日概览 + 开始复习入口 + 每日新卡设置（对应答题页的 Home） */
+/** 闪卡 dashboard：今日概览 + 开始复习入口 + 每日新卡设置（对应答题页的 Home）。
+ *  「重置本主题闪卡进度」危险入口已收口到设置弹层「数据重置」节（v0.25 票③，
+ *  原型 proto-flashcards-home 注记③——与 Q1 重置收口一致，本页不再单独放）。 */
 export function FlashcardsHome() {
-  const { progress, resetSrs, updateSettings } = useProgress();
-  const confirm = useConfirm();
+  const { progress, updateSettings } = useProgress();
   const { t } = useI18n();
   const srs = progress.srs ?? {};
   const now = Date.now();
@@ -86,24 +84,6 @@ export function FlashcardsHome() {
     forceRerender((x) => x + 1);
   };
 
-  /** 重置闪卡进度：只清激活主题的卡（多主题隔离，其他主题的 srs 不动）+ 本地 streak。
-   * 所有卡回到新卡状态。不影响答题/看题进度。 */
-  const resetAllSrs = async () => {
-    if (await confirm(t('fch.confirmResetSrs'))) {
-      resetSrs(flashcards.map((c) => c.id));
-      lsSet(STREAK_KEY, '0');
-      lsSet(STREAK_DATE_KEY, '');
-      forceRerender((x) => x + 1);
-    }
-  };
-
-  // 激活主题内有 SRS 进度的卡数（多主题隔离：墓碑不算、其他主题的卡不算），
-  // 决定重置入口的显隐与计数文案。
-  const activeSrsCount = useMemo(
-    () => flashcards.reduce((n, c) => (srs[c.id] && !isCardDeleted(srs[c.id]) ? n + 1 : n), 0),
-    [srs],
-  );
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-7">
       <header className="text-center">
@@ -114,24 +94,24 @@ export function FlashcardsHome() {
         <p className="text-text-muted text-sm mt-2">{t('fch.tagline', { n: flashcards.length })}</p>
       </header>
 
-      {/* 今日概览：三色计数 */}
+      {/* 今日概览：三色计数瓦片（原型 .counts/.count——蓝新/红学习中/绿待复习） */}
       {totalToday > 0 ? (
-        <div className="flex gap-2.5">
+        <div className="flex gap-3">
           <CountBadge label={t('fc.new')} value={counts.fresh} color="blue" />
           <CountBadge label={t('fc.learning')} value={counts.learning} color="red" />
           <CountBadge label={t('fc.review')} value={counts.review} color="green" />
         </div>
       ) : (
         <div className="text-center py-10 space-y-3">
-          <CircleCheck className="mx-auto h-14 w-14 text-green-500" strokeWidth={1.5} />
+          <CircleCheck className="mx-auto h-14 w-14 text-st-green" strokeWidth={1.5} />
           <p className="text-text-secondary font-medium">{t('fch.todayDone')}</p>
           {nextDue && <p className="text-text-faint text-sm">{t('fc.nextDue', { interval: nextDue })}</p>}
         </div>
       )}
 
-      {/* 连续天数 */}
-      <p className="flex items-center justify-center gap-1.5 text-sm text-text-muted">
-        <Flame className="h-4 w-4 text-orange-500" strokeWidth={2} />
+      {/* 连续天数（原型 .streak：金色火焰） */}
+      <p className="flex items-center justify-center gap-1.5 text-sm font-bold text-st-gold-ink">
+        <Flame className="h-4 w-4 text-st-gold-ink" strokeWidth={2} />
         {t('fc.streak', { n: streak })}
       </p>
 
@@ -201,19 +181,6 @@ export function FlashcardsHome() {
           >
             <Settings className="h-4 w-4" strokeWidth={2} />
             {t('fch.newPerDay')}：<span className="font-medium text-text-secondary tabular-nums">{appliedNewPerDay}</span>
-          </button>
-        </div>
-      )}
-
-      {/* 危险操作：重置本主题闪卡进度（仅在确有进度时显示，避免空态误触） */}
-      {activeSrsCount > 0 && (
-        <div className="text-center pt-2 border-t border-border">
-          <button
-            onClick={resetAllSrs}
-            className="inline-flex items-center gap-1.5 text-xs text-text-faint hover:text-red-600 transition-colors"
-          >
-            <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-            {t('fch.resetAllSrs', { n: activeSrsCount })}
           </button>
         </div>
       )}

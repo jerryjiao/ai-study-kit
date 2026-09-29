@@ -136,6 +136,7 @@ export const zh = {
   'q.wrongCountHistory': '· 历史错 {n} 次',
   'q.wrongCountTotal': '· 累计错 {n} 次',
   'q.streakProgress': '连对 {streak}/{needed}，再答对 {left} 次自动移出错题集',
+  'q.streakLabel': '错题连对进度',
   'q.mastered': '已掌握，移出错题集',
   'q.dismiss': '移出',
   'q.dismissTitle': '手动移出错题集（不再循环出现）',
@@ -143,6 +144,7 @@ export const zh = {
   'q.selfEvalNote': '自评题（原图无标准答案）',
   'q.analysis': '解析：',
   'opt.correctAnswer': '正确答案',
+  'opt.wrongAnswer': '错选的选项',
 
   // 确认弹窗
   'confirm.cancel': '取消',
@@ -204,8 +206,6 @@ export const zh = {
   'fch.newPerDay': '每日新卡数',
   'fch.save': '保存',
   'fch.cancel': '取消',
-  'fch.resetAllSrs': '重置全部闪卡进度（{n} 张卡回到新卡）',
-  'fch.confirmResetSrs': '清空所有闪卡进度？所有卡将回到新卡状态，连续天数归零，不可恢复。（不影响答题/看题进度）',
 
   // 课程页
   'courses.notReady': '课程未就绪',
@@ -256,6 +256,8 @@ export const zh = {
   'settings.confirmResetWrong': '清空当前主题的错题记录？（错题重练将没有题目，不可恢复）',
   'settings.resetRead': '清看题记录',
   'settings.confirmResetRead': '清空当前主题的看题进度？（不影响答题记录，不可恢复）',
+  'settings.resetSrs': '清闪卡进度',
+  'settings.confirmResetSrs': '清空当前主题的闪卡进度？所有卡回到新卡状态，连续天数归零，不可恢复。（不影响答题/看题进度）',
   'settings.resetAllTheme': '清空本主题全部进度（含闪卡）',
   'settings.confirmResetAllTheme':
     '清空当前主题的全部进度（答题 + 错题 + 看题 + 闪卡）？此操作不可恢复，且会同步到所有设备。不影响其他主题。',

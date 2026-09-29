@@ -15,8 +15,10 @@ import { useI18n } from '../i18n';
 import type { Flashcard, SrsGrade, SrsState } from '../types';
 
 const DAY_MS = 86_400_000;
-const STREAK_KEY = 'ask-srs-streak';
-const STREAK_DATE_KEY = 'ask-srs-last-complete-date';
+/** 连续复习天数的 localStorage 键：复习页（完成时写入）、闪卡入口（展示）、设置弹层
+ *  （清闪卡时归零）三处共用——单一定义防漂移。 */
+export const STREAK_KEY = 'ask-srs-streak';
+export const STREAK_DATE_KEY = 'ask-srs-last-complete-date';
 const NEW_PER_DAY_KEY = 'ask-new-per-day';
 const DEFAULT_NEW_PER_DAY = 5;
 
@@ -221,7 +223,7 @@ export function Flashcards() {
           <h2 className="text-2xl font-bold text-text-primary">{t('fc.todayDone')}</h2>
           <p className="text-text-secondary">{t('fc.todayDoneNote', { n: doneCount })}</p>
           <p className="flex items-center justify-center gap-1.5 text-text-muted text-sm">
-            <Flame className="h-4 w-4 text-orange-500" strokeWidth={2} />
+            <Flame className="h-4 w-4 text-st-gold-ink" strokeWidth={2} />
             {t('fc.streak', { n: streak })}
           </p>
           {nextDueText && <p className="text-text-faint text-sm">{t('fc.nextDue', { interval: nextDueText })}</p>}
@@ -274,18 +276,17 @@ export function Flashcards() {
       <div className="space-y-2">
         {!isExtra && (
           <>
-            {/* AnkiWeb 风格顶部计数：N + N + N（蓝新卡 + 红学习中 + 绿待复习），实时更新 */}
-            <div className="flex items-center justify-center gap-2 text-lg font-semibold tabular-nums">
-              <span className="text-st-blue-ink">{counts.fresh}</span>
-              <span className="text-text-faint font-normal">+</span>
-              <span className="text-st-red-ink">{counts.learning}</span>
-              <span className="text-text-faint font-normal">+</span>
-              <span className="text-st-green-ink">{counts.review}</span>
-            </div>
-            <div className="flex gap-2.5 justify-center text-[10px] text-text-faint">
-              <span>{t('fc.new')}</span>
-              <span>{t('fc.learning')}</span>
-              <span>{t('fc.review')}</span>
+            {/* 三色计数 chips（原型 .countchips/.ccount）：蓝新 / 红学习中 / 绿待复习，实时更新 */}
+            <div className="flex items-center justify-center gap-2">
+              <span className="rounded-full bg-st-blue-soft text-st-blue-ink px-3 py-0.5 text-xs font-bold tabular-nums">
+                {t('fc.new')} {counts.fresh}
+              </span>
+              <span className="rounded-full bg-st-red-soft text-st-red-ink px-3 py-0.5 text-xs font-bold tabular-nums">
+                {t('fc.learning')} {counts.learning}
+              </span>
+              <span className="rounded-full bg-st-green-soft text-st-green-ink px-3 py-0.5 text-xs font-bold tabular-nums">
+                {t('fc.review')} {counts.review}
+              </span>
             </div>
           </>
         )}

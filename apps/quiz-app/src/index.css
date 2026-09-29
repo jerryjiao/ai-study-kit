@@ -135,4 +135,20 @@
     transform: translateY(4px);
     box-shadow: 0 1px 0 rgb(0 0 0 / 0.25) !important;
   }
+
+  /* 答对绿勾描边动效（v0.25 票③，spec #110）：勾图标的 SVG 描边"画出"。
+     挂在勾图标的外层容器上，作用于内部 lucide <svg><path>（stroke 路径总长约 25，
+     dasharray 取 30 覆盖）；配合 tailwind 的 animate-check-pop 容器回弹一起用。
+     仅在"本次提交触发"的揭晓上挂（OptionList 的 justRevealed），回看已揭晓卡不重播。
+     reduced-motion 下被上方全局规则降级为瞬时完成。 */
+  .draw-check svg path {
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    animation: draw-check-stroke 0.35s ease-out forwards;
+  }
+  @keyframes draw-check-stroke {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
 }

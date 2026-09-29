@@ -35,8 +35,11 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
   const initRev = readOnly ? true : initialRevealed;
   const [selected, setSelected] = useState<string[]>(initSel);
   const [revealed, setRevealed] = useState(initRev);
+  // 本次挂载内「由提交触发」的揭晓：驱动一次性微动效（答对绿勾描边 / 答错 shake）。
+  // 翻页再翻回、刷新带入的既有揭晓（initRev=true）不算——回看不该重播动效。
+  const [justRevealed, setJustRevealed] = useState(false);
   // 切换题目时重置
-  useEffect(() => { setSelected(initSel); setRevealed(initRev); }, [q.id, readOnly]);
+  useEffect(() => { setSelected(initSel); setRevealed(initRev); setJustRevealed(false); }, [q.id, readOnly]);
 
   const multi = q.type === 'multi';
   const toggle = (letter: string) => {
@@ -48,15 +51,35 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
 
   const correct = revealed ? gradeQuestion(q, selected) : null;
   const selfEval = q.autoGradable === false;
+  // 答错 shake 一次：仅本次提交且判错时挂类（与 animate-fade-in 互斥——同一 animation 属性）
+  const shakeNow = justRevealed && correct === false && !readOnly;
 
   const handleSubmit = () => {
     const res = gradeQuestion(q, selected);
     setRevealed(true);
+    setJustRevealed(true);
     onSubmit?.(selected, res);
   };
 
+  // 错题连对进度展示条件：错题练习（streak 被维护 + onDismiss 提供）且已判分。
+  // 答对答错都展示——答错后 streak 归零，涂卡格全空同样是有效进度信息（再连对 needed 次移出）。
+  const showStreak = !selfEval && correct !== null && !readOnly
+    && streak !== undefined && streakNeeded !== undefined && !!onDismiss;
+
+  /** 手动移出错题本按钮（红/绿两态反馈容器共用） */
+  const dismissBtn = (
+    <button
+      onClick={async () => { if (await confirm(t('q.confirmDismiss'))) onDismiss?.(); }}
+      className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-st-red-ink px-2.5 py-1 rounded-lg font-medium transition-colors"
+      title={t('q.dismissTitle')}
+    >
+      <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
+      {t('q.dismiss')}
+    </button>
+  );
+
   return (
-    <Card className="p-5 sm:p-7 animate-fade-in">
+    <Card className={`p-5 sm:p-7 ${shakeNow ? 'animate-shake' : 'animate-fade-in'}`}>
       <div className="flex items-center gap-2 mb-4 text-xs text-text-muted flex-wrap">
         <span className={`px-2 py-0.5 rounded-md font-medium ${
           multi ? 'bg-st-blue-soft text-st-blue-ink' : 'bg-bg-subtle text-text-muted'
@@ -87,7 +110,7 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
       )}
 
       <OptionList options={q.options} type={q.type} selected={selected} revealed={revealed}
-        answer={q.answer} onToggle={toggle} disabled={revealed} />
+        answer={q.answer} onToggle={toggle} disabled={revealed} justRevealed={justRevealed} />
 
       {!revealed ? (
         <Button3D
@@ -98,37 +121,69 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
         >
           {selfEval ? t('q.submitSelfEval') : t('q.submit')}
         </Button3D>
+      ) : correct === false && !selfEval && !readOnly ? (
+        /* 答错揭晓态（原型 .feedback 红调容器）：裁决行 + 错题连对进度（绿涂卡格）+ 解析卡，
+           四要素一屏齐——红叉在错选项上、绿勾在正确选项上（OptionList）、此处是后两要素。 */
+        <div className="mt-5 rounded-2xl border-2 border-st-red-border bg-st-red-soft p-4 space-y-3 animate-fade-in">
+          <p className="flex flex-wrap items-center gap-1.5 font-semibold text-st-red-ink">
+            <X className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+            {t('q.wrong', { answer: q.answer.join('') })}
+            {/* 累计错次提示：本次答错展示"累计错 N"（含本次）；wrongCount 只增不减，
+                用于识别"反复出错的难题"。 */}
+            {wrongCount && wrongCount > 0 && (
+              <span className="ml-1 text-xs font-medium px-1.5 py-0.5 rounded-md bg-bg-surface">
+                {t('q.wrongCountTotal', { n: wrongCount })}
+              </span>
+            )}
+          </p>
+          {showStreak && (
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm">
+              <span className="text-text-secondary">{t('q.streakLabel')}</span>
+              {/* 涂卡格：连对进度可视化（spec 审阅轮定案——涂卡格改绿，推进语义） */}
+              <Pips total={streakNeeded} on={streak} />
+              <span className="text-text-primary tabular-nums">
+                {t('q.streakProgress', { streak, needed: streakNeeded, left: streakNeeded - streak })}
+              </span>
+              <span className="ml-auto">{dismissBtn}</span>
+            </div>
+          )}
+          {q.analysis && (
+            <div className="rounded-xl bg-bg-surface border border-border px-4 py-3">
+              <p className="text-sm text-text-secondary leading-relaxed">
+                <span className="font-semibold text-text-primary">{t('q.analysis')}</span>
+                {q.analysis}
+              </p>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="mt-5 space-y-2.5 animate-fade-in">
           {!selfEval && correct !== null && !readOnly && (
             <p
-              className={`flex items-center gap-1.5 font-semibold ${correct ? 'text-st-green-ink' : 'text-st-red-ink'}`}
+              className={`flex flex-wrap items-center gap-1.5 font-semibold ${correct ? 'text-st-green-ink' : 'text-st-red-ink'}`}
             >
               {correct ? (
-                <Check className="h-5 w-5" strokeWidth={2.5} />
+                <Check className="h-5 w-5 shrink-0" strokeWidth={2.5} />
               ) : (
-                <X className="h-5 w-5" strokeWidth={2.5} />
+                <X className="h-5 w-5 shrink-0" strokeWidth={2.5} />
               )}
               {correct ? t('q.correct') : t('q.wrong', { answer: q.answer.join('') })}
-              {/* 累计错次提示：本次答错时展示"累计错 N"（含本次）；本次答对但历史错过展示"历史错 N"。
-                  wrongCount 由 submitAnswer 维护，只增不减，用于识别"反复出错的难题"。 */}
-              {wrongCount && wrongCount > 0 && (
-                <span className={`ml-1 text-xs font-medium px-1.5 py-0.5 rounded-md ${correct ? 'bg-amber-50 text-amber-600' : 'bg-st-red-soft'}`}>
-                  {correct
-                    ? t('q.wrongCountHistory', { n: wrongCount })
-                    : t('q.wrongCountTotal', { n: wrongCount })}
+              {/* 答对但历史错过时展示"历史错 N"（答错的累计错次在上方红调容器里）。 */}
+              {correct && wrongCount && wrongCount > 0 && (
+                <span className="ml-1 text-xs font-medium px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600">
+                  {t('q.wrongCountHistory', { n: wrongCount })}
                 </span>
               )}
             </p>
           )}
-          {/* 错题掌握进度：仅在错题练习（streak 被维护 + onDismiss 提供）且本次答对时展示。
-              - streak < streakNeeded：提示"还差几次连对"，给用户进度感
-              - streak >= streakNeeded：理论上 wrongIds 已自动过滤，但留个手动按钮兜底
+          {/* 错题掌握进度（答对态，绿色推进面板）：streak < streakNeeded 提示"还差几次连对"；
+              streak >= streakNeeded 时 wrongIds 已自动过滤，留手动按钮兜底。
               onDismiss 未传入（非错题练习模式）时不展示，避免误用。 */}
-          {!selfEval && correct === true && !readOnly && streak !== undefined && streakNeeded !== undefined && onDismiss && (
+          {showStreak && correct === true && (
             <div className="flex items-center justify-between gap-3 rounded-xl bg-st-green-soft border-2 border-st-green/40 px-4 py-2.5">
               {streak < streakNeeded ? (
-                <span className="flex items-center gap-2 text-sm text-st-green-ink">
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-st-green-ink">
+                  <span className="text-st-green-ink/80">{t('q.streakLabel')}</span>
                   {/* 涂卡格：连对进度可视化（spec 审阅轮定案——涂卡格改绿，推进语义） */}
                   <Pips total={streakNeeded} on={streak} />
                   {t('q.streakProgress', { streak, needed: streakNeeded, left: streakNeeded - streak })}
@@ -139,14 +194,7 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
                   {t('q.mastered')}
                 </span>
               )}
-              <button
-                onClick={async () => { if (await confirm(t('q.confirmDismiss'))) onDismiss(); }}
-                className="inline-flex items-center gap-1 text-sm text-st-green-ink hover:bg-st-green/20 px-2.5 py-1 rounded-lg font-medium transition-colors"
-                title={t('q.dismissTitle')}
-              >
-                <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
-                {t('q.dismiss')}
-              </button>
+              {dismissBtn}
             </div>
           )}
           {selfEval && (

@@ -135,6 +135,7 @@ export const en: Record<TKey, string> = {
   'q.wrongCountHistory': '· wrong {n}× before',
   'q.wrongCountTotal': '· {n}× wrong in total',
   'q.streakProgress': '{streak}/{needed} correct in a row — {left} more to drop it from the wrong set',
+  'q.streakLabel': 'Wrong-question streak',
   'q.mastered': 'Mastered — removed from the wrong set',
   'q.dismiss': 'Remove',
   'q.dismissTitle': 'Remove from the wrong-question set (stops recurring)',
@@ -142,6 +143,7 @@ export const en: Record<TKey, string> = {
   'q.selfEvalNote': 'Self-graded (no canonical answer)',
   'q.analysis': 'Explanation:',
   'opt.correctAnswer': 'Correct answer',
+  'opt.wrongAnswer': 'Your wrong choice',
 
   // Confirm dialog
   'confirm.cancel': 'Cancel',
@@ -203,9 +205,6 @@ export const en: Record<TKey, string> = {
   'fch.newPerDay': 'New cards per day',
   'fch.save': 'Save',
   'fch.cancel': 'Cancel',
-  'fch.resetAllSrs': 'Reset all flashcard progress ({n} cards back to new)',
-  'fch.confirmResetSrs':
-    'Clear all flashcard progress? Every card returns to new and the streak resets to zero. This cannot be undone. (Answer/reading progress is not affected)',
 
   // Courses
   'courses.notReady': 'Courses not ready',
@@ -259,6 +258,9 @@ export const en: Record<TKey, string> = {
   'settings.resetRead': 'Clear read progress',
   'settings.confirmResetRead':
     'Clear the reading progress of the current theme? (Answer records are not affected; this cannot be undone)',
+  'settings.resetSrs': 'Clear flashcards',
+  'settings.confirmResetSrs':
+    'Clear the flashcard progress of the current theme? Every card returns to new and the streak resets to zero. This cannot be undone. (Answer/reading progress is not affected)',
   'settings.resetAllTheme': 'Clear ALL progress of this theme (incl. flashcards)',
   'settings.confirmResetAllTheme':
     'Clear ALL progress of the current theme (answers + wrong + reading + flashcards)? This cannot be undone and will sync to all your devices. Other themes are not affected.',

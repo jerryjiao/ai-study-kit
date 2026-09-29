@@ -135,6 +135,7 @@ export const ru: Record<TKey, string> = {
   'q.wrongCountHistory': '· ранее ошибок: {n}',
   'q.wrongCountTotal': '· всего ошибок: {n}',
   'q.streakProgress': 'Верно подряд {streak}/{needed} — ещё {left}, и вопрос уйдёт из ошибок',
+  'q.streakLabel': 'Серия верных ответов в ошибках',
   'q.mastered': 'Усвоено — убираем из ошибок',
   'q.dismiss': 'Убрать',
   'q.dismissTitle': 'Убрать из списка ошибок (больше не повторяется)',
@@ -142,6 +143,7 @@ export const ru: Record<TKey, string> = {
   'q.selfEvalNote': 'Самооценка (без эталонного ответа)',
   'q.analysis': 'Разбор:',
   'opt.correctAnswer': 'Правильный ответ',
+  'opt.wrongAnswer': 'Ваш неверный выбор',
 
   // Диалог подтверждения
   'confirm.cancel': 'Отмена',
@@ -203,9 +205,6 @@ export const ru: Record<TKey, string> = {
   'fch.newPerDay': 'Новых карточек в день',
   'fch.save': 'Сохранить',
   'fch.cancel': 'Отмена',
-  'fch.resetAllSrs': 'Сбросить весь прогресс карточек ({n} станут новыми)',
-  'fch.confirmResetSrs':
-    'Очистить весь прогресс карточек? Все карточки станут новыми, серия обнулится. Отменить нельзя. (Ответы и чтение не затрагиваются)',
 
   // Курсы
   'courses.notReady': 'Курсы не готовы',
@@ -259,6 +258,9 @@ export const ru: Record<TKey, string> = {
   'settings.resetRead': 'Очистить чтение',
   'settings.confirmResetRead':
     'Очистить прогресс чтения текущей темы? (Ответы не затрагиваются; отменить нельзя)',
+  'settings.resetSrs': 'Очистить карточки',
+  'settings.confirmResetSrs':
+    'Очистить прогресс карточек текущей темы? Все карточки станут новыми, серия обнулится. Отменить нельзя. (Ответы и чтение не затрагиваются)',
   'settings.resetAllTheme': 'Очистить ВЕСЬ прогресс этой темы (включая карточки)',
   'settings.confirmResetAllTheme':
     'Очистить ВЕСЬ прогресс текущей темы (ответы + ошибки + чтение + карточки)? Отменить нельзя, изменение синхронизируется на все устройства. Другие темы не затрагиваются.',

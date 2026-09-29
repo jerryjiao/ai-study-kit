@@ -134,6 +134,7 @@ export const ja: Record<TKey, string> = {
   'q.wrongCountHistory': '· これまでに {n} 回間違い',
   'q.wrongCountTotal': '· 累計 {n} 回間違い',
   'q.streakProgress': '連続正解 {streak}/{needed}。あと {left} 回正解すると自動的に間違えた問題から外れます',
+  'q.streakLabel': '間違えた問題の連続正解進捗',
   'q.mastered': '習得済みのため、間違えた問題から外しました',
   'q.dismiss': '外す',
   'q.dismissTitle': 'この問題を間違えた問題から手動で外します（以降は繰り返し表示されません）',
@@ -141,6 +142,7 @@ export const ja: Record<TKey, string> = {
   'q.selfEvalNote': '自己採点問題（正式な模範解答なし）',
   'q.analysis': '解説：',
   'opt.correctAnswer': '正しい答え',
+  'opt.wrongAnswer': '誤った選択',
 
   // 確認ダイアログ
   'confirm.cancel': 'キャンセル',
@@ -202,8 +204,6 @@ export const ja: Record<TKey, string> = {
   'fch.newPerDay': '1 日の新規カード数',
   'fch.save': '保存',
   'fch.cancel': 'キャンセル',
-  'fch.resetAllSrs': '全フラッシュカードの進捗をリセット（{n} 枚が新規カードに戻ります）',
-  'fch.confirmResetSrs': 'すべてのフラッシュカード進捗を消去しますか？すべてのカードが新規カードに戻り、連続日数もゼロになります。元に戻せません。（解答・通読の進捗には影響しません）',
 
   // コースページ
   'courses.notReady': 'コースは未準備です',
@@ -254,6 +254,8 @@ export const ja: Record<TKey, string> = {
   'settings.confirmResetWrong': '現在のテーマの間違い記録を消去しますか？（間違えた問題の再練習が空になり、元に戻せません）',
   'settings.resetRead': '通読進捗を消去',
   'settings.confirmResetRead': '現在のテーマの通読進捗を消去しますか？（回答記録には影響しません。元に戻せません）',
+  'settings.resetSrs': 'フラッシュカードを消去',
+  'settings.confirmResetSrs': '現在のテーマのフラッシュカード進捗を消去しますか？すべてのカードが新規カードに戻り、連続日数もゼロになります。元に戻せません。（解答・通読の進捗には影響しません）',
   'settings.resetAllTheme': 'このテーマの全進捗を消去（フラッシュカード含む）',
   'settings.confirmResetAllTheme':
     '現在のテーマの全進捗（回答 ＋ 間違い ＋ 通読 ＋ フラッシュカード）を消去しますか？この操作は元に戻せず、すべての端末に同期されます。他のテーマには影響しません。',
