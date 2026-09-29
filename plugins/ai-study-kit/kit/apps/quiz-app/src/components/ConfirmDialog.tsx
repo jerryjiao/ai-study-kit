@@ -3,11 +3,11 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '../i18n';
+import { Button3D, Card } from './ui';
 
 /**
  * 原生 window.confirm 的 UI 替代品。
@@ -43,7 +43,6 @@ const DANGER_RE =
 export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const { t } = useI18n();
   const [pending, setPending] = useState<PendingState | null>(null);
-  const confirmBtnRef = useRef<HTMLButtonElement>(null);
 
   const confirm = useCallback<ConfirmFn>((message, options = {}) => {
     return new Promise<boolean>((resolve) => {
@@ -61,10 +60,9 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  // 弹窗打开时自动聚焦确认键，并锁定背景滚动；Esc 视为取消。
+  // 弹窗打开时锁定背景滚动；确认键聚焦由 Button3D 的 autoFocus 承担（portal 挂载即聚焦）；Esc 视为取消。
   useEffect(() => {
     if (!pending) return;
-    confirmBtnRef.current?.focus();
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
@@ -93,31 +91,25 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             aria-label={t('confirm.aria')}
           >
             <div
-              className="w-full max-w-sm bg-bg-surface rounded-2xl shadow-pop p-5 animate-scale-in"
+              className="w-full max-w-sm animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-[15px] leading-relaxed text-text-primary whitespace-pre-line">
-                {pending.message}
-              </p>
-              <div className="mt-5 flex justify-end gap-2">
-                <button
-                  onClick={() => close(false)}
-                  className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary border border-border rounded-lg transition-colors"
-                >
-                  {pending.options.cancelText ?? t('confirm.cancel')}
-                </button>
-                <button
-                  ref={confirmBtnRef}
-                  onClick={() => close(true)}
-                  className={
-                    danger
-                      ? 'px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors'
-                      : 'px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors'
-                  }
-                >
-                  {pending.options.confirmText ?? t('confirm.ok')}
-                </button>
-              </div>
+              <Card className="p-5">
+                <p className="text-[15px] leading-relaxed text-text-primary whitespace-pre-line">
+                  {pending.message}
+                </p>
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    onClick={() => close(false)}
+                    className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary border-2 border-border rounded-xl transition-colors"
+                  >
+                    {pending.options.cancelText ?? t('confirm.cancel')}
+                  </button>
+                  <Button3D variant={danger ? 'red' : 'green'} onClick={() => close(true)} autoFocus className="py-2">
+                    {pending.options.confirmText ?? t('confirm.ok')}
+                  </Button3D>
+                </div>
+              </Card>
             </div>
           </div>,
           document.body,

@@ -5,6 +5,7 @@ import { useI18n } from '../i18n';
 import { useProgress } from '../hooks/useProgress';
 import { isCourseRead } from '../lib/progress';
 import { practiceTopicForLesson } from '../lib/courseProgress';
+import { Button3D, StepDot } from '../components/ui';
 import themeMeta from '../data/theme.json';
 import coursesMeta from '../data/courses.json';
 import { questions } from '../data/questions';
@@ -135,9 +136,10 @@ export function Courses() {
           {showIndex && lessons.length > 0 && (
             <>
               <nav className="flex-1 overflow-y-auto p-2 space-y-1">
-                {lessons.map((l) => {
+                {lessons.map((l, i) => {
                   const done = isCourseRead(progress, themeMeta.theme, l.file);
                   const active = currentFile === l.file;
+                  // 目录三态（闯关步进基元）：已学完=绿✓ / 当前=金▶ / 未学=序号数字
                   return (
                     <button
                       key={l.file}
@@ -145,15 +147,15 @@ export function Courses() {
                         setSrc(`${BASE}lessons/${l.file}`);
                         setCurrentFile(l.file);
                       }}
-                      className={`w-full flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-left text-xs border transition-colors ${
+                      className={`w-full flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-left text-xs font-bold border-2 transition-colors ${
                         active
-                          ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                          ? 'bg-st-gold-soft border-st-gold-border text-st-gold-ink'
                           : done
-                            ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
-                            : 'bg-bg-surface border-border text-text-secondary hover:border-indigo-300 hover:text-indigo-700'
+                            ? 'bg-st-green-soft border-st-green/40 text-st-green-ink hover:bg-st-green-soft/70'
+                            : 'bg-bg-surface border-border text-text-secondary hover:border-border-strong hover:text-text-primary'
                       }`}
                     >
-                      {done ? <CircleCheck className="h-3 w-3 shrink-0" strokeWidth={2.5} /> : null}
+                      <StepDot state={done ? 'done' : active ? 'current' : i + 1} size={22} />
                       <span className="truncate">{l.title}</span>
                     </button>
                   );
@@ -200,13 +202,10 @@ export function Courses() {
                 {t('courses.undoDone')}
               </button>
               {practiceTopic && (
-                <Link
-                  to={`/practice/all?topic=${encodeURIComponent(practiceTopic)}`}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 text-white px-5 py-2 text-sm font-medium shadow-soft hover:bg-indigo-700 transition-colors"
-                >
+                <Button3D to={`/practice/all?topic=${encodeURIComponent(practiceTopic)}`}>
                   {t('courses.goPractice')}
                   <ArrowRight className="h-4 w-4" strokeWidth={2} />
-                </Link>
+                </Button3D>
               )}
             </>
           )}

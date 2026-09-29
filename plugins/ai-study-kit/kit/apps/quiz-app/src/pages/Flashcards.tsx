@@ -10,6 +10,7 @@ import { newCardsToday, isCardDeleted } from '../lib/progress';
 import { initSession, currentCard, isComplete, applyGrade } from '../lib/reviewQueue';
 import type { ReviewSession } from '../lib/reviewQueue';
 import { RatingButtons } from '../components/RatingButtons';
+import { Button3D } from '../components/ui';
 import { useI18n } from '../i18n';
 import type { Flashcard, SrsGrade, SrsState } from '../types';
 
@@ -201,16 +202,13 @@ export function Flashcards() {
       return (
         <div className="max-w-4xl mx-auto px-4 py-10">
           <div className="text-center space-y-4 animate-fade-in">
-            <RefreshCw className="mx-auto h-16 w-16 text-indigo-500" strokeWidth={1.5} />
+            <RefreshCw className="mx-auto h-16 w-16 text-st-green" strokeWidth={1.5} />
             <h2 className="text-2xl font-bold text-text-primary">{t('fc.extraDone')}</h2>
             <p className="text-text-secondary">{t('fc.extraDoneNote', { n: doneCount })}</p>
-            <Link
-              to="/flashcards"
-              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium mt-3 shadow-soft hover:bg-indigo-700 transition-colors"
-            >
+            <Button3D to="/flashcards" className="mt-3">
               {t('fc.back')}
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
-            </Link>
+            </Button3D>
           </div>
         </div>
       );
@@ -219,7 +217,7 @@ export function Flashcards() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="text-center space-y-4 animate-fade-in">
-          <PartyPopper className="mx-auto h-16 w-16 text-indigo-500" strokeWidth={1.5} />
+          <PartyPopper className="mx-auto h-16 w-16 text-st-green" strokeWidth={1.5} />
           <h2 className="text-2xl font-bold text-text-primary">{t('fc.todayDone')}</h2>
           <p className="text-text-secondary">{t('fc.todayDoneNote', { n: doneCount })}</p>
           <p className="flex items-center justify-center gap-1.5 text-text-muted text-sm">
@@ -234,18 +232,15 @@ export function Flashcards() {
             {/* 再练一轮：诚实告知违背 SRS 排程，评分照常记 */}
             <Link
               to="/flashcards/review?extra=1"
-              className="inline-flex items-center gap-1.5 text-text-muted hover:text-indigo-600 text-sm border border-border hover:border-indigo-300 rounded-xl px-5 py-2.5 transition-colors"
+              className="inline-flex items-center gap-1.5 text-text-muted hover:text-st-blue-ink text-sm border-2 border-border hover:border-st-blue/50 rounded-xl px-5 py-2.5 transition-colors"
             >
               <RefreshCw className="h-4 w-4" strokeWidth={2} />
               {t('fc.extraRound')}
             </Link>
-            <Link
-              to="/flashcards"
-              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors"
-            >
+            <Button3D to="/flashcards">
               {t('fc.back')}
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
-            </Link>
+            </Button3D>
           </div>
         </div>
       </div>
@@ -258,7 +253,7 @@ export function Flashcards() {
   const cardIsNew = isNew(curState);
   // 卡片阶段标记：学习步 / 重学步 / 新卡 / 复习
   const phaseLabel = (() => {
-    if (!curState) return { text: t('fc.phaseNew'), cls: 'bg-blue-100 text-blue-700' };
+    if (!curState) return { text: t('fc.phaseNew'), cls: 'bg-st-blue-soft text-st-blue-ink' };
     if (curState.phase === 'learning') {
       const step = LEARNING_STEPS_MIN[curState.stepIdx] ?? LEARNING_STEPS_MIN[0];
       return {
@@ -268,9 +263,9 @@ export function Flashcards() {
     }
     if (curState.phase === 'relearning') {
       const step = RELEARNING_STEPS_MIN[curState.stepIdx] ?? RELEARNING_STEPS_MIN[0];
-      return { text: t('fc.phaseRelearning', { step }), cls: 'bg-red-100 text-red-700' };
+      return { text: t('fc.phaseRelearning', { step }), cls: 'bg-st-red-soft text-st-red-ink' };
     }
-    return { text: t('fc.phaseReview'), cls: 'bg-green-100 text-green-700' };
+    return { text: t('fc.phaseReview'), cls: 'bg-st-green-soft text-st-green-ink' };
   })();
 
   return (
@@ -281,11 +276,11 @@ export function Flashcards() {
           <>
             {/* AnkiWeb 风格顶部计数：N + N + N（蓝新卡 + 红学习中 + 绿待复习），实时更新 */}
             <div className="flex items-center justify-center gap-2 text-lg font-semibold tabular-nums">
-              <span className="text-blue-600">{counts.fresh}</span>
+              <span className="text-st-blue-ink">{counts.fresh}</span>
               <span className="text-text-faint font-normal">+</span>
-              <span className="text-red-500">{counts.learning}</span>
+              <span className="text-st-red-ink">{counts.learning}</span>
               <span className="text-text-faint font-normal">+</span>
-              <span className="text-green-600">{counts.review}</span>
+              <span className="text-st-green-ink">{counts.review}</span>
             </div>
             <div className="flex gap-2.5 justify-center text-[10px] text-text-faint">
               <span>{t('fc.new')}</span>
@@ -294,16 +289,16 @@ export function Flashcards() {
             </div>
           </>
         )}
-        <div className="h-2 bg-bg-hover rounded-full overflow-hidden">
+        <div className="h-2 bg-st-track rounded-full overflow-hidden">
           <div
-            className="h-full bg-indigo-600 rounded-full transition-all duration-300 ease-out"
+            className="h-full bg-bar-green rounded-full transition-all duration-300 ease-out"
             style={{ width: `${denom ? (progressNum / denom) * 100 : 0}%` }}
           />
         </div>
         <div className="text-center text-xs text-text-faint tabular-nums">
           {progressNum} / {denom}
           {relearnExtra > 0 && <span className="ml-1 text-amber-500">{t('fc.includesRelearn', { n: relearnExtra })}</span>}
-          {isExtra && <span className="ml-1 text-indigo-500">{t('fc.extraTag')}</span>}
+          {isExtra && <span className="ml-1 text-st-blue-ink">{t('fc.extraTag')}</span>}
         </div>
       </div>
 
@@ -313,8 +308,8 @@ export function Flashcards() {
       <button
         key={card.id}
         onClick={() => { if (!flipped) setFlipped(true); }}
-        className={`flex-1 bg-bg-surface border-2 rounded-2xl p-6 sm:p-8 text-left flex flex-col justify-center min-h-[40vh] active:bg-bg-hover shadow-card transition-all duration-300 hover:shadow-lg animate-card-next ${
-          flipped ? 'border-indigo-300' : 'border-border hover:border-border-strong'
+        className={`flex-1 bg-bg-surface border-2 rounded-2xl p-6 sm:p-8 text-left flex flex-col justify-center min-h-[40vh] active:bg-bg-hover shadow-card-3d transition-all duration-300 animate-card-next ${
+          flipped ? 'border-st-blue' : 'border-border hover:border-border-strong'
         }`}
       >
         <div className="text-xs text-text-faint mb-3 flex items-center gap-2">
@@ -326,7 +321,7 @@ export function Flashcards() {
         </div>
         {flipped && (
           <>
-            <hr className="my-4 border-indigo-100 dark:border-indigo-900" />
+            <hr className="my-4 border-border" />
             <div className="text-base sm:text-lg text-green-700 dark:text-green-400 whitespace-pre-wrap leading-relaxed font-medium animate-flip-in">
               {card.back}
             </div>

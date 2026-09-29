@@ -10,7 +10,7 @@ export const es: Record<TKey, string> = {
   'app.loading': 'Cargando progreso…',
 
   // Navegación superior
-  'nav.quiz': 'Práctica',
+  'nav.home': 'Inicio',
   'nav.flashcards': 'Tarjetas',
   'nav.courses': 'Cursos',
   'nav.panorama': 'Panorama',

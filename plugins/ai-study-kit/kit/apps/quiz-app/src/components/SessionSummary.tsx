@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Home, RotateCcw, CheckCircle2 } from 'lucide-react';
 import type { Stats } from '../types';
+import { Button3D, Ring } from './ui';
+import type { RingTone } from './ui';
 import { useI18n } from '../i18n';
 
 interface Props {
@@ -57,42 +58,29 @@ export function SessionSummary({
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [targetPct]);
 
-  // 进度环 SVG：半径 52，周长 ≈ 326.7。offset 从满(=周长)过渡到 (1-accuracy)*周长。
-  // 用 displayPct 而非 targetPct 驱动，让环填充与数字滚动严格同步。
-  const R = 52;
-  const C = 2 * Math.PI * R;
-  const offset = C * (1 - displayPct / 100);
-
-  // 正确率档位文案 + 配色：给成绩一个轻反馈，不喧宾夺主。
-  const tier = accuracy >= 0.8
-    ? { text: t('summary.tierGood'), ring: 'text-green-500', num: 'text-green-600' }
+  // 进度环：conic 圆环基元（Ring），p 直接吃 displayPct——环填充与数字滚动共用同一
+  // rAF 驱动，严格同步（沿用旧 SVG 环的同步策略，仅换渲染实现）。
+  // 正确率档位文案 + 配色：状态色语义（好=绿推进 / 中=蓝次级 / 低=金当前需加强）。
+  const tier: { text: string; tone: RingTone; num: string } = accuracy >= 0.8
+    ? { text: t('summary.tierGood'), tone: 'green', num: 'text-st-green-ink' }
     : accuracy >= 0.6
-      ? { text: t('summary.tierOk'), ring: 'text-indigo-500', num: 'text-indigo-600' }
-      : { text: t('summary.tierLow'), ring: 'text-amber-500', num: 'text-amber-600' };
+      ? { text: t('summary.tierOk'), tone: 'blue', num: 'text-st-blue-ink' }
+      : { text: t('summary.tierLow'), tone: 'gold', num: 'text-st-gold-ink' };
 
   return (
     <div className="animate-scale-in flex flex-col items-center gap-6 py-6">
       <div className="flex items-center gap-2 text-text-muted">
-        <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={2} />
+        <CheckCircle2 className="h-5 w-5 text-st-green" strokeWidth={2} />
         <span className="font-medium">{t('summary.title', { title })}</span>
       </div>
 
-      {/* 进度环 + 中心数字：SVG 环填充与数字滚动同步。 */}
-      <div className="relative h-40 w-40">
-        <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120" aria-hidden>
-          <circle cx="60" cy="60" r={R} fill="none" strokeWidth="10" className="text-bg-hover stroke-current" />
-          <circle
-            cx="60" cy="60" r={R} fill="none" strokeWidth="10" strokeLinecap="round"
-            className={`${tier.ring} stroke-current`}
-            strokeDasharray={C}
-            strokeDashoffset={offset}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+      {/* 进度环 + 中心数字：Ring 填充与数字滚动同步。 */}
+      <Ring p={displayPct} tone={tier.tone} size={160} thickness={12}>
+        <div className="flex flex-col items-center">
           <span className={`text-4xl font-bold tabular-nums ${tier.num}`}>{displayPct}<span className="text-2xl">%</span></span>
           <span className="text-xs text-text-faint mt-0.5">{tier.text}</span>
         </div>
-      </div>
+      </Ring>
 
       {/* 分项统计：已答/对/错。自评题如有则单独标注，避免"已答≠对+错"引起困惑。 */}
       <div className="flex items-center gap-6 text-sm">
@@ -101,11 +89,11 @@ export function SessionSummary({
           <div className="text-xs text-text-faint">{t('summary.answered')}</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold text-green-600 tabular-nums">{correct}</div>
+          <div className="text-xl font-bold text-st-green-ink tabular-nums">{correct}</div>
           <div className="text-xs text-text-faint">{t('summary.correctCount')}</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold text-red-500 tabular-nums">{wrong}</div>
+          <div className="text-xl font-bold text-st-red-ink tabular-nums">{wrong}</div>
           <div className="text-xs text-text-faint">{t('summary.wrongCount')}</div>
         </div>
       </div>
@@ -116,18 +104,15 @@ export function SessionSummary({
       )}
       <p className="text-xs text-text-faint -mt-2">{t('summary.totalNote', { n: total })}</p>
 
-      {/* 动作按钮：返回首页（默认）+ 重做本题集（二次确认由 onReset 内部处理）。 */}
+      {/* 动作按钮：返回首页（默认，绿=推进）+ 重做本题集（次选，二次确认由 onReset 内部处理）。 */}
       <div className="flex items-center gap-3 w-full max-w-xs">
-        <Link
-          to="/"
-          className="flex-1 flex items-center justify-center gap-1.5 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors"
-        >
+        <Button3D to="/" className="flex-1">
           <Home className="h-4 w-4" strokeWidth={2} />
           {t('summary.backHome')}
-        </Link>
+        </Button3D>
         <button
           onClick={onReset}
-          className="flex-1 flex items-center justify-center gap-1.5 px-5 py-2.5 border border-border-strong rounded-xl text-text-secondary font-medium hover:bg-bg-hover transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 px-5 py-2.5 border-2 border-border-strong rounded-xl text-text-secondary font-medium hover:bg-bg-hover transition-colors"
         >
           <RotateCcw className="h-4 w-4" strokeWidth={2} />
           {t('summary.redo')}

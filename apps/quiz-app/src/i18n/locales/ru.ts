@@ -10,7 +10,7 @@ export const ru: Record<TKey, string> = {
   'app.loading': 'Загрузка прогресса…',
 
   // Верхняя панель
-  'nav.quiz': 'Тесты',
+  'nav.home': 'Главная',
   'nav.flashcards': 'Карточки',
   'nav.courses': 'Курсы',
   'nav.panorama': 'Панорама',

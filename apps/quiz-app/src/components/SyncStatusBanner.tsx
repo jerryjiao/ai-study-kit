@@ -24,7 +24,7 @@ function BannerShell({
   children?: ReactNode;
 }) {
   return (
-    <div className={`sticky top-16 z-30 text-white px-4 py-2 flex items-center gap-2 text-sm shadow-md ${className}`}>
+    <div className={`sticky top-[54px] sm:top-[60px] z-30 text-white px-4 py-2 flex items-center gap-2 text-sm shadow-md ${className}`}>
       {icon}
       <span className="flex-1 min-w-0 truncate">{text}</span>
       {children}

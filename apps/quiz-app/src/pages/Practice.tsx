@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, RotateCcw, BookOpen, PenLine, RefreshCw, SkipForward, CheckCircle2, ArrowRight } from 'lucide-react';
 import { questions } from '../data/questions';
 import type { Question } from '../types';
@@ -9,6 +9,7 @@ import { loadPosIndex, savePosId } from '../lib/posMemory';
 import { QuestionCard } from '../components/QuestionCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { SessionSummary } from '../components/SessionSummary';
+import { Button3D, Card } from '../components/ui';
 import { buildAtomicOrder, atomicLabel, topicLabel, stripSubtopicPrefix, layerOf, isPlanned, LAYER_TOPICS } from '../lib/topicOrder';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useI18n } from '../i18n';
@@ -395,7 +396,7 @@ export function Practice() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
         <p className="text-text-secondary">{emptyMsg}</p>
-        <Link to="/" className="inline-block bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors">{t('practice.backHome')}</Link>
+        <Button3D to="/" className="mt-2">{t('practice.backHome')}</Button3D>
       </div>
     );
   }
@@ -405,7 +406,7 @@ export function Practice() {
       {/* 顶部信息行：左面包屑（day/topic/subtopic/看题模式），右题号。单独一行避免与操作按钮挤。
           H5 宽度有限时面包屑 truncate 不挤压题号。 */}
       <div className="flex items-center justify-between gap-3 text-sm text-text-muted">
-        <span className="truncate min-w-0">{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topicLabel(topic)} · </span>}{subtopic && <span className="text-text-faint">{stripSubtopicPrefix(subtopic)} · </span>}{isReadMode && <span className="text-sky-500">{t('practice.readMode')}</span>}</span>
+        <span className="truncate min-w-0">{day && <span className="text-text-faint">{day} · </span>}{topic && <span className="text-text-faint">{topicLabel(topic)} · </span>}{subtopic && <span className="text-text-faint">{stripSubtopicPrefix(subtopic)} · </span>}{isReadMode && <span className="text-st-blue-ink">{t('practice.readMode')}</span>}</span>
         <span className="font-medium tabular-nums shrink-0">{Math.min(pos + 1, list.length)} / {list.length}</span>
       </div>
       {/* 层筛选 chips：全部 / 核心 / 拓展（无层概念的主题不显示）。切层即时生效。 */}
@@ -416,7 +417,7 @@ export function Practice() {
               key={l || 'all'}
               onClick={() => setLayer(l)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                layer === l ? 'bg-indigo-600 text-white' : 'bg-bg-subtle text-text-muted hover:text-text-secondary'
+                layer === l ? 'bg-st-blue text-white' : 'bg-bg-subtle text-text-muted hover:text-text-secondary'
               }`}
             >
               {l || t('practice.layerAll')}
@@ -435,7 +436,7 @@ export function Practice() {
           {mode !== 'random' && mode !== 'wrong' && answeredInList > 0 && !isReadMode && (
             <button
               onClick={resetThisSet}
-              className="inline-flex items-center gap-1 text-text-muted hover:text-red-600 transition-colors"
+              className="inline-flex items-center gap-1 text-text-muted hover:text-st-red-ink transition-colors"
               title={t('practice.redoSetTitle')}
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
@@ -448,7 +449,7 @@ export function Practice() {
           {mode !== 'random' && mode !== 'wrong' && !isReadMode && answeredInList < list.length && (
             <button
               onClick={gotoFirstUnanswered}
-              className="inline-flex items-center gap-1 text-text-muted hover:text-indigo-600 transition-colors"
+              className="inline-flex items-center gap-1 text-text-muted hover:text-st-blue-ink transition-colors"
               title={t('practice.jumpUnansweredTitle')}
             >
               <SkipForward className="h-3.5 w-3.5" strokeWidth={2} />
@@ -461,7 +462,7 @@ export function Practice() {
           {mode !== 'random' && isReadMode && readInList > 0 && (
             <button
               onClick={resetReadOfThisSet}
-              className="inline-flex items-center gap-1 text-text-muted hover:text-sky-600 transition-colors"
+              className="inline-flex items-center gap-1 text-text-muted hover:text-st-blue-ink transition-colors"
               title={t('practice.rereadSetTitle')}
             >
               <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
@@ -478,14 +479,14 @@ export function Practice() {
           <div className="inline-flex items-center bg-bg-subtle rounded-full p-1 text-sm">
             <button
               onClick={() => switchView('practice')}
-              className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-medium transition-colors ${!isReadMode ? 'bg-bg-surface text-indigo-600 shadow-sm' : 'text-text-muted hover:text-text-secondary'}`}
+              className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-medium transition-colors ${!isReadMode ? 'bg-bg-surface text-st-green-ink shadow-sm' : 'text-text-muted hover:text-text-secondary'}`}
             >
               <PenLine className="h-3.5 w-3.5" strokeWidth={2} />
               {t('practice.viewPractice')}
             </button>
             <button
               onClick={() => switchView('read')}
-              className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-medium transition-colors ${isReadMode ? 'bg-bg-surface text-sky-600 shadow-sm' : 'text-text-muted hover:text-text-secondary'}`}
+              className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-medium transition-colors ${isReadMode ? 'bg-bg-surface text-st-blue-ink shadow-sm' : 'text-text-muted hover:text-text-secondary'}`}
             >
               <BookOpen className="h-3.5 w-3.5" strokeWidth={2} />
               {t('practice.viewRead')}
@@ -499,7 +500,7 @@ export function Practice() {
           wrong 模式恒为答题态（错题集没有看题入口），故三态用 isWrongMode / isReadMode 区分。 */}
       <div className="space-y-1">
         <div className="flex justify-between text-[11px] tabular-nums">
-          <span className={isReadMode ? 'text-sky-600' : 'text-indigo-600'}>
+          <span className={isReadMode ? 'text-st-blue-ink' : 'text-st-green-ink'}>
             {isWrongMode
               ? `${t('practice.mastered', { n: masteredInList })} / ${list.length}`
               : isReadMode
@@ -545,15 +546,17 @@ export function Practice() {
       {showSummary && canFinish && (
         <div className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
              onClick={() => setShowSummary(false)} role="dialog" aria-modal="true" aria-label={t('practice.summaryAria')}>
-          <div className="w-full max-w-md bg-bg-surface rounded-2xl shadow-pop p-6 max-h-[90vh] overflow-y-auto"
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto animate-scale-in"
                onClick={(e) => e.stopPropagation()}>
+            <Card className="p-6">
             <SessionSummary
               stats={listStats}
               title={day || subtopic || topic || t('practice.labelSequential')}
               onReset={resetThisSet}
             />
             {nextAtomic ? (
-              <button
+              <Button3D
+                className="w-full mt-3"
                 onClick={() => {
                   // 跳到下一题集——「推进学习」语义，不是复习。落点规则：
                   //   · 有未答 → 落第一道未答（接着做，保留进度）
@@ -584,11 +587,10 @@ export function Practice() {
                   setShowSummary(false);
                   navigate(`/practice/all?${p.toString()}`);
                 }}
-                className="w-full mt-3 flex items-center justify-center gap-1.5 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-medium shadow-soft hover:bg-indigo-700 transition-colors"
               >
                 {t('practice.nextSet', { label: atomicLabel(nextAtomic.topic, nextAtomic.subtopic) })}
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
-              </button>
+              </Button3D>
             ) : null}
             <button
               onClick={() => setShowSummary(false)}
@@ -596,14 +598,15 @@ export function Practice() {
             >
               {nextAtomic ? t('practice.stayHere') : t('practice.keepReading')}
             </button>
+            </Card>
           </div>
         </div>
       )}
       <div className="flex justify-between gap-3">
-        <button onClick={() => gotoAndSave(pos - 1)} className="flex items-center gap-1 px-5 py-2.5 border border-border-strong rounded-xl text-text-secondary font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-bg-hover transition-colors" disabled={pos === 0}>
+        <Button3D variant="plain" onClick={() => gotoAndSave(pos - 1)} disabled={pos === 0}>
           <ChevronLeft className="h-4 w-4" strokeWidth={2} />
           {t('practice.prev')}
-        </button>
+        </Button3D>
         {/* 推进按钮（仅普通 all+答题 模式启用完成答题）：
             · 全答完(canFinish) → 任何位置恒为「完成答题」，点击直接进总结态。
               （否则答完后若位置不在末题——从首页重进/位置记忆落在中间——用户得逐题点回末题
@@ -623,7 +626,8 @@ export function Practice() {
           const finishLabel = (finishReady || isLast) ? t('practice.finish') : t('practice.next');
           const label = useFinishFlow ? finishLabel : loopLabel;
           return (
-            <button
+            <Button3D
+              variant="green"
               onClick={() => {
                 // 全答完 → 直接进总结态（无论当前位置是否末题）
                 if (finishReady) { setShowSummary(true); return; }
@@ -635,7 +639,6 @@ export function Practice() {
                 else if (mode !== 'random') gotoAndSave(0);
               }}
               disabled={mode === 'random' && isLast}
-              className="flex items-center gap-1 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:bg-indigo-700 transition-colors shadow-soft"
             >
               {label}
               {useFinishFlow && (finishReady || isLast)
@@ -643,7 +646,7 @@ export function Practice() {
                 : isLast
                   ? <RefreshCw className="h-4 w-4" strokeWidth={2} />
                   : <ChevronRight className="h-4 w-4" strokeWidth={2} />}
-            </button>
+            </Button3D>
           );
         })()}
       </div>

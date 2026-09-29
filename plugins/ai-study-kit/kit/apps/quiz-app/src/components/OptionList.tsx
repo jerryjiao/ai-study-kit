@@ -26,17 +26,18 @@ export function OptionList({ options, type, selected, revealed, answer, onToggle
         let badge = 'bg-bg-subtle text-text-secondary';
         if (revealed) {
           if (isCorrect) {
-            cls = 'border-green-500 bg-green-50 dark:bg-green-950/40';
-            badge = 'bg-green-600 text-white';
+            cls = 'border-st-green bg-st-green-soft';
+            badge = 'bg-st-green text-white';
           } else if (isSel) {
-            cls = 'border-red-500 bg-red-50 dark:bg-red-950/40';
-            badge = 'bg-red-600 text-white';
+            cls = 'border-st-red bg-st-red-soft';
+            badge = 'bg-st-red text-white';
           } else {
             cls = 'border-border bg-bg-surface opacity-60';
           }
         } else if (isSel) {
-          cls = 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 ring-1 ring-indigo-200';
-          badge = 'bg-indigo-600 text-white';
+          // 选中态 = 蓝（次级/交互，原型 .opt.sel）；判分后的正误走绿/红状态色
+          cls = 'border-st-blue bg-st-blue-soft';
+          badge = 'bg-st-blue text-white';
         }
         return (
           <label
@@ -52,7 +53,7 @@ export function OptionList({ options, type, selected, revealed, answer, onToggle
             </span>
             <span className="text-text-primary flex-1 leading-snug">{text}</span>
             {revealed && isCorrect && (
-              <span className="text-green-600 shrink-0" aria-label={t('opt.correctAnswer')}>
+              <span className="text-st-green-ink shrink-0" aria-label={t('opt.correctAnswer')}>
                 <Check className="h-5 w-5" strokeWidth={2.5} />
               </span>
             )}

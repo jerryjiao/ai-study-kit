@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { X, Minus, Plus } from 'lucide-react';
 import { useProgress } from '../hooks/useProgress';
 import { useI18n } from '../i18n';
+import { Switch } from './ui/Switch';
 
-/** 开关行：label/desc 左，toggle 右。aria role=switch，键盘可操作（button 天然支持）。 */
+/** 开关行：label/desc 左，Switch 基元右（role=switch，键盘可操作——button 天然支持）。 */
 function ToggleRow({
   label, desc, on, onChange,
 }: { label: string; desc: string; on: boolean; onChange: (v: boolean) => void }) {
@@ -13,17 +14,7 @@ function ToggleRow({
         <div className="text-sm font-medium text-text-primary">{label}</div>
         <div className="text-xs text-text-muted mt-0.5">{desc}</div>
       </div>
-      <button
-        role="switch"
-        aria-checked={on}
-        aria-label={label}
-        onClick={() => onChange(!on)}
-        className={`shrink-0 w-10 h-6 rounded-full transition-colors ${on ? 'bg-indigo-600' : 'bg-bg-hover border border-border'}`}
-      >
-        <span
-          className={`block h-5 w-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-[18px]' : 'translate-x-0.5'}`}
-        />
-      </button>
+      <Switch on={on} onChange={onChange} label={label} />
     </div>
   );
 }
@@ -109,7 +100,7 @@ export function SettingsSheet({ onClose }: { onClose: () => void }) {
                 onBlur={commitQuota}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.currentTarget.blur(); } }}
                 inputMode="numeric"
-                className="w-14 text-center text-sm tabular-nums rounded-lg border border-border bg-bg-subtle px-1.5 py-1.5 text-text-primary focus:outline-none focus:border-indigo-400"
+                className="w-14 text-center text-sm tabular-nums rounded-lg border border-border bg-bg-subtle px-1.5 py-1.5 text-text-primary focus:outline-none focus:border-st-blue"
                 aria-label={t('settings.quotaLabel')}
               />
               <button

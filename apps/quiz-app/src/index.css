@@ -2,35 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── 语义色变量：tailwind.config.js 的 bg-surface / text-primary 等指向这里。
+/* ── 设计令牌单源（v0.25 票①，spec #110）───────────────────────────────
+ *    全站唯一颜色权威：中性面 + 状态色（绿=完成/推进/主行动、金=当前关卡、
+ *    红=错题/薄弱、蓝=次级/选中）。色号以视觉原型 proto.css 为准（十六进制见注释）。
  *    值用空格分隔的 R G B 三数（配合 rgb(var(…) / <alpha-value>) 语法，支持 opacity 修饰器）。
- *    切夜间 = html.classList.toggle('dark')，变量自动切换。 */
+ *    tailwind.config.js 的 bg-* / text-* / st-* 工具类全部指向这里——改色只改本文件。
+ *    切夜间 = html.classList.toggle('dark')，变量自动切换（暗色每枚令牌都有对应值）。
+ *
+ *    命名约定：
+ *    - --color-*   中性语义面（底/卡/字/线），沿用 v0.24 架构；
+ *    - --st-*      状态色族：DEFAULT 主色 / -dark 3D 边（按压阴影）/
+ *                  -soft 浅底 / -ink 浅底上的可读文字色（暗色下提亮，保证对比度）/
+ *                  -low 低进度浅绿（不惩罚）/ -border 徽章描边；
+ *    - --st-track  进度条/开关的轨道色；--st-stripe 条纹进度条的第二段绿。 */
 :root {
-  --color-bg-app: 248 250 252;      /* slate-50  */
-  --color-bg-surface: 255 255 255;  /* white     */
-  --color-bg-subtle: 248 250 252;   /* slate-50  */
-  --color-bg-hover: 241 245 249;    /* slate-100 */
-  --color-text-primary: 15 23 42;   /* slate-900 */
-  --color-text-secondary: 71 85 105;/* slate-600 */
-  --color-text-muted: 100 116 139;  /* slate-500 */
-  --color-text-faint: 148 163 184;  /* slate-400 */
-  --color-text-accent: 79 70 229;   /* indigo-600 */
-  --color-border: 226 232 240;      /* slate-200 */
-  --color-border-strong: 203 213 225;/* slate-300 */
+  /* 中性面（原型：bg #F2F7FC / card #FFFFFF / ink #2B3A55 / ink-soft #6B7B99 / line #E2E8F2 / track #E9EFF7） */
+  --color-bg-app: 242 247 252;        /* #F2F7FC */
+  --color-bg-surface: 255 255 255;    /* #FFFFFF */
+  --color-bg-subtle: 233 239 247;     /* #E9EFF7 */
+  --color-bg-hover: 226 232 242;      /* #E2E8F2 */
+  --color-text-primary: 43 58 85;     /* #2B3A55 */
+  --color-text-secondary: 107 123 153;/* #6B7B99 */
+  --color-text-muted: 126 141 168;    /* #7E8DA8 */
+  --color-text-faint: 151 163 188;    /* #97A3BC */
+  /* 主行动强调（原靛蓝已退役）：绿系推进色 */
+  --color-text-accent: 70 163 2;      /* #46A302 */
+  --color-border: 226 232 242;        /* #E2E8F2 */
+  --color-border-strong: 203 213 227; /* #CBD5E3 */
+
+  /* 状态色（原型 proto.css 原版色号） */
+  --st-green: 88 204 2;               /* #58CC02 完成/推进/主行动 */
+  --st-green-dark: 70 163 2;          /* #46A302 3D 边 */
+  --st-green-soft: 232 246 220;       /* #E8F6DC */
+  --st-green-ink: 70 163 2;           /* #46A302 浅底上的文字 */
+  --st-green-low: 134 217 44;         /* #86D92C 低进度浅绿（不惩罚） */
+  --st-green-low-dark: 95 163 21;     /* #5FA315 */
+  --st-blue: 28 176 246;              /* #1CB0F6 次级/选中/看题 */
+  --st-blue-dark: 24 153 214;         /* #1899D6 */
+  --st-blue-soft: 225 244 253;        /* #E1F4FD */
+  --st-blue-ink: 24 153 214;          /* #1899D6 */
+  --st-gold: 255 200 0;               /* #FFC800 当前关卡/在学 */
+  --st-gold-dark: 201 143 0;          /* #C98F00 */
+  --st-gold-border: 229 166 0;        /* #E5A600 金色 3D 边/徽章描边 */
+  --st-gold-soft: 255 244 214;        /* #FFF4D6 */
+  --st-gold-ink: 201 143 0;           /* #C98F00 */
+  --st-red: 255 75 75;                /* #FF4B4B 错题/薄弱 */
+  --st-red-dark: 225 63 63;           /* #E13F3F */
+  --st-red-soft: 255 229 229;         /* #FFE5E5 */
+  --st-red-border: 245 179 179;       /* #F5B3B3 */
+  --st-red-ink: 225 63 63;            /* #E13F3F */
+  --st-stripe: 111 213 34;            /* #6FD522 条纹进度条第二段绿 */
+  --st-track: 233 239 247;            /* #E9EFF7 */
   color-scheme: light;
 }
 .dark {
-  --color-bg-app: 15 23 42;         /* slate-900  */
-  --color-bg-surface: 30 41 59;     /* slate-800  */
-  --color-bg-subtle: 30 41 59;      /* slate-800  */
-  --color-bg-hover: 51 65 85;       /* slate-700  */
-  --color-text-primary: 241 245 249;/* slate-100  */
-  --color-text-secondary: 203 213 225;/* slate-300 */
-  --color-text-muted: 148 163 184;  /* slate-400  */
-  --color-text-faint: 100 116 139;  /* slate-500  */
-  --color-text-accent: 129 140 248; /* indigo-400 */
-  --color-border: 51 65 85;         /* slate-700  */
-  --color-border-strong: 71 85 105; /* slate-600  */
+  /* 中性面：墨蓝系暗色（与状态色同族，避免 slate 灰偏） */
+  --color-bg-app: 23 33 52;           /* #172134 */
+  --color-bg-surface: 33 46 70;       /* #212E46 */
+  --color-bg-subtle: 27 39 61;        /* #1B273D */
+  --color-bg-hover: 43 58 85;         /* #2B3A55 */
+  --color-text-primary: 232 238 248;  /* #E8EEF8 */
+  --color-text-secondary: 185 198 220;/* #B9C6DC */
+  --color-text-muted: 147 163 191;    /* #93A3BF */
+  --color-text-faint: 110 127 156;    /* #6E7F9C */
+  --color-text-accent: 137 224 56;    /* #89E038 */
+  --color-border: 51 66 95;           /* #33425F */
+  --color-border-strong: 70 88 122;   /* #46587A */
+
+  /* 状态色暗色对应值：主色/3D 边保持品牌色号（暗底上依然成立）；
+     soft 变为深色井（同色相暗底）；ink 提亮保证暗底可读 */
+  --st-green: 88 204 2;
+  --st-green-dark: 70 163 2;
+  --st-green-soft: 26 43 16;          /* #1A2B10 */
+  --st-green-ink: 137 224 56;         /* #89E038 */
+  --st-green-low: 134 217 44;
+  --st-green-low-dark: 95 163 21;
+  --st-blue: 28 176 246;
+  --st-blue-dark: 24 153 214;
+  --st-blue-soft: 14 40 60;           /* #0E283C */
+  --st-blue-ink: 94 200 247;          /* #5EC8F7 */
+  --st-gold: 255 200 0;
+  --st-gold-dark: 201 143 0;
+  --st-gold-border: 229 166 0;
+  --st-gold-soft: 47 38 12;           /* #2F260C */
+  --st-gold-ink: 255 213 79;          /* #FFD54F */
+  --st-red: 255 75 75;
+  --st-red-dark: 225 63 63;
+  --st-red-soft: 55 26 26;            /* #371A1A */
+  --st-red-border: 138 58 58;         /* #8A3A3A */
+  --st-red-ink: 255 123 123;          /* #FF7B7B */
+  --st-stripe: 111 213 34;
+  --st-track: 39 52 76;               /* #27344C */
   color-scheme: dark;
 }
 
@@ -45,9 +107,10 @@
     background-color: rgb(var(--color-bg-app));
     color: rgb(var(--color-text-primary));
   }
-  /* 全局可见焦点环：键盘可达性（WCAG focus-states），仅键盘聚焦时显示，不影响鼠标体验 */
+  /* 全局可见焦点环：键盘可达性（WCAG focus-states），仅键盘聚焦时显示，不影响鼠标体验。
+     焦点环走状态蓝（次级/交互），不占用绿/红/金的状态语义 */
   *:focus-visible {
-    outline: 2px solid theme('colors.indigo.500');
+    outline: 2px solid rgb(var(--st-blue));
     outline-offset: 2px;
     border-radius: 2px;
   }
@@ -61,5 +124,15 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  /* 3D 按压按钮的按压态（原型 .btn3d:active）：下沉 4px + 阴影收成 1px。
+     !important 是有意的——按压态必须压过 shadow-btn-* 工具类（同为 box-shadow，
+     文档顺序不可控），且 :not(:disabled) 保证禁用态不下沉。 */
+  .btn3d:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 0.25) !important;
   }
 }

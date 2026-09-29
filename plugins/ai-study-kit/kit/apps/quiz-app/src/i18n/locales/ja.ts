@@ -10,7 +10,7 @@ export const ja: Record<TKey, string> = {
   'app.loading': '進捗を読み込み中…',
 
   // トップナビ
-  'nav.quiz': 'クイズ',
+  'nav.home': 'ホーム',
   'nav.flashcards': 'フラッシュカード',
   'nav.courses': 'コース',
   'nav.panorama': 'パノラマ',

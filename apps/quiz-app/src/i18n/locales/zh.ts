@@ -13,7 +13,7 @@ export const zh = {
   'app.loading': '加载进度中…',
 
   // 顶栏
-  'nav.quiz': '答题',
+  'nav.home': '首页',
   'nav.flashcards': '闪卡',
   'nav.courses': '课程',
   'nav.panorama': '全景',

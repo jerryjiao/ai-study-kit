@@ -191,17 +191,17 @@ export function Home() {
         </p>
       </header>
 
-      {/* 统计仪表 */}
+      {/* 统计仪表（状态色语义：已答=绿推进 / 正确率=蓝次级 / 错题=红 / 已看=金） */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatBadge label={t('home.statAnswered')} value={`${pct(stats.answered)}%`} color="indigo" icon={ListChecks} />
+        <StatBadge label={t('home.statAnswered')} value={`${pct(stats.answered)}%`} color="green" icon={ListChecks} />
         <StatBadge
           label={t('home.statAccuracy')}
           value={stats.answered ? `${Math.round(stats.accuracy * 100)}%` : '—'}
-          color="green"
+          color="blue"
           icon={ListChecks}
         />
         <StatBadge label={t('home.statWrong')} value={wrongCount} color="red" icon={ListChecks} />
-        <StatBadge label={t('home.statRead')} value={`${pct(readNum)}%`} color="sky" icon={BookOpen} />
+        <StatBadge label={t('home.statRead')} value={`${pct(readNum)}%`} color="gold" icon={BookOpen} />
       </div>
 
       {/* 学习计划面板（#92）：有 plan.json 的主题第一眼可见（统计仪表正下方）；
@@ -470,10 +470,10 @@ function AnsweredDetailPanel({
                       to={to}
                       className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs border transition-colors ${
                         done
-                          ? 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100'
+                          ? 'bg-st-green-soft border-st-green/40 text-st-green-ink hover:bg-st-green-soft/70'
                           : r.answered === 0
-                          ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100'
-                          : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100'
+                          ? 'bg-st-red-soft border-st-red-border text-st-red-ink hover:bg-st-red-soft/70'
+                          : 'bg-st-gold-soft border-st-gold-border text-st-gold-ink hover:bg-st-gold-soft/70'
                       }`}
                     >
                       <span>{r.isOther ? t('home.other') : r.name}</span>
@@ -560,15 +560,15 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
         {deadlineLine && <span className="text-xs text-text-muted tabular-nums shrink-0">{deadlineLine}</span>}
       </header>
       <div className="px-4 py-3 space-y-2.5">
-        {/* 进度条（覆盖主数字在面板头「完成 X/Y」） */}
+        {/* 进度条（覆盖主数字在面板头「完成 X/Y」）；条纹绿=推进（原型 .bigbar） */}
         <div
-          className="h-2 rounded-full bg-bg-subtle overflow-hidden"
+          className="h-2 rounded-full bg-st-track overflow-hidden"
           role="progressbar"
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
         >
-          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pct}%` }} />
+          <div className="h-full bg-bar-green rounded-full" style={{ width: `${pct}%` }} />
         </div>
         {/* 节奏三行：日历对照 / 速率外推 / 断档 */}
         <div className="space-y-1 text-xs tabular-nums">
@@ -594,7 +594,7 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
                       <span className="text-[10px] opacity-60 tabular-nums shrink-0">{unit.plannedDate}</span>
                     )}
                     {unit.status === 'in-progress' && (
-                      <span className="shrink-0 px-1 rounded text-[10px] font-medium bg-indigo-100 text-indigo-700">
+                      <span className="shrink-0 px-1 rounded text-[10px] font-medium bg-st-gold-soft text-st-gold-ink">
                         {t('home.planStatusInProgress')}
                       </span>
                     )}
@@ -605,9 +605,9 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
                     )}
                   </>
                 );
-                const cls = `inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs border transition-colors ${
+                const cls = `inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs border-2 transition-colors ${
                   unit.status === 'in-progress'
-                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
+                    ? 'bg-st-gold-soft border-st-gold-border text-st-gold-ink hover:bg-st-gold-soft/70'
                     : unit.status === 'paused'
                     ? 'bg-bg-subtle border-border text-text-faint'
                     : 'bg-bg-subtle border-border text-text-secondary hover:bg-bg-hover'

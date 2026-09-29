@@ -12,15 +12,16 @@ interface Props {
 export function RatingButtons({ previews, onGrade }: Props) {
   const { t } = useI18n();
   const buttons: { grade: SrsGrade; label: string; key: string; cls: string }[] = [
-    { grade: 'again', label: t('srs.again'), key: '1', cls: 'bg-red-50 text-red-700 border-red-200 active:bg-red-100' },
-    { grade: 'hard', label: t('srs.hard'), key: '2', cls: 'bg-orange-50 text-orange-700 border-orange-200 active:bg-orange-100' },
+    // 四键配色语义（spec 拍板）：重来=红 / 困难=金 / 良好=绿（主推进）/ 简单=蓝——状态色令牌
+    { grade: 'again', label: t('srs.again'), key: '1', cls: 'bg-st-red-soft text-st-red-ink border-st-red-border active:bg-st-red-soft/70' },
+    { grade: 'hard', label: t('srs.hard'), key: '2', cls: 'bg-st-gold-soft text-st-gold-ink border-st-gold-border active:bg-st-gold-soft/70' },
     {
       grade: 'good',
       label: t('srs.good'),
       key: '3',
-      cls: 'bg-green-600 text-white border-green-600 active:bg-green-700 ring-2 ring-green-300 ring-offset-1',
+      cls: 'bg-st-green text-white border-st-green-dark active:bg-st-green-dark ring-2 ring-st-green/40 ring-offset-1',
     },
-    { grade: 'easy', label: t('srs.easy'), key: '4', cls: 'bg-blue-50 text-blue-700 border-blue-200 active:bg-blue-100' },
+    { grade: 'easy', label: t('srs.easy'), key: '4', cls: 'bg-st-blue-soft text-st-blue-ink border-st-blue/30 active:bg-st-blue-soft/70' },
   ];
   return (
     <div className="grid grid-cols-4 gap-2" role="group" aria-label={t('srs.aria')}>

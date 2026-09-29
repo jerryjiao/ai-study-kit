@@ -7,6 +7,7 @@ import { isDue, isLearningDueAhead, isLearningPhase, formatInterval } from '../l
 import { newCardsToday, isCardDeleted } from '../lib/progress';
 import { lsGet, lsSet } from './Flashcards';
 import { CountBadge } from '../components/CountBadge';
+import { Button3D } from '../components/ui';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useI18n } from '../i18n';
 
@@ -107,7 +108,7 @@ export function FlashcardsHome() {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-7">
       <header className="text-center">
         <h1 className="flex items-center justify-center gap-2 text-3xl font-bold text-text-primary tracking-tight">
-          <Layers className="h-7 w-7 text-indigo-600" strokeWidth={2} />
+          <Layers className="h-7 w-7 text-st-green" strokeWidth={2} />
           {t('fch.title')}
         </h1>
         <p className="text-text-muted text-sm mt-2">{t('fch.tagline', { n: flashcards.length })}</p>
@@ -139,12 +140,12 @@ export function FlashcardsHome() {
         {totalToday > 0 ? (
           <Link
             to="/flashcards/review"
-            className="group flex items-center justify-between text-white rounded-2xl px-5 py-4 font-medium text-lg transition-colors bg-indigo-600 shadow-card hover:bg-indigo-700"
+            className="btn3d group flex items-center justify-between text-white rounded-2xl px-5 py-4 font-medium text-lg transition-transform bg-st-green shadow-btn-green"
           >
             <span className="flex items-center gap-3">
               <Layers className="h-5 w-5 opacity-90" strokeWidth={2} />
               {t('fch.start')}
-              <span className="text-indigo-100 text-sm">{t('fch.count', { n: totalToday })}</span>
+              <span className="text-white/80 text-sm">{t('fch.count', { n: totalToday })}</span>
             </span>
             <ChevronRight className="h-5 w-5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
           </Link>
@@ -157,7 +158,7 @@ export function FlashcardsHome() {
         {/* 额外练习：任何时候都能再过一遍全部卡（违背 SRS 排程，但满足"还想看"） */}
         <Link
           to="/flashcards/review?extra=1"
-          className="group flex items-center justify-between text-text-secondary hover:text-indigo-700 border border-border hover:border-indigo-300 rounded-2xl px-5 py-3.5 font-medium transition-colors"
+          className="group flex items-center justify-between text-text-secondary hover:text-st-blue-ink border-2 border-border hover:border-st-blue/50 rounded-2xl px-5 py-3.5 font-medium transition-colors"
         >
           <span className="flex items-center gap-3">
             <RefreshCw className="h-5 w-5 opacity-70" strokeWidth={2} />
@@ -178,18 +179,15 @@ export function FlashcardsHome() {
             max={50}
             value={newPerDayInput}
             onChange={(e) => setNewPerDayInput(e.target.value)}
-            className="w-full px-3 py-2.5 border border-border-strong rounded-lg text-center text-lg font-medium focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-colors"
+            className="w-full px-3 py-2.5 border-2 border-border-strong rounded-lg text-center text-lg font-medium focus:outline-none focus:border-st-blue transition-colors"
           />
           <div className="flex gap-2">
-            <button
-              onClick={saveNewPerDay}
-              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-            >
+            <Button3D onClick={saveNewPerDay} className="flex-1">
               {t('fch.save')}
-            </button>
+            </Button3D>
             <button
               onClick={() => setShowSettings(false)}
-              className="flex-1 border border-border-strong text-text-secondary py-2.5 rounded-lg font-medium hover:bg-bg-hover transition-colors"
+              className="flex-1 border-2 border-border-strong text-text-secondary py-2.5 rounded-xl font-medium hover:bg-bg-hover transition-colors"
             >
               {t('fch.cancel')}
             </button>
@@ -199,7 +197,7 @@ export function FlashcardsHome() {
         <div className="text-center">
           <button
             onClick={() => setShowSettings(true)}
-            className="inline-flex items-center gap-1.5 text-sm text-text-faint hover:text-indigo-600 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-text-faint hover:text-st-green-ink transition-colors"
           >
             <Settings className="h-4 w-4" strokeWidth={2} />
             {t('fch.newPerDay')}：<span className="font-medium text-text-secondary tabular-nums">{appliedNewPerDay}</span>

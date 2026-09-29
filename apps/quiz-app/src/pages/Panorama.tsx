@@ -50,11 +50,11 @@ const STATUS_LEGEND: { status: MasteryStatus; key: 'panorama.dotMastered' | 'pan
   { status: 'untouched', key: 'panorama.dotUntouched' },
 ];
 
-/** day 卡计划 chip：单元状态 → 词典 key + 配色（在学 indigo / 完成绿 / 搁置灰边与首页
+/** day 卡计划 chip：单元状态 → 词典 key + 配色（在学金 / 完成绿 / 搁置灰边与首页
  *  剩余清单 chip 同语言，计划中为全景新增面 → 中性灰）。 */
 const PLAN_CHIP: Record<PlanUnitStatus, { labelKey: TKey; cls: string }> = {
   planned: { labelKey: 'panorama.planStatusPlanned', cls: 'bg-bg-subtle text-text-muted border border-border' },
-  'in-progress': { labelKey: 'panorama.planStatusInProgress', cls: 'bg-indigo-100 text-indigo-700' },
+  'in-progress': { labelKey: 'panorama.planStatusInProgress', cls: 'bg-st-gold-soft text-st-gold-ink' },
   done: { labelKey: 'panorama.planStatusDone', cls: 'bg-green-100 text-green-700' },
   paused: { labelKey: 'panorama.planStatusPaused', cls: 'bg-bg-subtle text-text-faint border border-border' },
 };
@@ -135,10 +135,10 @@ export function Panorama() {
               key={value}
               onClick={() => setFilter(value)}
               aria-pressed={filter === value}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-sm font-bold border-2 transition-colors ${
                 filter === value
-                  ? 'bg-indigo-600 text-white shadow-soft'
-                  : 'bg-bg-surface border border-border text-text-muted hover:text-text-accent hover:bg-bg-hover'
+                  ? 'bg-st-green-soft text-st-green-ink border-st-green'
+                  : 'bg-bg-surface border-border text-text-muted hover:text-text-secondary hover:bg-bg-hover'
               }`}
             >
               {label}
@@ -309,7 +309,7 @@ function PanoramaGroups({ groups, edges, unitsByDay }: {
                     className={`shrink-0 h-2.5 w-2.5 rounded-full ring-2 ring-bg ${STATUS_DOT_CLS[p.status]}`}
                   />
                   {sig(p.taught, t('panorama.taught'), 'bg-sky-50 text-sky-700')}
-                  {sig(p.practiced, t('panorama.practiced'), 'bg-indigo-50 text-indigo-700')}
+                  {sig(p.practiced, t('panorama.practiced'), 'bg-st-blue-soft text-st-blue-ink')}
                   {sig(p.mastered, t('panorama.mastered'), 'bg-green-50 text-green-700')}
                   <span className="font-medium text-text-secondary truncate min-w-0">
                     {p.ep} {p.name}

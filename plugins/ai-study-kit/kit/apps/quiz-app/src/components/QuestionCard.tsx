@@ -5,6 +5,7 @@ import { gradeQuestion } from '../lib/grade';
 import { topicLabel, SOURCE_LABELS, layerOf } from '../lib/topicOrder';
 import { OptionList } from './OptionList';
 import { useConfirm } from './ConfirmDialog';
+import { Button3D, Card, Pips } from './ui';
 import { useI18n } from '../i18n';
 import themeMeta from '../data/theme.json';
 
@@ -55,17 +56,17 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
   };
 
   return (
-    <div className="bg-bg-surface rounded-2xl shadow-card border border-border p-5 sm:p-7 animate-fade-in">
+    <Card className="p-5 sm:p-7 animate-fade-in">
       <div className="flex items-center gap-2 mb-4 text-xs text-text-muted flex-wrap">
         <span className={`px-2 py-0.5 rounded-md font-medium ${
-          multi ? 'bg-violet-100 text-violet-700 ring-1 ring-violet-300' : 'bg-bg-subtle text-text-muted'
+          multi ? 'bg-st-blue-soft text-st-blue-ink' : 'bg-bg-subtle text-text-muted'
         }`}>
           {multi ? t('q.multi') : q.type === 'judge' ? t('q.judge') : t('q.single')}
         </span>
         <span className="bg-bg-subtle px-2 py-0.5 rounded-md font-medium text-text-secondary">{SOURCE_LABELS[q.source] ?? q.source}</span>
         {layerOf(q.source) && (
           <span className={`px-2 py-0.5 rounded-md font-medium ${
-            layerOf(q.source) === '核心' ? 'bg-indigo-50 text-indigo-600' : 'bg-bg-subtle text-text-faint'
+            layerOf(q.source) === '核心' ? 'bg-st-gold-soft text-st-gold-ink' : 'bg-bg-subtle text-text-faint'
           }`}>{layerOf(q.source)}</span>
         )}
         {q.topic && <span className="text-text-faint">· {topicLabel(q.topic)}</span>}
@@ -89,18 +90,19 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
         answer={q.answer} onToggle={toggle} disabled={revealed} />
 
       {!revealed ? (
-        <button
+        <Button3D
+          variant="green"
           onClick={handleSubmit}
           disabled={selected.length === 0}
-          className="mt-5 bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-soft"
+          className="mt-5"
         >
           {selfEval ? t('q.submitSelfEval') : t('q.submit')}
-        </button>
+        </Button3D>
       ) : (
         <div className="mt-5 space-y-2.5 animate-fade-in">
           {!selfEval && correct !== null && !readOnly && (
             <p
-              className={`flex items-center gap-1.5 font-semibold ${correct ? 'text-green-600' : 'text-red-600'}`}
+              className={`flex items-center gap-1.5 font-semibold ${correct ? 'text-st-green-ink' : 'text-st-red-ink'}`}
             >
               {correct ? (
                 <Check className="h-5 w-5" strokeWidth={2.5} />
@@ -111,7 +113,7 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
               {/* 累计错次提示：本次答错时展示"累计错 N"（含本次）；本次答对但历史错过展示"历史错 N"。
                   wrongCount 由 submitAnswer 维护，只增不减，用于识别"反复出错的难题"。 */}
               {wrongCount && wrongCount > 0 && (
-                <span className={`ml-1 text-xs font-medium px-1.5 py-0.5 rounded-md ${correct ? 'bg-amber-50 text-amber-600' : 'bg-red-50'}`}>
+                <span className={`ml-1 text-xs font-medium px-1.5 py-0.5 rounded-md ${correct ? 'bg-amber-50 text-amber-600' : 'bg-st-red-soft'}`}>
                   {correct
                     ? t('q.wrongCountHistory', { n: wrongCount })
                     : t('q.wrongCountTotal', { n: wrongCount })}
@@ -124,20 +126,22 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
               - streak >= streakNeeded：理论上 wrongIds 已自动过滤，但留个手动按钮兜底
               onDismiss 未传入（非错题练习模式）时不展示，避免误用。 */}
           {!selfEval && correct === true && !readOnly && streak !== undefined && streakNeeded !== undefined && onDismiss && (
-            <div className="flex items-center justify-between gap-3 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-2.5">
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-st-green-soft border-2 border-st-green/40 px-4 py-2.5">
               {streak < streakNeeded ? (
-                <span className="text-sm text-emerald-700">
+                <span className="flex items-center gap-2 text-sm text-st-green-ink">
+                  {/* 涂卡格：连对进度可视化（spec 审阅轮定案——涂卡格改绿，推进语义） */}
+                  <Pips total={streakNeeded} on={streak} />
                   {t('q.streakProgress', { streak, needed: streakNeeded, left: streakNeeded - streak })}
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5 text-sm text-emerald-700 font-medium">
+                <span className="flex items-center gap-1.5 text-sm text-st-green-ink font-medium">
                   <Check className="h-4 w-4" strokeWidth={2.5} />
                   {t('q.mastered')}
                 </span>
               )}
               <button
                 onClick={async () => { if (await confirm(t('q.confirmDismiss'))) onDismiss(); }}
-                className="inline-flex items-center gap-1 text-sm text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100 px-2.5 py-1 rounded-lg font-medium transition-colors"
+                className="inline-flex items-center gap-1 text-sm text-st-green-ink hover:bg-st-green/20 px-2.5 py-1 rounded-lg font-medium transition-colors"
                 title={t('q.dismissTitle')}
               >
                 <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
@@ -161,6 +165,6 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
           )}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
