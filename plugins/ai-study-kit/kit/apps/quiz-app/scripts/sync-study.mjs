@@ -52,7 +52,7 @@ function copyTree(src, dest, rel = '') {
 
 // 课程源目录 → public/study/<name>/：仓库内 examples/<theme>/，或外部主题包路径
 // （EXAMPLE_THEME 含路径分隔符即外部形态，见 lib/theme-path.mjs；name 取 basename，URL 不变）。
-// 主题解析走 detectStickyTheme（EXAMPLE_THEME > theme.json 粘滞 > dev-intro）——与 sync-examples
+// 主题解析走 detectStickyTheme（EXAMPLE_THEME > .theme-state.json/theme.json 粘滞 > dev-intro）——与 sync-examples
 // 同一口径：裸跑不读粘滞主题会把 dev-intro 课程站静默同步到别的主题的数据层上（审计 bug #52）。
 const THEME_RAW = detectStickyTheme(join(__dirname, '..', 'src', 'data'), repoRoot);
 const COURSES = [resolveThemeDir(THEME_RAW, repoRoot)];

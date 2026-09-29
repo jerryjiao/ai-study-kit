@@ -141,6 +141,7 @@ PORT=80 pnpm exec pm2 start ecosystem.config.cjs
 - **⭐ 任何发布内容禁止出现真实品牌/企业名**（课程 HTML、闪卡、公开 md 等所有同步到 `apps/quiz-app/public/study/` 的文件）。这是开源协议 MIT 之外的<strong>额外中性化要求</strong>——避免把任何具体企业的商标/品牌带入开源工具。校验用 `pnpm run scan`，命中数必须为 0 才能发布。
   - 必须中性化的词列表见 `scripts/brand-scan.py` 的 `BRAND_PATTERNS` 常量（持续补充）。常见类别：车企、互联网大厂、能源/电信央企、EV 新势力。技术专名（如 Spring Cloud Alibaba 等开源技术栈）作为技术术语保留，扫描时人工确认即可。
   - **校验**：`python3 scripts/brand-scan.py` 扫所有 .html/.md/.json/.ts/.tsx/.py/.mjs，命中即 exit 1。
+- **⭐ 同机多份 checkout 必消歧；部署实例版本只认 `/api/health` 自报（v0.24.0 起）**：常见位置扫描命中**多份** ai-study-kit checkout 时（仓库本体/部署副本/开发副本在外观上都是普通 checkout，无可靠自动判据），必须列出全部候选——每份报路径、`package.json` 版本、git HEAD 与落后程度、工作树干净与否——**问用户要操作哪份**；绝不静默挑一个，也不基于任何一份启动写操作或 workflow（skill 层协议细节见 [`skills/references/state.md`](./skills/references/state.md) §0，术语见 [`CONTEXT.md`](./CONTEXT.md)「多副本消歧」）。判断任何部署实例（答题站）跑的版本，一律 `curl` 该实例 `/api/health` 读 `version`——它与「最新发布」探测分工不互替（实例信号答「这个站跑什么版」，本体信号答「最新发到什么版」）；**禁止比 JS bundle 哈希**：gitignored 的 `src/data/theme.json` 曾带构建机绝对路径进 bundle，同 commit 跨机器构建哈希必不同，比哈希必把同源误判成旧版。
 - **Git 历史敏感**：本仓库的 git 历史不含任何个人信息（commit author 用 noreply 邮箱）。如果未来 fork 或接收 PR，注意不要合并含敏感信息的提交。
 
 ## ⭐ 四对齐原则（改任何产物必跑校验）

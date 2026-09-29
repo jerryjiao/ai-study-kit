@@ -13,6 +13,8 @@ apps/quiz-app/vite.config.d.ts
 .env.local
 progress.json
 online_progress*.json
+# 外部主题包粘滞指针（sync-examples 产，含本机绝对路径，#109——不入库也不进公开 bundle）
+apps/quiz-app/.theme-state.json
 
 # Logs
 *.log

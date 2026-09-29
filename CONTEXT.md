@@ -116,3 +116,11 @@ _Avoid_: 与考点覆盖快照混称（同名不同物）、拿答题完成率�
 计划执行快慢的两个并列输出：**日历对照**（calendar-diff——按 `plannedDate` 今天该到哪 vs 实际到哪，落后/领先 ±N 天）与**速率外推**（projection——近 14 天完成速率 → 预计完成日 vs `deadline` → 富余/缺口天数；数据不足诚实降级不硬算）。两者并列不互替：对照看排得合不合理，外推看照这个速度来不来得及。
 _Avoid_: 单一进度百分比抹平日期维度（那是覆盖）、数据不足时硬给外推数字（要降级话术不要乱数）
 
+**实例版本自报（instance version self-report）**:
+部署实例（在跑的答题站，本地联调与云上 pm2 同规）经 `/api/health` 自报的 `version` + `theme`（v0.24.0 起；此前只回 `{ok:true}`）。判断任何实例跑的版本**唯一正道**就是 curl 它——禁止比 JS bundle 哈希（gitignored theme.json 曾带构建机绝对路径进 bundle，同 commit 跨机器哈希必不同，误判前科）。与另两处版本信号一句话厘清：kit-version.json 两处本地 diff 答「项目与插件快照差几代」，最新发布探测（version.json 产物）答「本体最新发到什么版」，实例自报答「这个站现在跑什么版」——三问三信号，不可互替；实例自报同时是更新闭环的验收环（更新/升级前后各 curl 一次对版本号）。
+_Avoid_: 比 JS bundle 哈希判版本（同源会被误判成旧版）、拿最新发布冒充实例版本（答的不是同一个问题）
+
+**多副本消歧（multi-checkout disambiguation）**:
+同机多份 ai-study-kit checkout 并存时（仓库本体/部署副本/开发副本在外观上都是普通 checkout，无可靠自动判据）agent 的强制动作：列出全部候选（路径 + `package.json` 版本 + git HEAD 与落后程度 + 工作树干净与否），**必问用户要操作哪份**——绝不静默挑一个，也不基于任何一份启动写操作或 workflow。双层同源不同壳：skill 层 `skills/references/state.md` §0 带协议细节（覆盖走 /ask-coach 的会话），仓库根 AGENTS.md ⭐ 条目带短规则（随每个 checkout 分发、协作 agent 自动加载——覆盖不走 skill 的散聊会话，认错基座的事故形态正是散聊），两处互相引用。
+_Avoid_: 按「最近修改时间/路径深浅/名字像正主」自动挑一份（无可靠判据，认错基座事故形态）、只报一份不列候选清单（把静默挑选换个说法）
+

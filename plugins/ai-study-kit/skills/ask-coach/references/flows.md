@@ -284,7 +284,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
 - 干净目录 → F1 从零初始化（F13 只对已存在的项目）。
 - 主题内容要改 → F7。F13 不代写内容，只补模板与点名缺口。
-- 仓库本体（ai-study-kit checkout 本身，state.md §0 命中）→ 不走 F13——它的前置是 kit 目录存在，仓库形态没有。更新 = **agent 代跑 git pull + 重建**：先 `git status --porcelain` 看有无本地未提交改动（有则先停下来问，别硬拉），再 `git pull --ff-only`，然后 `pnpm install && pnpm run build` 重建产物；落后程度探测见 state.md §8「仓库本体形态」。全程工具链命令 agent 代跑（可跑不可派），不派给学习者手敲。
+- 仓库本体（ai-study-kit checkout 本身，state.md §0 命中）→ 不走 F13——它的前置是 kit 目录存在，仓库形态没有。更新 = **agent 代跑 git pull + 重建**：先 `git status --porcelain` 看有无本地未提交改动（有则先停下来问，别硬拉），再 `git pull --ff-only`，然后 `pnpm install && pnpm run build` 重建产物；落后程度探测见 state.md §8「仓库本体形态」。全程工具链命令 agent 代跑（可跑不可派），不派给学习者手敲。重建后起了服务的（ruankao 型常在本机跑 :8787），重启后 `curl /api/health` 对 version——同款实例验收环（state.md §8「部署实例」）。
 
 **步骤**：
 
@@ -295,6 +295,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
    - **本体落后（插件快照 v<x> 旧于最新发布 v<y>）→ 在这里停下，不执行第 2 步及以后**——重拷只会把项目对齐到旧快照，升级完还得再升一趟（假绿防线：两处本地文件都看不出本体落后）。报三处版本（项目 vS · 插件快照 v<x> · 最新发布 v<y>），按安装形态分叉引导：
      - **Route A（plugin 装的：Claude Code / zcode / Codex）**：明说「**刷新插件是你工具里的 UI 操作，我代不了**」+ 给具体步骤——Claude Code 会话里敲 `/plugin marketplace update ai-study-kit`（或终端 `claude plugin marketplace update`）；zcode 在 设置 → Plugin Management 里刷新该 marketplace；Codex 终端重跑安装命令 `codex plugin marketplace add jerryjiao/ai-study-kit`（同款命令，见安装协议 Route A）。请用户**刷新完回来说一声，从本步复探继续**（复探过才动 kit）。
      - **Route B（install.md 直装的：协议在 `https://aistudykit.dev/install.md`，仓库内 `apps/site/public/install.md`）**：更新本来就是 agent 的活——**幂等重跑安装协议**（按协议重新下载 payload 覆盖安装，协议本身设计为可重复执行），全程聊天内闭环；跑完从本步复探继续。
+   - **实例基线（验收环前半，v0.24.0 起）**：本机服务在线就 `curl -sf localhost:8787/api/health` 记下升级前 `version`（离线跳过，不为此起服务）——升级收尾（第 6 步）重启服务后再 curl 一次对版本号，这是更新闭环的验收环（state.md §8「部署实例」；**禁止比 JS bundle 哈希判版本**）。
 
 2. **备份 progress**（唯一必保数据）：
 
@@ -341,9 +342,9 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
    每项引用实测数据说明「补了恢复什么」（如 `mastery-report --json` 显示 0/45 题带考点标记 → 补齐后掌握度/全景/弱考点推荐才活），逐项问用户「现在补还是稍后」；不补的照实记着，第 6 步体检里如实报「已知悉未补」。
 
-6. **收尾体检**：跑「体检」节的两个新探测项——**版本漂移**报「已对齐」；**契约完整性**按第 5 步处置结果如实报（没补的缺口仍列出，注明学习者已知悉）。全绿的口径 = 无漂移 + 无**未告知**的缺口，不是无缺口。
+6. **收尾体检**：跑「体检」节的两个新探测项——**版本漂移**报「已对齐」；**契约完整性**按第 5 步处置结果如实报（没补的缺口仍列出，注明学习者已知悉）。全绿的口径 = 无漂移 + 无**未告知**的缺口，不是无缺口。**实例验收环（后半，v0.24.0 起）**：升级前在线的服务要先重启再验（version 是 server 启动时读一次的，在跑的旧进程不会自更新）——重启后 `curl -sf localhost:8787/api/health`，`version` 应 = 快照版本；第 1 步记过基线的加一句「v<旧> → v<新>」对上。服务本就没在跑：不为此强起，报「实例未验（离线）」，主判据仍是版本文件 + 无嵌套 + progress 一致。
 
-**完成标志**：`<项目>/kit/kit-version.json` = 快照版本 · 无嵌套 `kit/kit` · progress 与升级前逐字节一致（`diff` 备份）· 每个契约缺口已补或已明确告知。
+**完成标志**：`<项目>/kit/kit-version.json` = 快照版本 · 无嵌套 `kit/kit` · progress 与升级前逐字节一致（`diff` 备份）· 每个契约缺口已补或已明确告知 · 实例验收环：在线实例重启后 `curl /api/health` 的 version = 快照版本（升级前 curl 过的加「v<旧> → v<新>」对照；实例离线不强起）。
 
 ---
 
@@ -386,6 +387,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
    cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
    cat <插件根>/kit/kit-version.json
    curl --max-time 3 -sf "${ASK_KIT_VERSION_URL:-https://aistudykit.dev/version.json}" || echo "latest=unknown"
+   curl --max-time 3 -sf localhost:8787/api/health || echo "instance=offline"   # 实例自报 version（v0.24.0 起，state.md §8「部署实例」）
    # ② 契约完整性：排布表 / 题库考点标记 / 闪卡映射三件（D=主题源目录，同 §1 两形态）
    grep -c '^## 考点排布表' "$D/MISSION.md" 2>/dev/null || echo "table=missing"
    THEME_DIR="$D" node -e '
@@ -399,6 +401,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 
    - 漂移三态：两处版本相等 = 已对齐；用户项目版本旧 = 落后 N 版（N 优先用 `<插件根>/CHANGELOG.md` 数——随插件分发，本期起新增；取不到时降级为只报两处版本号、不数 N）→ 补法走 F13；无版本文件 = 版本未知按最老 → 同样 F13。
    - **本体信号同款（第三处）**：插件快照旧于最新发布 = 本体落后（快照 v<x> → 最新 v<y>）→ 先刷新插件本体（它挡在 F13 前面，Route A/B 见 F13 第 1 步）；相等 = 本体最新；`latest=unknown` / 解析失败 = 注一句「最新版探测失败」，本地两态照报——软失败，不进红项。
+   - **实例信号（v0.24.0 起，更新闭环的验收环）**：health 的 `version` 回答「**这个在跑的实例**是什么版」（与本体信号「最新发到什么版」两码事，不可互替——state.md §8「部署实例」；**禁止比 JS bundle 哈希**）。在线实例 version ≠ 项目/快照版本 = 部署的还是旧构建、或升级后没重启服务（version 启动时读一次，重启才反映）；`instance=offline` 只注一句「实例离线」，不进红项。升级/更新前后各 curl 一次对版本号（F13 第 1、6 步）——升级后重跑体检，实例版本应 = 目标版本。
    - 契约缺口判定：`table=missing` 或 0 = 排布表缺失；`questionsTagged` 低于全量 = 掌握度/全景的考点维度失明；`flashcardsMapped=0`（或排布表声明有卡考点却无映射）= 掌握度退纯题维度。补法都在 F13 第 5 步的表里——只报事实，不虚报也不代修。
    - 已对齐 + 无缺口的项目：两项报 ✅，不输出多余噪音。
 
@@ -418,7 +421,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
      主题 … <theme>（dir ok / MISSING / 外部主题包路径）
      sync 新鲜度 … ✅ / ❌（重跑 pnpm build——常连带解掉假红）
    版本与契约（ADR-0006；只报事实与补法）：
-     版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体（✅ 与 origin/main 同步 / ⚠ 落后 N 提交，agent 代跑 git pull + 重建 / 落后探测失败注一句）· 本体 ✅ 已最新（v<x>）/ ⚠ 落后（快照 v<x> → 最新 v<y>，先刷新插件——F13 第 1 步分叉）/ 最新版探测失败（注一句，本地两态照报）
+     版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体（✅ 与 origin/main 同步 / ⚠ 落后 N 提交，agent 代跑 git pull + 重建 / 落后探测失败注一句）· 本体 ✅ 已最新（v<x>）/ ⚠ 落后（快照 v<x> → 最新 v<y>，先刷新插件——F13 第 1 步分叉）/ 最新版探测失败（注一句，本地两态照报）· 实例 v<x> ✅ 与本地一致 / ⚠ v<x> ≠ 本地 v<y>（旧构建未重启，重启后复 curl）/ 实例离线（注一句）
      契约完整性 … ✅ 无缺口 / ⚠ <排布表缺失 · 题缺考点标记 N/M · 卡缺映射 N/M>（补法见 F13 第 5 步）
    建议修复顺序：<只列红项，按下面的固定优先级>
    ```

@@ -13,7 +13,7 @@
 import { copyFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveThemeDir, detectStickyTheme } from './lib/theme-path.mjs';
+import { resolveThemeDir, detectStickyTheme, writeThemeState, clearThemeState } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { buildCoverageSnapshot, readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
@@ -26,7 +26,7 @@ const REPO_ROOT = resolve(__dirname, '../../..');  // apps/quiz-app/scripts → 
 const DATA_DIR = resolve(__dirname, '../src/data');
 
 // 解析主题目录：粘滞主题口径在 lib/theme-path.mjs 的 detectStickyTheme
-// （EXAMPLE_THEME > theme.json 粘滞 > dev-intro；损坏打 warn 不静默换主题）。
+// （EXAMPLE_THEME > .theme-state.json/theme.json 粘滞 > dev-intro；损坏打 warn 不静默换主题）。
 const THEME_RAW = detectStickyTheme(DATA_DIR, REPO_ROOT);
 const { dir: EXAMPLE_DIR, name: EXAMPLE_THEME, external: EXTERNAL } = resolveThemeDir(THEME_RAW, REPO_ROOT);
 
@@ -75,7 +75,11 @@ console.log(`[sync-examples] plan.json → src/data/plan.json  (${planState.pres
 
 // 记录激活主题：Courses 页据此拼课程 URL（study/<theme>/），保证内容与课程永远同主题，
 // 也让「切换主题」只需改 EXAMPLE_THEME 一处（原需同步手改 Courses.tsx 的 COURSE_URL）。
-// 外部主题包额外记 dir（绝对路径）——detectTheme 粘滞回退靠它，不靠裸名字。
+// ⭐ 外部主题包的粘滞指针住 apps/quiz-app/.theme-state.json（src/ 之外）——theme.json 被
+// 前端 import 会打进公开 bundle，带构建机绝对路径会泄露路径且跨机器构建哈希漂移（#109）。
+// 仓库内主题名（显式 EXAMPLE_THEME 或粘滞解析结果）时清掉指针：显式切回 dev-intro 后，
+// 下次默认构建不得再粘回外部主题。旧项目 theme.json 残留 dir 被 detectStickyTheme 兼容读
+// 到 → 本次即外部形态，随写 .theme-state.json 完成迁移（ADR-0006 存量承诺：不报错不丢主题）。
 // examPoints（可选）：MISSION.md 排布表解析出的考点名映射（EP-NN → 考点名）；
 // examDays（可选）：EP-NN → day 学程块映射——首页考点全景面板按它分组。
 // 两者都由排布表解析（UI 不重复解析 markdown）。无 MISSION/无排布表 = 空映射。
@@ -83,13 +87,18 @@ const missionPath = join(EXAMPLE_DIR, 'MISSION.md');
 const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
 const examPoints = epNameMap(missionText);
 const examDays = epDayMap(missionText);
+const themeMeta = { theme: EXAMPLE_THEME, examPoints, examDays };
+delete themeMeta.dir;  // 显式剔除 dir（#109）：只住 .theme-state.json，防上游再漏进公开 bundle
 writeFileSync(
   join(DATA_DIR, 'theme.json'),
-  JSON.stringify(
-    { theme: EXAMPLE_THEME, ...(EXTERNAL ? { dir: EXAMPLE_DIR } : {}), examPoints, examDays },
-    null, 2
-  ) + '\n'
+  JSON.stringify(themeMeta, null, 2) + '\n'
 );
+if (EXTERNAL) {
+  writeThemeState(DATA_DIR, EXAMPLE_DIR);
+  console.log(`[sync-examples] → .theme-state.json  (外部主题包粘滞指针，theme.json 不带 dir)`);
+} else {
+  clearThemeState(DATA_DIR);
+}
 console.log(`[sync-examples] → src/data/theme.json  (theme: ${EXAMPLE_THEME}${EXTERNAL ? ' · 外部主题包' : ''}${Object.keys(examPoints).length ? ` · 考点 ${Object.keys(examPoints).length} 个` : ''})`);
 
 // 课程清单：examples/<theme>/lessons/*.html → src/data/courses.json。
