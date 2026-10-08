@@ -42,7 +42,7 @@ import { resolveThemeDir } from './lib/theme-path.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
-import { readOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath, graphNodeIndex } from './lib/oral.mjs';
+import { readOralAttempts, oralAttemptsFromProgress, mergeOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath, graphNodeIndex } from './lib/oral.mjs';
 import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor, buildPrereqSignals, orderEpsByPrereqs } from './lib/graph-bridge.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -98,12 +98,16 @@ if (existsSync(profilePath)) {
   try { profile = JSON.parse(readFileSync(profilePath, 'utf-8')); } catch { profile = null; }
 }
 
-// 口头答题流水（v0.14，可选）：口头计数的唯一真源（旧记录手写计数节的合并展示走 --panorama）。
+// 口头答题流水（v0.14，可选；#122 起双源并流）：主题包流水（唯一真源原文）∪ 进度数据面
+// progress.oralAttempts（教练侧 POST /api/oral-attempts 回流的实时副本，条目带 theme 归属）。
+// 两路是同一笔作答——mergeOralAttempts 四元组去重，不重复计数。progress 无该字段（v0.26
+// 前旧部署）= 只读主题包，行为与从前一致。
 // 本报告给每个口头目标（题库考点 ∪ 流水里出现过的裸知识点）判口头四态——
 // 近期加权正确率 + 置信度封顶，范式照搬 DeepTutor compute_mastery，确定性零 LLM；
 // 既有考点四态判据自 v1.2（#119）起纳入口述通道（见下方派生段的 oralStatusByEp），判据本体在
 // lib/mastery.mjs；节点投影等处的四态合流规则见 lib/oral.mjs mergeMastery（对已内置结果幂等）。
-const oralAttempts = readOralAttempts(THEME_DIR);
+const oralFromProgress = oralAttemptsFromProgress(progress, THEME);
+const oralAttempts = mergeOralAttempts(readOralAttempts(THEME_DIR), oralFromProgress);
 
 // ── 考点全景（--panorama，v0.13）：三信号 + day 分组，与掌握报告同数据源另派生一路 ──
 if (AS_PANORAMA) {
@@ -245,6 +249,9 @@ const report = {
   oral: {
     source: existsSync(oralAttemptsPath(THEME_DIR)) ? oralAttemptsPath(THEME_DIR) : '(无流水，口头目标全部未开始)',
     askedTotal: oralAttempts.length,
+    // #122 实时回流：并流前进度数据面（progress.oralAttempts）贡献的条数（去重前口径，
+    // 供 agent 探测分辨「包内流水」与「API 回流副本」两路的健康度）
+    fromProgress: oralFromProgress.length,
     targets: oralTargets,
     weakRanked: oralWeak.map((t) => t.target),
   },

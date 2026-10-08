@@ -1,5 +1,6 @@
-import type { Progress, AnswerRecord, Question, Stats, SrsState, SrsMeta, UiLang, LearnSettings } from '../types';
+import type { Progress, AnswerRecord, Question, Stats, SrsState, SrsMeta, UiLang, LearnSettings, OralAttempt } from '../types';
 import { isPlanned } from './topicOrder';
+import { mergeOralAttempts } from './oral';
 
 /** 错题移出阈值随历史难度递增（错过越多，需要越多连对才放行）：
  *  - wrongCount<=1（只错过 1 次）→ 连对 1 次即移出（简单题快放）
@@ -377,6 +378,15 @@ function mergeSettings(
     : { settings: b.settings, settingsUpdatedAt: b.settingsUpdatedAt };
 }
 
+/** 合并口头答题流水（#122 实时回流）：并集 + 四元组去重 + 按 at 升序（mergeOralAttempts）。
+ *  缺失语义与 theme/lang 同款——单边没有 = 该边从未写过，取存在一侧：教练 POST 回流的
+ *  条目不会被浏览器（快照里还没这字段）的下一次整档保存冲掉；两边都空/缺失 → 不产出
+ *  该键，旧 progress 文件形状零变化。append-only 流水没有墓碑语义（无删除意图要传达）。 */
+function mergeOralAttemptsField(a?: OralAttempt[], b?: OralAttempt[]): OralAttempt[] | undefined {
+  if (!a?.length && !b?.length) return undefined;
+  return mergeOralAttempts(a ?? [], b ?? []);
+}
+
 /** 合并本地与服务器进度：answers 按定序时间戳（墓碑优先，否则 submittedAt）取新，
  *  read 按时间戳取新，readTombstones 取 max，srs 按 srsTs（墓碑优先）取新。
  *  墓碑参与定序是关键——让 reset 类操作的删除意图能在 read-merge-write 下持久化。 */
@@ -388,9 +398,12 @@ export function mergeProgress(local: Progress, remote: Progress): Progress {
     if (a && b) answers[k] = recTs(a) >= recTs(b) ? a : b;
     else answers[k] = (a || b)!;
   }
+  const oralAttempts = mergeOralAttemptsField(local.oralAttempts, remote.oralAttempts);
   return {
     version: 1,
     answers,
+    // 口头答题流水（#122）：并集去重升序；单边缺失取存在者、双边空不产出键（见 mergeOralAttemptsField）
+    ...(oralAttempts ? { oralAttempts } : {}),
     read: mergeRead(local.read, remote.read),
     readTombstones: mergeReadTombstones(local.readTombstones, remote.readTombstones),
     // 课已学完：与 read 同款 per-key max（LWW）。key 自带主题前缀，多主题互不干扰；

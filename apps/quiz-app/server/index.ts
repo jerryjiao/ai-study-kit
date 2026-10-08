@@ -5,7 +5,8 @@ import { readProgress, writeProgress } from './progressStore';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
-import type { Progress } from '../src/types';
+import type { OralAttempt, Progress } from '../src/types';
+import { mergeOralAttempts } from '../src/lib/oral';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -25,6 +26,70 @@ app.post('/api/progress', async (c) => {
     const body = await c.req.json<Progress>();
     writeProgress(PROGRESS_FILE, body);
     return c.json({ ok: true });
+  } catch {
+    return c.json({ ok: false, error: 'invalid payload' }, 400);
+  }
+});
+
+// 口述成绩实时回流（#122，v0.26）：教练陪练（skill F10，写主题包流水的同时）把每次口头
+// 作答提交到这里 → 并入 progress.oralAttempts（append-only 并集去重）→ web 全景/掌握判据
+// 刷新页面即消费，不再等 build 覆盖快照（快照降级为无 API 离线场景的回退通道）。
+// 体两种：单条 { theme?, target, correct, at, source? } 或批量 { theme?, attempts: [...] }；
+// 体级 theme 给批量内缺 theme 的条目补归属（推荐带——多主题隔离在读端按它过滤）。
+// 校验与 parseOralAttempts 同尺：单条缺 target / correct 非布尔 / at 非法 → 跳过该条不拒
+// 整请求；未来时间戳（at > now + 5 分钟时钟偏差容忍）直接拒——与 progress 同款红线，
+// 绝不把未来时间戳写进存储（未来戳会永久压制真实时间的合并）。
+const ORAL_FUTURE_SKEW_MS = 5 * 60 * 1000;
+const ORAL_MAX_BATCH = 500;
+
+function sanitizeOralEntries(
+  raw: unknown,
+  bodyTheme: string | undefined,
+  now: number,
+): { valid: OralAttempt[]; skipped: number } {
+  const list = Array.isArray(raw) ? raw : [raw];
+  const valid: OralAttempt[] = [];
+  let skipped = 0;
+  for (const e of list) {
+    if (!e || typeof e !== 'object') { skipped++; continue; }
+    const o = e as Record<string, unknown>;
+    const target = typeof o.target === 'string' ? o.target.trim() : '';
+    if (!target) { skipped++; continue; }
+    if (typeof o.correct !== 'boolean') { skipped++; continue; }
+    if (typeof o.at !== 'number' || !Number.isFinite(o.at) || o.at <= 0) { skipped++; continue; }
+    if (o.at > now + ORAL_FUTURE_SKEW_MS) { skipped++; continue; } // 未来时间戳：拒收
+    const src = o.source;
+    const theme = typeof o.theme === 'string' && o.theme.trim() ? o.theme.trim() : bodyTheme;
+    const entry: OralAttempt = { target, correct: o.correct, at: o.at };
+    if (theme) entry.theme = theme;
+    if (src === 'recall' || src === 'recite' || src === 'case') entry.source = src;
+    valid.push(entry);
+  }
+  return { valid, skipped };
+}
+
+app.post('/api/oral-attempts', async (c) => {
+  try {
+    const body = await c.req.json<Record<string, unknown>>();
+    const bodyTheme = typeof body?.theme === 'string' && body.theme.trim() ? body.theme.trim() : undefined;
+    const raw = Array.isArray(body?.attempts)
+      ? body.attempts
+      : (body && typeof body === 'object' && 'target' in body ? body : null);
+    if (raw === null) return c.json({ ok: false, error: 'invalid payload' }, 400);
+    if (Array.isArray(raw) && raw.length > ORAL_MAX_BATCH) {
+      return c.json({ ok: false, error: 'too many attempts' }, 400);
+    }
+    const { valid, skipped } = sanitizeOralEntries(raw, bodyTheme, Date.now());
+    if (valid.length > 0) {
+      // read-merge-write：只动 oralAttempts 字段（writeProgress 内部再 merge 一次，幂等）；
+      // base 的 answers/偏好原样带回，避免极简覆盖体把 UI 偏好从 merge 结果里挤掉。
+      const base = readProgress(PROGRESS_FILE);
+      writeProgress(PROGRESS_FILE, {
+        ...base,
+        oralAttempts: mergeOralAttempts(base.oralAttempts ?? [], valid),
+      });
+    }
+    return c.json({ ok: true, accepted: valid.length, skipped });
   } catch {
     return c.json({ ok: false, error: 'invalid payload' }, 400);
   }

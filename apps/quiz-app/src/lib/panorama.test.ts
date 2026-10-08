@@ -6,7 +6,7 @@ import {
   pointMatchesFilter, countStatuses, groupByTopic,
   type CoverageSnapshot, type PanoramaPoint,
 } from './panorama';
-import type { AnswerRecord, Question } from '../types';
+import type { AnswerRecord, OralAttempt, Question } from '../types';
 
 const qs = (pairs: [string, string[]][]): Question[] =>
   pairs.flatMap(([ep, ids]) => ids.map((id) => ({ id, examPoint: ep }) as unknown as Question));
@@ -93,6 +93,64 @@ describe('buildPanorama 三信号（与脚本侧同口径）', () => {
     ]);
     const r = buildPanorama(questions, { A: rec(), B: rec() }, epNames, [], {}, cov, epDays);
     expect(r.groups.flatMap((g) => g.points).find((p) => p.ep === 'EP-01')!.status).toBe('mastered');
+  });
+
+  // ── 口述实时回流（#122，v0.26）：progress.oralAttempts 现算优先、快照回退 ──────────
+  it('实时口述驱动掌握：实时流水现算四态与计数，刷新即生效不等 build', () => {
+    const all = { A: rec(), B: rec(), C: rec() }; // EP-01/EP-02 题全对
+    const live: OralAttempt[] = [
+      { target: 'EP-01 暂存区', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-01 暂存区', correct: true, at: 2000, source: 'recite' },
+      { target: 'EP-01 暂存区', correct: true, at: 3000, source: 'case' },     // 3 连对 → mastered
+      { target: 'EP-02 revert', correct: true, at: 4000, source: 'recall' },
+      { target: 'EP-02 revert', correct: false, at: 5000, source: 'recall' },  // 最近判错 → weak
+    ];
+    // 快照故意给相反的旧状态（EP-01 weak / EP-02 mastered）——实时流水必须压过快照
+    const cov = coverage([
+      { ep: 'EP-01', taught: false, practiced: true, mastered: false, oral: { asked: 9, correct: 0 }, oralStatus: 'weak' },
+      { ep: 'EP-02', taught: false, practiced: true, mastered: false, oral: { asked: 9, correct: 9 }, oralStatus: 'mastered' },
+    ]);
+    const r = buildPanorama(questions, all, epNames, [], {}, cov, epDays, live);
+    const byEp = Object.fromEntries(r.groups.flatMap((g) => g.points.map((p) => [p.ep, p])));
+    expect(byEp['EP-01']).toMatchObject({ status: 'mastered', oralStatus: 'mastered', oral: { asked: 3, correct: 3 } });
+    expect(byEp['EP-02']).toMatchObject({ status: 'weak', oralStatus: 'weak', oral: { asked: 2, correct: 1 } });
+  });
+
+  it('实时口述逐考点回退：无实时流水的考点吃快照 oralStatus/oral（离线场景旧路径不破坏）', () => {
+    const all = { A: rec(), B: rec(), C: rec() };
+    const live: OralAttempt[] = [
+      { target: 'EP-01 暂存区', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-01 暂存区', correct: true, at: 2000, source: 'recite' },
+      { target: 'EP-01 暂存区', correct: true, at: 3000, source: 'case' },     // EP-01 实时 mastered
+    ];
+    const cov = coverage([
+      { ep: 'EP-01', taught: false, practiced: true, mastered: false, oral: { asked: 1, correct: 0 }, oralStatus: 'weak' },
+      { ep: 'EP-02', taught: false, practiced: true, mastered: false, oral: { asked: 2, correct: 2 }, oralStatus: 'mastered' },
+    ]);
+    const r = buildPanorama(questions, all, epNames, [], {}, cov, epDays, live);
+    const byEp = Object.fromEntries(r.groups.flatMap((g) => g.points.map((p) => [p.ep, p])));
+    // EP-01 实时覆盖快照；EP-02 无实时流水 → 快照 mastered 照走
+    expect(byEp['EP-01']).toMatchObject({ status: 'mastered', oral: { asked: 3, correct: 3 } });
+    expect(byEp['EP-02']).toMatchObject({ status: 'mastered', oral: { asked: 2, correct: 2 }, oralStatus: 'mastered' });
+  });
+
+  it('实时口述也点亮练过弱信号（无答题考点口头有流水 → practiced）', () => {
+    const live: OralAttempt[] = [
+      { target: 'EP-04 相对路径', correct: false, at: 1000, source: 'recall' },
+    ];
+    const r = buildPanorama(questions, {}, epNames, [], {}, coverage([]), epDays, live);
+    const p4 = r.groups.flatMap((g) => g.points).find((p) => p.ep === 'EP-04')!;
+    expect(p4.practiced).toBe(true);
+    expect(p4.status).toBe('weak');        // 无答题 + 口述 weak → 负面证据优先压 weak
+    expect(p4.oral).toEqual({ asked: 1, correct: 0 });
+  });
+
+  it('裸考点名解析进实时通道（与脚本侧 groupOralAttempts 同两条正路）', () => {
+    const live: OralAttempt[] = [{ target: '暂存区', correct: true, at: 1000, source: 'recall' }];
+    const r = buildPanorama(questions, { A: rec(), B: rec() }, epNames, [], {}, coverage([]), epDays, live);
+    const p1 = r.groups.flatMap((g) => g.points).find((p) => p.ep === 'EP-01')!;
+    expect(p1.oral).toEqual({ asked: 1, correct: 1 });       // 计入了 EP-01
+    expect(p1.status).toBe('inProgress');                    // 1 次封顶 0.5 未达标（题全对但口述有数据）
   });
 });
 

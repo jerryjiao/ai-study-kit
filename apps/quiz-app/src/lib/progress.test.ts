@@ -613,4 +613,42 @@ describe('progress', () => {
     expect(mergeProgress(a, b).settings).toEqual({ autoAdvance: false });
     expect(mergeProgress(b, a).settings).toEqual({ autoAdvance: false });
   });
+
+  // ---- 口头答题流水（oralAttempts，#122 实时回流）：并集 + 四元组去重 + at 升序 ----
+  // 单边缺失 = 该边从未写过、取存在一侧——教练 POST 回流的条目不会被浏览器（快照里还没
+  // 这字段）的下一次整档保存冲掉；这是「多端合并不丢不错」的核心回归面。
+
+  it('mergeProgress: oralAttempts 并集去重 + 按 at 升序', () => {
+    const a: Progress = { version: 1, answers: {}, oralAttempts: [
+      { target: 'EP-01', correct: true, at: 100, source: 'recall' },
+      { target: 'EP-01', correct: false, at: 200, source: 'recall' },
+    ] };
+    const b: Progress = { version: 1, answers: {}, oralAttempts: [
+      { target: 'EP-01', correct: true, at: 300, source: 'recite' },                       // b 独有
+      { theme: 'dev-intro', target: 'EP-01', correct: false, at: 200, source: 'recall' },  // 同四元组（theme 不进键）→ 去重
+    ] };
+    const m = mergeProgress(a, b);
+    expect(m.oralAttempts).toEqual([
+      { target: 'EP-01', correct: true, at: 100, source: 'recall' },
+      { target: 'EP-01', correct: false, at: 200, source: 'recall' },
+      { target: 'EP-01', correct: true, at: 300, source: 'recite' },
+    ]);
+  });
+
+  it('mergeProgress: 单边无 oralAttempts 取存在者（浏览器旧快照不冲掉教练回流）', () => {
+    const withOral: Progress = { version: 1, answers: {}, oralAttempts: [
+      { theme: 'dev-intro', target: 'EP-02', correct: true, at: 42, source: 'recall' },
+    ] };
+    const bare: Progress = { version: 1, answers: {} };   // v0.26 前的浏览器整档快照
+    expect(mergeProgress(withOral, bare).oralAttempts).toEqual(withOral.oralAttempts);
+    expect(mergeProgress(bare, withOral).oralAttempts).toEqual(withOral.oralAttempts);
+  });
+
+  it('mergeProgress: 两边都无 oralAttempts → 不产出该键（旧 progress 形状零变化）', () => {
+    const a: Progress = { version: 1, answers: {} };
+    const b: Progress = { version: 1, answers: {} };
+    expect('oralAttempts' in mergeProgress(a, b)).toBe(false);
+    // 空数组同样不产出（读了没写的旧档无害）
+    expect('oralAttempts' in mergeProgress(a, { ...b, oralAttempts: [] })).toBe(false);
+  });
 });

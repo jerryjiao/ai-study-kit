@@ -13,6 +13,11 @@
 // 合并语义：append-only、无覆盖、消费端按 at 排序取信、完全相同的四元组去重——
 // 多会话并发写前重读全文再追加写回，天然安全（与 progress.json LWW 同哲学）。
 //
+// 第二副本（#122，v0.26 实时回流）：progress.oralAttempts——教练写包同时把作答 POST
+// /api/oral-attempts 回流答题站（形状同源，条目多带 theme 归属标记），web 全景/掌握判据
+// 刷新页面即消费；取回用 oralAttemptsFromProgress（主题过滤 + 同尺校验），与包内流水
+// mergeOralAttempts 并流后仍是唯一真源（两路是同一笔作答，四元组去重不重复计数）。
+//
 // 掌握判据（口头四态，范式照搬 DeepTutor compute_mastery，确定性零 LLM）：
 //   近期加权正确率：最近 5 次（旧→新）权重 0.5/0.7/0.85/0.95/1.0，不足 5 次取末尾 k 个权重、
 //                 按实际用到的权重和归一。
@@ -252,4 +257,21 @@ export function readOralAttempts(themeDir) {
   } catch {
     return [];
   }
+}
+
+/**
+ * 从进度数据面提取口述流水（#122 实时回流）：progress.oralAttempts 是教练侧写主题包流水
+ * 同时 POST /api/oral-attempts 回流的实时副本，形状同源、条目多带 theme 归属标记。
+ * 按主题过滤（缺 theme 宽容视为当前主题），再走 parseOralAttempts 同尺校验（残条跳过）。
+ * 消费方（mastery-report / sync-examples 覆盖快照）把它与主题包流水 mergeOralAttempts
+ * 并流——教练两路落的是同一笔作答，四元组去重天然不重复计数。
+ * @param {object|null} progress 进度对象（--progress 文件或 /api/progress 响应；null/无字段 = []）
+ * @param {string} theme 主题名（外部主题包 = 目录 basename）
+ */
+export function oralAttemptsFromProgress(progress, theme) {
+  if (!progress || !Array.isArray(progress.oralAttempts)) return [];
+  const scoped = progress.oralAttempts.filter(
+    (a) => a && typeof a === 'object' && (a.theme === undefined || a.theme === null || a.theme === theme)
+  );
+  return parseOralAttempts(JSON.stringify(scoped)).attempts;
 }

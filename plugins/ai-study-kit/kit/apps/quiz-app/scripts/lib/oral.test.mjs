@@ -1,10 +1,11 @@
-// oral.test.mjs — 口头答题流水：解析 / 合并 / 目标解析 / 四态判据 / 合流规则（node:test）。
+// oral.test.mjs — 口头答题流水：解析 / 合并 / 目标解析 / 四态判据 / 合流规则 / progress 副本提取（node:test）。
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseOralAttempts, mergeOralAttempts, resolveOralTarget, aggregateOral,
-  oralMastery, mergeMastery, ORAL_WEIGHTS,
+  oralMastery, mergeMastery, oralAttemptsFromProgress, ORAL_WEIGHTS,
 } from './oral.mjs';
+import { scenarios, mergePairs } from './fixtures/oral-cross-fixture.mjs';
 
 // ── parseOralAttempts ──────────────────────────────────────
 
@@ -168,4 +169,51 @@ test('merge: 题 untouched 时口头最多推到 inProgress（题没刷过不算
   assert.equal(mergeMastery('untouched', 'mastered'), 'inProgress');
   assert.equal(mergeMastery('untouched', 'weak'), 'weak');
   assert.equal(mergeMastery('untouched', 'inProgress'), 'inProgress');
+});
+
+// ── 跨侧一致夹具（#122）：scenarios/mergePairs 单一数据源，TS 侧 oral.test.ts 同款对拍 ──
+
+test('跨侧夹具: scenarios 全分支判据断言（脚本侧）', () => {
+  for (const s of scenarios) {
+    assert.deepEqual(oralMastery(s.attempts), s.expected, `场景「${s.name}」判据不符`);
+  }
+});
+
+test('跨侧夹具: mergePairs 去重/并集/排序断言（脚本侧）', () => {
+  for (const p of mergePairs) {
+    assert.deepEqual(mergeOralAttempts(p.a, p.b), p.expected, `场景「${p.name}」合并不符`);
+  }
+});
+
+// ── oralAttemptsFromProgress（#122 实时回流：progress 数据面副本提取）──────────
+
+test('fromProgress: null/无字段/非数组 → 空流水（v0.26 前旧部署兼容）', () => {
+  assert.deepEqual(oralAttemptsFromProgress(null, 'dev-intro'), []);
+  assert.deepEqual(oralAttemptsFromProgress({}, 'dev-intro'), []);
+  assert.deepEqual(oralAttemptsFromProgress({ oralAttempts: 'oops' }, 'dev-intro'), []);
+});
+
+test('fromProgress: 按 theme 过滤——本主题与缺 theme 的收、他主题的挡', () => {
+  const progress = {
+    oralAttempts: [
+      { theme: 'dev-intro', target: 'EP-01 暂存区', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-02 revert', correct: false, at: 2000, source: 'recall' },          // 缺 theme → 宽容收
+      { theme: 'other-theme', target: 'EP-01 暂存区', correct: false, at: 3000, source: 'recall' }, // 他主题 → 挡
+    ],
+  };
+  const out = oralAttemptsFromProgress(progress, 'dev-intro');
+  assert.deepEqual(out.map((a) => a.at), [1000, 2000]);
+});
+
+test('fromProgress: 残缺条目走 parseOralAttempts 同尺校验（跳过不拖垮）', () => {
+  const progress = {
+    oralAttempts: [
+      { theme: 'dev-intro', target: 'EP-01', correct: true, at: 1 },
+      { theme: 'dev-intro', target: '', correct: true, at: 2 },       // 缺 target → 跳
+      { theme: 'dev-intro', target: 'EP-01', correct: 'yes', at: 3 }, // correct 非布尔 → 跳
+      null,                                                            // 非对象 → 跳
+    ],
+  };
+  const out = oralAttemptsFromProgress(progress, 'dev-intro');
+  assert.deepEqual(out, [{ target: 'EP-01', correct: true, at: 1, source: null }]);
 });

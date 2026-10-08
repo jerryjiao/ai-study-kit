@@ -55,7 +55,7 @@ status: in-progress    # in-progress | done
 
 **口头答题流水写入口径（v0.14 起，口头计数的唯一真源）**：
 
-- 聊天陪练的每次口头问答**当场追加一条明细**到 `study/records/oral-attempts.json`（追加式 JSON 数组，学习者私有不上站）：
+- 聊天陪练的每次口头问答**当场追加一条明细**到 `study/records/oral-attempts.json`（追加式 JSON 数组，学习者私有不上站），并把**同一笔作答实时回流答题站**（v0.26 起，见下条）：
 
   ```json
   { "target": "EP-01 状态码家族划分", "correct": true, "at": 1789000000000, "source": "recall" }
@@ -64,6 +64,18 @@ status: in-progress    # in-progress | done
   - `target` 目标引用，宽容格式三档：`EP-NN` 前缀（题库考点，全景按它 join 排布表）→ knowflow 图节点相对路径（无题的新知识）→ 裸考点名（兜底）。
   - `correct` 对错布尔；`at` **真实 `Date.now()`**——与 progress.json 同款红线，绝不允许固定值或未来时间戳；`source` 三值：`recall` 抽背 / `recite` 复述 / `case` 案例评分点（判定细则见 coach.md §6.6/§6.7）。
 - **写入口径（多会话并发安全）**：写前重读文件全文 → 追加新条目 → 整文件写回；消费端按 `at` 排序取信、完全相同的四元组去重（`apps/quiz-app/scripts/lib/oral.mjs` 的纯函数，有单测）。与「已过考点」同节奏：一轮考完就追加，不等收站。
+- **实时回流（v0.26，#122）**：写包的**同时**把同一笔作答提交到答题站 API（agent 代跑，可跑不可派给学习者）——掌握度与全景即时反映口述成绩，不再等下次 build：
+
+  ```bash
+  curl -sf -X POST http://localhost:8787/api/oral-attempts \
+    -H 'Content-Type: application/json' \
+    -d '{"theme":"<主题名>","attempts":[{"target":"EP-01 状态码家族划分","correct":true,"at":<毫秒时间戳>,"source":"recall"}]}'
+  ```
+
+  - **`at` 用与包内落盘同一个真实毫秒时间戳**：两路是同一笔作答，四元组（target+correct+at+source）一致才会在并流时去重；各编一个时间戳会让同一笔答对/答错被计两次。批量可把一轮的多条放进 `attempts` 一次提，也可逐条提。
+  - `theme` 填主题名（仓库内主题 = `examples/` 下目录名；外部主题包 = 目录 basename）——多主题隔离在读端按它过滤，漏填则该笔记入当前主题口径外、全景看不到。
+  - **API 离线 / 404（v0.26 前旧实例）→ 跳过不重试不阻塞**：主题包流水才是完整真源，Web 侧本次看不到、下次 build 快照兜底；绝不为走 API 反过来少写包。探测服务在哪见 [state.md](state.md) §3（本地 8787，云端实例同规换 host）。
+  - 响应 `{ok, accepted, skipped}`：`accepted=0` 且 `skipped>0` 多半是时间戳在未来或条目畸形——当场改对再提一次，不静默丢。
 - **「## 口头题计数」节停写（v0.13 引入、v0.14 废弃）**：总数一律从流水派生（`mastery-report --panorama` 与探测口径自动带出），不再手写「问 N 对 M」——手写两处必漂移。
 - **旧记录照读不丢**：解析器兼容旧「口头题计数」节（`lib/records.mjs`），全景「练过/口头」信号把旧手写计数与流水合并，升级不丢历史。
 

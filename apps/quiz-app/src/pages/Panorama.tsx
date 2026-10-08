@@ -23,6 +23,7 @@ import {
 import { nextStation, derivePlanGapInput, type NextStationResult } from '../lib/nextStation';
 import { deriveEpTrace, type TraceEvent } from '../lib/panoramaTrace';
 import { isFlashGraduated, type MasteryStatus } from '../lib/mastery';
+import { oralAttemptsForTheme } from '../lib/oral';
 import { deriveCalendarDiff, deriveCoverage, deriveProjection, diffCalendarDays, type PlanCalendarDiff, type PlanProjection } from '../lib/plan';
 import { TOPIC_ORDER, topicLabel } from '../lib/topicOrder';
 import type { Lesson } from '../lib/courseProgress';
@@ -141,13 +142,20 @@ export function Panorama() {
   const [knowflowOn, setKnowflowOn] = useState(false);
   const [openEp, setOpenEp] = useState<string | null>(null);
 
-  const themeData = themeMeta as { examPoints?: Record<string, string>; examDays?: Record<string, string> };
+  const themeData = themeMeta as { theme?: string; examPoints?: Record<string, string>; examDays?: Record<string, string> };
+  // 口述实时回流（#122）：教练陪练作答 POST /api/oral-attempts 进 progress.oralAttempts，
+  // 这里按当前主题过滤后喂全景——掌握判据/口头计数刷新页面即反映，无实时流水的考点
+  // 回退 build 快照（离线场景旧路径不变）。
+  const oralLive = useMemo(
+    () => oralAttemptsForTheme(progress.oralAttempts, themeData.theme),
+    [progress.oralAttempts, themeData.theme],
+  );
   const panorama = useMemo(
     () => buildPanorama(
       questions, progress.answers, themeData.examPoints ?? {},
-      flashcards, progress.srs ?? {}, coverage, themeData.examDays ?? {},
+      flashcards, progress.srs ?? {}, coverage, themeData.examDays ?? {}, oralLive,
     ),
-    [progress.answers, progress.srs],
+    [progress.answers, progress.srs, oralLive],
   );
   const allPoints = useMemo(() => panorama.groups.flatMap((g) => g.points), [panorama.groups]);
   const counts = useMemo(() => countStatuses(allPoints), [allPoints]);

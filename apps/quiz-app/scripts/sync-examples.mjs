@@ -17,7 +17,7 @@ import { resolveThemeDir, detectStickyTheme, writeThemeState, clearThemeState } 
 import { epNameMap, epDayMap } from './lib/mastery.mjs';
 import { buildPanorama } from './lib/panorama.mjs';
 import { buildCoverageSnapshot, readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
-import { readOralAttempts } from './lib/oral.mjs';
+import { readOralAttempts, oralAttemptsFromProgress, mergeOralAttempts } from './lib/oral.mjs';
 import { loadGraphMap, loadKnowledgeGraph, projectEdgesToEps } from './lib/graph-bridge.mjs';
 import { syncPlan } from './lib/plan.mjs';
 
@@ -135,6 +135,9 @@ if (existsSync(lessonsDir)) {
 // web 首页「考点全景」面板的「讲过/口头」信号通道。面板新鲜度 = 本次 build 时点；
 // 聊天层（mastery-report --panorama）永远现算最新，两端口径一致。
 // 无 records / 无 progress（如 CI）= 信号全 false，不是故障。
+// 口述双源并流（#122，v0.26）：主题包流水 ∪ progress.oralAttempts（教练 POST /api/oral-attempts
+// 回流的实时副本）——只经 API 回流的口述证据在下次 build 后仍保留在快照里（实时通道为主、
+// 快照保底回退）；快照仍只收派生枚举/计数，原始明细不出本地。
 const questionsForCoverage = JSON.parse(readFileSync(join(EXAMPLE_DIR, 'questions.json'), 'utf-8'));
 const flashForCoverage = existsSync(join(EXAMPLE_DIR, 'flashcards.json'))
   ? JSON.parse(readFileSync(join(EXAMPLE_DIR, 'flashcards.json'), 'utf-8'))
@@ -164,7 +167,11 @@ const coverage = buildCoverageSnapshot(buildPanorama({
   epNames: examPoints,
   epDays: examDays,
   records: readSessionRecords(EXAMPLE_DIR),
-  oralAttempts: readOralAttempts(EXAMPLE_DIR),
+  // 口述双源并流（#122）：主题包流水 ∪ progress.oralAttempts（同笔作答四元组去重）
+  oralAttempts: mergeOralAttempts(
+    readOralAttempts(EXAMPLE_DIR),
+    oralAttemptsFromProgress(progressForCoverage, EXAMPLE_THEME)
+  ),
   coursesRead: lessonsReadState(EXAMPLE_DIR, EXAMPLE_THEME, progressForCoverage),
 }), graphEpsEdges);
 writeFileSync(

@@ -37,7 +37,7 @@ _Avoid_: 进度条（那是答题完成率，不是三信号）、把快照当�
 _Avoid_: 示例（示例主题特指 dev-intro；用户建的主题不是示例）
 
 **考点掌握度（exam-point mastery）**:
-从答题进度（+ 口头流水 / 闪卡 SRS）对每个考点（EP-NN）确定性派生的四态：掌握（考点下题全答对、无未毕业错题，且满足任一超题证据——口述达标【有口述数据时】或映射闪卡全部毕业；无口述数据不阻塞，零闪卡学习者题全对即掌握）/ 弱（有未毕业错题、当前答错、或口述判弱——负面优先）/ 进行中（部分作答无负面，或题全对但口述未达标且闪卡未全毕业）/ 未开始。派生逻辑在 `scripts/lib/mastery.mjs`（报告入口 `scripts/mastery-report.mjs`）与其 TS 移植 `src/lib/mastery.ts`（全景页掌握判据，判据两边同步 + 跨侧夹具断言），无 LLM。闪卡经 `flashcards.json` 的可选 `examPoint` 映射作可选替代通道参与判据（SRS phase=review 即毕业）；口述四态来自口头答题流水（web 侧经覆盖快照 `oralStatus`，新鲜度 = 上次构建）。
+从答题进度（+ 口头流水 / 闪卡 SRS）对每个考点（EP-NN）确定性派生的四态：掌握（考点下题全答对、无未毕业错题，且满足任一超题证据——口述达标【有口述数据时】或映射闪卡全部毕业；无口述数据不阻塞，零闪卡学习者题全对即掌握）/ 弱（有未毕业错题、当前答错、或口述判弱——负面优先）/ 进行中（部分作答无负面，或题全对但口述未达标且闪卡未全毕业）/ 未开始。派生逻辑在 `scripts/lib/mastery.mjs`（报告入口 `scripts/mastery-report.mjs`）与其 TS 移植 `src/lib/mastery.ts`（全景页掌握判据，判据两边同步 + 跨侧夹具断言），无 LLM。闪卡经 `flashcards.json` 的可选 `examPoint` 映射作可选替代通道参与判据（SRS phase=review 即毕业）；口述四态来自口头答题流水——v0.26（#122）起 web 侧优先吃 `progress.oralAttempts` 实时回流（刷新即生效），无实时流水的考点回退覆盖快照 `oralStatus`（新鲜度 = 上次构建）。
 _Avoid_: 及格率、正确率（那是全题库口径，不是考点口径）
 
 **学习者档案（learner profile）**:
@@ -49,8 +49,8 @@ _Avoid_: 用户画像（那是增长/营销语境）、记忆图谱（图在 kno
 _Avoid_: 把掌握度写进知识页（状态入库，两处真源打架）、双向同步
 
 **口头答题流水（oral attempts）**:
-聊天陪练中每次口头问答的明细记录（考哪个知识点、对错、时间戳），存 `study/records/oral-attempts.json`，学习者私有不上站。无题知识点（图节点）的掌握度信号源：近期加权正确率 + 置信度封顶（答 1 次封 0.5、2 次封 0.8，防一次蒙对），范式照搬 DeepTutor `compute_mastery`，确定性零 LLM。契约二「口头题计数」从它派生，不再手写总数。
-_Avoid_: 手写总数当真源（双记必漂移）、把明细流水写进 markdown 表格
+聊天陪练中每次口头问答的明细记录（考哪个知识点、对错、时间戳），存 `study/records/oral-attempts.json`，学习者私有不上站；v0.26（#122）起教练写包同时把同一笔作答实时回流答题站 `progress.oralAttempts`（POST `/api/oral-attempts`，条目带 theme 归属）——web 掌握度/全景即时消费，两路并流四元组去重仍是同一笔。无题知识点（图节点）的掌握度信号源：近期加权正确率 + 置信度封顶（答 1 次封 0.5、2 次封 0.8，防一次蒙对），范式照搬 DeepTutor `compute_mastery`，确定性零 LLM。契约二「口头题计数」从它派生，不再手写总数。
+_Avoid_: 手写总数当真源（双记必漂移）、把明细流水写进 markdown 表格、两路各编时间戳（同笔作答并流会被计两次）
 
 **考点节点映射（graph map）**:
 knowflow 图节点 id ↔ 考点（EP-NN）的个人映射文件 `study/records/graph-map.json`，agent 辅助建立、学习者确认。未映射节点仍可经口头流水判掌握，只是不并入考点视图。映射是个人学习数据，同 records 隐私边界（不上站、不提交）。

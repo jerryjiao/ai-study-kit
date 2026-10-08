@@ -6,8 +6,9 @@
 //
 // 判据（v1.2，#119 / spec #118：题主证 + 口述/闪卡任一超题证据）：
 //   mastered    考点下全部题已作答、最近一次全对、无未毕业错题，且满足任一超题证据：
-//               ① 口述达标——该考点已有口述数据且口头四态 = mastered（oralByEp 传入，
-//                  web 侧来自 build 时覆盖快照 coverage.json 的 oralStatus，新鲜度 = 上次构建）；
+//               ① 口述达标——该考点已有口述数据且口头四态 = mastered（oralByEp 传入；
+//                  web 侧 #122 起优先 progress.oralAttempts 实时现算，无实时流水的考点
+//                  回退 build 时覆盖快照 coverage.json 的 oralStatus）；
 //               ② 映射闪卡（flashcards[].examPoint）全部毕业（SRS phase = review）——可选替代通道；
 //               ③ 该考点无口述数据——chat-first/零闪卡解锁：题全对即掌握，
 //                  映射闪卡有没有进度都不阻塞（「SRS 保持可用但彻底可选」）。

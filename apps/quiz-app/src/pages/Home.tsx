@@ -36,6 +36,7 @@ import {
   REGRESSION_GAP_DAYS, type PlanReport, type PlanGap,
 } from '../lib/plan';
 import { buildPanorama, flattenScheduleOrder } from '../lib/panorama';
+import { oralAttemptsForTheme } from '../lib/oral';
 import { nextStation, derivePlanGapInput } from '../lib/nextStation';
 import { pickWarmupQuestion, type WarmupPick } from '../lib/warmup';
 import { useI18n } from '../i18n';
@@ -162,6 +163,8 @@ export function Home() {
     const pano = buildPanorama(
       questions, progress.answers, themeData.examPoints ?? {},
       flashcards, progress.srs ?? {}, coverage, themeData.examDays ?? {},
+      // 口述实时回流（#122，与全景页同源）：热身选站的四态与全景推荐卡同一时点口径
+      oralAttemptsForTheme(progress.oralAttempts, themeData.theme),
     );
     const schedulePoints = flattenScheduleOrder(pano.groups);
     // 计划缺口仅有目标日才有（零催办原则，与全景页同一组装函数）

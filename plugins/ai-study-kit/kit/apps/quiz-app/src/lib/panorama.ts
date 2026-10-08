@@ -6,12 +6,15 @@
 // 三信号（v0.13）：
 //   taught 讲过    来自 build 时产出的内容无关覆盖快照（src/data/coverage.json——study/records
 //                  学习者私有不上站，只有 ep id/布尔/计数能出门）∪ courseTaughtAll（课全读）
-//   practiced 练过 本地进度实时派生：该考点有答题记录，或快照口头计数 > 0（弱信号）
+//   practiced 练过 本地进度实时派生：该考点有答题记录，或口头计数 > 0（弱信号）
 //   mastered 掌握  掌握度四态判据（masteryByExamPoint v1.2：题主证 + 口述达标/闪卡毕业任一
-//                  超题证据）——口述四态来自快照 oralStatus（内容无关枚举，build 时现算）
-// 「讲过/口头/口述达标状态」新鲜度 = 上次 build；答题实时。分组：theme.json examDays。
-import type { AnswerRecord, Flashcard, Question, SrsState } from '../types';
+//                  超题证据）——口述四态 #122（v0.26）起优先取 progress.oralAttempts 实时
+//                  现算（教练陪练作答 POST /api/oral-attempts 回流，刷新页面即生效），
+//                  无实时流水的考点回退快照 oralStatus（build 时现算）
+// 「讲过」新鲜度 = 上次 build；答题与口述实时（口述实时通道 + 快照回退）。分组：theme.json examDays。
+import type { AnswerRecord, Flashcard, OralAttempt, Question, SrsState } from '../types';
 import { masteryByExamPoint, type ExamPointMastery, type MasteryStatus } from './mastery';
+import { groupOralByEp, oralMastery } from './oral';
 
 export interface OralCount { asked: number; correct: number }
 
@@ -62,7 +65,7 @@ export interface PanoramaPoint {
   total: number;
   openWrong: number;
   oral: OralCount | null;
-  /** 口头四态（v1.2 判据输入，来自快照）；null = 无口述数据。 */
+  /** 口头四态（v1.2 判据输入）：#122 起实时流水现算优先，快照 oralStatus 回退；null = 无口述数据。 */
   oralStatus: MasteryStatus | null;
 }
 
@@ -77,6 +80,8 @@ export const UNSCHEDULED_DAY = '未排程';
 /**
  * 全景聚合（与 scripts/lib/panorama.mjs buildPanorama 同口径；records/coursesRead 输入
  * 在 web 侧替换为 build 时快照——判据等价：taught = 快照 taught ∪ courseTaughtAll）。
+ * @param oralAttempts 口述实时流水（progress.oralAttempts 经 oralAttemptsForTheme 过滤后
+ *                     传入，#122）：考点命中即四态/计数现算优先，无流水的考点回退快照。
  */
 export function buildPanorama(
   questions: Question[],
@@ -86,13 +91,22 @@ export function buildPanorama(
   srs: Record<string, SrsState> = {},
   coverage: CoverageSnapshot | null = null,
   epDays: Record<string, string> = {},
+  oralAttempts: OralAttempt[] = [],
 ): { summary: { examPoints: number; taught: number; practiced: number; mastered: number }; courseTaughtAll: boolean; groups: PanoramaGroup[] } {
   const covByEp = new Map<string, CoveragePoint>();
   for (const p of coverage?.points ?? []) covByEp.set(p.ep, p);
-  // 口述四态 → 掌握判据（v1.2 超题证据主通道；新鲜度 = 快照 build 时点，与「讲过/口头」同款）
+  // 口述四态 → 掌握判据（v1.2 超题证据主通道）。#122 实时回流：实时流水按 EP 分组现算
+  // （教练 POST 回流，刷新即生效）；无实时流水的考点回退快照 oralStatus（无 API 离线场景
+  // 优雅回退，旧路径不破坏）。逐考点独立回退——实时流可只覆盖部分考点。
+  const liveByEp = new Map<string, { status: MasteryStatus; asked: number; correct: number }>();
+  for (const [ep, attempts] of groupOralByEp(oralAttempts, epNames)) {
+    const m = oralMastery(attempts);
+    liveByEp.set(ep, { status: m.status, asked: m.asked, correct: m.correct });
+  }
   const oralByEp: Record<string, MasteryStatus> = {};
+  for (const [ep, live] of liveByEp) oralByEp[ep] = live.status;
   for (const [ep, cov] of covByEp) {
-    if (cov.oralStatus) oralByEp[ep] = cov.oralStatus;
+    if (!liveByEp.has(ep) && cov.oralStatus) oralByEp[ep] = cov.oralStatus;
   }
   const { points } = masteryByExamPoint(questions, answers, epNames, flashcards, srs, oralByEp);
   const courseTaughtAll = coverage?.courseTaughtAll === true;
@@ -109,7 +123,11 @@ export function buildPanorama(
     const day = epDays[p.ep] || UNSCHEDULED_DAY;
     if (!groupMap.has(day)) groupMap.set(day, []);
     const cov = covByEp.get(p.ep);
-    const oral = cov?.oral ?? null;
+    // 口头计数同款实时优先：实时流水的 asked/correct 现算，无流水考点回退快照 oral
+    const live = liveByEp.get(p.ep);
+    const oral: OralCount | null = live
+      ? { asked: live.asked, correct: live.correct }
+      : (cov?.oral ?? null);
     groupMap.get(day)!.push({
       ep: p.ep,
       name: p.name,

@@ -126,9 +126,31 @@ export interface PlanFile {
 }
 
 
+/** 口头答题流水条目（#122 实时回流）：聊天陪练每次口头问答一条明细。
+ *  形状与主题包 study/records/oral-attempts.json 同源（判据单源 scripts/lib/oral.mjs /
+ *  src/lib/oral.ts），多带 `theme` 归属标记（多主题隔离在读端做，见 oralAttemptsForTheme）。 */
+export interface OralAttempt {
+  /** 归属主题名（与 coursesRead 的 key 前缀同源）；缺省 = 读端宽容视为当前主题（手写数据兼容）。 */
+  theme?: string;
+  /** 目标引用：EP-NN 前缀（题库考点）| 裸考点名（兜底）。 */
+  target: string;
+  /** 对错布尔（判对 true / 判错 false）。 */
+  correct: boolean;
+  /** 作答时刻的真实 Date.now()（与 progress 同款红线：绝不允许固定值或未来时间戳）。 */
+  at: number;
+  /** 来源标记：recall 抽背 | recite 复述 | case 案例评分点；缺省/未知 = null。 */
+  source?: 'recall' | 'recite' | 'case' | null;
+}
+
 export interface Progress {
   version: number;            // 固定 1
   answers: Record<string, AnswerRecord>;  // key = question id
+  /** 口头答题流水（#122 实时回流）：教练陪练（skill F10）写主题包流水的同时把作答
+   *  POST /api/oral-attempts 提交到本字段，web 全景/掌握判据实时消费（不再等 build 快照）。
+   *  合并语义 = 并集 + 四元组去重 + 按 at 升序（mergeOralAttempts）；单边缺失 = 该边从未
+   *  写过、取存在一侧（浏览器整档 POST 不会冲掉教练回流），append-only 无墓碑无重置入口。
+   *  读端隔离：消费方先 oralAttemptsForTheme 过滤当前主题。 */
+  oralAttempts?: OralAttempt[];
   read?: Record<string, number>;          // 看题进度：key=题id，value=已看时间戳(Date.now())
   /** 看题墓碑：key=题id，value=删除时间戳。read 的 value 本身是时间戳无法承载墓碑，单独维护。
    *  读 read 时若 read[id] < readTombstones[id] 视为已删（重看本题集用）。
