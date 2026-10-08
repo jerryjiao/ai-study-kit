@@ -18,6 +18,20 @@
  */
 import { isOpenWrong } from './mastery.mjs';
 
+/** 下站预告的动作常量（v0.26 #124，与 src/lib/nextHook.ts 的 NEXT_HOOK_* 同源）：
+ *  动作 = 单考点口述 3 题，时长量级 ≈ 5 分钟（微块标准颗粒，词表 #123）。 */
+export const NEXT_HOOK_ACTION = 'oral-3';
+export const NEXT_HOOK_MINUTES = 5;
+
+/** 选站结果 → 下站预告形状（纯函数，#124 会话收尾开环预告）。
+ *  预告考点与下一站推荐同判据（本文件 warmupStation 三级 = nextStation 去拓扑骨架）；
+ *  station=null（全掌握/无可推考点）→ null——教练侧如实收「下次开新篇」，不编预告。
+ *  消费方：plan-report 的 `next` 字段（判据源，skill F10 收尾读它产预告句）。 */
+export function nextHookFromStation(station) {
+  if (!station) return null;
+  return { ...station, action: NEXT_HOOK_ACTION, minutes: NEXT_HOOK_MINUTES };
+}
+
 /** 热身池「计划内」判据构造（与 src/lib/warmup.ts 的 isPlanned && tier 双过滤同构）：
  *  source 层 ≠ 拓展（theme-config sourceLayers，无映射 = 无层概念 = 计划内）+ tier ≠ 'ext'。
  *  @param {object|null} sourceLayers theme-config.json 的 sourceLayers（null/缺省 = 全部计划内） */

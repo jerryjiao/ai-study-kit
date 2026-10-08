@@ -155,6 +155,7 @@ node apps/quiz-app/scripts/plan-report.mjs --theme "$THEME" --progress "$CP" --j
     - **计划后移建议**：`regression.shift`——`available=true` 报「按实测速率（近 `windowDays` 天约 `daysPerUnit` 天/单元），剩余 `remaining` 单元约需 `estimatedDays` 天，计划建议后移 `shiftDays` 天」；**只建议不执行**（要不要挪日期由学习者拍板，自动重排归 v0.27）；`reason=no-rate`（长断档常见：近窗零完成）静默省略该段，`no-target`（无对照日）同理——绝不编数字；noop 主题 `shift` 恒 null，该段整段省略（无计划无日程可挪，不出「后移」话头）。
     - 无 deadline 主题的建议用中性语气（「比剩余日程多 N 天，可考虑整体后移」），不出「落后」类催办字样（零催办原则，同上）。
     - `regression.active=false`（断档 < 3 天的正常间隔）时**回归动作行整行省略**——输出与没有该功能前零变化。
+  - **下站预告（`next` 字段，v0.26 #124）**：与断档无关**恒出**（ok 与 noop 都有）——会话收尾开环预告的判据源：`{ep, name, reason, action: 'oral-3', minutes: 5}`，选站与热身同一套三级判据（落后日程 > 补弱 > 结构序，即下一站推荐口径），与题站会话总结页预告行（`src/lib/nextHook.ts`）同判据两侧一致。消费方：F10 收尾（站收尾与微块收尾固定产出一句话预告 + 落 `next-hook.json`，见 [`contracts.md`](contracts.md) 契约二「下站预告」）。`null`（全掌握/题库无考点标记）→ 如实收「下次开新篇」，不编预告。
   - **deadline**：`plan.deadline`（可选；未设就不报这一段）。
   - **单元状态概览**：`coverage.byStatus` 四态计数——快照行不逐个列，用户追问剩余单元时用 `coverage.remaining` 展开（含 in-progress 与 paused：搁置了也是没完成）。
 - **与「陪练」行考期的口径区分**：本行的 deadline 是**学习计划期限**（plan.json）；「陪练」行的「距考期」是 **MISSION.md frontmatter deadline**——两个源两个行，不互替不合并（F11 冲刺的硬前置始终是后者）。
@@ -194,6 +195,7 @@ echo "study-lang=${STUDY_LANG:-zh}"                                         # �
 ```bash
 # D 同 §2/§3 的主题目录（外部主题包路径，或仓库内 examples/<name>）
 ls "$D/study/records/" 2>/dev/null | sort || echo "records=none"
+cat "$D/study/records/next-hook.json" 2>/dev/null || echo "next-hook=none"   # 未认领的下站预告（#124；格式见 contracts.md 契约二）
 test -d "$D/learning-records" && echo "legacy=learning-records"
 grep -m1 '^mode:' "$D/COACH.md" 2>/dev/null        # 教学模式；COACH.md 缺失=静默（F10 首跑自建），不进快照
 grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有就亮 ⚠
@@ -211,6 +213,7 @@ grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有�
 
 - `topic` 取记录 frontmatter，旧格式无 frontmatter 时用文件名 slug；`N` = 该记录「## 待办」清单里未勾选（`- [ ]`）的条数。
 - `mode` 取值顺序：记录 frontmatter `mode`（用户可能中途换过）→ COACH.md frontmatter `mode` → 报「未设」。
+- **未认领的下站预告（#124）**：`next-hook.json` 有内容 = 上次会话收尾留了预告（`{ep, name, minutes, leftAt}`，格式见 [`contracts.md`](contracts.md) 契约二「下站预告」）→ F10 第 0 步开场认领（「上次说好下次练 EP-XX，今天从它开始？」）。认领前对当前全景：该考点已掌握 → 跳过不认领（预告过期不是欠账）；`next-hook=none` → 什么都不说，零变化。
 
 **考期（deadline）**：读 MISSION.md frontmatter `deadline: YYYY-MM-DD`——
 

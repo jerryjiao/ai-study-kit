@@ -39,7 +39,7 @@ import { resolveThemeDir } from './lib/theme-path.mjs';
 import { readPlan, derivePlanReport, deriveGap, deriveShiftAdvice, REGRESSION_GAP_DAYS } from './lib/plan.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint } from './lib/mastery.mjs';
 import { readOralAttempts, groupOralAttempts, oralMastery, mergeOralAttempts, oralAttemptsFromProgress } from './lib/oral.mjs';
-import { warmupStation, pickWarmupQuestion, warmupPlannedFrom } from './lib/warmup.mjs';
+import { warmupStation, pickWarmupQuestion, warmupPlannedFrom, nextHookFromStation } from './lib/warmup.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -124,7 +124,7 @@ const warmupPlanned = warmupPlannedFrom(sourceLayers);
 // build 快照还新鲜）。calendarDiff/deadline 参数化：有 plan 传日历对照（落后日程轨
 // 插队），无 plan 传 null/null——落后日程轨自然不存在（与 web 侧 nextStation 无
 // planGap 时同构），走补弱/结构轨。
-const buildWarmup = (calendarDiff, deadline) => {
+const buildStation = (calendarDiff, deadline) => {
   const missionPath = join(THEME_DIR, 'MISSION.md');
   const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
   const epNames = missionText ? epNameMap(missionText) : {};
@@ -136,10 +136,18 @@ const buildWarmup = (calendarDiff, deadline) => {
   const oralStatusByEp = new Map();
   for (const [ep, attempts] of oralGroups.byEp) oralStatusByEp.set(ep, oralMastery(attempts).status);
   const { points } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs, oralByEp: oralStatusByEp });
-  const station = warmupStation({ points, epDays, calendarDiff, deadline });
-  return pickWarmupQuestion(questions, progress, station, warmupPlanned);
+  return warmupStation({ points, epDays, calendarDiff, deadline });
 };
+const buildWarmup = (calendarDiff, deadline) =>
+  pickWarmupQuestion(questions, progress, buildStation(calendarDiff, deadline), warmupPlanned);
 const regressionWarmupNoPlan = regressionActive ? buildWarmup(null, null) : null;
+
+// 下站预告（#124 会话收尾开环预告）：收尾钩子的判据源——与下一站推荐同判据
+// （warmupStation 三级，web 侧 nextStation 同构），与断档无关恒出（教练收尾固定产出一句话；
+// web 会话总结页预告行同判据，两侧一致）。全掌握/无可推考点 → null，如实收尾不编预告。
+const NEXT_WHY = { schedule: '按日程', weak: '按薄弱', structural: '按结构' };
+const nextLabel = (n) => `${n.ep}${n.name && n.name !== n.ep ? ` ${n.name}` : ''}`;
+const nextNoPlan = nextHookFromStation(buildStation(null, null));
 
 // ── noop 路径：主题无 plan.json（可选文件），四组信号无数据可派生 ──
 // regression 例外照出（热身不依赖计划；shift 恒 null——无计划无日程可挪）。
@@ -158,11 +166,18 @@ if (!PLAN_PRESENT) {
       warmup: regressionWarmupNoPlan,
       shift: null,
     },
+    next: nextNoPlan,
   };
   if (AS_JSON) console.log(JSON.stringify(noop, null, 2));
   else {
     say(`🗓️ 学习计划对账 · ${THEME}`);
     say(`   无 plan.json（reason: ${reason}）→ noop，无计划信号可派生`);
+    const nn = noop.next;
+    if (nn) {
+      say(`🧲 下站预告：${nextLabel(nn)} · 口述 3 题 · 约 ${nn.minutes} 分钟（${NEXT_WHY[nn.reason] ?? nn.reason}）`);
+    } else {
+      say('🧲 下站预告：无可推考点（全掌握或题库无考点标记）');
+    }
     if (noop.regression.active) {
       say(`🔁 断档回归（≥ ${REGRESSION_GAP_DAYS} 天，无计划主题——只热身，无后移建议）：`);
       const w = noop.regression.warmup;
@@ -209,6 +224,10 @@ report.regression = {
   warmup: regressionActive ? buildWarmup(signals.calendarDiff, signals.projection.deadline) : null,
   shift: regressionActive ? deriveShiftAdvice(plan, now, gap, signals.projection) : null,
 };
+
+// 下站预告（#124）：有 plan 分支带日历对照重算（落后日程轨插队，与 buildWarmup 同参数）；
+// 与断档无关恒出——收尾固定产出，快照/教练收尾/题站会话总结三端同判据。
+report.next = nextHookFromStation(buildStation(signals.calendarDiff, signals.projection.deadline));
 
 // ── 输出 ──────────────────────────────────────────────────
 if (AS_JSON) {
@@ -277,5 +296,13 @@ if (AS_JSON) {
       const whyMap = { 'no-rate': '速率无数据（近窗零完成），不硬算', 'no-target': '无 deadline 且剩余单元无日程，无对照日', 'on-track': '按实测速率仍在轨，无需后移' };
       say(`   计划后移建议：不可算——${whyMap[sh.reason] ?? sh.reason}`);
     }
+  }
+  // 6. 下站预告（#124 会话收尾开环预告）：与断档无关恒出——教练收尾读本行产预告句
+  //    （钩子式：只说下次可以做什么，零催办零欠账字样）；判据与下一站推荐同源。
+  const nx = report.next;
+  if (nx) {
+    say(`🧲 下站预告：${nextLabel(nx)} · 口述 3 题 · 约 ${nx.minutes} 分钟（${NEXT_WHY[nx.reason] ?? nx.reason}）`);
+  } else {
+    say('🧲 下站预告：无可推考点（全掌握或题库无考点标记）');
   }
 }

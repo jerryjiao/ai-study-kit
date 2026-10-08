@@ -226,6 +226,7 @@ export const ja: Record<TKey, string> = {
   'summary.wrongCount': '不正解',
   'summary.selfRated': '自己採点問題 {n} 問を含みます（正答率には数えません）',
   'summary.totalNote': '全 {n} 問 · このトピックの累計正答率',
+  'summary.nextHook': '次回：{name} 口頭で 3 問 · 約 {minutes} 分',
   'summary.backHome': 'ホームに戻る',
   'summary.redo': 'このセットをやり直す',
 

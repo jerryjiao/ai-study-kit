@@ -228,6 +228,7 @@ export const ru: Record<TKey, string> = {
   'summary.wrongCount': 'Ошибки',
   'summary.selfRated': 'Включая {n} с самооценкой (не входят в точность)',
   'summary.totalNote': '{n} вопросов · накопленная точность по теме',
+  'summary.nextHook': 'В следующий раз: {name} — 3 устных вопроса, ~{minutes} мин',
   'summary.backHome': 'На главную',
   'summary.redo': 'Пройти заново',
 

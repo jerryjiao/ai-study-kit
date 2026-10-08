@@ -228,6 +228,7 @@ export const es: Record<TKey, string> = {
   'summary.wrongCount': 'Errores',
   'summary.selfRated': 'Incluye {n} autoevaluadas (no cuentan para la precisión)',
   'summary.totalNote': '{n} preguntas · precisión acumulada del tema',
+  'summary.nextHook': 'Próxima vez: {name} — 3 preguntas orales, ~{minutes} min',
   'summary.backHome': 'Inicio',
   'summary.redo': 'Rehacer serie',
 

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Home, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Home, RotateCcw, CheckCircle2, Magnet, ChevronRight } from 'lucide-react';
 import type { Stats } from '../types';
 import { Button3D, Ring } from './ui';
 import type { RingTone } from './ui';
 import { useI18n } from '../i18n';
+import type { NextHook } from '../lib/nextHook';
 
 interface Props {
   /** 本列表统计（来自 computeListStats(progress, list)）：accuracy/answered/correct/wrong/total。
@@ -13,6 +15,9 @@ interface Props {
   title: string;
   /** 重做本题集：清当前列表答题记录并回到第一题。Practice 复用现有 resetThisSet。 */
   onReset: () => void;
+  /** 下站预告（#124 会话收尾开环预告，可选）：下一站考点微块钩子（口述 3 题约 5 分钟，
+   *  与教练收尾/全景推荐卡同判据），可点直达该考点题集。null/缺省 = 无可推考点，整行不渲染。 */
+  nextHook?: NextHook | null;
 }
 
 /** 缓动函数：ease-out，让数字滚动先快后慢，结束段更稳。 */
@@ -31,7 +36,7 @@ const DURATION = 900;
  *  自评题(correct===null)计入"已答"但不进正确率分母——与 computeStats 一致，
  *  组件内自算 selfRated = answered - graded，单独标注避免"已答≠对+错"困惑。 */
 export function SessionSummary({
-  stats, title, onReset,
+  stats, title, onReset, nextHook,
 }: Props) {
   const { t } = useI18n();
   const { accuracy, answered, correct, wrong, total } = stats;
@@ -103,6 +108,23 @@ export function SessionSummary({
         </p>
       )}
       <p className="text-xs text-text-faint -mt-2">{t('summary.totalNote', { n: total })}</p>
+
+      {/* 下站预告（#124 开环预告）：会话结束不再是终点——「未完成感」经营成回归钩子。
+          绿色系（正反馈，非红字非欠账）+ 可点直达预告考点题集（?ep=，与全景节点/回归卡
+          热身同一入口）。内容与教练收尾预告、全景「下一站」推荐同判据（lib/nextHook）；
+          无可推考点（全掌握/无考点主题）→ 整行不渲染，总结卡与没有该功能前零变化。 */}
+      {nextHook && (
+        <Link
+          to={nextHook.to}
+          className="w-full max-w-xs flex items-center gap-2 rounded-xl border-2 border-st-green/40 bg-st-green-soft/70 px-4 py-2.5 text-left transition-colors hover:bg-st-green-soft"
+        >
+          <Magnet className="h-4 w-4 shrink-0 text-st-green-ink" strokeWidth={2} aria-hidden />
+          <span className="flex-1 text-xs font-bold text-st-green-ink">
+            {t('summary.nextHook', { name: nextHook.label, minutes: nextHook.minutes })}
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-st-green-ink/70" strokeWidth={2} aria-hidden />
+        </Link>
+      )}
 
       {/* 动作按钮：返回首页（默认，绿=推进）+ 重做本题集（次选，二次确认由 onReset 内部处理）。 */}
       <div className="flex items-center gap-3 w-full max-w-xs">

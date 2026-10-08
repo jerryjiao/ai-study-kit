@@ -2,11 +2,15 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, RotateCcw, BookOpen, PenLine, RefreshCw, SkipForward, CheckCircle2, ArrowRight } from 'lucide-react';
 import { questions } from '../data/questions';
+import { flashcards } from '../data/flashcards';
+import { plan } from '../data/plan';
+import { coverage } from '../data/coverage';
 import themeMeta from '../data/theme.json';
 import type { Question } from '../types';
 import { useProgress } from '../hooks/useProgress';
 import { wrongIds, streakToPass, isAnswerDeleted, isRead, computeListStats } from '../lib/progress';
 import { loadPosIndex, savePosId } from '../lib/posMemory';
+import { deriveNextHook } from '../lib/nextHook';
 import { QuestionCard } from '../components/QuestionCard';
 import { ProgressBar } from '../components/ProgressBar';
 import { SessionSummary } from '../components/SessionSummary';
@@ -256,6 +260,25 @@ export function Practice() {
   /** 总结态显隐：用户在末题点「完成答题」后置 true，覆盖 QuestionCard 区域展示成绩。
    *  切换列表/scope 时自动重置（依赖下方的 scope 变更 effect 复用 setPos 处），这里独立管理。 */
   const [showSummary, setShowSummary] = useState(false);
+  /** 下站预告（#124 会话收尾开环预告）：总结态可见时才现算（非常驻开销）——全景四态
+   *  （含口述实时回流）→ nextStation 主推荐 → 微块钩子形状，与全景推荐卡/教练收尾
+   *  （plan-report `next` 字段）同判据；无可推考点 → null（预告行不渲染）。 */
+  const themeData = themeMeta as { theme: string; examPoints?: Record<string, string>; examDays?: Record<string, string> };
+  const nextHook = useMemo(
+    () => (showSummary
+      ? deriveNextHook({
+          questions, progress, flashcards, coverage,
+          examPoints: themeData.examPoints ?? {},
+          examDays: themeData.examDays ?? {},
+          theme: themeData.theme,
+          plan,
+          now: Date.now(),
+        })
+      : null),
+    // questions/flashcards/coverage/plan/themeMeta 是构建期常量（sync 产物），不进依赖
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [showSummary, progress],
+  );
 
   // 位置超出列表（错题被移出/topic 切换导致列表缩短）时夹紧
   useEffect(() => { if (pos > list.length - 1) setPos(Math.max(0, list.length - 1)); }, [pos, list.length]);
@@ -561,6 +584,7 @@ export function Practice() {
               stats={listStats}
               title={day || subtopic || topic || t('practice.labelSequential')}
               onReset={resetThisSet}
+              nextHook={nextHook}
             />
             {nextAtomic ? (
               <Button3D

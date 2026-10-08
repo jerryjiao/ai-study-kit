@@ -3,7 +3,7 @@
 // 改判据两边一起改，两边测试都要过（plan.ts/plan.mjs 双实现先例）。
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { warmupStation, pickWarmupQuestion, warmupPlannedFrom } from './warmup.mjs';
+import { warmupStation, pickWarmupQuestion, warmupPlannedFrom, nextHookFromStation } from './warmup.mjs';
 
 const NOON = (y, m, d) => new Date(y, m - 1, d, 12).getTime();
 const AT = NOON(2026, 9, 20);
@@ -137,4 +137,22 @@ test('选站·无 plan 主题：calendarDiff/deadline 传 null → 跳过落后�
     warmupStation({ points: noWeak, epDays: EP_DAYS, calendarDiff: null, deadline: null }),
     { ep: 'EP-01', name: '暂存区', reason: 'structural' },
   );
+});
+
+// ── 下站预告（#124 会话收尾开环预告：选站 → 钩子形状）────────
+test('下站预告形状：选站结果补 action/minutes 常量（与 src/lib/nextHook.ts 同源）；null 透传', () => {
+  assert.deepEqual(
+    nextHookFromStation({ ep: 'EP-02', name: '分支', reason: 'weak' }),
+    { ep: 'EP-02', name: '分支', reason: 'weak', action: 'oral-3', minutes: 5 },
+  );
+  assert.equal(nextHookFromStation(null), null);   // 全掌握/无可推考点 → null，不编预告
+});
+
+test('下站预告与热身选站同一套三级判据（同一个 station 进两个消费面，口径不漂移）', () => {
+  const cd = { overdue: [{ id: 'U-01', day: 'D2', daysOverdue: 3 }] };
+  const s = warmupStation({ points: POINTS, epDays: EP_DAYS, calendarDiff: cd, deadline: '2026-10-15' });
+  const hook = nextHookFromStation(s);
+  assert.equal(hook.ep, s.ep);                     // 预告考点 = 选站考点（同判据的字面断言）
+  assert.equal(hook.reason, s.reason);
+  assert.equal(hook.minutes, 5);                   // 微块标准颗粒时长量级
 });

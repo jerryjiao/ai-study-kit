@@ -226,6 +226,7 @@ export const en: Record<TKey, string> = {
   'summary.wrongCount': 'Wrong',
   'summary.selfRated': 'Includes {n} self-graded questions (not counted in accuracy)',
   'summary.totalNote': '{n} questions · cumulative accuracy for this topic',
+  'summary.nextHook': 'Next up: {name} — 3 oral questions, ~{minutes} min',
   'summary.backHome': 'Home',
   'summary.redo': 'Redo this set',
 

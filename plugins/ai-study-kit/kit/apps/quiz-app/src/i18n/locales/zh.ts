@@ -225,6 +225,7 @@ export const zh = {
   'summary.wrongCount': '答错',
   'summary.selfRated': '含 {n} 道自评题（不计入正确率）',
   'summary.totalNote': '共 {n} 题 · 该主题累计正确率',
+  'summary.nextHook': '下次：{name} 口述 3 题 · 约 {minutes} 分钟',
   'summary.backHome': '返回首页',
   'summary.redo': '重做本题集',
 
