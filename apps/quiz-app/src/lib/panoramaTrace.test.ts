@@ -8,7 +8,7 @@
 import { describe, it, expect } from 'vitest';
 import { deriveEpTrace } from './panoramaTrace';
 import { mergeProgress } from './progress';
-import type { Progress, AnswerRecord, SrsState } from '../types';
+import type { OralAttempt, Progress, AnswerRecord, SrsState } from '../types';
 
 const DAY = 86_400_000;
 const T0 = Date.UTC(2026, 8, 12); // 2026-09-12（固定锚，测试不随「今天」漂移）
@@ -23,13 +23,17 @@ const srsReview = (at: number, extra: Partial<SrsState> = {}): SrsState => ({
   ease: 2.5, interval: 30, reps: 4, due: at + DAY, updatedAt: at, phase: 'review', stepIdx: 0, lapses: 0,
   ...extra,
 });
+const oral = (at: number, correct: boolean): OralAttempt => ({
+  target: 'EP-01 暂存区', correct, at, source: 'recall',
+});
 const derive = (
   answers: Record<string, AnswerRecord>,
   srs: Record<string, SrsState> = {},
   mastered = false,
   questionIds: string[] = ['Q1', 'Q2', 'Q3'],
   flashcardIds: string[] = ['FC-1'],
-) => deriveEpTrace({ questionIds, flashcardIds, answers, srs, mastered });
+  oralAttempts: OralAttempt[] = [],
+) => deriveEpTrace({ questionIds, flashcardIds, answers, srs, mastered, oralAttempts });
 const prog = (answers: Record<string, AnswerRecord>, srs: Record<string, SrsState> = {}): Progress => ({
   version: 1, answers, srs,
 });
@@ -92,6 +96,75 @@ describe('deriveEpTrace 事件派生（首答/答对/连错/闪卡毕业/掌握�
     expect(derive({}, srs).filter((e) => e.kind === 'flashGrad')).toHaveLength(1);
     const tombed = derive({}, { 'FC-1': srsReview(T0, { deletedAt: T0 + 1 }) });
     expect(tombed.filter((e) => e.kind === 'flashGrad')).toHaveLength(0);
+  });
+});
+
+describe('deriveEpTrace 口述事件（v0.26 #123 微块——全景「今日触达」的节点痕迹）', () => {
+  it('微块 3 题 = 3 条口述事件（对→oralCorrect / 错→oralWrong），不合并、逐笔可对账', () => {
+    const ev = derive(
+      { Q1: rec(T0) }, {}, false, ['Q1', 'Q2', 'Q3'], ['FC-1'],
+      [oral(T0 + 5 * DAY, true), oral(T0 + 5 * DAY + 60_000, true), oral(T0 + 5 * DAY + 120_000, false)],
+    );
+    expect(ev.filter((e) => e.kind === 'oralCorrect' || e.kind === 'oralWrong')).toEqual([
+      { at: T0 + 5 * DAY, kind: 'oralCorrect' },
+      { at: T0 + 5 * DAY + 60_000, kind: 'oralCorrect' },
+      { at: T0 + 5 * DAY + 120_000, kind: 'oralWrong' },
+    ]);
+  });
+
+  it('chat-first 考点（只有口述、无答题无卡）也有轨迹：首触 = 最早口述', () => {
+    const ev = deriveEpTrace({
+      questionIds: ['Q1'], flashcardIds: [], answers: {}, srs: {}, mastered: false,
+      oralAttempts: [oral(T0 + 2 * DAY, true), oral(T0 + DAY, false)],
+    });
+    expect(ev).toEqual([
+      { at: T0 + DAY, kind: 'first' },
+      { at: T0 + DAY, kind: 'oralWrong' },
+      { at: T0 + 2 * DAY, kind: 'oralCorrect' },
+    ]);
+  });
+
+  it('首触取答题与口述的最早；掌握事件时间集含口述（超题证据不漏时戳）', () => {
+    const answers = { Q1: rec(T0 + 2 * DAY), Q2: rec(T0 + 3 * DAY), Q3: rec(T0 + 4 * DAY) };
+    const ev = deriveEpTrace({
+      questionIds: ['Q1', 'Q2', 'Q3'], flashcardIds: [], answers, srs: {}, mastered: true,
+      oralAttempts: [oral(T0 + DAY, true)],                       // 口述比全部答题都早
+    });
+    expect(ev[0]).toEqual({ at: T0 + DAY, kind: 'first' });       // 首触锚到口述
+    expect(ev[ev.length - 1]).toEqual({ at: T0 + 4 * DAY, kind: 'mastered' }); // max = 最晚答题
+    const lateOral = deriveEpTrace({
+      questionIds: ['Q1', 'Q2', 'Q3'], flashcardIds: [], answers, srs: {}, mastered: true,
+      oralAttempts: [oral(T0 + 6 * DAY, true)],                   // 口述达标是收尾证据
+    });
+    expect(lateOral[lateOral.length - 1]).toEqual({ at: T0 + 6 * DAY, kind: 'mastered' }); // max 含口述
+  });
+
+  it('同刻 tie-break：口述排在答题类之后、闪卡之前（KIND_RANK 稳定序）', () => {
+    const same = T0 + DAY;
+    const ev = derive(
+      { Q1: rec(same) }, { 'FC-1': srsReview(same) }, false, ['Q1', 'Q2', 'Q3'], ['FC-1'],
+      [oral(same, true)],
+    );
+    expect(ev).toEqual([
+      { at: same, kind: 'first' },
+      { at: same, kind: 'correct', qid: 'Q1' },
+      { at: same, kind: 'oralCorrect' },
+      { at: same, kind: 'flashGrad', cardId: 'FC-1' },
+    ]);
+  });
+
+  it('缺省 oralAttempts / 坏条目（非对象、at 非有限数）不出事件不崩（旧调用零变化）', () => {
+    expect(derive({ Q1: rec(T0) })).toEqual([
+      { at: T0, kind: 'first' },
+      { at: T0, kind: 'correct', qid: 'Q1' },
+    ]);
+    const dirty = deriveEpTrace({
+      questionIds: ['Q1'], flashcardIds: [], answers: { Q1: rec(T0) }, srs: {}, mastered: false,
+      oralAttempts: [null, 42, { target: 'EP-01', correct: true, at: 'bad' }, oral(T0 + DAY, true)] as unknown as OralAttempt[],
+    });
+    expect(dirty.filter((e) => e.kind.startsWith('oral'))).toEqual([
+      { at: T0 + DAY, kind: 'oralCorrect' },                      // 只有合法条目出事件
+    ]);
   });
 });
 

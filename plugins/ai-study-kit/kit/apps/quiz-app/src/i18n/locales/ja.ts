@@ -54,6 +54,9 @@ export const ja: Record<TKey, string> = {
   'home.planProjComplete': 'すべてのユニットが完了',
   'home.planGap': '前回の学習から {n} 日',
   'home.planNoContact': 'まだ学習記録がありません',
+  // 今日の学習バッジ（#123 マイクロブロック）：4 チャネル（解答/カード/コース/口頭）の
+  // いずれかに今日の接触があれば点灯——3 問のマイクロブロック 1 回でもカウントします
+  'home.todayTouched': '今日もう学習済み',
   // ブランク明けの帰還カード（#120, spec #118 T1）：ウォームアップ + 計画シフトの提案
   'home.welcomeBack': 'おかえりなさい',
   'home.warmupCta': 'ウォームアップ：{name}',
@@ -104,6 +107,8 @@ export const ja: Record<TKey, string> = {
   'panorama.tlCorrect': '正解',
   'panorama.tlWrong': '誤答',
   'panorama.tlWrongRun': '{n} 連続誤答',
+  'panorama.tlOralCorrect': '口頭回答 正解',
+  'panorama.tlOralWrong': '口頭回答 誤答',
   'panorama.tlFlash': 'カード卒業',
   'panorama.tlMastered': 'ポイント習得',
   'panorama.tlMasteredSub': '全問正解 + 未卒業の誤答なし',

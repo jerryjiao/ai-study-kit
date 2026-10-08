@@ -57,6 +57,8 @@ export const zh = {
   'home.planProjComplete': '全部单元已完成',
   'home.planGap': '距上次学习 {n} 天',
   'home.planNoContact': '尚无学习接触记录',
+  // 今日触达（#123 微块轻启动）：四通道任一今天有接触即亮（含微块口述）——钩子式正反馈
+  'home.todayTouched': '今天已触达',
   // 断档回归卡（#120，spec #118 T1）：热身一题 + 计划后移建议（只建议不执行）
   'home.welcomeBack': '欢迎回来',
   'home.warmupCta': '热身一题 · {name}',
@@ -107,6 +109,8 @@ export const zh = {
   'panorama.tlCorrect': '答对',
   'panorama.tlWrong': '答错',
   'panorama.tlWrongRun': '连错 {n} 题',
+  'panorama.tlOralCorrect': '口述答对',
+  'panorama.tlOralWrong': '口述答错',
   'panorama.tlFlash': '闪卡毕业',
   'panorama.tlMastered': '考点掌握',
   'panorama.tlMasteredSub': '题全对 + 无未毕业错题',

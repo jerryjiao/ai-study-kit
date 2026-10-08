@@ -283,6 +283,54 @@ describe('deriveGap', () => {
     expect(g.source).toBe('answers');               // 本主题最晚接触 = A 的 09-25
     expect(g.daysSinceLastContact).toBe(3);         // 09-25 → 09-28；OTHER/FC-9/other 主题全被滤掉
   });
+  // ── 口述触达通道（v0.26 #123 微块轻启动）─────────────────
+  const oral = (o: Record<string, unknown>[]): Progress['oralAttempts'] => o as Progress['oralAttempts'];
+  it('微块场景：今天只有一笔口述回流 → gap=0、source=oral（「今天已触达」的判据输入）', () => {
+    const g = deriveGap(prog({
+      oralAttempts: oral([{ target: 'EP-03 chmod', correct: true, at: NOON(2026, 9, 28, 21), source: 'recall', theme: 't' }]),
+    }), NOW, { questionIds: [], cardIds: [], theme: 't' });
+    expect(g.available).toBe(true);
+    expect(g.daysSinceLastContact).toBe(0);
+    expect(g.source).toBe('oral');
+  });
+  it('口述多主题隔离：他主题条目不串门、theme 缺省宽容视为当前主题', () => {
+    const g = deriveGap(prog({
+      oralAttempts: oral([
+        { target: 'EP-01', correct: true, at: NOON(2026, 9, 28, 20), source: 'recall', theme: 'other' },
+        { target: 'EP-02', correct: true, at: NOON(2026, 9, 24, 20), source: 'recall' },   // 无 theme → 视为 t
+      ]),
+    }), NOW, { questionIds: [], cardIds: [], theme: 't' });
+    expect(g.available).toBe(true);
+    expect(g.source).toBe('oral');
+    expect(g.daysSinceLastContact).toBe(4);         // 只有缺省条目（09-24）算数；other 主题今天笔被滤
+    const none = deriveGap(prog({
+      oralAttempts: oral([{ target: 'EP-01', correct: true, at: NOON(2026, 9, 28), source: 'recall', theme: 'other' }]),
+    }), NOW, { questionIds: [], cardIds: [], theme: 't' });
+    expect(none.available).toBe(false);             // 全是他主题 → 无接触（诚实降级）
+  });
+  it('四通道取最大：今天口述压过昨天答题（微块当天断档清零）；口述更旧则以答题为准', () => {
+    const today = deriveGap(prog({
+      answers: ans({ A: { correct: true, submittedAt: NOON(2026, 9, 27, 9) } }),
+      oralAttempts: oral([{ target: 'EP-01', correct: true, at: NOON(2026, 9, 28, 22), source: 'recall', theme: 't' }]),
+    }), NOW, { questionIds: ['A'], cardIds: [], theme: 't' });
+    expect(today.daysSinceLastContact).toBe(0);     // 微块今天完成 → 当日触达亮、回归卡不出
+    expect(today.source).toBe('oral');
+    const stale = deriveGap(prog({
+      answers: ans({ A: { correct: true, submittedAt: NOON(2026, 9, 27, 9) } }),
+      oralAttempts: oral([{ target: 'EP-01', correct: true, at: NOON(2026, 9, 22, 22), source: 'recall', theme: 't' }]),
+    }), NOW, { questionIds: ['A'], cardIds: [], theme: 't' });
+    expect(stale.source).toBe('answers');           // 口述更旧，答题日为准（四通道取最大）
+    expect(stale.daysSinceLastContact).toBe(1);
+  });
+  it('opts.oralAttempts 附加流水（脚本侧包侧真源并流形态）：progress 空也能认触达', () => {
+    const g = deriveGap(prog({}), NOW, {
+      questionIds: [], cardIds: [], theme: 't',
+      oralAttempts: [{ target: 'EP-01', correct: true, at: NOON(2026, 9, 28, 21), source: 'recall' }],
+    });
+    expect(g.available).toBe(true);
+    expect(g.daysSinceLastContact).toBe(0);
+    expect(g.source).toBe('oral');
+  });
 });
 
 // ── 5. day 映射（全景页 day 卡状态 chip 的数据面，#93）──────

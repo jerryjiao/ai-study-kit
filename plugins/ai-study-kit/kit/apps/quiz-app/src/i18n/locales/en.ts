@@ -53,6 +53,9 @@ export const en: Record<TKey, string> = {
   'home.planProjComplete': 'All units completed',
   'home.planGap': '{n} days since last study contact',
   'home.planNoContact': 'No study contact yet',
+  // Today-touched badge (#123 micro-block): lit when any of the four channels (answers/flashcards/
+  // courses/oral) has contact today — even one 3-question micro-block counts
+  'home.todayTouched': 'Touched base today',
   // Regression welcome-back card (#120, spec #118 T1): warm-up question + plan-shift advice
   'home.welcomeBack': 'Welcome back',
   'home.warmupCta': 'Warm up: {name}',
@@ -102,6 +105,8 @@ export const en: Record<TKey, string> = {
   'panorama.tlCorrect': 'Correct',
   'panorama.tlWrong': 'Wrong',
   'panorama.tlWrongRun': '{n} wrong in a row',
+  'panorama.tlOralCorrect': 'Oral answer correct',
+  'panorama.tlOralWrong': 'Oral answer wrong',
   'panorama.tlFlash': 'Flashcard graduated',
   'panorama.tlMastered': 'Point mastered',
   'panorama.tlMasteredSub': 'All correct + no open wrongs',

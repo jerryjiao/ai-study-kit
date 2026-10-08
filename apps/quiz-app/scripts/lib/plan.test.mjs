@@ -390,6 +390,57 @@ test('断档·多主题隔离：其他主题的 answers/srs/课学完记录不�
   assert.equal(g.daysSinceLastContact, 3);         // 09-25 → 09-28；OTHER/FC-9/other 主题全被滤掉
 });
 
+// ── 断档·口述触达通道（v0.26 #123 微块轻启动；与 src/lib/plan.test.ts 同判据双实现）──
+test('断档·微块场景：今天只有一笔口述回流 → gap=0、source=oral（「今天已触达」判据输入）', () => {
+  const g = deriveGap({
+    oralAttempts: [{ target: 'EP-03 chmod', correct: true, at: NOON(2026, 9, 28, 21), source: 'recall', theme: 't' }],
+  }, NOW, { questionIds: [], cardIds: [], theme: 't' });
+  assert.equal(g.available, true);
+  assert.equal(g.daysSinceLastContact, 0);
+  assert.equal(g.source, 'oral');
+});
+
+test('断档·口述多主题隔离：他主题条目不串门、theme 缺省宽容视为当前主题', () => {
+  const g = deriveGap({
+    oralAttempts: [
+      { target: 'EP-01', correct: true, at: NOON(2026, 9, 28, 20), source: 'recall', theme: 'other' },
+      { target: 'EP-02', correct: true, at: NOON(2026, 9, 24, 20), source: 'recall' },   // 无 theme → 视为 t
+    ],
+  }, NOW, { questionIds: [], cardIds: [], theme: 't' });
+  assert.equal(g.available, true);
+  assert.equal(g.source, 'oral');
+  assert.equal(g.daysSinceLastContact, 4);         // 只有缺省条目（09-24）算数；other 主题今天笔被滤
+  const none = deriveGap({
+    oralAttempts: [{ target: 'EP-01', correct: true, at: NOON(2026, 9, 28), source: 'recall', theme: 'other' }],
+  }, NOW, { questionIds: [], cardIds: [], theme: 't' });
+  assert.equal(none.available, false);             // 全是他主题 → 无接触（诚实降级）
+});
+
+test('断档·四通道取最大：今天口述压过昨天答题；口述更旧则以答题为准', () => {
+  const today = deriveGap({
+    answers: { A: { submittedAt: NOON(2026, 9, 27, 9) } },
+    oralAttempts: [{ target: 'EP-01', correct: true, at: NOON(2026, 9, 28, 22), source: 'recall', theme: 't' }],
+  }, NOW, { questionIds: ['A'], cardIds: [], theme: 't' });
+  assert.equal(today.daysSinceLastContact, 0);     // 微块今天完成 → 当日触达亮、回归卡不出
+  assert.equal(today.source, 'oral');
+  const stale = deriveGap({
+    answers: { A: { submittedAt: NOON(2026, 9, 27, 9) } },
+    oralAttempts: [{ target: 'EP-01', correct: true, at: NOON(2026, 9, 22, 22), source: 'recall', theme: 't' }],
+  }, NOW, { questionIds: ['A'], cardIds: [], theme: 't' });
+  assert.equal(stale.source, 'answers');           // 口述更旧，答题日为准（四通道取最大）
+  assert.equal(stale.daysSinceLastContact, 1);
+});
+
+test('断档·opts.oralAttempts 附加流水（包侧真源并流形态）：progress 空也能认触达', () => {
+  const g = deriveGap({}, NOW, {
+    questionIds: [], cardIds: [], theme: 't',
+    oralAttempts: [{ target: 'EP-01', correct: true, at: NOON(2026, 9, 28, 21), source: 'recall' }],
+  });
+  assert.equal(g.available, true);
+  assert.equal(g.daysSinceLastContact, 0);
+  assert.equal(g.source, 'oral');
+});
+
 // ── 总装 + fixture 集成 ────────────────────────────────
 test('derivePlanReport 总装：plan-with fixture 四组信号一次派生（含降级面）', () => {
   const { plan } = readPlan(path.join(FIXTURES, 'plan-with'));

@@ -53,6 +53,9 @@ export const es: Record<TKey, string> = {
   'home.planProjComplete': 'Todas las unidades completadas',
   'home.planGap': 'Hace {n} días del último contacto de estudio',
   'home.planNoContact': 'Aún sin contacto de estudio',
+  // Insignia de contacto de hoy (#123 microbloque): se enciende si hoy hay contacto en cualquiera
+  // de los cuatro canales (respuestas/tarjetas/cursos/oral) — incluso un microbloque de 3 preguntas cuenta
+  'home.todayTouched': 'Hoy ya estudiaste',
   // Tarjeta de bienvenida tras una pausa (#120, spec #118 T1): calentamiento + consejo de plan
   'home.welcomeBack': 'Bienvenido de nuevo',
   'home.warmupCta': 'Calentamiento: {name}',
@@ -103,6 +106,8 @@ export const es: Record<TKey, string> = {
   'panorama.tlCorrect': 'Acierto',
   'panorama.tlWrong': 'Fallo',
   'panorama.tlWrongRun': '{n} fallos seguidos',
+  'panorama.tlOralCorrect': 'Respuesta oral correcta',
+  'panorama.tlOralWrong': 'Respuesta oral incorrecta',
   'panorama.tlFlash': 'Tarjeta graduada',
   'panorama.tlMastered': 'Punto dominado',
   'panorama.tlMasteredSub': 'Todo correcto + sin fallos abiertos',

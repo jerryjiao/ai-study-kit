@@ -38,8 +38,11 @@
  *     - 诚实降级（available=false，绝不硬算编数）：空计划 no-units / 全部完成 complete /
  *       近 14 天零完成事件 no-recent-completions（速率无数据，除零即无穷，不外推）。
  *
- *  4. 断档天数 deriveGap：距最后一次学习接触的自然日差，三通道取最大——
- *     progress.answers[].submittedAt / progress.srs[].updatedAt / progress.coursesRead 值
+ *  4. 断档天数 deriveGap：距最后一次学习接触的自然日差，四通道取最大——
+ *     progress.answers[].submittedAt / progress.srs[].updatedAt / progress.coursesRead 值 /
+ *     口述流水（v0.26 #123 微块起：progress.oralAttempts 回流副本 ∪ opts.oralAttempts
+ *     附加——脚本侧传主题包 study/records/oral-attempts.json 并流后的流水，微块完成
+ *     当天 gap=0「今天已触达」，条目 theme 归属过滤隔离）
  *     （课学完 key 自带 "<theme>/" 前缀天然隔离；answers/srs 靠调用方传本主题题/卡 id 集
  *     求交——多主题进度隔离的读端过滤红线，见 AGENTS.md。不传集合 = 全量口径，消费端自责）。
  *     墓碑答案也算接触（提交发生过；deletedAt 只影响统计不影响「摸过没」）。
@@ -232,10 +235,14 @@ export function deriveProjection(plan, now, WINDOW_DAYS = 14) {
   };
 }
 
-/** 4. 断档天数：距最后一次学习接触的自然日差（answers/srs/课学完三通道取最大）。
+/** 4. 断档天数：距最后一次学习接触的自然日差（answers/srs/课学完/口述四通道取最大；
+ *  口述通道 v0.26 #123——微块口述题当天即触达，gap=0「今天已学过」）。
  *  @param {object} progress progress.json 原文（缺字段按空处理）
  *  @param {number} now     当前 ms 时间戳
- *  @param {object} [opts]  { questionIds, cardIds, theme }——多主题隔离（不传 = 全量口径）
+ *  @param {object} [opts]  { questionIds, cardIds, theme, oralAttempts }——多主题隔离
+ *                         （不传 = 全量口径）；oralAttempts = 附加口述流水（脚本侧主题包
+ *                         study/records/oral-attempts.json 并流后传入，progress.oralAttempts
+ *                         只是回流副本、API 离线时包侧才是完整真源）
  */
 export function deriveGap(progress, now, opts = {}) {
   const { questionIds, cardIds, theme } = opts;
@@ -256,6 +263,14 @@ export function deriveGap(progress, now, opts = {}) {
   for (const [key, at] of Object.entries(progress?.coursesRead ?? {})) {
     if (theme && !key.startsWith(`${theme}/`)) continue;             // key 自带主题前缀
     consider(at, 'coursesRead');
+  }
+  // 口述通道（v0.26 #123 微块）：回流副本 ∪ 附加流水；条目 theme 缺省宽容视为当前主题
+  //（与 oral.mjs oralAttemptsFromProgress 同款——手写/旧数据兼容，不见为失）
+  const oralExtra = Array.isArray(opts.oralAttempts) ? opts.oralAttempts : [];
+  for (const a of [...(progress?.oralAttempts ?? []), ...oralExtra]) {
+    if (!a || typeof a !== 'object') continue;
+    if (theme && a.theme && a.theme !== theme) continue;
+    consider(a.at, 'oral');
   }
   if (!best) {
     return { available: false, reason: 'no-contact', daysSinceLastContact: null, lastContactAt: null, source: null };
@@ -330,11 +345,11 @@ export function deriveShiftAdvice(plan, now, gap, projection) {
 }
 
 /** 四组信号总装（CLI 与前端 TS 移植共用入口；noop 判定在调用方——present=false 不进来）。 */
-export function derivePlanReport({ plan, progress, now, questionIds, cardIds, theme }) {
+export function derivePlanReport({ plan, progress, now, questionIds, cardIds, theme, oralAttempts }) {
   return {
     coverage: deriveCoverage(plan),
     calendarDiff: deriveCalendarDiff(plan, now),
     projection: deriveProjection(plan, now),
-    gap: deriveGap(progress, now, { questionIds, cardIds, theme }),
+    gap: deriveGap(progress, now, { questionIds, cardIds, theme, oralAttempts }),
   };
 }

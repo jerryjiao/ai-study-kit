@@ -23,11 +23,11 @@ import {
 import { nextStation, derivePlanGapInput, type NextStationResult } from '../lib/nextStation';
 import { deriveEpTrace, type TraceEvent } from '../lib/panoramaTrace';
 import { isFlashGraduated, type MasteryStatus } from '../lib/mastery';
-import { oralAttemptsForTheme } from '../lib/oral';
+import { oralAttemptsForTheme, groupOralByEp } from '../lib/oral';
 import { deriveCalendarDiff, deriveCoverage, deriveProjection, diffCalendarDays, type PlanCalendarDiff, type PlanProjection } from '../lib/plan';
 import { TOPIC_ORDER, topicLabel } from '../lib/topicOrder';
 import type { Lesson } from '../lib/courseProgress';
-import type { AnswerRecord, SrsState } from '../types';
+import type { AnswerRecord, OralAttempt, SrsState } from '../types';
 import { useProgress } from '../hooks/useProgress';
 import { useI18n, type TFn } from '../i18n';
 import { Button3D, Card, Switch } from '../components/ui';
@@ -89,12 +89,14 @@ const CHIP_CLS: Record<MasteryStatus, string> = {
   untouched: 'text-text-muted bg-st-track border-border',
 };
 
-/** 轨迹圆点描边色：首次=灰 / 答对·毕业·掌握=绿 / 错=红。 */
+/** 轨迹圆点描边色：首次=灰 / 答对·毕业·掌握=绿 / 错=红（口述同答对答错语义，#123）。 */
 const TL_DOT_CLS: Record<TraceEvent['kind'], string> = {
   first: 'border-text-faint',
   correct: 'border-st-green',
   wrong: 'border-st-red',
   wrongRun: 'border-st-red',
+  oralCorrect: 'border-st-green',
+  oralWrong: 'border-st-red',
   flashGrad: 'border-st-green',
   mastered: 'border-st-green',
 };
@@ -149,6 +151,12 @@ export function Panorama() {
   const oralLive = useMemo(
     () => oralAttemptsForTheme(progress.oralAttempts, themeData.theme),
     [progress.oralAttempts, themeData.theme],
+  );
+  // 口述流水按考点分组（#123 微块）：节点详情轨迹的口述事件输入（与 buildPanorama 的
+  // liveByEp 同源同分组判据——groupOralByEp 只收能解析出 EP 的条目，节点视图天然对齐）
+  const oralByEp = useMemo(
+    () => groupOralByEp(oralLive, themeData.examPoints ?? {}),
+    [oralLive],
   );
   const panorama = useMemo(
     () => buildPanorama(
@@ -347,6 +355,7 @@ export function Panorama() {
           ids={idsByEp.get(openEp) ?? { qids: [], fids: [] }}
           answers={progress.answers}
           srs={progress.srs ?? {}}
+          oral={oralByEp.get(openEp) ?? []}
           lesson={lessonByEp.get(openEp) ?? null}
           onClose={() => setOpenEp(null)}
         />
@@ -587,11 +596,13 @@ function TopicMarch({ sections, filter, edges, knowflowOn, onOpenNode }: {
 
 /** 节点详情弹层（原型 pano-history-light .sheet）：四态 chip + 讲/练/掌 chip + 答题/错题/
  *  闪卡统计 + 学习轨迹时间线 + 直达刷题与课程。手机底部弹层、桌面居中卡片（同设置面板）。 */
-function NodeSheet({ point, ids, answers, srs, lesson, onClose }: {
+function NodeSheet({ point, ids, answers, srs, oral, lesson, onClose }: {
   point: PanoramaPoint | null;
   ids: { qids: string[]; fids: string[] };
   answers: Record<string, AnswerRecord>;
   srs: Record<string, SrsState>;
+  /** 本考点口述流水（#123 微块：oralLive 按 EP 分组后的条目，实时回流刷新即见）。 */
+  oral: OralAttempt[];
   lesson: Lesson | null;
   onClose: () => void;
 }) {
@@ -610,6 +621,7 @@ function NodeSheet({ point, ids, answers, srs, lesson, onClose }: {
     flashcardIds: ids.fids,
     answers,
     srs,
+    oralAttempts: oral,
     mastered: point.status === 'mastered',
   });
   const now = Date.now();
@@ -681,6 +693,8 @@ function NodeSheet({ point, ids, answers, srs, lesson, onClose }: {
                   {ev.kind === 'correct' && t('panorama.tlCorrect')}
                   {ev.kind === 'wrong' && t('panorama.tlWrong')}
                   {ev.kind === 'wrongRun' && t('panorama.tlWrongRun', { n: ev.run ?? 0 })}
+                  {ev.kind === 'oralCorrect' && t('panorama.tlOralCorrect')}
+                  {ev.kind === 'oralWrong' && t('panorama.tlOralWrong')}
                   {ev.kind === 'flashGrad' && t('panorama.tlFlash')}
                   {ev.kind === 'mastered' && t('panorama.tlMastered')}
                   {ev.kind === 'mastered'

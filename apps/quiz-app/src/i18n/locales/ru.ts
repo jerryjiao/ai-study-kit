@@ -53,6 +53,9 @@ export const ru: Record<TKey, string> = {
   'home.planProjComplete': 'Все модули завершены',
   'home.planGap': 'Последнее занятие {n} дн. назад',
   'home.planNoContact': 'Занятий пока не было',
+  // Значок «сегодня занимались» (#123 микроблок): загорается, если сегодня было касание по любому
+  // из четырёх каналов (ответы/карточки/курсы/устно) — даже один микроблок из 3 вопросов в счёт
+  'home.todayTouched': 'Сегодня уже занимались',
   // Карточка возвращения после перерыва (#120, spec #118 T1): разминка + совет по плану
   'home.welcomeBack': 'С возвращением',
   'home.warmupCta': 'Разминка: {name}',
@@ -103,6 +106,8 @@ export const ru: Record<TKey, string> = {
   'panorama.tlCorrect': 'Верно',
   'panorama.tlWrong': 'Ошибка',
   'panorama.tlWrongRun': '{n} ошибок подряд',
+  'panorama.tlOralCorrect': 'Устный ответ верный',
+  'panorama.tlOralWrong': 'Устный ответ неверный',
   'panorama.tlFlash': 'Карточка выпущена',
   'panorama.tlMastered': 'Пункт освоен',
   'panorama.tlMasteredSub': 'Все верно + нет незакрытых ошибок',

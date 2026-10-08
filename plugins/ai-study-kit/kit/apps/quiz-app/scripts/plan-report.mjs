@@ -8,7 +8,8 @@
  *   2. 节奏·日历对照：按 plannedDate「今天该到哪」vs 实际完成到哪 → 落后/富余天数
  *   3. 节奏·速率外推：近 14 天完成速率 → 预计完成日 vs deadline → 富余/缺口天数
  *      （数据不足时诚实降级不硬算，输出 reason 而非编造数字）
- *   4. 断档天数：距最后一次学习接触（answers/srs/课学完三通道取最大，
+ *   4. 断档天数：距最后一次学习接触（answers/srs/课学完/口述四通道取最大，
+ *      口述 = 主题包流水 ∪ progress.oralAttempts 并流——微块完成当天 gap=0；
  *      与本主题题/卡 id 集求交做多主题隔离）
  *   5. 断档回归动作（#120，spec #118 T1）：断档 ≥ 3 天（REGRESSION_GAP_DAYS）才出——
  *      热身一题（下一站考点挑题，mastery 四态选站）+ 计划后移建议现算（实测速率外推
@@ -37,7 +38,7 @@ import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
 import { readPlan, derivePlanReport, deriveGap, deriveShiftAdvice, REGRESSION_GAP_DAYS } from './lib/plan.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint } from './lib/mastery.mjs';
-import { readOralAttempts, groupOralAttempts, oralMastery } from './lib/oral.mjs';
+import { readOralAttempts, groupOralAttempts, oralMastery, mergeOralAttempts, oralAttemptsFromProgress } from './lib/oral.mjs';
 import { warmupStation, pickWarmupQuestion, warmupPlannedFrom } from './lib/warmup.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -94,10 +95,18 @@ const now = Date.now();
 // 无计划主题（dev-intro 等）回归场景同样要有热身一题——与 web 首页回归卡同一套动作
 // （Home.tsx 的 gap 也独立于计划面板算，注释「无 plan 主题回归时也要热身，只少后移
 // 建议行」）。有 plan 时本处 gap 与 signals.gap 同输入同值（deriveGap 纯函数幂等）。
+// 口述触达通道（#123 微块）：主题包流水（唯一真源）∪ progress.oralAttempts（#122 实时
+// 回流副本）并流后传入——微块口述题完成当天 gap=0，断档/回归判据认「今天已学过」
+//（与 mastery-report 的并流同款，四元组去重不重复计数）。
+const oralAttemptsMerged = mergeOralAttempts(
+  readOralAttempts(THEME_DIR),
+  oralAttemptsFromProgress(progress, THEME),
+);
 const gap = deriveGap(progress, now, {
   questionIds: questions.map((q) => q.id),
   cardIds: flashcards.map((f) => f.id),
   theme: THEME,
+  oralAttempts: oralAttemptsMerged,
 });
 const regressionActive = gap.available && (gap.daysSinceLastContact ?? 0) >= REGRESSION_GAP_DAYS;
 
@@ -176,6 +185,7 @@ const signals = derivePlanReport({
   questionIds: questions.map((q) => q.id),
   cardIds: flashcards.map((f) => f.id),
   theme: THEME,
+  oralAttempts: oralAttemptsMerged,   // 与前置 gap 同输入同值（微块触达口径两侧一致）
 });
 
 const report = {

@@ -6,20 +6,25 @@
 //   闪卡毕业                       ← srs[cardId]（毕业态 phase='review'，时间锚 = updatedAt
 //                                  最后复习时间——SRS 只存当前态，无毕业时刻快照，spec 拒掉
 //                                  「整图时间回放」时已确认这一诚实边界）
+//   口述答对 / 口述答错            ← oralAttempts（v0.26 #123 微块起：#122 实时回流进
+//                                  progress.oralAttempts 的流水按考点喂入，每笔一条事件——
+//                                  微块（某考点口述 N 题）完成的当天，节点轨迹「今天」栏
+//                                  即出口述痕迹，「今天触达」在全景点得见）
 //   考点掌握                       ← 仅当前 status=mastered 才有；时间 = 全部证据就位的
-//                                  max（各题最后答对时间 ∪ 各卡毕业时间）
+//                                  max（各题最后答对时间 ∪ 各卡毕业时间 ∪ 口述最后时间）
 //
 // 口径纪律：与 mastery.ts 读 record 的口径一致——墓碑（deletedAt ≥ submittedAt）视为已删
 // 不出事件，墓碑后再答（submittedAt > deletedAt）照常出事件；随机沙盒（fromRandom）不进
 // 主进度，同样不进轨迹。多端合并稳定性：排序带全序 tie-break（时间 → 事件类 → 锚 id），
 // mergeProgress 任意方向合并后同一输入映射恒出同一序列。
-import type { AnswerRecord, SrsState } from '../types';
+import type { AnswerRecord, OralAttempt, SrsState } from '../types';
 import { isAnswerDeleted, isFromRandom, isCardDeleted } from './progress';
 
-/** 轨迹事件（kind 决定词典文案与圆点配色；qid/cardId 是副标题锚，run 是连错 run 长度）。 */
+/** 轨迹事件（kind 决定词典文案与圆点配色；qid/cardId 是副标题锚，run 是连错 run 长度；
+ *  口述事件无题锚——target 不进副标题，口头目标名在节点标题已表达）。 */
 export interface TraceEvent {
   at: number;
-  kind: 'first' | 'correct' | 'wrong' | 'wrongRun' | 'flashGrad' | 'mastered';
+  kind: 'first' | 'correct' | 'wrong' | 'wrongRun' | 'flashGrad' | 'mastered' | 'oralCorrect' | 'oralWrong';
   qid?: string;
   cardId?: string;
   run?: number;
@@ -32,18 +37,24 @@ export interface EpTraceInput {
   flashcardIds: readonly string[];
   answers: Record<string, AnswerRecord>;
   srs: Record<string, SrsState>;
+  /** 该考点的口述流水明细（v0.26 #123——调用方把 progress.oralAttempts 经主题过滤 +
+   *  groupOralByEp 分组后取本考点条目传入；缺省 = 无口述事件，旧调用零变化）。 */
+  oralAttempts?: OralAttempt[];
   /** 当前掌握四态是否 mastered（masteryByExamPoint 的 status） */
   mastered: boolean;
 }
 
-/** 事件全序 tie-break：同时间先答题类、再闪卡、最后掌握收尾（同 kind 内按锚 id 字典序）。 */
+/** 事件全序 tie-break：同时间先答题类、再口述（同为作答但无题锚垫后）、再闪卡、最后掌握收尾
+ *  （同 kind 内按锚 id 字典序）。 */
 const KIND_RANK: Record<TraceEvent['kind'], number> = {
   first: 0,
   correct: 1,
   wrong: 1,
   wrongRun: 1,
-  flashGrad: 2,
-  mastered: 3,
+  oralCorrect: 2,
+  oralWrong: 2,
+  flashGrad: 3,
+  mastered: 4,
 };
 
 /**
@@ -56,20 +67,22 @@ const KIND_RANK: Record<TraceEvent['kind'], number> = {
  */
 export function deriveEpTrace(input: EpTraceInput): TraceEvent[] {
   const { questionIds, flashcardIds, answers, srs, mastered } = input;
+  const oral = (Array.isArray(input.oralAttempts) ? input.oralAttempts : [])
+    .filter((a) => a && typeof a === 'object' && typeof a.at === 'number' && Number.isFinite(a.at));
 
   // 有效记录：无记录/墓碑/随机沙盒一律视为「没发生过」（与 mastery 读端同口径）
   const live = questionIds
     .map((qid) => ({ qid, r: answers[qid] }))
     .filter(({ r }) => !!r && !isAnswerDeleted(r) && !isFromRandom(r));
-  if (live.length === 0 && flashcardIds.length === 0) return [];
+  if (live.length === 0 && flashcardIds.length === 0 && oral.length === 0) return [];
 
   const events: TraceEvent[] = [];
 
-  // 1) 首次接触：最早一次有效提交（无论对错、无论自评）
-  if (live.length > 0) {
-    const first = live.reduce((a, b) => (b.r.submittedAt < a.r.submittedAt ? b : a));
-    events.push({ at: first.r.submittedAt, kind: 'first' });
-  }
+  // 1) 首次接触：最早一次有效提交或口述（无论对错、无论自评）——chat-first 学习者的
+  //    考点可能只有口述痕迹，首触不能漏认
+  const firstTimes: number[] = live.map(({ r }) => r.submittedAt);
+  for (const a of oral) firstTimes.push(a.at);
+  if (firstTimes.length > 0) events.push({ at: Math.min(...firstTimes), kind: 'first' });
 
   // 2) 答题事件：按 (submittedAt, qid) 全序走，连续答错合并成 run
   const ordered = [...live].sort(
@@ -103,13 +116,22 @@ export function deriveEpTrace(input: EpTraceInput): TraceEvent[] {
     events.push({ at: s.updatedAt, kind: 'flashGrad', cardId });
   }
 
-  // 4) 考点掌握：仅当前 mastered 才有；时间 = 全部证据就位时刻（各题最后提交 ∪ 各卡毕业）
+  // 3.5) 口述事件（#123 微块）：每笔口述问答一条（对 → oralCorrect / 错 → oralWrong），
+  //     时间锚 = at（#122 回流红线：真实 Date.now()）；微块口述 3 题 = 3 条事件，
+  //     不合并——口头四态判据（oral.ts）按完整序列加权，轨迹同样逐笔可对账
+  for (const a of oral) {
+    events.push({ at: a.at, kind: a.correct ? 'oralCorrect' : 'oralWrong' });
+  }
+
+  // 4) 考点掌握：仅当前 mastered 才有；时间 = 全部证据就位时刻（各题最后提交 ∪ 各卡毕业
+  //    ∪ 口述最后——v1.2 判据口述达标是超题证据之一，时间集不能漏它）
   if (mastered) {
     const times = live.map(({ r }) => r.submittedAt);
     for (const cardId of flashcardIds) {
       const s = srs[cardId];
       if (s && !isCardDeleted(s) && s.phase === 'review') times.push(s.updatedAt);
     }
+    for (const a of oral) times.push(a.at);
     if (times.length > 0) events.push({ at: Math.max(...times), kind: 'mastered' });
   }
 

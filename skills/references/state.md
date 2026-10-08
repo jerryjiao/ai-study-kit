@@ -149,7 +149,7 @@ node apps/quiz-app/scripts/plan-report.mjs --theme "$THEME" --progress "$CP" --j
 - **`status: "ok"` → 拼快照「计划」行**，字段全从本命令实测，不许编：
   - **覆盖**：`coverage.done/total`；当前单元 `coverage.current` 取 `<id> <title>`（`current` 为 null = 全完成或只剩搁置，如实报）。
   - **节奏·日历对照**：`calendarDiff.diffDays` + `state`——`behind` 报「落后 N 天」（N = −diffDays，锚逾期单元的最大 plannedDate；逐单元拖龄在 `overdue[].daysOverdue`，追问再展开）、`slack` 报「富余 N 天」、`due-today` 报「下一单元今天到期」、`cleared` 报「日程已清空」；`available=false`（计划里没有任何可解析的 `plannedDate`）→ 该段省略，不硬凑。
-  - **断档**：`gap.daysSinceLastContact`（距最后一次学习接触的自然日数，answers/srs/课学完三通道取最大，按本主题题/卡 id 集隔离）；`available=false` → 报「无接触记录」，**不是 0 天**。
+  - **断档**：`gap.daysSinceLastContact`（距最后一次学习接触的自然日数，answers/srs/课学完/口述四通道取最大，按本主题题/卡 id 集隔离；口述 = 主题包流水 ∪ `progress.oralAttempts` 回流副本并流——**微块口述题完成当天即算触达**，断档 0 天 = 今天已学过，v0.26 #123）；`available=false` → 报「无接触记录」，**不是 0 天**。
   - **断档回归动作（#120，断档 ≥ `regression.threshold`（3 天）才触发）**：`regression.active=true` 时快照在「计划」行后追加**回归动作行**（noop 主题无「计划」行时直接跟在上一行后），动作固定「先热身再续站」（与 web 首页回归卡同一套动作——无计划主题 web 侧也只出热身行，两侧一致）——
     - **热身一题**：`regression.warmup`（`questionId` + `ep`/`name` + 选站依据 `reason`：schedule=落后日程 / weak=薄弱 / structural=结构序 / fallback=回退）。推荐语带题号与考点名（「先热身：EP-02 分支 · GIT-005，一题找回手感」），学习者答完这题即完成热身；`warmup=null`（题库无计划内题）如实报「无可挑题」。
     - **计划后移建议**：`regression.shift`——`available=true` 报「按实测速率（近 `windowDays` 天约 `daysPerUnit` 天/单元），剩余 `remaining` 单元约需 `estimatedDays` 天，计划建议后移 `shiftDays` 天」；**只建议不执行**（要不要挪日期由学习者拍板，自动重排归 v0.27）；`reason=no-rate`（长断档常见：近窗零完成）静默省略该段，`no-target`（无对照日）同理——绝不编数字；noop 主题 `shift` 恒 null，该段整段省略（无计划无日程可挪，不出「后移」话头）。

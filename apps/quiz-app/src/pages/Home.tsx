@@ -11,6 +11,7 @@ import {
   CalendarDays,
   Flame,
   CalendarClock,
+  Check,
 } from 'lucide-react';
 import { questions } from '../data/questions';
 import { flashcards } from '../data/flashcards';
@@ -209,6 +210,17 @@ export function Home() {
         <p className="text-text-muted text-sm mt-2">
           {t(syncStatus === 'local' ? 'home.taglineLocal' : 'home.tagline', { total: stats.total })}
         </p>
+        {/* 今日触达（#123 微块轻启动）：gap 四通道（答题/闪卡/课学完/口述）任一今天有接触
+            即亮——微块哪怕只口述 3 题也算「今天学过」（口述走 #122 实时回流，刷新即见）。
+            钩子式正反馈：只确认已发生的好事，不报欠账不催办；今天没碰过 → 整块不渲染。 */}
+        {gap.available && gap.daysSinceLastContact === 0 && (
+          <div className="flex justify-center mt-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-st-green-soft border-2 border-st-green/30 px-3 py-0.5 text-xs font-bold text-st-green-ink">
+              <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden />
+              {t('home.todayTouched')}
+            </span>
+          </div>
+        )}
       </header>
 
       {/* 统计仪表（状态色语义：已答=绿推进 / 正确率=蓝次级 / 错题=红 / 已看=金） */}

@@ -18,15 +18,16 @@
 //   3. 速率外推 deriveProjection  近 14 天（含今天）完成速率 → 预计完成日 vs deadline →
 //                              富余/缺口。数据不足（空计划/全完成/近窗零事件）诚实降级
 //                              （available=false + reason），绝不硬算编数。
-//   4. 断档天数 deriveGap       距最后一次学习接触的自然日差，answers/srs/课学完三通道
-//                              取最大；调用方传本主题题/卡 id 集求交做多主题隔离
-//                              （读端过滤红线，见 AGENTS.md）。无接触 → 降级不是 0 天。
+//   4. 断档天数 deriveGap       距最后一次学习接触的自然日差，answers/srs/课学完/口述四通道
+//                              取最大（口述通道 v0.26 #123 微块起——微块完成当天即触达，
+//                              gap=0「今天已学过」）；调用方传本主题题/卡 id 集求交做
+//                              多主题隔离（读端过滤红线，见 AGENTS.md）。无接触 → 降级不是 0 天。
 //   5. 断档回归·后移建议 deriveShiftAdvice（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS
 //                              进入回归场景后现算「计划建议后移 X 天」（速率外推所需天数 −
 //                              日程对照日剩余天数）；只建议不执行，写回归 v0.27。
 //
 // 时区口径：now 是 ms 时间戳，自然日按**本地时区**解释（srs.ts 的 toDateString 同先例）。
-import type { PlanFile, PlanUnit, PlanUnitStatus, Progress } from '../types';
+import type { OralAttempt, PlanFile, PlanUnit, PlanUnitStatus, Progress } from '../types';
 
 // ════════════════ 日期工具（自然日按本地时区）════════════════
 
@@ -266,15 +267,21 @@ export interface PlanGap {
   reason: 'no-contact' | null;
   daysSinceLastContact: number | null;
   lastContactAt: number | null;
-  source: 'answers' | 'srs' | 'coursesRead' | null;
+  source: 'answers' | 'srs' | 'coursesRead' | 'oral' | null;
 }
 
-/** 距最后一次学习接触的自然日差（answers/srs/课学完三通道取最大）。
- *  @param opts.questionIds/cardIds/theme  多主题隔离（不传 = 全量口径，消费端自责）。 */
+/** 距最后一次学习接触的自然日差（answers/srs/课学完/口述四通道取最大；口述通道
+ *  v0.26 #123——微块口述题走 #122 实时回流进 progress.oralAttempts，完成当天 gap=0，
+ *  「今天已触达」不漏认轻启动）。gap.daysSinceLastContact === 0 即「今天触达过」——
+ *  首页今日徽标与回归卡判据都吃它。
+ *  @param opts.questionIds/cardIds/theme  多主题隔离（不传 = 全量口径，消费端自责）；
+ *  @param opts.oralAttempts              口述附加流水（脚本侧主题包 study/records/
+ *         oral-attempts.json 并流后传入——progress.oralAttempts 只是回流副本，API 离线
+ *         时包侧才是完整真源；web 侧传 progress.oralAttempts 即可由内部 theme 过滤）。 */
 export function deriveGap(
   progress: Progress | null | undefined,
   now: number,
-  opts: { questionIds?: string[]; cardIds?: string[]; theme?: string } = {},
+  opts: { questionIds?: string[]; cardIds?: string[]; theme?: string; oralAttempts?: OralAttempt[] } = {},
 ): PlanGap {
   const { questionIds, cardIds, theme } = opts;
   const qSet = questionIds ? new Set(questionIds) : null;
@@ -299,6 +306,15 @@ export function deriveGap(
   for (const [key, at] of Object.entries(progress?.coursesRead ?? {})) {
     if (theme && !key.startsWith(`${theme}/`)) continue;             // key 自带主题前缀
     consider(at, 'coursesRead');
+  }
+  // 口述通道（v0.26 #123 微块）：progress.oralAttempts 回流副本 + opts.oralAttempts 附加
+  // （脚本侧主题包流水并流）。条目 theme 缺省宽容视为当前主题（与 oralAttemptsForTheme
+  // 同款——手写/旧数据兼容，不见为失）；坏条目跳过不崩（consider 自带数型校验）。
+  const oralExtra = Array.isArray(opts.oralAttempts) ? opts.oralAttempts : [];
+  for (const a of [...(progress?.oralAttempts ?? []), ...oralExtra]) {
+    if (!a || typeof a !== 'object') continue;
+    if (theme && a.theme && a.theme !== theme) continue;
+    consider(a.at, 'oral');
   }
   // TS 控制流不跟踪闭包内赋值，这里用显式宽类型别名读取（判据不变）
   const found = best as Best | null;
@@ -433,18 +449,19 @@ export interface PlanReport {
   gap: PlanGap;
 }
 
-export function derivePlanReport({ plan, progress, now, questionIds, cardIds, theme }: {
+export function derivePlanReport({ plan, progress, now, questionIds, cardIds, theme, oralAttempts }: {
   plan: PlanFile;
   progress: Progress | null | undefined;
   now: number;
   questionIds?: string[];
   cardIds?: string[];
   theme?: string;
+  oralAttempts?: OralAttempt[];
 }): PlanReport {
   return {
     coverage: deriveCoverage(plan),
     calendarDiff: deriveCalendarDiff(plan, now),
     projection: deriveProjection(plan, now),
-    gap: deriveGap(progress, now, { questionIds, cardIds, theme }),
+    gap: deriveGap(progress, now, { questionIds, cardIds, theme, oralAttempts }),
   };
 }
