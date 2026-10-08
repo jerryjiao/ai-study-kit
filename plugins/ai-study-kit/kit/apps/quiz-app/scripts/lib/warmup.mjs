@@ -18,9 +18,16 @@
  */
 import { isOpenWrong } from './mastery.mjs';
 
-/** 热身池「计划内」判据（默认）：题库自带 tier 层标记，'ext' = 拓展层不进热身池——
- *  与 src/lib/warmup.ts 的 tier 过滤同构（source 层的 layerOf 需要 theme-config，
- *  脚本侧不引，宽容降级为仅 tier 层；两层都命中的题在两侧都算计划内）。 */
+/** 热身池「计划内」判据构造（与 src/lib/warmup.ts 的 isPlanned && tier 双过滤同构）：
+ *  source 层 ≠ 拓展（theme-config sourceLayers，无映射 = 无层概念 = 计划内）+ tier ≠ 'ext'。
+ *  @param {object|null} sourceLayers theme-config.json 的 sourceLayers（null/缺省 = 全部计划内） */
+export function warmupPlannedFrom(sourceLayers) {
+  return (q) => (sourceLayers?.[q.source] ?? null) !== '拓展' && q.tier !== 'ext';
+}
+
+/** 热身池「计划内」判据（默认回退）：无 theme-config 可读时的宽容降级（仅 tier 层）。
+ *  入口脚本（plan-report）读到 sourceLayers 时应传 warmupPlannedFrom(sl) 全判据，
+ *  保证教练侧不挑到 web 侧刻意排除的拓展题。 */
 const defaultPlanned = (q) => q.tier !== 'ext';
 
 /** 热身选站：三级骨架（纯函数）。

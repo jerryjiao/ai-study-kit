@@ -3,7 +3,7 @@
 // 改判据两边一起改，两边测试都要过（plan.ts/plan.mjs 双实现先例）。
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { warmupStation, pickWarmupQuestion } from './warmup.mjs';
+import { warmupStation, pickWarmupQuestion, warmupPlannedFrom } from './warmup.mjs';
 
 const NOON = (y, m, d) => new Date(y, m - 1, d, 12).getTime();
 const AT = NOON(2026, 9, 20);
@@ -96,4 +96,45 @@ test('挑题：station=null / 站点无计划内题 → 全库回退 fallback（
 test('挑题：全拓展题库（计划内为空）→ null', () => {
   const allExt = [q('GIT-003', { tier: 'ext' })];
   assert.equal(pickWarmupQuestion(allExt, { answers: {} }, { ep: 'EP-01', name: 'x', reason: 'weak' }), null);
+});
+
+// ── 热身池「计划内」判据（#120 修复：sourceLayers + tier 双过滤与 TS 侧对齐）──
+test('warmupPlannedFrom：sourceLayers 配拓展的来源被排除；无映射 = 计划内；tier ext 恒排除', () => {
+  const sl = { 'extra-kit': '拓展', 'main-kit': '核心' };
+  const planned = warmupPlannedFrom(sl);
+  assert.equal(planned(q('A', { source: 'extra-kit' })), false);            // source 层 = 拓展 → 排除
+  assert.equal(planned(q('B', { source: 'main-kit' })), true);              // 核心 → 计划内
+  assert.equal(planned(q('C', { source: 'unmapped' })), true);              // 无映射 = 无层概念 → 计划内
+  assert.equal(planned(q('D', { source: 'main-kit', tier: 'ext' })), false); // tier ext 仍排除（双过滤）
+  // 无 sourceLayers（null / 空）→ 退化为仅 tier 过滤（dev-intro 等无配置主题两侧一致）
+  const noCfg = warmupPlannedFrom(null);
+  assert.equal(noCfg(q('E', { source: 'extra-kit' })), true);
+  assert.equal(noCfg(q('F', { source: 'x', tier: 'ext' })), false);
+});
+
+test('warmupPlannedFrom 接入 pickWarmupQuestion：教练侧不挑 web 侧刻意排除的拓展题', () => {
+  const sl = { 'extra-kit': '拓展' };
+  const pool = [
+    q('GIT-001', { examPoint: 'EP-01', source: 'extra-kit' }),   // source 层拓展：web 侧排除
+    q('GIT-002', { examPoint: 'EP-01', source: 'main-kit' }),
+  ];
+  const pick = pickWarmupQuestion(pool, { answers: {} }, { ep: 'EP-01', name: 'x', reason: 'weak' }, warmupPlannedFrom(sl));
+  assert.equal(pick.questionId, 'GIT-002');                     // 跳过 source 拓展题挑 GIT-002
+  // 不传判据（默认回退）时同一池会挑到 GIT-001——宽容降级仅限无配置场景
+  assert.equal(pickWarmupQuestion(pool, { answers: {} }, { ep: 'EP-01', name: 'x', reason: 'weak' }).questionId, 'GIT-001');
+});
+
+// ── 无 plan 主题的选站路径（#120 修复：noop 也有热身）────────
+test('选站·无 plan 主题：calendarDiff/deadline 传 null → 跳过落后日程轨，走补弱/结构轨', () => {
+  // 补弱轨优先：有 weak 时
+  assert.deepEqual(
+    warmupStation({ points: POINTS, epDays: EP_DAYS, calendarDiff: null, deadline: null }),
+    { ep: 'EP-02', name: '分支', reason: 'weak' },
+  );
+  // 无 weak → 结构轨
+  const noWeak = POINTS.map((p) => (p.status === 'weak' ? { ...p, status: 'inProgress' } : p));
+  assert.deepEqual(
+    warmupStation({ points: noWeak, epDays: EP_DAYS, calendarDiff: null, deadline: null }),
+    { ep: 'EP-01', name: '暂存区', reason: 'structural' },
+  );
 });

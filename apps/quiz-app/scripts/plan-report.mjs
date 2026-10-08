@@ -12,7 +12,9 @@
  *      与本主题题/卡 id 集求交做多主题隔离）
  *   5. 断档回归动作（#120，spec #118 T1）：断档 ≥ 3 天（REGRESSION_GAP_DAYS）才出——
  *      热身一题（下一站考点挑题，mastery 四态选站）+ 计划后移建议现算（实测速率外推
- *      vs deadline/剩余日程，只建议不执行；数据不足诚实降级）
+ *      vs deadline/剩余日程，只建议不执行；数据不足诚实降级）。热身不依赖 plan——
+ *      无计划主题（dev-intro 等）的 noop 输出同样带 regression.warmup（与 web 首页
+ *      回归卡同一套动作：无计划只少后移建议行，shift 恒 null）。
  *
  * 用法：
  *   node apps/quiz-app/scripts/plan-report.mjs                    # 默认 dev-intro，人类可读
@@ -23,6 +25,8 @@
  * 约定与 mastery-report 同款：
  *   - --json 下人读日志走 stderr、stdout 只出一份结果 JSON；无 plan.json 的主题出
  *     优雅 noop（status: 'noop' + reason missing/broken），exit 0——缺可选文件不是故障。
+ *     noop 下四组计划信号无数据可派生，但 regression 字段照出（热身挑题只吃题库+
+ *     进度+考点四态，不吃 plan）。
  *   - 进度默认 apps/quiz-app/progress.json（本地文件口径；要看线上进度先
  *     `curl -sf $SERVER/api/progress -o /tmp/p.json` 再传进来）。文件不存在 = 空进度
  *     （断档无接触可算，不是故障）；文件损坏按空进度处理并打 warn。
@@ -31,10 +35,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
-import { readPlan, derivePlanReport, deriveShiftAdvice, REGRESSION_GAP_DAYS } from './lib/plan.mjs';
+import { readPlan, derivePlanReport, deriveGap, deriveShiftAdvice, REGRESSION_GAP_DAYS } from './lib/plan.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint } from './lib/mastery.mjs';
 import { readOralAttempts, groupOralAttempts, oralMastery } from './lib/oral.mjs';
-import { warmupStation, pickWarmupQuestion } from './lib/warmup.mjs';
+import { warmupStation, pickWarmupQuestion, warmupPlannedFrom } from './lib/warmup.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -86,7 +90,50 @@ if (existsSync(PROGRESS_PATH)) {
 
 const now = Date.now();
 
+// ── 断档判定 + 热身挑题前置（#120 修复：不依赖 plan.json）─────────────────
+// 无计划主题（dev-intro 等）回归场景同样要有热身一题——与 web 首页回归卡同一套动作
+// （Home.tsx 的 gap 也独立于计划面板算，注释「无 plan 主题回归时也要热身，只少后移
+// 建议行」）。有 plan 时本处 gap 与 signals.gap 同输入同值（deriveGap 纯函数幂等）。
+const gap = deriveGap(progress, now, {
+  questionIds: questions.map((q) => q.id),
+  cardIds: flashcards.map((f) => f.id),
+  theme: THEME,
+});
+const regressionActive = gap.available && (gap.daysSinceLastContact ?? 0) >= REGRESSION_GAP_DAYS;
+
+// 热身池「计划内」判据：theme-config sourceLayers + tier 双过滤（与 src/lib/warmup.ts
+// 的 isPlanned && tier 同构；无 sourceLayers 配置的主题 source 层无映射 → 全算计划内）。
+let sourceLayers = null;
+const themeConfigPath = join(THEME_DIR, 'theme-config.json');
+if (existsSync(themeConfigPath)) {
+  try { sourceLayers = JSON.parse(readFileSync(themeConfigPath, 'utf-8'))?.sourceLayers ?? null; }
+  catch { sourceLayers = null; }                                   // 配置损坏按无配置降级，不挡报告
+}
+const warmupPlanned = warmupPlannedFrom(sourceLayers);
+
+// 热身选站 + 挑题：选站吃考点四态（mastery 同判据，含口述通道——流水现读现算比 web
+// build 快照还新鲜）。calendarDiff/deadline 参数化：有 plan 传日历对照（落后日程轨
+// 插队），无 plan 传 null/null——落后日程轨自然不存在（与 web 侧 nextStation 无
+// planGap 时同构），走补弱/结构轨。
+const buildWarmup = (calendarDiff, deadline) => {
+  const missionPath = join(THEME_DIR, 'MISSION.md');
+  const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
+  const epNames = missionText ? epNameMap(missionText) : {};
+  const epDays = missionText ? epDayMap(missionText) : {};
+  const answers = (progress && progress.answers) || {};
+  const srs = (progress && progress.srs) || {};
+  const oralAttempts = readOralAttempts(THEME_DIR);
+  const oralGroups = groupOralAttempts(oralAttempts, { epNames });
+  const oralStatusByEp = new Map();
+  for (const [ep, attempts] of oralGroups.byEp) oralStatusByEp.set(ep, oralMastery(attempts).status);
+  const { points } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs, oralByEp: oralStatusByEp });
+  const station = warmupStation({ points, epDays, calendarDiff, deadline });
+  return pickWarmupQuestion(questions, progress, station, warmupPlanned);
+};
+const regressionWarmupNoPlan = regressionActive ? buildWarmup(null, null) : null;
+
 // ── noop 路径：主题无 plan.json（可选文件），四组信号无数据可派生 ──
+// regression 例外照出（热身不依赖计划；shift 恒 null——无计划无日程可挪）。
 if (!PLAN_PRESENT) {
   const noop = {
     tool: 'plan-report',
@@ -95,9 +142,29 @@ if (!PLAN_PRESENT) {
     status: 'noop',
     reason, // missing | broken
     note: '主题无 plan.json（可选主题数据），计划信号无数据可派生；详见 docs/adr/0009',
+    regression: {
+      active: regressionActive,
+      threshold: REGRESSION_GAP_DAYS,
+      gapDays: gap.daysSinceLastContact ?? null,
+      warmup: regressionWarmupNoPlan,
+      shift: null,
+    },
   };
   if (AS_JSON) console.log(JSON.stringify(noop, null, 2));
-  else say(`🗓️ 学习计划对账 · ${THEME}\n   无 plan.json（reason: ${reason}）→ noop，无计划信号可派生`);
+  else {
+    say(`🗓️ 学习计划对账 · ${THEME}`);
+    say(`   无 plan.json（reason: ${reason}）→ noop，无计划信号可派生`);
+    if (noop.regression.active) {
+      say(`🔁 断档回归（≥ ${REGRESSION_GAP_DAYS} 天，无计划主题——只热身，无后移建议）：`);
+      const w = noop.regression.warmup;
+      if (w) {
+        const why = w.reason === 'weak' ? '薄弱考点' : w.reason === 'structural' ? '结构序' : '回退';
+        say(`   热身一题：${w.questionId}${w.name ? `（${w.ep} ${w.name}）` : w.ep ? `（${w.ep}）` : ''} · 选站依据 ${why}`);
+      } else {
+        say('   热身一题：无可挑题（题库无计划内题）');
+      }
+    }
+  }
   process.exit(0);
 }
 
@@ -122,32 +189,15 @@ const report = {
 };
 
 // ── 断档回归动作（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS 才组装 ──
-// 热身选站吃考点四态（mastery 同判据，含口述通道——流水现读现算比 web build 快照还新鲜）；
-// 后移建议 deriveShiftAdvice 现算（只建议不执行，重排归 v0.27）。低于阈值 → active:false，
-// warmup/shift 全 null——消费端（skill 快照）按 active 分流，不达阈值零新输出。
-const regressionActive = signals.gap.available && (signals.gap.daysSinceLastContact ?? 0) >= REGRESSION_GAP_DAYS;
-let regressionWarmup = null;
-if (regressionActive) {
-  const missionPath = join(THEME_DIR, 'MISSION.md');
-  const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
-  const epNames = missionText ? epNameMap(missionText) : {};
-  const epDays = missionText ? epDayMap(missionText) : {};
-  const answers = (progress && progress.answers) || {};
-  const srs = (progress && progress.srs) || {};
-  const oralAttempts = readOralAttempts(THEME_DIR);
-  const oralGroups = groupOralAttempts(oralAttempts, { epNames });
-  const oralStatusByEp = new Map();
-  for (const [ep, attempts] of oralGroups.byEp) oralStatusByEp.set(ep, oralMastery(attempts).status);
-  const { points } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs, oralByEp: oralStatusByEp });
-  const station = warmupStation({ points, epDays, calendarDiff: signals.calendarDiff, deadline: signals.projection.deadline });
-  regressionWarmup = pickWarmupQuestion(questions, progress, station);
-}
+// gap/regressionActive 前置已算（与 signals.gap 同输入同值）；warmup 在有 plan 分支
+// 重算一次以吃日历对照（落后日程轨插队）。低于阈值 → active:false，warmup/shift
+// 全 null——消费端（skill 快照）按 active 分流，不达阈值零新输出。
 report.regression = {
   active: regressionActive,
   threshold: REGRESSION_GAP_DAYS,
-  gapDays: signals.gap.daysSinceLastContact ?? null,
-  warmup: regressionWarmup,
-  shift: regressionActive ? deriveShiftAdvice(plan, now, signals.gap, signals.projection) : null,
+  gapDays: gap.daysSinceLastContact ?? null,
+  warmup: regressionActive ? buildWarmup(signals.calendarDiff, signals.projection.deadline) : null,
+  shift: regressionActive ? deriveShiftAdvice(plan, now, gap, signals.projection) : null,
 };
 
 // ── 输出 ──────────────────────────────────────────────────
