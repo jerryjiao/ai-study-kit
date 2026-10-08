@@ -66,7 +66,7 @@ export const ja: Record<TKey, string> = {
   'panorama.mastered': '習得',
   'panorama.answered': '解答 {answered}/{total}',
   'panorama.oral': '口頭 {correct}/{asked}',
-  'panorama.stale': '「講義済み・口頭」のシグナルは前回ビルド時点のものです。解答と習得はリアルタイムです。',
+  'panorama.stale': '「講義済み・口頭」シグナルと習得判定の口頭エビデンスは前回ビルド時点のものです。解答はリアルタイムです。',
   'panorama.graphHint': 'つながりはナレッジグラフの投影によるものです。実線の矢印＝前提（先に学ぶべき項目）、破線＝関連、ノード＝習得の 4 状態を表します。',
   'panorama.stateMastered': '習得済み',
   'panorama.stateInProgress': '学習中',

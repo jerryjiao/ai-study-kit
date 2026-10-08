@@ -64,7 +64,7 @@ export const en: Record<TKey, string> = {
   'panorama.mastered': 'Mastered',
   'panorama.answered': 'Ans {answered}/{total}',
   'panorama.oral': 'Oral {correct}/{asked}',
-  'panorama.stale': 'Taught/oral signals as of the last build; answers and mastery are live.',
+  'panorama.stale': 'Taught/oral signals and the oral evidence in mastery are as of the last build; answers are live.',
   'panorama.graphHint': 'Edges come from the knowledge-graph projection: solid arrows = prerequisite (learn first), dashed = related; nodes = mastery four-state.',
   'panorama.stateMastered': 'Mastered',
   'panorama.stateInProgress': 'Learning',

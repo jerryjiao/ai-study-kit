@@ -65,7 +65,7 @@ export const ru: Record<TKey, string> = {
   'panorama.mastered': 'Освоено',
   'panorama.answered': 'Ответы {answered}/{total}',
   'panorama.oral': 'Устно {correct}/{asked}',
-  'panorama.stale': 'Сигналы «изучено/устно» — на момент последней сборки; ответы и освоение — в реальном времени.',
+  'panorama.stale': 'Сигналы «изучено/устно» и устные свидетельства в критерии освоения — на момент последней сборки; ответы — в реальном времени.',
   'panorama.graphHint': 'Связи из проекции графа знаний: сплошные стрелки = предпосылка (изучить сначала), пунктир = связность; узлы = четыре состояния освоения.',
   'panorama.stateMastered': 'Освоено',
   'panorama.stateInProgress': 'В изучении',

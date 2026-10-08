@@ -16,7 +16,7 @@ import type { MasteryStatus } from './mastery';
 /** 夹具考点工厂：name 取 N-{ep} 便于断言下游名单；openWrong 默认 0（weak 判据由调用方给）。 */
 const pt = (ep: string, status: MasteryStatus, extra: Partial<PanoramaPoint> = {}): PanoramaPoint => ({
   ep, name: `N-${ep}`, taught: true, practiced: true, mastered: status === 'mastered',
-  status, answered: 1, total: 2, openWrong: 0, oral: null, ...extra,
+  status, answered: 1, total: 2, openWrong: 0, oral: null, oralStatus: null, ...extra,
 });
 
 const edge = (from: string, to: string, prerequisite = true) => ({ from, to, prerequisite });

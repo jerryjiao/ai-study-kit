@@ -5,8 +5,10 @@
  * 从主题题库 + 答题进度派生每个考点（EP-NN）的掌握度，并 join 学习者档案
  * （study/records/profile.json，grill 串讲顺产的错因记录，存在才带上）。
  *
- * 判据（v1.1，题 + 闪卡双通道）：mastered = 考点下题全答对、无未毕业错题，
- * 且映射闪卡（flashcards[].examPoint）全部毕业（SRS phase = review）；详见 lib/mastery.mjs 头注。
+ * 判据（v1.2，#119 / spec #118 T5：题主证 + 口述/闪卡任一超题证据）：mastered = 考点下题
+ * 全答对、无未毕业错题，且口述达标（若该考点已有口述数据）或映射闪卡全部毕业（可选替代
+ * 通道）任一满足；无口述数据时题全对即掌握（零闪卡 chat-first 解锁，SRS 彻底可选）。
+ * 详见 lib/mastery.mjs 头注。
  *
  * 用法：
  *   node apps/quiz-app/scripts/mastery-report.mjs                    # 默认 dev-intro，人类可读
@@ -18,7 +20,9 @@
  * 口头四态（v0.14）：--json 的 oral 字段输出每个口头目标（题库考点 ∪ 流水裸知识点）的
  * 四态与「问 N 对 M」统计——近期加权正确率（近 5 次权重 0.5/0.7/0.85/0.95/1.0）+
  * 置信度封顶（1 次封 0.5、2 次封 0.8），零 LLM；无流水目标 = 未开始。
- * 既有考点四态判据（v1.1 题+闪卡双通道）一字不动。
+ * v1.2（#119）起口头四态参与考点掌握判据（达标 = 超题证据主通道、weak = 负面证据优先），
+ * 与题库通道在 masteryByExamPoint 内合流；口径与 TS 侧 src/lib/mastery.ts 一致（跨侧夹具
+ * 断言见 src/lib/mastery.test.ts）。
  *
  * 进度来源：--progress 指定的文件，默认 apps/quiz-app/progress.json（本地文件口径；
  * 要看线上进度先 `curl -sf $SERVER/api/progress -o /tmp/p.json` 再传进来，与 skill state.md 同模式）。
@@ -97,7 +101,8 @@ if (existsSync(profilePath)) {
 // 口头答题流水（v0.14，可选）：口头计数的唯一真源（旧记录手写计数节的合并展示走 --panorama）。
 // 本报告给每个口头目标（题库考点 ∪ 流水里出现过的裸知识点）判口头四态——
 // 近期加权正确率 + 置信度封顶，范式照搬 DeepTutor compute_mastery，确定性零 LLM；
-// 既有考点四态判据（v1.1）一字不动，两通道合流规则见 lib/oral.mjs mergeMastery。
+// 既有考点四态判据自 v1.2（#119）起纳入口述通道（见下方派生段的 oralStatusByEp），判据本体在
+// lib/mastery.mjs；节点投影等处的四态合流规则见 lib/oral.mjs mergeMastery（对已内置结果幂等）。
 const oralAttempts = readOralAttempts(THEME_DIR);
 
 // ── 考点全景（--panorama，v0.13）：三信号 + day 分组，与掌握报告同数据源另派生一路 ──
@@ -141,9 +146,6 @@ if (AS_PANORAMA) {
 }
 
 // ── 派生 ──────────────────────────────────────────────────
-const { points, untracked } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs });
-const weak = rankWeakness(points);
-const byStatus = (s) => points.filter((p) => p.status === s).length;
 
 // 投影桥（v0.14，ADR-0005）：knowflow 图 + 考点节点映射 → 只读投影（节点四态供图着色）。
 // 图与映射缺任一即静默降级为纯考点口径（graph.loaded = false），绝不报错——
@@ -153,9 +155,19 @@ const graph = loadKnowledgeGraph(GRAPH_PATH);
 const graphNodes = graphNodeIndex(graph);
 
 // 口头四态（v0.14）：排布表全部考点（无流水 = 未开始）∪ 流水里的裸知识点（无题新知识）。
-// EP 目标的 status 是纯口头通道判据；与题库四态的合流（负面证据优先）在消费方做（mergeMastery）。
+// EP 目标的 status 是纯口头通道判据（近期加权 + 置信度封顶）。
 // 解析链带图节点直引（graphNodes）——图节点路径/label 引用的问答归节点桶，不冒充裸名。
 const oralGroups = groupOralAttempts(oralAttempts, { epNames, graphMap, graphNodes: graphNodes ?? undefined });
+
+// 口述四态 → 考点掌握判据（v1.2，#119）：只带「有流水的考点」进 oralByEp——
+// 无流水 = 无口述数据 = 不阻塞（chat-first 零闪卡解锁的默认形态）。
+const oralStatusByEp = new Map();
+for (const [ep, attempts] of oralGroups.byEp) oralStatusByEp.set(ep, oralMastery(attempts).status);
+
+const { points, untracked } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs, oralByEp: oralStatusByEp });
+const weak = rankWeakness(points);
+const byStatus = (s) => points.filter((p) => p.status === s).length;
+
 const oralTargets = [
   ...Object.entries(epNames).map(([ep, name]) => {
     const m = oralMastery(oralGroups.byEp.get(ep) ?? []);

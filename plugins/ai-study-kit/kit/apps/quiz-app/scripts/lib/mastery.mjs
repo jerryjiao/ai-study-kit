@@ -3,17 +3,25 @@
 // 口径与 src/lib/progress.ts 的 wrongIds/streakToPass 保持一致：
 // 错题毕业 = streak ≥ streakToPass(wrongCount)，阈值随历史错次递增。
 //
-// 掌握度判据（v1.1，题 + 闪卡双通道）：
-//   mastered    考点下全部题已作答、最近一次全对、无未毕业错题，
-//               且映射闪卡（flashcards[].examPoint = 本考点）全部毕业（SRS phase = review）
-//   weak        存在未毕业错题，或最近一次有答错的题
-//   inProgress  有作答且无负面证据（未答错、无未毕业错题），但未答全、含未评自测题、
-//               或映射闪卡未全部毕业（只差闪卡时不算负面，但也不算掌握）
-//   untouched   一题未答
+// 掌握度判据（v1.2，#119 / spec #118 T5：题主证 + 口述/闪卡任一超题证据）：
+//   mastered    考点下全部题已作答、最近一次全对、无未毕业错题，且满足任一超题证据：
+//               ① 口述达标——该考点已有口述数据且口头四态 = mastered（oralByEp 传入）；
+//               ② 映射闪卡（flashcards[].examPoint）全部毕业（SRS phase = review）——可选替代通道；
+//               ③ 该考点无口述数据——chat-first/零闪卡解锁：题全对即掌握，
+//                  映射闪卡有没有进度都不阻塞（「SRS 保持可用但彻底可选」）。
+//   weak        存在未毕业错题、最近一次有答错的题，或口述四态 = weak（负面证据优先，
+//               与 oral.mjs mergeMastery 同规则内置化——web 全景页不叠外部合并也能看到 weak）
+//   inProgress  有作答且无负面证据，但未答全、含未评自测题，或超题证据未满足
+//               （有口述数据未达标，且映射闪卡也未全毕业）
+//   untouched   一题未答且口述无负面证据
 //
-// 闪卡毕业组件（v1.1）：依赖 flashcards.json 的可选 examPoint 字段（EP-NN）。
-// 无映射的考点不受影响（无闪卡约束）——映射缺失时判据自然退回纯题维度，不硬凑。
-// ⚠️ src/lib/mastery.ts 是本文件的 TS 移植（web UI 用），改判据必须两边同步。
+// v1.1 → v1.2 变化：闪卡毕业从「硬性必经」降级为超题证据的可选替代通道——
+// 题全对但闪卡未毕业（含映射了卡但从未复习）不再压成 inProgress；口述达标（若有数据）
+// 成为等价正证。存量「题全对 + 闪卡全毕业」的行为不变（仍 mastered，AC 不回退）。
+// 闪卡毕业组件：依赖 flashcards.json 的可选 examPoint 字段（EP-NN）；无映射的考点
+// 自然没有这条替代通道，不硬凑。
+// ⚠️ src/lib/mastery.ts 是本文件的 TS 移植（web UI 用），改判据必须两边同步；
+// 两侧对同一夹具输出一致有跨侧断言测试盯着（src/lib/mastery.test.ts）。
 //
 // 多主题隔离：只遍历传入 questions 的 id，answers/srs 里其他主题的记录天然不参与。
 
@@ -63,6 +71,13 @@ export function isFlashGraduated(s) {
   return !!s && s.deletedAt === undefined && s.phase === 'review';
 }
 
+/** 口述四态读取（oralByEp 兼容 Map 与普通对象；缺项/untouched = 无口述数据）。 */
+function oralStatusOf(oralByEp, ep) {
+  if (!oralByEp) return undefined;
+  const v = typeof oralByEp.get === 'function' ? oralByEp.get(ep) : oralByEp[ep];
+  return v === 'untouched' ? undefined : (v ?? undefined);
+}
+
 /**
  * 按考点聚合掌握度。
  *
@@ -72,9 +87,11 @@ export function isFlashGraduated(s) {
  * @param {object} [p.epNames]   epNameMap 的输出，考点显示名
  * @param {Array}  [p.flashcards] 主题闪卡（含可选 examPoint；不传 = 无闪卡组件，判据退回纯题维度）
  * @param {object} [p.srs]       progress.srs 原始对象（卡 id → SrsState）
+ * @param {object|Map} [p.oralByEp] EP-NN → 口头四态（oralMastery 输出；只含有流水的考点，
+ *                                Map 或普通对象均可）。口述达标 = 超题证据主通道；weak 负面优先。
  * @returns {{points: Array, untracked: number}} points 每考点一条，按题库出现顺序
  */
-export function masteryByExamPoint({ questions, answers = {}, epNames = {}, flashcards = [], srs = {} }) {
+export function masteryByExamPoint({ questions, answers = {}, epNames = {}, flashcards = [], srs = {}, oralByEp = null }) {
   // 考点 → 映射闪卡 id 集（examPoint 精确匹配；不在任何题库考点里的卡自然无人引用）
   const flashByEp = new Map();
   for (const f of flashcards) {
@@ -105,20 +122,30 @@ export function masteryByExamPoint({ questions, answers = {}, epNames = {}, flas
       if (r.correct === true) correctNow++;
       if (isOpenWrong(r)) openWrongIds.push(id);
     }
-    // 闪卡组件：映射卡里未毕业的（墓碑=已重置，算未毕业）
+    // 闪卡组件：映射卡里未毕业的（墓碑=已重置，算未毕业）。v1.2 起未毕业不阻塞 mastered，
+    // 只意味着「闪卡替代通道」没走通（口述达标或无口述数据仍可掌握）。
     const flashIds = flashByEp.get(ep) ?? [];
     const flashOpenIds = flashIds.filter((id) => !isFlashGraduated(srs[id]));
-    // 负面证据 = 未毕业错题 或 最近一次答错；自评未判（correct===null）只占位不算负面，
-    // 但也不构成掌握的正向证据（mastered 要求全部 correct === true）
+    // 口述四态（v1.2）：有数据未达标不满足主通道；weak 是负面证据（优先于一切正向）
+    const oral = oralStatusOf(oralByEp, ep);
+    const oralData = oral !== undefined;
+    // 超题证据（v1.2 解锁）：口述达标 | 无口述数据 | 映射闪卡全部毕业（可选替代通道）
+    const beyondOK = !oralData
+      || oral === 'mastered'
+      || (flashIds.length > 0 && flashOpenIds.length === 0);
+    // 负面证据 = 未毕业错题 或 最近一次答错 或 口述 weak；自评未判（correct===null）只占位
+    // 不算负面，但也不构成掌握的正向证据（mastered 要求全部 correct === true）
     const hasNegative = openWrongIds.length > 0 || correctNow + countNeutral(ids, answers) < answered;
     let status;
-    if (answered === 0) status = 'untouched';
-    else if (hasNegative) status = 'weak';
-    else if (answered === ids.length && correctNow === ids.length && flashOpenIds.length === 0) status = 'mastered';
+    if (answered === 0 && oral !== 'weak') status = 'untouched';
+    else if (hasNegative || oral === 'weak') status = 'weak';
+    else if (answered === ids.length && correctNow === ids.length && beyondOK) status = 'mastered';
     else status = 'inProgress';
     points.push({
       ep, name: epNames[ep] || ep, questionIds: ids, total: ids.length, answered, correctNow, openWrongIds,
-      flashMapped: flashIds.length, flashGraduated: flashIds.length - flashOpenIds.length, flashOpenIds, status,
+      flashMapped: flashIds.length, flashGraduated: flashIds.length - flashOpenIds.length, flashOpenIds,
+      oralStatus: oralData ? oral : null,
+      status,
     });
   }
   return { points, untracked };

@@ -2,16 +2,20 @@
 //
 // 隐私边界：study/records/ 的学习记录是学习者私有（个人叙述：金句、错点原文），
 // 永不上站；web 首页面板需要的只是「哪些考点被讲过 / 口头练了几次」。本模块把全景
-// 压成**只含考点 id、三信号布尔、计数**的快照——不含任何叙述文字（有专门的内容断言
-// 测试盯住这条边界）。快照由 sync-examples 在 build 时写 src/data/coverage.json（同步产物），
-// 面板新鲜度 = 上次 build；聊天层（mastery-report --panorama）永远现算最新。
+// 压成**只含考点 id、三信号布尔、计数、四值枚举**的快照——不含任何叙述文字（有专门
+// 的内容断言测试盯住这条边界）。快照由 sync-examples 在 build 时写 src/data/coverage.json
+// （同步产物），面板新鲜度 = 上次 build；聊天层（mastery-report --panorama）永远现算最新。
+// v1.2（#119）起快照带 oralStatus（口头四态枚举）——web 侧掌握判据的超题证据输入，
+// 仍是无叙述的派生枚举值，不过隐私边界。
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseSessionRecord } from './records.mjs';
 
 /** 快照允许的字段白名单——内容断言测试之外的形状兜底（新增字段必须过「无个人叙述」评审）。 */
-const POINT_KEYS = ['ep', 'taught', 'practiced', 'mastered', 'oral'];
+const POINT_KEYS = ['ep', 'taught', 'practiced', 'mastered', 'oral', 'oralStatus'];
 const ORAL_KEYS = ['asked', 'correct'];
+/** 口头四态合法值（形状兜底：白名单之外再卡枚举值，防叙述性字符串混进 oralStatus）。 */
+const ORAL_STATUS_VALUES = ['mastered', 'inProgress', 'weak'];
 
 /**
  * 全景（buildPanorama 输出）→ 内容无关覆盖快照（纯函数）。
@@ -33,6 +37,7 @@ export function buildCoverageSnapshot(panorama, graphEdges = null) {
         practiced: !!p.practiced,
         mastered: !!p.mastered,
         oral: p.oral ? { asked: p.oral.asked, correct: p.oral.correct } : null,
+        oralStatus: ORAL_STATUS_VALUES.includes(p.oralStatus) ? p.oralStatus : null,
       };
       for (const k of Object.keys(pt)) if (!POINT_KEYS.includes(k)) delete pt[k];
       if (pt.oral) for (const k of Object.keys(pt.oral)) if (!ORAL_KEYS.includes(k)) delete pt.oral[k];

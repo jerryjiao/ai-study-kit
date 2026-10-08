@@ -77,9 +77,10 @@ test('三信号各态：记录讲过 / 答题练过 / 口头弱信号 / 掌握�
     ep: 'EP-01', name: '暂存区',
     taught: true,      // 记录已过考点显式 EP-01
     practiced: true,   // 答题 > 0
-    mastered: true,    // 全对无未毕业
+    mastered: true,    // 全对无未毕业（v1.2：无口述流水 → 题全对即掌握；旧记录手写计数无时序，不进口述四态）
     status: 'mastered', answered: 2, total: 2, openWrong: 0,
     oral: { asked: 3, correct: 2 },
+    oralStatus: null,
   });
   assert.equal(byEp['EP-02'].taught, false);      // 记录没覆盖 EP-02、课未全读完
   assert.equal(byEp['EP-02'].practiced, true);
@@ -91,7 +92,7 @@ test('三信号各态：记录讲过 / 答题练过 / 口头弱信号 / 掌握�
   assert.deepEqual(byEp['EP-04'], {
     ep: 'EP-04', name: '相对路径',
     taught: false, practiced: false, mastered: false,
-    status: 'untouched', answered: 0, total: 1, openWrong: 0, oral: null,
+    status: 'untouched', answered: 0, total: 1, openWrong: 0, oral: null, oralStatus: null,
   });
 });
 
@@ -189,4 +190,40 @@ test('流水未解析目标（图上概念/ typo）不影响任何考点信号�
     ],
   });
   assert.deepEqual(r.summary, { examPoints: 4, taught: 0, practiced: 0, mastered: 0 });
+});
+
+// ── 口述四态参与掌握判据（v1.2，#119）──────────────────────────
+test('口述流水达标 → 掌握点亮（题全对 + oralStatus mastered）；未达标压 inProgress', () => {
+  const answers = { A: rec(), B: rec(), C: rec(), D: rec(), E: rec(), F: rec() }; // 四考点题全对
+  const lit = buildPanorama({
+    questions, answers, epNames, epDays,
+    oralAttempts: [
+      { target: 'EP-01 暂存区', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-01 暂存区', correct: true, at: 2000, source: 'recite' },
+      { target: 'EP-01 暂存区', correct: true, at: 3000, source: 'case' },   // 3 连对 → 达标
+      { target: 'EP-02 revert', correct: true, at: 4000, source: 'recall' },
+      { target: 'EP-02 revert', correct: true, at: 5000, source: 'recall' }, // 2 对封顶 0.8 → 未达标
+    ],
+  });
+  const byEp = Object.fromEntries(lit.groups.flatMap((g) => g.points.map((p) => [p.ep, p])));
+  assert.equal(byEp['EP-01'].oralStatus, 'mastered');
+  assert.equal(byEp['EP-01'].mastered, true);   // 口述达标 = 超题证据（本题库零闪卡映射）
+  assert.equal(byEp['EP-02'].oralStatus, 'inProgress');
+  assert.equal(byEp['EP-02'].mastered, false);  // 有口述数据未达标、无闪卡替代通道 → 不点亮
+  assert.equal(byEp['EP-02'].status, 'inProgress');
+  assert.equal(byEp['EP-03'].mastered, true);   // 无口述数据 → v1.2 解锁：题全对即掌握
+});
+
+test('口述流水最后一答判错 → 口述 weak 压过题全对（负面证据优先进全景掌握位）', () => {
+  const r = buildPanorama({
+    questions, answers: { A: rec(), B: rec() }, epNames, epDays, // EP-01 题全对
+    oralAttempts: [
+      { target: 'EP-01 暂存区', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-01 暂存区', correct: false, at: 2000, source: 'recall' },
+    ],
+  });
+  const p1 = r.groups.flatMap((g) => g.points).find((p) => p.ep === 'EP-01');
+  assert.equal(p1.oralStatus, 'weak');
+  assert.equal(p1.status, 'weak');
+  assert.equal(p1.mastered, false);
 });

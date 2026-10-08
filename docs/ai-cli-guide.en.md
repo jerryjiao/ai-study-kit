@@ -141,12 +141,12 @@ Companion tool to grill: **deterministically derives** each exam point's mastery
 
 | State | Criterion |
 |-------|-----------|
-| mastered | all questions in the point answered, all correct on the latest attempt, no ungraduated wrong questions, and all mapped flashcards graduated |
-| weak | has ungraduated wrong questions, or a wrong answer on the latest attempt |
-| in progress | partially answered with no negative evidence, or all-correct but mapped flashcards not yet all graduated |
+| mastered | all questions in the point answered, all correct on the latest attempt, no ungraduated wrong questions, plus one beyond-questions proof: oral mastery (when the point has oral attempts) or all mapped flashcards graduated; with no oral data, all-correct alone masters the point |
+| weak | has ungraduated wrong questions, a wrong answer on the latest attempt, or oral judged weak (negative evidence first) |
+| in progress | partially answered with no negative evidence, or all-correct but oral not yet at the bar and mapped flashcards not all graduated |
 | untouched | nothing answered yet |
 
-Flashcard graduation component: cards in `flashcards.json` may carry an optional `examPoint` (EP-NN, the same namespace as questions); for a mapped point, mastery additionally requires those cards to be graduated in SRS (`phase = review`). Unmapped points are unaffected — the criteria simply fall back to questions only. The web app's home "exam-point mastery" panel shows the same criteria live (`src/lib/mastery.ts`).
+Beyond-questions proof (v0.26 / criteria v1.2, #119): **oral mastery** — the oral four-state computed from the oral attempts ledger (criteria in the next section) judging "mastered" — is the primary channel; **all mapped flashcards graduated** (`flashcards.json` optional `examPoint`, EP-NN in the same namespace as questions, SRS `phase = review`) is an equivalent alternative channel. **No oral data means no blocker** — chat-first learners who never touch flashcards master a point by answering all its questions correctly (SRS stays available but fully optional); when oral data exists but is below the bar, full flashcard graduation still masters the point (existing behavior does not regress). The criteria are dual-implemented: `scripts/lib/mastery.mjs` (this report) and `src/lib/mastery.ts` (web panorama page) agree on the same fixtures (a cross-implementation assertion test keeps it that way); the web side's oral evidence comes from the build-time coverage snapshot `coverage.json` (`oralStatus`, fresh as of the last build).
 
 The report joins the learner profile (`study/records/profile.json`, written by grill) — each point's row carries its wrong reasons and advice. Point names are parsed from the MISSION.md layout table.
 ### Oral four states (v0.14, the `oral` field of `--json`)

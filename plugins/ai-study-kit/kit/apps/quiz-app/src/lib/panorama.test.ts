@@ -69,6 +69,31 @@ describe('buildPanorama 三信号（与脚本侧同口径）', () => {
     expect(r.groups[2].points[0].ep).toBe('EP-04');
     expect(days['EP-04']).toBe('——'); // 排布表占位符（文档性断言：sync 侧负责不输出它）
   });
+
+  // ── 口述四态参与掌握判据（v1.2，#119：web 侧输入 = 覆盖快照 oralStatus）─────────
+  it('快照 oralStatus 驱动掌握：达标点亮 / 未达标压 inProgress / weak 压 weak；无快照状态 = 解锁', () => {
+    const all = { A: rec(), B: rec(), C: rec(), D: rec(), E: rec(), F: rec() }; // 四考点题全对
+    const cov = coverage([
+      { ep: 'EP-01', taught: false, practiced: true, mastered: true, oral: null, oralStatus: 'mastered' },
+      { ep: 'EP-02', taught: false, practiced: true, mastered: true, oral: null, oralStatus: 'inProgress' },
+      { ep: 'EP-03', taught: false, practiced: true, mastered: true, oral: { asked: 3, correct: 0 }, oralStatus: 'weak' },
+      { ep: 'EP-04', taught: false, practiced: true, mastered: true, oral: null }, // 无口述数据
+    ]);
+    const r = buildPanorama(questions, all, epNames, [], {}, cov, epDays);
+    const byEp = Object.fromEntries(r.groups.flatMap((g) => g.points.map((p) => [p.ep, p])));
+    expect(byEp['EP-01']).toMatchObject({ status: 'mastered', mastered: true, oralStatus: 'mastered' });
+    expect(byEp['EP-02']).toMatchObject({ status: 'inProgress', mastered: false, oralStatus: 'inProgress' });
+    expect(byEp['EP-03']).toMatchObject({ status: 'weak', mastered: false, oralStatus: 'weak' });
+    expect(byEp['EP-04']).toMatchObject({ status: 'mastered', mastered: true, oralStatus: null }); // 零闪卡零口述解锁
+  });
+
+  it('旧格式快照（无 oralStatus 字段，build 升级前的 coverage.json）不阻塞掌握', () => {
+    const cov = coverage([
+      { ep: 'EP-01', taught: false, practiced: true, mastered: true, oral: { asked: 5, correct: 1 } },
+    ]);
+    const r = buildPanorama(questions, { A: rec(), B: rec() }, epNames, [], {}, cov, epDays);
+    expect(r.groups.flatMap((g) => g.points).find((p) => p.ep === 'EP-01')!.status).toBe('mastered');
+  });
 });
 
 describe('shouldRenderGraph 连线渲染判据（v0.14，无图/超限回退清单）', () => {

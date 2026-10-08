@@ -6,7 +6,8 @@
 //   practiced 练过 该考点下有答题记录（answered > 0），或口头问答 > 0（弱信号——聊天层
 //                  的口头问答也算练；v0.14 起口头计数唯一真源 = 口头答题流水
 //                  oral-attempts.json，旧记录手写「口头题计数」节照读合并）
-//   mastered 掌握  掌握度四态判据不变（masteryByExamPoint，题 + 闪卡双通道）
+//   mastered 掌握  掌握度四态判据（masteryByExamPoint v1.2：题主证 + 口述达标/闪卡毕业
+//                  任一超题证据；口述四态按 EP 分组现算传入——零闪卡零口述时题全对即掌握）
 //
 // 分组：按 MISSION 排布表 day 列（epDayMap）；无 day 归「未排程」组，无排布表全部归该组。
 // 排序：day 按排布表出现顺序（D1、D2…自然序兜底），「未排程」垫底。
@@ -15,7 +16,7 @@
 // 沿掌握度 mastery.mjs/mastery.ts 双实现先例。web 侧消费的是内容无关覆盖快照（sync 产物），
 // 本文件同时是快照生成的判据源。
 import { masteryByExamPoint } from './mastery.mjs';
-import { aggregateOral } from './oral.mjs';
+import { aggregateOral, groupOralAttempts, oralMastery } from './oral.mjs';
 
 /**
  * 全景聚合。
@@ -35,7 +36,14 @@ export function buildPanorama({
   questions, answers = {}, srs = {}, flashcards = [], epNames = {}, epDays = {},
   records = [], oralAttempts = [], coursesRead = { lessonsTotal: 0, lessonsDone: 0 },
 }) {
-  const { points } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs });
+  // 口述四态按 EP 分组现算（v1.2 超题证据主通道；与 mastery-report 同规则——
+  // groupOralAttempts 保留每组完整时序，oralMastery 出四态）。解析链只带 epNames：
+  // EP 前缀 + 裸考点名两条正路（图节点映射反查是 mastery-report 顶层的增强，不在快照通道）。
+  const oralGroups = groupOralAttempts(oralAttempts, { epNames });
+  const oralStatusByEp = new Map();
+  for (const [ep, attempts] of oralGroups.byEp) oralStatusByEp.set(ep, oralMastery(attempts).status);
+
+  const { points } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs, oralByEp: oralStatusByEp });
 
   // 契约二记录 → 每个 EP 的覆盖证据。匹配两路：显式 EP 前缀（记录写「EP-01 暂存区」）或
   // 名字精确匹配排布表考点名（记录写「暂存区」）。
@@ -99,6 +107,8 @@ export function buildPanorama({
       total: p.total,
       openWrong: p.openWrongIds.length,
       oral,
+      // 口头四态（v1.2 掌握判据输入；覆盖快照把它带给 web 侧，null = 无口述数据）
+      oralStatus: p.oralStatus,
     });
   }
 

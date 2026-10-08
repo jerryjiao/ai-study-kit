@@ -33,7 +33,7 @@ const questions = [
   { id: 'B', examPoint: 'EP-02' },
 ];
 
-test('覆盖快照形状：字段白名单（ep/布尔×3/oral 计数），无 name/叙述字段', () => {
+test('覆盖快照形状：字段白名单（ep/布尔×3/oral 计数/oralStatus 枚举），无 name/叙述字段', () => {
   const pano = buildPanorama({
     questions, answers: { A: { correct: true } },
     epNames: { 'EP-01': '状态码家族划分' }, epDays: { 'EP-01': 'D1', 'EP-02': 'D1' },
@@ -43,16 +43,40 @@ test('覆盖快照形状：字段白名单（ep/布尔×3/oral 计数），无 n
   const snap = buildCoverageSnapshot(pano);
   assert.equal(snap.points.length, 2);
   for (const p of snap.points) {
-    assert.deepEqual(Object.keys(p).sort(), ['ep', 'mastered', 'oral', 'practiced', 'taught']);
+    assert.deepEqual(Object.keys(p).sort(), ['ep', 'mastered', 'oral', 'oralStatus', 'practiced', 'taught']);
     assert.equal(typeof p.ep, 'string');
     assert.equal(typeof p.taught, 'boolean');
     assert.equal(typeof p.practiced, 'boolean');
     assert.equal(typeof p.mastered, 'boolean');
     if (p.oral) assert.deepEqual(Object.keys(p.oral).sort(), ['asked', 'correct']);
+    // oralStatus 只允许四值枚举或 null（无口述数据）——叙述性字符串进不来
+    assert.ok(p.oralStatus === null || ['mastered', 'inProgress', 'weak'].includes(p.oralStatus));
   }
   assert.deepEqual(snap.points[0], {
-    ep: 'EP-01', taught: true, practiced: true, mastered: true, oral: { asked: 3, correct: 2 },
+    ep: 'EP-01', taught: true, practiced: true, mastered: true,
+    oral: { asked: 3, correct: 2 },
+    oralStatus: null, // 旧记录手写「口头题计数」无时序，不进口述四态（只有流水才算）
   });
+});
+
+test('口述流水 → oralStatus 进快照（v1.2 掌握判据输入）；非法值被白名单枚举拦下', () => {
+  const pano = buildPanorama({
+    questions, answers: { A: { correct: true } },
+    epNames: { 'EP-01': '状态码家族划分' },
+    oralAttempts: [
+      { target: 'EP-01 状态码家族划分', correct: true, at: 1000, source: 'recall' },
+      { target: 'EP-01 状态码家族划分', correct: true, at: 2000, source: 'recite' },
+      { target: 'EP-01 状态码家族划分', correct: true, at: 3000, source: 'case' },
+    ],
+  });
+  const snap = buildCoverageSnapshot(pano);
+  assert.equal(snap.points[0].oralStatus, 'mastered');
+  // 形状兜底：上游给怪值（叙述字符串/数字）→ 压成 null，不带出快照
+  const weird = buildCoverageSnapshot({
+    generatedAt: '', courseTaughtAll: false,
+    groups: [{ day: 'D1', points: [{ ep: 'EP-01', taught: true, practiced: true, mastered: true, oral: null, oralStatus: '金句：不该出现' }], summary: {} }],
+  });
+  assert.equal(weird.points[0].oralStatus, null);
 });
 
 test('内容断言：金句/错点原文绝不进快照（有即红）', () => {

@@ -5,7 +5,7 @@
 // 本模块是**唯一跨仓契约**的实现面：
 //   装载 graph.json（位置以参数/环境变量传入，同进度文件模式）
 //   ∪ 考点节点映射（study/records/graph-map.json，学习者个人文件，守 ADR-0002 边界）
-//   ∪ 掌握度现算（题库四态 v1.1 + 口头四态，两通道合流负面证据优先）
+//   ∪ 掌握度现算（题库四态 v1.2 + 口头四态，两通道合流负面证据优先）
 //   → 产出只读投影文件（nodes[id, mastery, oral]，knowflow 拿去给节点着色）。
 //
 // 降级铁律：无图 / 无映射 / 文件坏 → 全部静默降级为纯考点口径（「文件不存在 = 空进度」
@@ -79,7 +79,7 @@ export function loadKnowledgeGraph(graphPath) {
 
 /**
  * 构建投影（纯函数）。每个图节点一个条目：
- *   mastery = mergeMastery(映射 EP 的题库四态（v1.1，未映射视为 untouched）, 节点口头四态)
+ *   mastery = mergeMastery(映射 EP 的题库四态（v1.2——已含 oralByEp 口述通道，见 mastery.mjs；未映射视为 untouched）, 节点口头四态)
  *             ——未映射节点只有口头通道，oral status 原样生效（无题知识点的掌握判据）；
  *             映射节点口头负面（weak）拖垮题库掌握、口头正向不越权（题为准）、
  *             题没刷过时口头最多推到 inProgress（验效果靠做题）。
@@ -88,7 +88,7 @@ export function loadKnowledgeGraph(graphPath) {
  * @param {object} p
  * @param {object} p.graph          loadKnowledgeGraph 输出
  * @param {object|null} p.graphMap  loadGraphMap 输出（null = 全部节点走纯口头通道）
- * @param {Array}  p.points         masteryByExamPoint 输出的 points（题库四态 v1.1）
+ * @param {Array}  p.points         masteryByExamPoint 输出的 points（题库四态 v1.2）
  * @param {Array}  [p.oralAttempts] 口头答题流水明细
  * @param {object} [p.epNames]     EP → 考点名（流水目标解析用）
  * @param {string} p.generatedAt   ISO 时间戳（调用方注入，保纯函数可测）
@@ -165,13 +165,13 @@ export function classifyRelation(label) {
  *
  * 节点级前置：prereqByNode[from] = [to...]（classifyRelation = prerequisite 的边）。
  * EP 级投影：两端都有 EP 映射的边 → prereqByEp；单端映射 → 弱项的 EP 挂未映射前置节点。
- * mastery 标注：映射前置节点取题库四态（v1.1），未映射前置 = null（未验证）。
+ * mastery 标注：映射前置节点取题库四态（v1.2），未映射前置 = null（未验证）。
  * 消费方（skill 推荐/陪练开场）据此把「前置未掌握」排到被依赖项之前。
  *
  * @param {object} p
  * @param {object} p.graph     loadKnowledgeGraph 输出
  * @param {object|null} p.graphMap loadGraphMap 输出
- * @param {Array}  p.points    masteryByExamPoint 输出（题库四态 v1.1）
+ * @param {Array}  p.points    masteryByExamPoint 输出（题库四态 v1.2）
  * @returns {{
  *   prereqEdges: number, relatedEdges: number,
  *   prereqByEp: Map<ep, Set<prereqEp>>,                    // EP 级前置边（排序用）

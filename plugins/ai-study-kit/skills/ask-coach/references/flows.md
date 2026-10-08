@@ -258,7 +258,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
 ```
 
 - 产物：`<graph.json 同目录>/mastery-projection.json`（`{ version: 1, generatedAt, source, nodes: [{ id, mastery, oral: { asked, correct } }] }`）——只读、可重复生成；graph.json 本体与知识页零改动，flowtest 等其他消费方零感知。
-- 节点四态口径：映射节点 = 题库四态（v1.1）∪ 口头四态合流（负面证据优先）；未映射节点 = 纯口头通道。图与映射缺任一 → `graph.loaded = false`，报告自动退回纯考点口径。
+- 节点四态口径：映射节点 = 题库四态（v1.2，已含口述通道）∪ 口头四态合流（负面证据优先）；未映射节点 = 纯口头通道。图与映射缺任一 → `graph.loaded = false`，报告自动退回纯考点口径。
 - 四态→颜色的映射规则由 knowflow 侧定义（本仓不越界）；学习者重新跑一次本命令即刷新着色数据。
 
 **完成标志**：投影文件落盘在图目录旁 + `--json` 的 `graph.projection.written = true`。提示用户在 knowflow 侧重新生成/打开图谱看节点着色。

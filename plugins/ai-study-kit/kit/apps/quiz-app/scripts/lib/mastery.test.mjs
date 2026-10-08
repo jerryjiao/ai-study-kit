@@ -41,7 +41,7 @@ test('mastered：全答对且无未毕业错题', () => {
   assert.equal(r.points[0].status, 'mastered');
 });
 
-// ── 闪卡毕业组件（v1.1）──────────────────────────────────────
+// ── 闪卡毕业组件（v1.2：可选替代通道，不再硬性必经——#119 / spec #118 T5）──────
 const fcs = (pairs) => pairs.map(([id, ep]) => ({ id, examPoint: ep }));
 const srsRec = (extra = {}) => ({ phase: 'review', ...extra });
 
@@ -53,20 +53,29 @@ test('isFlashGraduated：review 毕业learning/无记录/墓碑不毕业', () =>
   assert.equal(isFlashGraduated(srsRec({ deletedAt: 123 })), false); // 重置墓碑 = 未毕业
 });
 
-test('mastered 判据补闪卡毕业：题全对但映射闪卡未毕业 → inProgress', () => {
+test('v1.2 解锁（AC1）：题全对 + 零 srs 记录（映射了卡也从未复习）→ mastered，闪卡不阻塞', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-1', 'EP-01']]),
+    srs: {}, // 从不使用闪卡的主题：无 srs 记录
+  });
+  assert.equal(r.points[0].status, 'mastered');
+  assert.deepEqual(r.points[0].flashOpenIds, ['FC-1']); // 未毕业仍如实上报（展示用）
+  assert.equal(r.points[0].flashGraduated, 0);
+});
+
+test('v1.2 解锁：题全对 + 闪卡在学（learning，有进度未毕业）→ mastered（SRS 彻底可选）', () => {
   const r = masteryByExamPoint({
     questions: qs([['EP-01', ['A', 'B']]]),
     answers: { A: rec(), B: rec() },
     flashcards: fcs([['FC-1', 'EP-01']]),
     srs: { 'FC-1': srsRec({ phase: 'learning' }) },
   });
-  assert.equal(r.points[0].status, 'inProgress');
-  assert.deepEqual(r.points[0].flashOpenIds, ['FC-1']);
-  assert.equal(r.points[0].flashMapped, 1);
-  assert.equal(r.points[0].flashGraduated, 0);
+  assert.equal(r.points[0].status, 'mastered'); // v1.1 此处是 inProgress；闪卡毕业降为可选通道
 });
 
-test('映射闪卡全部毕业（review）→ mastered 成立', () => {
+test('存量不回退（AC2）：映射闪卡全部毕业（review）→ mastered 成立', () => {
   const r = masteryByExamPoint({
     questions: qs([['EP-01', ['A', 'B']]]),
     answers: { A: rec(), B: rec() },
@@ -85,7 +94,7 @@ test('闪卡映射按考点隔离：别的考点的卡不影响本考点，无 e
     srs: { 'FC-x': srsRec({ phase: 'learning' }) }, // EP-02 的卡没毕业
   });
   assert.equal(r.points[0].status, 'mastered'); // EP-01 无映射卡，不受影响
-  assert.equal(r.points[1].status, 'inProgress'); // EP-02 差闪卡
+  assert.equal(r.points[1].status, 'mastered'); // EP-02 题全对即掌握（v1.2：闪卡不阻塞）
   assert.equal(r.points[0].flashMapped, 0);
 });
 
@@ -97,6 +106,99 @@ test('闪卡组件不掩盖负面证据：题有错 + 闪卡毕业了也还是 w
     srs: { 'FC-1': srsRec() },
   });
   assert.equal(r.points[0].status, 'weak');
+});
+
+// ── 口述四态通道（v1.2 超题证据主通道，#119）─────────────────────
+// 口述达标（oralByEp ep→'mastered'）= 主通道；有数据未达标 = 不满足主通道（可被闪卡
+// 替代通道救回）；weak = 负面证据优先（压成 weak）；无口述数据 = 不阻塞（上面解锁测试已覆盖）。
+
+test('口述达标：题全对 + oralStatus mastered → mastered（映射闪卡未毕业也放行）', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-1', 'EP-01']]),
+    srs: { 'FC-1': srsRec({ phase: 'learning' }) },
+    oralByEp: { 'EP-01': 'mastered' },
+  });
+  assert.equal(r.points[0].status, 'mastered');
+  assert.equal(r.points[0].oralStatus, 'mastered');
+});
+
+test('口述未达标 + 闪卡未毕业 → inProgress（超题证据不满足，但不构成负面）', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-1', 'EP-01']]),
+    srs: {},
+    oralByEp: { 'EP-01': 'inProgress' },
+  });
+  assert.equal(r.points[0].status, 'inProgress');
+  assert.equal(r.points[0].oralStatus, 'inProgress');
+});
+
+test('口述未达标 + 映射闪卡全毕业 → mastered（闪卡替代通道，存量行为不回退）', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-1', 'EP-01']]),
+    srs: { 'FC-1': srsRec() },
+    oralByEp: { 'EP-01': 'inProgress' },
+  });
+  assert.equal(r.points[0].status, 'mastered');
+});
+
+test('口述 weak → 负面证据优先：题全对 + 闪卡全毕业也压成 weak', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: { A: rec(), B: rec() },
+    flashcards: fcs([['FC-1', 'EP-01']]),
+    srs: { 'FC-1': srsRec() },
+    oralByEp: { 'EP-01': 'weak' },
+  });
+  assert.equal(r.points[0].status, 'weak');
+});
+
+test('口述 positive 不越权：题没刷（untouched）口头再好也不算掌握；口头 weak 一题未答也 weak', () => {
+  const good = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: {},
+    oralByEp: { 'EP-01': 'mastered' },
+  });
+  assert.equal(good.points[0].status, 'untouched'); // 验效果靠题
+  const bad = masteryByExamPoint({
+    questions: qs([['EP-01', ['A', 'B']]]),
+    answers: {},
+    oralByEp: { 'EP-01': 'weak' },
+  });
+  assert.equal(bad.points[0].status, 'weak'); // 负面证据优先（与 mergeMastery 同规则）
+});
+
+test('oralByEp 兼容 Map 传入；无口述数据的考点 oralStatus = null', () => {
+  const r = masteryByExamPoint({
+    questions: qs([['EP-01', ['A']], ['EP-02', ['B']]]),
+    answers: { A: rec(), B: rec() },
+    oralByEp: new Map([['EP-01', 'mastered']]),
+  });
+  assert.equal(r.points[0].oralStatus, 'mastered');
+  assert.equal(r.points[1].oralStatus, null);
+});
+
+// ── 跨侧一致夹具（#119 AC3）────────────────────────────────────
+// 数据源 = fixtures/mastery-cross-fixture.mjs（单一来源）；同一夹具在
+// src/lib/mastery.test.ts（TS 侧判据 + import 本模块对拍）与
+// scripts/lib/mastery-report.test.mjs（CLI 子进程 --json 端到端）断言同一组期望。
+import { fixture as CROSS_FIXTURE_DATA, oralByEp as CROSS_ORAL, expected as CROSS_EXPECTED } from './fixtures/mastery-cross-fixture.mjs';
+
+test('跨侧一致夹具：v1.2 五分支（口述达标/无数据解锁/证据不足/闪卡替代/口述负面）', () => {
+  const r = masteryByExamPoint({
+    questions: CROSS_FIXTURE_DATA.questions,
+    answers: CROSS_FIXTURE_DATA.answers,
+    flashcards: CROSS_FIXTURE_DATA.flashcards,
+    srs: CROSS_FIXTURE_DATA.srs,
+    oralByEp: CROSS_ORAL,
+  });
+  const got = Object.fromEntries(r.points.map((p) => [p.ep, p.status]));
+  assert.deepEqual(got, CROSS_EXPECTED);
 });
 
 test('weak：毕业中（streak 未达阈值）即使最近一次答对', () => {

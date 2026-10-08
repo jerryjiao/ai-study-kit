@@ -19,9 +19,14 @@
 //   置信度封顶：答 1 次封 0.5、答 2 次封 0.8（防一次蒙对）。
 //   四态：untouched 空流水 / weak 最近一次判错或加权分 < 0.5（负面证据优先）/
 //         mastered 加权分 ≥ 0.85（封顶之下天然要求 ≥3 次）/ 其余 inProgress。
-//   既有考点四态判据（mastery v1.1 题+闪卡双通道）一字不动；两通道合流走 mergeMastery：
-//   负面证据优先（任一 weak 即 weak），题通道有数据以题为准（口头正向不越权——「以做题验
-//   效果」），题通道 untouched 时口头最多推到 inProgress（题没刷过，口头再好不算掌握）。
+//   v1.2（#119）起口头四态参与考点掌握判据（mastery.mjs 的 oralByEp 输入）：
+//   mastered = 超题证据主通道（与映射闪卡全毕业二选一）、weak = 负面证据优先——
+//   两条规则已内置进 masteryByExamPoint，消费方无需再叠一层。mergeMastery 仍保留：
+//   题库四态（v1.2 输出）与口头四态在**节点投影**等处的合流仍走它（对已内置的两侧
+//   结果幂等：weak∧weak=weak、mastered∧mastered=mastered），语义三条不变——
+//   负面证据优先（任一 weak 即 weak）、题通道有数据以题为准（口头正向不越权——
+//   「以做题验效果」）、题通道 untouched 时口头最多推到 inProgress（题没刷过，
+//   口头再好不算掌握）。
 
 export const ORAL_SOURCES = ['recall', 'recite', 'case'];
 
@@ -180,7 +185,7 @@ export function oralMastery(attempts = []) {
  *  - 题通道有数据（非 untouched）→ 以题为准（口头正向不越权：题全对+闪卡毕业的考点
  *    不因「口头问得少」降级，口头正向只作「练过」弱信号）；
  *  - 题通道 untouched → 口头最多推到 inProgress（题没刷过，口头再好也不算掌握——验效果靠题）。
- * @param {'mastered'|'weak'|'inProgress'|'untouched'} epStatus 题库考点四态（mastery v1.1 判据输出）
+ * @param {'mastered'|'weak'|'inProgress'|'untouched'} epStatus 题库考点四态（mastery v1.2 判据输出——已含 oralByEp 口述通道，本函数对它幂等）
  * @param {'mastered'|'weak'|'inProgress'|'untouched'} oralStatus 口头四态（oralMastery 输出）
  */
 export function mergeMastery(epStatus, oralStatus) {

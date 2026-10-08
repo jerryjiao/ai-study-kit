@@ -7,8 +7,9 @@
 //   taught 讲过    来自 build 时产出的内容无关覆盖快照（src/data/coverage.json——study/records
 //                  学习者私有不上站，只有 ep id/布尔/计数能出门）∪ courseTaughtAll（课全读）
 //   practiced 练过 本地进度实时派生：该考点有答题记录，或快照口头计数 > 0（弱信号）
-//   mastered 掌握  掌握度四态判据不变（masteryByExamPoint，题 + 闪卡双通道）
-// 「讲过/口头」新鲜度 = 上次 build；答题/掌握实时。分组：theme.json examDays（排布表 day 列）。
+//   mastered 掌握  掌握度四态判据（masteryByExamPoint v1.2：题主证 + 口述达标/闪卡毕业任一
+//                  超题证据）——口述四态来自快照 oralStatus（内容无关枚举，build 时现算）
+// 「讲过/口头/口述达标状态」新鲜度 = 上次 build；答题实时。分组：theme.json examDays。
 import type { AnswerRecord, Flashcard, Question, SrsState } from '../types';
 import { masteryByExamPoint, type ExamPointMastery, type MasteryStatus } from './mastery';
 
@@ -28,6 +29,8 @@ export interface CoveragePoint {
   practiced: boolean;
   mastered: boolean;
   oral: OralCount | null;
+  /** 口头四态（v1.2 掌握判据的超题证据输入；四值枚举，内容无关）。null/缺省 = 无口述数据。 */
+  oralStatus?: MasteryStatus | null;
 }
 
 export interface CoverageSnapshot {
@@ -59,6 +62,8 @@ export interface PanoramaPoint {
   total: number;
   openWrong: number;
   oral: OralCount | null;
+  /** 口头四态（v1.2 判据输入，来自快照）；null = 无口述数据。 */
+  oralStatus: MasteryStatus | null;
 }
 
 export interface PanoramaGroup {
@@ -82,10 +87,14 @@ export function buildPanorama(
   coverage: CoverageSnapshot | null = null,
   epDays: Record<string, string> = {},
 ): { summary: { examPoints: number; taught: number; practiced: number; mastered: number }; courseTaughtAll: boolean; groups: PanoramaGroup[] } {
-  const { points } = masteryByExamPoint(questions, answers, epNames, flashcards, srs);
-
   const covByEp = new Map<string, CoveragePoint>();
   for (const p of coverage?.points ?? []) covByEp.set(p.ep, p);
+  // 口述四态 → 掌握判据（v1.2 超题证据主通道；新鲜度 = 快照 build 时点，与「讲过/口头」同款）
+  const oralByEp: Record<string, MasteryStatus> = {};
+  for (const [ep, cov] of covByEp) {
+    if (cov.oralStatus) oralByEp[ep] = cov.oralStatus;
+  }
+  const { points } = masteryByExamPoint(questions, answers, epNames, flashcards, srs, oralByEp);
   const courseTaughtAll = coverage?.courseTaughtAll === true;
 
   const dayOrder: string[] = [];
@@ -112,6 +121,7 @@ export function buildPanorama(
       total: p.total,
       openWrong: p.openWrongIds.length,
       oral,
+      oralStatus: p.oralStatus,
     });
   }
 

@@ -65,7 +65,7 @@ export const es: Record<TKey, string> = {
   'panorama.mastered': 'Dominado',
   'panorama.answered': 'Resp {answered}/{total}',
   'panorama.oral': 'Orales {correct}/{asked}',
-  'panorama.stale': 'Las señales de visto/oral corresponden al último build; respuestas y dominio son en vivo.',
+  'panorama.stale': 'Las señales de visto/oral y la evidencia oral del criterio de dominio corresponden al último build; las respuestas son en vivo.',
   'panorama.graphHint': 'Las conexiones vienen de la proyección del grafo de conocimiento: flechas continuas = prerrequisito (aprender primero), discontinuas = relación; nodos = cuatro estados de dominio.',
   'panorama.stateMastered': 'Dominados',
   'panorama.stateInProgress': 'En estudio',

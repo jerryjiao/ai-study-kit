@@ -141,12 +141,12 @@ Herramienta complementaria de grill: **deriva de forma determinista** el dominio
 
 | Estado | Criterio |
 |--------|----------|
-| dominado | todas las preguntas del punto respondidas, todas correctas en el último intento, sin erróneas sin graduar, y todas las tarjetas mapeadas graduadas |
-| débil | tiene erróneas sin graduar, o algún fallo en el último intento |
-| en curso | respondido parcialmente y sin evidencia negativa, o todo correcto pero con tarjetas mapeadas aún sin graduar |
+| dominado | todas las preguntas del punto respondidas, todas correctas en el último intento, sin erróneas sin graduar, más una prueba más allá de las preguntas: dominio oral (cuando el punto tiene intentos orales) o todas las tarjetas mapeadas graduadas; sin datos orales, responder todo correctamente basta para dominar |
+| débil | tiene erróneas sin graduar, algún fallo en el último intento, o lo oral se juzga débil (evidencia negativa primero) |
+| en curso | respondido parcialmente y sin evidencia negativa, o todo correcto pero lo oral aún no alcanza el nivel y las tarjetas mapeadas no están todas graduadas |
 | sin empezar | ninguna pregunta respondida |
 
-Componente de graduación de tarjetas: las tarjetas de `flashcards.json` pueden llevar un `examPoint` opcional (EP-NN, el mismo espacio de nombres que las preguntas); en un punto mapeado, el dominio exige además que esas tarjetas estén graduadas en el SRS (`phase = review`). Los puntos sin mapeo no se ven afectados: el criterio retrocede a preguntas solamente. El panel «dominio por punto de examen» de la página principal de la web app muestra en vivo estos mismos criterios (`src/lib/mastery.ts`).
+Prueba más allá de las preguntas (v0.26 / criterio v1.2, #119): el **dominio oral** — el estado oral de cuatro valores calculado a partir del registro de intentos orales (criterios en la sección siguiente) que resulta «dominado» — es el canal principal del criterio de dominio; **todas las tarjetas mapeadas graduadas** (`examPoint` opcional en `flashcards.json`, EP-NN en el mismo espacio de nombres que las preguntas, SRS `phase = review`) es un canal alternativo equivalente. **La ausencia de datos orales no bloquea**: quienes nunca usan tarjetas y estudian charlando dominan un punto con solo responder bien todas sus preguntas (el SRS queda disponible pero totalmente opcional); cuando hay datos orales por debajo del nivel, graduar todas las tarjetas mapeadas sigue dominando el punto (el comportamiento existente no retrocede). El criterio tiene doble implementación: `scripts/lib/mastery.mjs` (este informe) y `src/lib/mastery.ts` (página de panorama web) coinciden sobre los mismos fixtures (una aserción entre implementaciones lo vigila); la evidencia oral del lado web viene de la instantánea de cobertura generada al construir, `coverage.json` (`oralStatus`, con la frescura del último build).
 
 El informe se une con el perfil del aprendiz (`study/records/profile.json`, producido por grill): cada fila de punto lleva sus causas de error y el consejo. Los nombres de los puntos se analizan de la tabla de reparto de MISSION.md.
 ### Cuatro estados orales (v0.14, campo `oral` de `--json`)
