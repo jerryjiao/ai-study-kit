@@ -41,7 +41,7 @@ test('mastered：全答对且无未毕业错题', () => {
   assert.equal(r.points[0].status, 'mastered');
 });
 
-// ── 闪卡毕业组件（v1.2：可选替代通道，不再硬性必经——#119 / spec #118 T5）──────
+// ── 闪卡毕业组件（v1.2：可选替代通道，不再硬性必经——#119 / spec #118）──────
 const fcs = (pairs) => pairs.map(([id, ep]) => ({ id, examPoint: ep }));
 const srsRec = (extra = {}) => ({ phase: 'review', ...extra });
 

@@ -3,7 +3,7 @@
 // 口径与 src/lib/progress.ts 的 wrongIds/streakToPass 保持一致：
 // 错题毕业 = streak ≥ streakToPass(wrongCount)，阈值随历史错次递增。
 //
-// 掌握度判据（v1.2，#119 / spec #118 T5：题主证 + 口述/闪卡任一超题证据）：
+// 掌握度判据（v1.2，#119 / spec #118：题主证 + 口述/闪卡任一超题证据）：
 //   mastered    考点下全部题已作答、最近一次全对、无未毕业错题，且满足任一超题证据：
 //               ① 口述达标——该考点已有口述数据且口头四态 = mastered（oralByEp 传入）；
 //               ② 映射闪卡（flashcards[].examPoint）全部毕业（SRS phase = review）——可选替代通道；
