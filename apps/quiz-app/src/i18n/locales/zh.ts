@@ -78,7 +78,7 @@ export const zh = {
   'panorama.mastered': '掌',
   'panorama.answered': '答 {answered}/{total}',
   'panorama.oral': '口头 {correct}/{asked}',
-  'panorama.stale': '「讲过 / 口头」信号与掌握判据里的口述证据截至上次构建；答题实时。',
+  'panorama.stale': '「讲过」信号截至上次构建；答题与口述实时（无实时口述的考点回退上次构建）。',
   'panorama.graphHint': '连线来自知识图谱投影：实线箭头=前置（先学），虚线=关联；节点=掌握四态。',
   'panorama.stateMastered': '已掌握',
   'panorama.stateInProgress': '在学',
