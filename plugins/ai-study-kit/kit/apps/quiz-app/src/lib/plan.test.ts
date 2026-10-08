@@ -7,7 +7,7 @@ import type { PlanFile, PlanUnit, Progress } from '../types';
 import {
   toLocalDateStr, parseLocalDate, diffCalendarDays,
   deriveCoverage, deriveCalendarDiff, deriveProjection, deriveGap, derivePlanReport, planUnitsByDay,
-  deriveShiftAdvice, REGRESSION_GAP_DAYS, type PlanGap,
+  deriveShiftAdvice, deriveRescheduleView, RESCHEDULE_FRESH_DAYS, REGRESSION_GAP_DAYS, type PlanGap,
 } from './plan';
 
 /** 本地正午时间戳（h 可覆盖，同一天内任意小时不影响自然日判定）。 */
@@ -469,5 +469,50 @@ describe('derivePlanReport 总装（首页面板复算入口）', () => {
     expect(deriveCoverage(dirty).current?.id).toBe('U-02');
     expect(deriveCalendarDiff(dirty, NOW).state).toBe('behind');   // U-02 plannedDate 09-08 逾期
     expect(deriveProjection(dirty, NOW).reason).toBe('no-recent-completions');
+  });
+});
+
+// ── 6. 重排视图（#125 债务红字退场的宣告面；与 scripts/lib/plan.test.mjs 同判据）────
+describe('deriveRescheduleView（最新重排审计的新鲜视图）', () => {
+  const plan = (rescheduled: PlanFile['rescheduled']): PlanFile => ({
+    ...PLAN4,
+    units: [
+      u({ id: 'U-01', title: '基础', order: 1, plannedDate: '2026-09-01', status: 'done', doneDate: '2026-09-02' }),
+      u({ id: 'U-02', title: '进阶', order: 2, plannedDate: '2026-09-30', status: 'in-progress' }),
+      u({ id: 'U-03', title: '综合', order: 3, plannedDate: '2026-10-05', status: 'planned' }),
+    ],
+    rescheduled,
+  });
+  it('今天重排（at=今天正午）→ available，下一站 = 今天起的第一个日程点（U-02 09-30）', () => {
+    const v = deriveRescheduleView(plan([{ at: NOW, reason: 'behind', triggerDays: 20, start: '2026-09-28', scheduledEnd: '2026-10-05' }]), NOW);
+    expect(v?.available).toBe(true);
+    expect(v?.reason).toBe('behind');
+    expect(v?.nextUnit).toEqual({ id: 'U-02', title: '进阶', plannedDate: '2026-09-30' });
+  });
+  it('6 天前重排 → 仍新鲜；8 天前 → 静默（RESCHEDULE_FRESH_DAYS=7，审计留在文件里）', () => {
+    expect(deriveRescheduleView(plan([{ at: NOON(2026, 9, 22), reason: 'gap', triggerDays: 5, start: '2026-09-22', scheduledEnd: '2026-10-05' }]), NOW)?.reason).toBe('gap');
+    expect(deriveRescheduleView(plan([{ at: NOON(2026, 9, 20), reason: 'gap', triggerDays: 5, start: '2026-09-20', scheduledEnd: '2026-10-05' }]), NOW)).toBeNull();
+  });
+  it('审计历史全留：只读最新一条（旧条目不覆盖），坏 reason 宽容回 manual', () => {
+    const v = deriveRescheduleView(plan([
+      { at: NOON(2026, 9, 20), reason: 'manual', triggerDays: null, start: '2026-09-20', scheduledEnd: '2026-09-25' },
+      { at: NOON(2026, 9, 27), reason: 'weird-value', triggerDays: 3, start: '2026-09-27', scheduledEnd: '2026-10-05' },
+    ] as PlanFile['rescheduled']), NOW);
+    expect(v?.reason).toBe('manual');       // 坏值宽容（不见为 manual，不猜）
+    expect(v?.at).toBe(NOON(2026, 9, 27)); // 最新一条
+  });
+  it('无审计 / 坏审计（at 非数）/ 全部完成后无剩余日程 → null（没有宣告就没有行）', () => {
+    expect(deriveRescheduleView(plan(undefined), NOW)).toBeNull();
+    expect(deriveRescheduleView(plan([{ at: NaN, reason: 'behind', triggerDays: 1, start: 'x', scheduledEnd: 'y' }]), NOW)).toBeNull();
+    const allDone: PlanFile = { units: [u({ id: 'U-01', title: '基础', order: 1, plannedDate: '2026-09-01', status: 'done', doneDate: '2026-09-02' })], rescheduled: [{ at: NOW, reason: 'behind', triggerDays: 2, start: '2026-09-28', scheduledEnd: '2026-09-28' }] };
+    expect(deriveRescheduleView(allDone, NOW)).toBeNull();
+  });
+  it('剩余日程全在过去（重排后又落后）→ 取最早的那个如实报（压制与否是 UI 层决策）', () => {
+    const behindAgain = plan([{ at: NOW, reason: 'behind', triggerDays: 20, start: '2026-09-28', scheduledEnd: '2026-10-05' }]);
+    behindAgain.units = [
+      u({ id: 'U-01', title: '基础', order: 1, plannedDate: '2026-09-01', status: 'done', doneDate: '2026-09-02' }),
+      u({ id: 'U-02', title: '进阶', order: 2, plannedDate: '2026-09-20', status: 'in-progress' }),
+    ];
+    expect(deriveRescheduleView(behindAgain, NOW)?.nextUnit.plannedDate).toBe('2026-09-20');
   });
 });

@@ -1,11 +1,16 @@
-/** 计划生成器判据层（v0.27 #121，spec #118（自适应排期器））——按实测速率从剩余单元生成排期。
+/** 计划生成器判据层（v0.27 #121，spec #118（自适应排期器）；v0.27 #125 自动重排触发）——
+ *  按实测速率从剩余单元生成排期。
  *
  *  与 plan.mjs（对账刀）的分工：那边**只读派生**四组信号，这边**生成写回** plan.json 的
  *  plannedDate——kit 里第二个被授权写主题计划文件的路径（第一个是契约三的三动作，只碰
  *  status/doneDate）。写回口与纪律单源在 skills/references/contracts.md 契约三「重排」节：
- *  学习者明确说「重排计划」才跑（plan.json 是主题数据，agent 不自作主张重排）；done 单元
- *  逐字段原样保留（完成是事实不重写），day/topic/title 不动（内容映射，排布表 day 列
- *  与 MISSION 同命名空间）；交错模式下重排剩余单元的 order（学习顺序本身是排期的产物）。
+ *  #121 原路径 = 学习者明确说「重排计划」才跑；#125 放宽 = 断档/落后时自动重排（教练场景
+ *  确认后写回 = 可否决，或 `--auto` 明示自动，触发判据 shouldReschedule 单源本文件）；
+ *  done 单元逐字段原样保留（完成是事实不重写），day/topic/title 不动（内容映射，排布表
+ *  day 列与 MISSION 同命名空间）；交错模式下重排剩余单元的 order（学习顺序本身是排期的
+ *  产物）。**每次写回追加一条重排审计**（plan.rescheduled，v0.27 #125）：at 真实时间戳 +
+ *  reason（behind/gap/manual）+ triggerDays + start/scheduledEnd——历史全留可追溯，
+ *  web 侧「已重排：下一站 X，日期 Y」钩子行读最新一条（债务红字退场的宣告面）。
  *
  *  ════════════════ 数学口径（与复盘速率算术逐项对得上，见票 #121 验收）════════════════
  *
@@ -38,7 +43,7 @@
  *  纯函数无 IO（写文件在 CLI 层 plan-generate.mjs）；时区口径与 plan.mjs 同：自然日按
  *  本地时区，测试用本地正午构造时间戳保跨时区确定。
  */
-import { deriveProjection, toLocalDateStr, parseLocalDate, diffCalendarDays } from './plan.mjs';
+import { deriveProjection, deriveCalendarDiff, deriveGap, deriveShiftAdvice, REGRESSION_GAP_DAYS, toLocalDateStr, parseLocalDate, diffCalendarDays } from './plan.mjs';
 
 // ════════════════ 排布表解析 ════════════════
 
@@ -184,8 +189,53 @@ function addDaysStr(dateStr, n) {
 const safeUnits = (units) => (Array.isArray(units) ? units.filter((u) => u && typeof u === 'object') : []);
 const orderOf = (u) => (typeof u.order === 'number' && Number.isFinite(u.order) ? u.order : Infinity);
 
+// ════════════════ 自动重排触发判据（v0.27 #125，spec #118）════════════════
+
+/** 自动重排该不该触发（纯函数，CLI `--auto` 的闸门 + plan-report `reschedule` 字段的判据源）。
+ *
+ *  两级触发（先判①再判②，先命中先出）：
+ *  ① behind：日历对照判 behind（存在 plannedDate < 今天 的非 done 单元）——逾期单元的
+ *     日程点已在过去，重排把它们挪到从今天起的实际可行位置。**不看 deadline**：逾期是
+ *     日程事实不是催办语义，零催办原则只管 UI 文案层，不管修复动作。
+ *  ② gap：断档 ≥ REGRESSION_GAP_DAYS（#120 断档回归口径）且 deriveShiftAdvice 可算
+ *     （实测速率外推确实需要后移 shiftDays > 0）——后移建议升级为可执行重排的同一入口。
+ *     速率无数据（no-rate）不触发：诚实降级，绝不无速率硬排。
+ *
+ *  幂等闸门：最新一条重排审计（plan.rescheduled）发生在**今天** → already-rescheduled-today
+ *  不再触发。正常路径重排后 behind/gap 自然消除（日期挪到今天起 / shiftDays 归零），
+ *  本闸门防的是「同一天重复跑 --auto」的边界抖动（round 后 shiftDays 恰又 >0 等）。
+ *
+ *  @returns {{needed:false, reason:'on-track'|'already-rescheduled-today'|'no-plan', triggerDays:null}}
+ *           | {{needed:true, reason:'behind', triggerDays:number}}
+ *           | {{needed:true, reason:'gap', triggerDays:number, shiftDays:number}} */
+export function shouldReschedule({ plan, progress, now, questionIds, cardIds, theme, oralAttempts }) {
+  if (!plan || !Array.isArray(plan.units) || plan.units.length === 0) {
+    return { needed: false, reason: 'no-plan', triggerDays: null };   // 无计划无日程可挪（noop 语义）
+  }
+  const audits = (plan.rescheduled ?? []).filter((r) => r && typeof r === 'object');
+  const last = audits[audits.length - 1];
+  if (last && typeof last.at === 'number' && Number.isFinite(last.at)
+    && toLocalDateStr(last.at) === toLocalDateStr(now)) {
+    return { needed: false, reason: 'already-rescheduled-today', triggerDays: null };
+  }
+  // ① behind：逾期单元存在即触发（deadline 不参与——修复动作不是催办文案）
+  const cd = deriveCalendarDiff(plan, now);
+  if (cd.available && cd.state === 'behind') {
+    return { needed: true, reason: 'behind', triggerDays: -(cd.diffDays ?? 0) };
+  }
+  // ② gap：断档回归 + 后移建议可算（#120 同判据；速率无数据不触发）
+  const gap = deriveGap(progress, now, { questionIds, cardIds, theme, oralAttempts });
+  if (gap.available && (gap.daysSinceLastContact ?? 0) >= REGRESSION_GAP_DAYS) {
+    const shift = deriveShiftAdvice(plan, now, gap);
+    if (shift.available) {
+      return { needed: true, reason: 'gap', triggerDays: gap.daysSinceLastContact ?? 0, shiftDays: shift.shiftDays ?? 0 };
+    }
+  }
+  return { needed: false, reason: 'on-track', triggerDays: null };
+}
+
 /**
- * 生成重排后的完整 PlanFile（含 summary；判据见头注）。
+ * 生成重排后的完整 PlanFile（含 summary 与重排审计；判据见头注）。
  * @param {object} p
  * @param {object} p.plan          现有 plan.json（units 必须非空且有剩余单元，调用方守门）
  * @param {number} p.now           当前 ms 时间戳（起点默认今天、速率窗口都用它）
@@ -196,9 +246,14 @@ const orderOf = (u) => (typeof u.order === 'number' && Number.isFinite(u.order) 
  * @param {string|null} [p.deadline] 考期（显式覆盖；null = 沿用 plan.deadline，都没有则不对照）
  * @param {boolean} [p.interleave] 硬算/概念交错（默认 false = 沿原 order 顺序排）
  * @param {object} [p.depthMap]    epDepthMap 输出（interleave 时用）
+ * @param {number} [p.rescheduleAt] 重排审计时间戳（v0.27 #125：真实 Date.now() 由 CLI 注入，
+ *                                  纯函数不取钟；**审计恒写**——manual 路径同样留痕可追溯）
+ * @param {string} [p.rescheduleReason] 审计触发原因 behind|gap|manual（默认 manual，#121 原路径）
+ * @param {number|null} [p.rescheduleTriggerDays] 审计触发时的节奏事实（behind=落后天数、
+ *                                  gap=断档天数；manual 默认 null）
  * @returns {{ok:true, plan:object, summary:object}} | {{ok:false, reason:string, message:string}}
  */
-export function generatePlanSchedule({ plan, now, daysPerUnit, activity, margin = 0, startDate, deadline, interleave = false, depthMap = {} }) {
+export function generatePlanSchedule({ plan, now, daysPerUnit, activity, margin = 0, startDate, deadline, interleave = false, depthMap = {}, rescheduleAt, rescheduleReason = 'manual', rescheduleTriggerDays = null }) {
   // ── 入参校验（缺数据/坏数据明确报错，绝不静默兜底成能跑的形状）──
   if (!(Number.isFinite(daysPerUnit) && daysPerUnit > 0)) {
     return { ok: false, reason: 'bad-pace', message: `daysPerUnit "${daysPerUnit}" 不是正数——排期器不编速率` };
@@ -268,9 +323,20 @@ export function generatePlanSchedule({ plan, now, daysPerUnit, activity, margin 
   ];
 
   const heavyCount = ordered.filter((u) => isHeavyUnit(u, depthMap)).length;
+  // 重排审计（v0.27 #125）：追加不覆盖（历史全留 = 可追溯）；at 由 CLI 注入真实时间戳。
+  const rescheduled = [
+    ...((Array.isArray(plan.rescheduled) ? plan.rescheduled : []).filter((r) => r && typeof r === 'object')),
+    {
+      at: Number.isFinite(rescheduleAt) ? rescheduleAt : now,    // 缺省回落 now（CLI 恒传 Date.now()）
+      reason: ['behind', 'gap', 'manual'].includes(rescheduleReason) ? rescheduleReason : 'manual',
+      triggerDays: Number.isFinite(rescheduleTriggerDays) ? rescheduleTriggerDays : null,
+      start,
+      scheduledEnd,
+    },
+  ];
   return {
     ok: true,
-    plan: dl ? { ...plan, deadline: dl, units } : { ...plan, units },
+    plan: { ...plan, ...(dl ? { deadline: dl } : {}), units, rescheduled },
     summary: {
       remaining: remaining.length,
       daysPerUnit,

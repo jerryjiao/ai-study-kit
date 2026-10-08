@@ -33,8 +33,8 @@ import {
 } from '../lib/topicOrder';
 import { themeConfig, iconFor } from '../lib/themeConfig';
 import {
-  derivePlanReport, deriveGap, deriveShiftAdvice, diffCalendarDays,
-  REGRESSION_GAP_DAYS, type PlanReport, type PlanGap,
+  derivePlanReport, deriveGap, deriveShiftAdvice, deriveRescheduleView, diffCalendarDays,
+  REGRESSION_GAP_DAYS, type PlanReport, type PlanGap, type PlanRescheduleView,
 } from '../lib/plan';
 import { buildPanorama, flattenScheduleOrder } from '../lib/panorama';
 import { oralAttemptsForTheme } from '../lib/oral';
@@ -143,6 +143,12 @@ export function Home() {
       theme: (themeMeta as { theme: string }).theme,
     });
   }, [progress, themeQuestionIds]);
+  // 重排视图（#125 债务红字退场的宣告面）：最新重排审计新鲜（≤ 7 天）→「已重排：下一站
+  // X，日期 Y」钩子行接管节奏行；behind 红字已退场（修复走教练/生成器，修好即宣告）。
+  const resched = useMemo(
+    () => (plan.units.length === 0 ? null : deriveRescheduleView(plan, Date.now())),
+    [plan.units.length],
+  );
   // 剩余清单里 unit.topic 的题集直达：只对本主题真实存在的 topic 建 Link（脏 topic id 降级纯展示）
   const planTopicIds = useMemo(() => new Set(questions.map((q) => q.topic || '')), []);
 
@@ -245,7 +251,7 @@ export function Home() {
 
       {/* 学习计划面板（#92）：有 plan.json 的主题第一眼可见（统计仪表正下方）；
           无计划主题 planReport=null 整块不渲染（dev-intro 首页零变化） */}
-      {planReport && <PlanPanel report={planReport} topicIds={planTopicIds} />}
+      {planReport && <PlanPanel report={planReport} topicIds={planTopicIds} resched={resched} />}
 
       {/* 主行动区（原型 .cta）：继续上次=绿主键（推进），错题重练/随机=蓝次键。
           无答题记录时不渲染"继续上次"（首次学习从下方闯关卡进入）。 */}
@@ -409,10 +415,10 @@ export function Home() {
 /** 断档回归卡（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS 的回归场景引导——
  *  不再只陈述「距上次学习 N 天」，给「先热身再续站」动作：
  *  ① 热身一题：下一站考点挑一题直达（?ep= Practice 考点直达，完成即计入进度），
- *     低门槛重启；② 有计划时的「计划建议后移 X 天」现算建议（只建议不执行，执行面是
- *     工具链计划生成器 plan-generate（v0.27 #121）——web 侧无按钮，重排找教练）——
- *     无 deadline 场景走中性语气（零催办原则：不出「落后」类字样），
- *     速率/对照日数据不足时建议行静默降级（绝不编数字）。
+ *     低门槛重启；② 有计划时的「可重排」建议（#125：#120 的后移建议升级为可执行重排
+ *     ——执行入口是工具链计划生成器 plan-generate --reason gap，教练场景确认后写回
+ *     = 可否决；web 侧无写回按钮，重排找教练）、无 deadline 场景走中性语气
+ *     （零催办原则：不出「落后」类字样），速率/对照日数据不足时建议行静默降级（绝不编数字）。
  *  选站与全景「下一站」推荐同判据（nextStation 三轨：落后日程插队 > 补弱 > 结构轨）。 */
 function RegressionPanel({ gapDays, warmup, link, shift }: {
   gapDays: number;
@@ -468,25 +474,32 @@ function RegressionPanel({ gapDays, warmup, link, shift }: {
 }
 
 /** 学习计划面板（#92，spec #89 第 3 条）：覆盖（进度条 + 完成 X/Y + 剩余清单）、
- *  节奏（日历对照落后/富余 + 速率外推富余/缺口 + 距 deadline 天数）、断档（距上次学习 N 天）。
+ *  节奏（日历对照 + 速率外推富余/缺口 + 距 deadline 天数）、断档（距上次学习 N 天）。
  *  判据全部来自 src/lib/plan.ts 现算（与 scripts/lib/plan.mjs 双实现同步，数字与
  *  plan-report --json 一致）；数据不足的信号走降级文案（无日程/速率不足/无接触），绝不显示编造数字。
- *  剩余清单里带合法 unit.topic 的单元可点进对应题集（题库无此 topic 的降级纯展示）。 */
-function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<string> }) {
+ *  剩余清单里带合法 unit.topic 的单元可点进对应题集（题库无此 topic 的降级纯展示）。
+ *  ⭐ 债务红字退场（v0.27 #125）：behind 不再陈列「落后 N 天」累积红字——落后/断档的
+ *  修复走重排（教练确认后 plan-generate 写回，可否决），修好由 resched 钩子行宣告
+ *  （「已重排：下一站 X，日期 Y」，新鲜审计 ≤ 7 天）；未修（behind）时节奏行隐藏，
+ *  零催办扩展到有目标日场景（速率外推的 deficit 缺口行是速率对照不是债务催办，保留）。 */
+function PlanPanel({ report, topicIds, resched }: { report: PlanReport; topicIds: Set<string>; resched: PlanRescheduleView | null }) {
   const { t } = useI18n();
   const { coverage, calendarDiff, projection, gap } = report;
   const pct = coverage.total === 0 ? 0 : Math.round((coverage.done / coverage.total) * 100);
 
-  // 节奏·日历对照：落后（红）/富余（绿）/今天到期（琥珀）/日程已清；不可对照 → 降级文案。
-  // ⭐ 无 deadline 零催办（v0.25 票⑥）：「落后」是催办语义——无目标日的主题即使日历对照
-  // 判 behind 也不出这个词（整行隐藏）；富余/今天到期/日程已清是中性事实照出。全景页同款。
+  // 节奏·日历对照：已重排（钩子宣告）> 富余（绿）/今天到期（琥珀）/日程已清（绿）；
+  // behind → null（债务红字退场：不陈列累积落后天数，修复走重排，见函数头注）；
+  // 不可对照 → 降级文案。
   let pace: { text: string; cls: string } | null;
-  if (!calendarDiff.available) {
+  if (resched) {
+    pace = {
+      text: t('home.planRescheduled', { unit: resched.nextUnit.title, date: resched.nextUnit.plannedDate }),
+      cls: 'text-st-green-ink',
+    };
+  } else if (!calendarDiff.available) {
     pace = { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
   } else if (calendarDiff.state === 'behind') {
-    pace = projection.deadline
-      ? { text: t('home.planBehind', { n: -(calendarDiff.diffDays ?? 0) }), cls: 'text-st-red-ink' }
-      : null;                                                          // 无目标日 → 零催办字样
+    pace = null;                                                        // 红字退场：修复走重排，不陈列欠账
   } else if (calendarDiff.state === 'due-today') {
     pace = { text: t('home.planDueToday'), cls: 'text-st-gold-ink' };
   } else if (calendarDiff.state === 'cleared') {
@@ -549,7 +562,8 @@ function PlanPanel({ report, topicIds }: { report: PlanReport; topicIds: Set<str
         >
           <div className="h-full bg-bar-green rounded-full" style={{ width: `${pct}%` }} />
         </div>
-        {/* 节奏三行：日历对照（无目标日判 behind 时整行隐藏——零催办）/ 速率外推 / 断档 */}
+        {/* 节奏三行：日历对照（behind 整行隐藏——债务红字退场 #125；已重排时为钩子宣告行）/
+            速率外推 / 断档 */}
         <div className="space-y-1 text-xs tabular-nums">
           {pace && (
             <div className="flex items-baseline gap-2">

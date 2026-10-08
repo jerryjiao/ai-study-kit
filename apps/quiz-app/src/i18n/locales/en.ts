@@ -41,7 +41,7 @@ export const en: Record<TKey, string> = {
   'home.planDeadlineToday': 'Deadline is today',
   'home.planDeadlineOver': 'Deadline passed {n} days ago',
   'home.planPace': 'Pace',
-  'home.planBehind': '{n} days behind',
+  'home.planRescheduled': 'Rescheduled: next up “{unit}”, {date}',
   'home.planSlack': '{n} days ahead',
   'home.planDueToday': 'Next unit is due today',
   'home.planCleared': 'All scheduled units done',
@@ -56,15 +56,17 @@ export const en: Record<TKey, string> = {
   // Today-touched badge (#123 micro-block): lit when any of the four channels (answers/flashcards/
   // courses/oral) has contact today — even one 3-question micro-block counts
   'home.todayTouched': 'Touched base today',
-  // Regression welcome-back card (#120, spec #118 T1): warm-up question + plan-shift advice
+  // Regression welcome-back card (#120, spec #118 T1): warm-up question + reschedulable advice
+  // (#125: upgraded to an executable reschedule — the executor is the coach-side generator,
+  // web only points the way; write-back after confirmation = the learner can veto)
   'home.welcomeBack': 'Welcome back',
   'home.warmupCta': 'Warm up: {name}',
   'home.warmupCtaPlain': 'Warm up with one question',
   'home.warmupHintSchedule': 'A station your schedule left behind — one question to get back in flow',
   'home.warmupHintWeak': 'Your weakest point — one question to get back in flow',
   'home.warmupHintNext': 'Your next station — one question to get back in flow',
-  'home.shiftAdviceDeadline': 'At your measured pace (≈{pace} days/unit over the last {window} days), the remaining {n} units need ~{days} days — consider shifting the plan by {shift} days',
-  'home.shiftAdviceNoDeadline': 'At your measured pace (≈{pace} days/unit over the last {window} days), the remaining {n} units need ~{days} days — {shift} days beyond the remaining schedule; shifting it may help',
+  'home.shiftAdviceDeadline': 'At your measured pace (≈{pace} days/unit over the last {window} days), the remaining {n} units need ~{days} days — reschedulable: confirm with your coach next session to shift the schedule by {shift} days',
+  'home.shiftAdviceNoDeadline': 'At your measured pace (≈{pace} days/unit over the last {window} days), the remaining {n} units need ~{days} days — reschedulable: confirm with your coach next session to shift the schedule by {shift} days',
   'home.planRemaining': '{n} units left',
   'home.planStatusInProgress': 'In progress',
   'home.planStatusPaused': 'Paused',

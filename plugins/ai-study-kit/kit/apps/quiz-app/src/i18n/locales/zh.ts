@@ -45,7 +45,7 @@ export const zh = {
   'home.planDeadlineToday': 'deadline 就是今天',
   'home.planDeadlineOver': 'deadline 已过 {n} 天',
   'home.planPace': '节奏',
-  'home.planBehind': '落后 {n} 天',
+  'home.planRescheduled': '已重排：下一站「{unit}」，{date}',
   'home.planSlack': '富余 {n} 天',
   'home.planDueToday': '下一单元今天到期',
   'home.planCleared': '日程已全部完成',
@@ -59,15 +59,16 @@ export const zh = {
   'home.planNoContact': '尚无学习接触记录',
   // 今日触达（#123 微块轻启动）：四通道任一今天有接触即亮（含微块口述）——钩子式正反馈
   'home.todayTouched': '今天已触达',
-  // 断档回归卡（#120，spec #118 T1）：热身一题 + 计划后移建议（只建议不执行）
+  // 断档回归卡（#120，spec #118 T1）：热身一题 + 可重排建议（#125：升级为可执行重排——
+  // 执行入口是教练侧计划生成器，web 只指路；确认后写回 = 可否决）
   'home.welcomeBack': '欢迎回来',
   'home.warmupCta': '热身一题 · {name}',
   'home.warmupCtaPlain': '热身一题',
   'home.warmupHintSchedule': '日程落下的考点，先做一题找回手感',
   'home.warmupHintWeak': '最薄弱的考点，先做一题找回手感',
   'home.warmupHintNext': '下一站考点，先做一题找回手感',
-  'home.shiftAdviceDeadline': '按你的实测速率（近 {window} 天约 {pace} 天/单元），剩余 {n} 个单元约需 {days} 天——计划建议后移 {shift} 天',
-  'home.shiftAdviceNoDeadline': '按你的实测速率（近 {window} 天约 {pace} 天/单元），剩余 {n} 个单元约需 {days} 天——比剩余日程多 {shift} 天，可考虑整体后移',
+  'home.shiftAdviceDeadline': '按你的实测速率（近 {window} 天约 {pace} 天/单元），剩余 {n} 个单元约需 {days} 天——可重排：下次见教练确认后，把日程整体后移 {shift} 天',
+  'home.shiftAdviceNoDeadline': '按你的实测速率（近 {window} 天约 {pace} 天/单元），剩余 {n} 个单元约需 {days} 天——可重排：下次见教练确认后，把日程整体后移 {shift} 天',
   'home.planRemaining': '剩余 {n} 单元',
   'home.planStatusInProgress': '在学',
   'home.planStatusPaused': '搁置',

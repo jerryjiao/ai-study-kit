@@ -24,12 +24,16 @@
 //                              多主题隔离（读端过滤红线，见 AGENTS.md）。无接触 → 降级不是 0 天。
 //   5. 断档回归·后移建议 deriveShiftAdvice（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS
 //                              进入回归场景后现算「计划建议后移 X 天」（速率外推所需天数 −
-//                              日程对照日剩余天数）；只建议不执行——执行面是脚本侧计划
-//                              生成器 plan-generate（v0.27 #121，学习者说「重排计划」才跑、
-//                              agent 代跑写回主题 plan.json；web 侧无此入口，纯工具链路径）。
+//                              日程对照日剩余天数）；v0.27 #125 起升级为**可执行重排**——
+//                              执行面是脚本侧计划生成器 plan-generate（--reason gap /
+//                              --auto，教练场景确认后写回 = 可否决；web 侧无写回入口）。
+//   6. 重排视图 deriveRescheduleView（#125，债务红字退场的宣告面）：最新一条重排审计
+//                              （plan.rescheduled，生成器写回的审计事实）新鲜（≤ 7 天）→
+//                              「已重排：下一站 X，日期 Y」——behind 红字退场后由它接管
+//                              节奏行的宣告；判据与 scripts/lib/plan.mjs 双实现同步。
 //
 // 时区口径：now 是 ms 时间戳，自然日按**本地时区**解释（srs.ts 的 toDateString 同先例）。
-import type { OralAttempt, PlanFile, PlanUnit, PlanUnitStatus, Progress } from '../types';
+import type { OralAttempt, PlanFile, PlanReschedule, PlanUnit, PlanUnitStatus, Progress } from '../types';
 
 // ════════════════ 日期工具（自然日按本地时区）════════════════
 
@@ -359,8 +363,9 @@ export interface PlanShiftAdvice {
   scheduledEnd: string | null;
 }
 
-/** 断档回归后的「计划建议后移 X 天」现算（#120；本层只建议不执行——执行面是脚本侧
- *  计划生成器 plan-generate，v0.27 #121，判据单源 scripts/lib/plan-generate.mjs）。
+/** 断档回归后的「计划建议后移 X 天」现算（#120；v0.27 #125 起建议即可执行——执行面是
+ *  脚本侧计划生成器 plan-generate（#121 引入，--reason gap / --auto 与自动重排同一入口），
+ *  判据单源 scripts/lib/plan-generate.mjs）。
  *  口径：按近 WINDOW 天（默认 14）实测速率完成剩余单元需 estimatedDays 天，与日程
  *  对照日（deadline ?? 剩余日程尽头）之差 > 0 才建议后移。断档天数本身不另加——
  *  窗口含断档期，速率已被如实拉低（「按你的实测速率」的合理解读）。
@@ -422,6 +427,57 @@ export function deriveShiftAdvice(
     remaining: proj.remaining,
     estimatedDays: proj.estimatedDays,
     shiftDays,
+  };
+}
+
+// ── 6. 重排视图（#125，债务红字退场的宣告面）──────────────
+
+/** 重排宣告的新鲜窗口（自然日）：最新审计距今 ≤ 7 天才出「已重排：下一站 X，日期 Y」。
+ *  更早的审计留在 plan.json 里（可追溯），UI 静默——陈年重排不是新闻。 */
+export const RESCHEDULE_FRESH_DAYS = 7;
+
+export interface PlanRescheduleView {
+  available: true;
+  /** 触发原因（最新审计的 reason；坏值宽容回 manual）。 */
+  reason: PlanReschedule['reason'];
+  /** 最新审计的写回时刻（ms）。 */
+  at: number;
+  /** 重排后的下一站：剩余（非 done）单元里 plannedDate 最小者（优先今天起的第一个
+   *  日程点）；无剩余有日程单元（如全完成后的残留审计）→ deriveRescheduleView 返回 null。 */
+  nextUnit: { id: string; title: string; plannedDate: string };
+}
+
+/** 最新重排审计的新鲜视图（纯函数；判据与 scripts/lib/plan.mjs 双实现同步）。
+ *  读的是生成器写回的**审计事实**（不是对账派生值）：新鲜（≤ RESCHEDULE_FRESH_DAYS 天）
+ *  且存在下一站才出；坏审计（at 非数）按无重排，陈旧审计不出。消费端（首页 PlanPanel /
+ *  全景摘要行 / plan-report）用它出「已重排：下一站 X，日期 Y」钩子行。 */
+export function deriveRescheduleView(
+  plan: PlanFile | null | undefined,
+  now: number,
+): PlanRescheduleView | null {
+  const audits = (Array.isArray(plan?.rescheduled) ? (plan!.rescheduled as unknown as unknown[]) : [])
+    .filter((r): r is Record<string, unknown> => !!r && typeof r === 'object');
+  const last = audits[audits.length - 1];
+  if (!last) return null;
+  const at = last.at;
+  if (typeof at !== 'number' || !Number.isFinite(at)) return null;
+  const ageDays = diffCalendarDays(toLocalDateStr(at), toLocalDateStr(now));
+  if (ageDays === null || ageDays > RESCHEDULE_FRESH_DAYS) return null;
+  const today = toLocalDateStr(now);
+  const dated = sortedByOrder(plan?.units)
+    .filter((u) => statusOf(u) !== 'done' && typeof u.plannedDate === 'string' && !!parseLocalDate(u.plannedDate))
+    .sort((a, b) => {
+      const pa = String(a.plannedDate), pb = String(b.plannedDate);
+      return pa < pb ? -1 : pa > pb ? 1 : orderOf(a) - orderOf(b);
+    });
+  const next = dated.find((u) => String(u.plannedDate) >= today) ?? dated[0] ?? undefined;
+  if (!next) return null;
+  const reason = last.reason;
+  return {
+    available: true,
+    reason: reason === 'behind' || reason === 'gap' ? reason : 'manual',
+    at,
+    nextUnit: { id: String(next.id), title: String(next.title), plannedDate: String(next.plannedDate) },
   };
 }
 

@@ -114,15 +114,35 @@ export interface PlanUnit {
   doneDate?: string;
 }
 
+/** 重排审计条目（v0.27 #125）：计划生成器每次重排写回时**追加**一条进 `plan.rescheduled`
+ *  （历史全留 = 可追溯——每次挪动的时刻/原因/起点/尽头都在案），永不改写旧条目。
+ *  消费端（首页/全景的「已重排」钩子行、plan-report）只读最新一条判新鲜度。 */
+export interface PlanReschedule {
+  /** 写回时刻的真实时间戳（与 progress 的 submittedAt 同款红线：禁固定值、禁未来时间戳）。 */
+  at: number;
+  /** 触发原因：behind=落后触发（存在逾期单元）| gap=断档回归触发（#120 后移建议可算）|
+   *  manual=学习者点名重排（#121 原路径）。 */
+  reason: 'behind' | 'gap' | 'manual';
+  /** 触发时的节奏事实：behind=落后天数（正数）、gap=断档天数；manual=null。 */
+  triggerDays?: number | null;
+  /** 重排起点（YYYY-MM-DD，本地时区）：剩余单元从此日起按实测速率落位。 */
+  start: string;
+  /** 重排后的日程尽头（YYYY-MM-DD，本地时区）：最后一个剩余单元的 plannedDate。 */
+  scheduledEnd: string;
+}
+
 /** 学习计划：examples/<theme>/plan.json（可选主题数据；sync-examples 拷进
  *  src/data/plan.json，缺失/损坏时回退空计划 {units:[]}，import 恒可解析）。
  *  **主题数据不是运行期数据，不进 progress**——单元完成态由 status/doneDate 字段承载
  *  （学习流程写回主题文件），与答题进度（progress.answers）分家；派生（覆盖/节奏/断档）
- *  与展示住 kit，从本文件 + progress 现算，绝不写回。 */
+ *  与展示住 kit，从本文件 + progress 现算，绝不写回（例外见 rescheduled：它是生成器
+ *  写回的**审计事实**，不是对账派生值——挪过就是挪过，不随当天进度漂移）。 */
 export interface PlanFile {
   /** 目标完成日（可选，YYYY-MM-DD）：速率外推的对照锚点。 */
   deadline?: string;
   units: PlanUnit[];
+  /** 重排审计（可选，v0.27 #125）：生成器每次重排追加一条；读端最新一条判「已重排」。 */
+  rescheduled?: PlanReschedule[];
 }
 
 

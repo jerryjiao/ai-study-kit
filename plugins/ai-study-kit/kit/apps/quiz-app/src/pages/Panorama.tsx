@@ -24,7 +24,7 @@ import { nextStation, derivePlanGapInput, type NextStationResult } from '../lib/
 import { deriveEpTrace, type TraceEvent } from '../lib/panoramaTrace';
 import { isFlashGraduated, type MasteryStatus } from '../lib/mastery';
 import { oralAttemptsForTheme, groupOralByEp } from '../lib/oral';
-import { deriveCalendarDiff, deriveCoverage, deriveProjection, diffCalendarDays, type PlanCalendarDiff, type PlanProjection } from '../lib/plan';
+import { deriveCalendarDiff, deriveCoverage, deriveProjection, deriveRescheduleView, diffCalendarDays, type PlanCalendarDiff, type PlanProjection, type PlanRescheduleView } from '../lib/plan';
 import { TOPIC_ORDER, topicLabel } from '../lib/topicOrder';
 import type { Lesson } from '../lib/courseProgress';
 import type { AnswerRecord, OralAttempt, SrsState } from '../types';
@@ -49,7 +49,8 @@ import { Button3D, Card, Switch } from '../components/ui';
  * ②赶考细引用——仅当主题设了目标日（plan.json deadline）才出现的一行节奏对照，点达
  * 首页完整计划面板（完整面板仍只在首页，spec 功能轮 B）；③无 deadline 零催办——无
  * 目标日的主题任何节奏措辞里不出「落后」类字样（planPaceLine 门控，成文进
- * docs/methodology「目标日是可选的」）。
+ * docs/methodology「目标日是可选的」）。v0.27 #125 债务红字退场：behind（有目标日也）
+ * 不再陈列「落后 N 天」——修好由新鲜重排审计的钩子宣告行接管（planPaceLine 同款）。
  *
  * 筛选：全部/只看薄弱/只看未掌握（?filter= 深链兼容，#78）；非命中节点压暗不隐藏（地图
  * 保留空间上下文）。knowflow 前置连线默认关、开关打开叠加（v0.14 投影功能不丢；无图/
@@ -110,14 +111,23 @@ const STATE_KEY: Record<MasteryStatus, 'panorama.stateMastered' | 'panorama.stat
 
 /** 日历对照 → 摘要行节奏文案（#93 保留面）。state→key 与首页 PlanPanel 同款（复用
  *  home.plan* 词典 key：同一派生状态两处同文，防措辞漂移）；改判据两处一起改。
- *  ⭐ 无 deadline 零催办（v0.25 票⑥）：落后（behind）是催办语义——无目标日的主题即使
- *  日历对照判 behind 也不出这个词（返回 null 隐藏），富余/今天到期/日程已清是中性事实照出。 */
-function planPaceLine(cd: PlanCalendarDiff, t: TFn, deadline: string | null): { text: string; cls: string } | null {
-  if (!cd.available) return { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
-  if (cd.state === 'behind') {
-    if (!deadline) return null;                                       // 无目标日 → 零催办字样
-    return { text: t('home.planBehind', { n: -(cd.diffDays ?? 0) }), cls: 'text-st-red-ink' };
+ *  ⭐ 债务红字退场（v0.27 #125）：behind（有目标日也）不再陈列「落后 N 天」累积红字
+ *  （返回 null 隐藏）——修复走重排（教练/生成器），修好由新鲜审计的钩子宣告行接管
+ *  （「已重排：下一站 X，日期 Y」，与首页同 key）；富余/今天到期/日程已清是中性事实照出。 */
+function planPaceLine(
+  cd: PlanCalendarDiff,
+  t: TFn,
+  deadline: string | null,
+  resched: PlanRescheduleView | null,
+): { text: string; cls: string } | null {
+  if (resched) {
+    return {
+      text: t('home.planRescheduled', { unit: resched.nextUnit.title, date: resched.nextUnit.plannedDate }),
+      cls: 'text-st-green-ink',
+    };
   }
+  if (!cd.available) return { text: t('home.planNoCalendar'), cls: 'text-text-faint' };
+  if (cd.state === 'behind') return null;                              // 红字退场：修复走重排，不陈列欠账
   if (cd.state === 'due-today') return { text: t('home.planDueToday'), cls: 'text-st-gold-ink' };
   if (cd.state === 'cleared') return { text: t('home.planCleared'), cls: 'text-st-green-ink' };
   return { text: t('home.planSlack', { n: cd.diffDays ?? 0 }), cls: 'text-st-green-ink' };
@@ -195,16 +205,18 @@ export function Panorama() {
   }, []);
 
   // 计划摘要行（#93 保留）：仅当激活主题有 plan.json；day chips 已撤出（spec Q3），
-  // 完整计划面板仍在首页。计划信号不依赖 progress，派生一次即可。
+  // 完整计划面板仍在首页。计划信号不依赖 progress，派生一次即可；resched（#125）同派生
+  // 一次——最新重排审计新鲜（≤ 7 天）时摘要行出「已重排：下一站 X，日期 Y」钩子宣告。
   const planView = useMemo(() => {
     if (plan.units.length === 0) return null;
     return {
       coverage: deriveCoverage(plan),
       calendarDiff: deriveCalendarDiff(plan, Date.now()),
       projection: deriveProjection(plan, Date.now()),
+      resched: deriveRescheduleView(plan, Date.now()),
     };
   }, []);
-  const planPace = planView ? planPaceLine(planView.calendarDiff, t, planView.projection.deadline) : null;
+  const planPace = planView ? planPaceLine(planView.calendarDiff, t, planView.projection.deadline, planView.resched) : null;
 
   const edges = coverage.graph?.edges ?? null;
 
@@ -320,12 +332,14 @@ export function Panorama() {
           ))}
           <span className="ml-auto text-text-faint font-bold">{t('panorama.totalPoints', { n: allPoints.length })}</span>
         </div>
-        {planView && planPace && (
+        {/* 计划摘要行（#93）：完成 X/Y 恒显；节奏文案独立门控——behind 时 null（债务红字
+            退场 #125：不陈列落后天数，修复走重排），新鲜审计时为「已重排」钩子宣告。 */}
+        {planView && (
           <p className="text-sm text-text-muted tabular-nums flex flex-wrap items-baseline gap-x-2">
             <span className="shrink-0">
               {t('panorama.planDone', { done: planView.coverage.done, total: planView.coverage.total })}
             </span>
-            <span className={planPace.cls}>{planPace.text}</span>
+            {planPace && <span className={planPace.cls}>{planPace.text}</span>}
           </p>
         )}
         <p className="text-[11px] text-text-faint">

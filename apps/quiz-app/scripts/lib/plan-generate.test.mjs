@@ -415,3 +415,192 @@ test('CLI 交错判据无数据（MISSION 缺失）→ exit 1；零 done 历史�
   assert.equal(code, 1);
   assert.match(stderr, /--days-per-unit/);
 });
+
+// ── 5. 自动重排触发 + 审计写回（v0.27 #125，spec #118：断档/落后不再累积红字债）──────
+
+import { shouldReschedule } from './plan-generate.mjs';
+
+/** 落后夹具：A 逾期（plannedDate 09-01 < 今天 10-08）、B 未来；2 个 done 落 14 天窗给速率。 */
+const behindPlan = (extra = {}) => ({
+  deadline: '2026-12-31',
+  units: [
+    { id: 'D-1', title: 'done1', order: 1, plannedDate: '2026-09-25', status: 'done', doneDate: '2026-09-28' },
+    { id: 'D-2', title: 'done2', order: 2, plannedDate: '2026-09-26', status: 'done', doneDate: '2026-10-01' },
+    { id: 'A', title: '逾期单元', order: 3, plannedDate: '2026-09-01', status: 'planned' },
+    { id: 'B', title: '未来单元', order: 4, plannedDate: '2026-11-20', status: 'planned' },
+  ],
+  ...extra,
+});
+
+test('shouldReschedule：behind 夹具触发（reason=behind，triggerDays=落后天数，不看 deadline）', () => {
+  const r = shouldReschedule({ plan: behindPlan(), progress: null, now: NOW, questionIds: ['Q1'], theme: 't' });
+  assert.equal(r.needed, true);
+  assert.equal(r.reason, 'behind');
+  assert.equal(r.triggerDays, 37);   // 09-01 → 10-08 = 37 天（锚逾期单元的最大 plannedDate）
+  // 无 deadline 也触发：逾期是日程事实，修复动作不是催办文案
+  const noDl = shouldReschedule({ plan: behindPlan({ deadline: undefined }), progress: null, now: NOW, questionIds: ['Q1'], theme: 't' });
+  assert.equal(noDl.reason, 'behind');
+});
+
+test('shouldReschedule：gap 夹具触发（断档 ≥3 且后移建议可算 → reason=gap 带 shiftDays）', () => {
+  // 断档 5 天（最后接触 10-03）+ 速率 2/14 → 剩 10 单元 ceil(10/(2/14))=70 天 > 到 deadline 的 22 天
+  const plan = {
+    deadline: '2026-10-30',
+    units: [
+      { id: 'D-1', title: 'd1', order: 1, status: 'done', doneDate: '2026-09-28' },
+      { id: 'D-2', title: 'd2', order: 2, status: 'done', doneDate: '2026-10-01' },
+      ...Array.from({ length: 10 }, (_, i) => ({ id: `P-${i}`, title: `p${i}`, order: 3 + i, status: 'planned' })),
+    ],
+  };
+  const progress = { answers: { Q1: { submittedAt: noon(2026, 10, 3) } } };
+  const r = shouldReschedule({ plan, progress, now: NOW, questionIds: ['Q1'], theme: 't' });
+  assert.equal(r.needed, true);
+  assert.equal(r.reason, 'gap');
+  assert.equal(r.triggerDays, 5);
+  assert.equal(r.shiftDays, 70 - 22);   // 48
+});
+
+test('shouldReschedule：在轨 / 断档但速率无数据 / 今天已重排 → 不触发（诚实降级 + 幂等闸门）', () => {
+  // 在轨：无逾期、断档 0（今天有接触）
+  const onTrack = {
+    units: [
+      { id: 'A', title: 'a', order: 1, plannedDate: '2026-11-01', status: 'planned' },
+    ],
+  };
+  const progressToday = { answers: { Q1: { submittedAt: NOW } } };
+  assert.deepEqual(
+    { ...shouldReschedule({ plan: onTrack, progress: progressToday, now: NOW, questionIds: ['Q1'], theme: 't' }) },
+    { needed: false, reason: 'on-track', triggerDays: null },
+  );
+  // 断档 5 天但零 done（速率无数据）→ gap 判定里 no-rate 不触发，回落 on-track（绝不无速率硬排）
+  const noRate = { units: [{ id: 'A', title: 'a', order: 1, plannedDate: '2026-11-01', status: 'planned' }] };
+  const progress5d = { answers: { Q1: { submittedAt: noon(2026, 10, 3) } } };
+  assert.equal(shouldReschedule({ plan: noRate, progress: progress5d, now: NOW, questionIds: ['Q1'], theme: 't' }).reason, 'on-track');
+  // 今天已重排（审计 at=今天）→ 幂等闸门，同一天不重复挪日程
+  const rescheduledToday = behindPlan({ rescheduled: [{ at: NOW, reason: 'behind', triggerDays: 37, start: '2026-10-08', scheduledEnd: '2026-10-08' }] });
+  assert.equal(shouldReschedule({ plan: rescheduledToday, progress: null, now: NOW, questionIds: ['Q1'], theme: 't' }).reason, 'already-rescheduled-today');
+  // 昨天重排的（旧闸门）不豁免——但重排后 plannedDate 已挪走，behind 自然消除（这是主路径）
+  // 无计划（units 空）→ no-plan
+  assert.equal(shouldReschedule({ plan: { units: [] }, progress: null, now: NOW }).reason, 'no-plan');
+});
+
+test('generatePlanSchedule 审计写回：rescheduled 追加不覆盖（历史全留 = 可追溯），缺省 reason=manual、at 回落 now', () => {
+  const withHistory = behindPlan({
+    rescheduled: [{ at: noon(2026, 9, 1), reason: 'manual', triggerDays: null, start: '2026-09-01', scheduledEnd: '2026-10-01' }],
+  });
+  const r = generatePlanSchedule({
+    plan: withHistory, now: NOW,
+    daysPerUnit: 2, activity: 1,
+    rescheduleAt: NOW, rescheduleReason: 'behind', rescheduleTriggerDays: 37,
+  });
+  assert.equal(r.ok, true);
+  assert.equal(r.plan.rescheduled.length, 2);                       // 追加：历史 1 + 本次 1
+  assert.deepEqual(r.plan.rescheduled[0], { at: noon(2026, 9, 1), reason: 'manual', triggerDays: null, start: '2026-09-01', scheduledEnd: '2026-10-01' });
+  const last = r.plan.rescheduled[1];
+  assert.equal(last.at, NOW);
+  assert.equal(last.reason, 'behind');
+  assert.equal(last.triggerDays, 37);
+  assert.equal(last.start, '2026-10-08');                           // 起点 = 今天（起点起排）
+  assert.equal(last.scheduledEnd, r.summary.scheduledEnd);          // 尽头 = 排期尽头
+  // 缺省：#121 手动路径不传审计三件 → manual + at 回落 now
+  const manual = generatePlanSchedule({ plan: behindPlan(), now: NOW, daysPerUnit: 2, activity: 1 });
+  assert.equal(manual.plan.rescheduled.length, 1);
+  assert.equal(manual.plan.rescheduled[0].reason, 'manual');
+  assert.equal(manual.plan.rescheduled[0].at, NOW);
+  assert.equal(manual.plan.rescheduled[0].triggerDays, null);
+});
+
+// ── 6. CLI 自动重排端到端（--auto / --dry-run / --reason；#125 验收：写回、可追溯、可否决）──────
+
+test('CLI --auto：落后夹具 → 判 behind 写回 plan.json + 审计可追溯 + 逾期消除；同日再跑 → noop 幂等', () => {
+  const dir = cliTheme();
+  const planPath = path.join(dir, 'plan.json');
+  writeFileSync(planPath, JSON.stringify(behindPlan(), null, 2) + '\n');
+  const progressPath = path.join(dir, 'progress.json');
+  writeFileSync(progressPath, JSON.stringify({ version: 1, answers: {} }) + '\n');
+  // 第一跑：--auto 判定 behind → 写回（显式速率 2 天/单元、活跃率 1，数学确定）
+  const out1 = JSON.parse(execFileSync('node', [CLI,
+    '--theme', dir, '--auto',
+    '--days-per-unit', '2', '--activity', '1',
+    '--progress', progressPath, '--json'], { encoding: 'utf-8' }));
+  assert.equal(out1.status, 'ok');
+  assert.equal(out1.reschedule.reason, 'behind');
+  assert.equal(out1.reschedule.reasonWhere, '落后触发（存在逾期单元）');
+  const after = JSON.parse(readFileSync(planPath, 'utf-8'));
+  // 逾期消除：所有剩余单元 plannedDate ≥ 今天（今天起按速率落位——挪日期修复，不陈列欠账）
+  const today = localDate(0);
+  for (const unit of after.units.filter((x) => x.status !== 'done')) {
+    assert.ok(unit.plannedDate >= today, `${unit.id} 的新日程 ${unit.plannedDate} 应 ≥ 今天 ${today}`);
+  }
+  // 审计可追溯：reason/triggerDays/start/scheduledEnd 落位
+  assert.equal(after.rescheduled.length, 1);
+  assert.equal(after.rescheduled[0].reason, 'behind');
+  assert.equal(after.rescheduled[0].triggerDays, 37);
+  assert.equal(after.rescheduled[0].start, today);
+  // 第二跑（同一天）：幂等闸门 → noop，文件不再变化
+  const before2 = readFileSync(planPath, 'utf-8');
+  const out2 = JSON.parse(execFileSync('node', [CLI,
+    '--theme', dir, '--auto',
+    '--days-per-unit', '2', '--activity', '1',
+    '--progress', progressPath, '--json'], { encoding: 'utf-8' }));
+  assert.equal(out2.status, 'noop');
+  assert.equal(out2.reason, 'already-rescheduled-today');
+  assert.equal(readFileSync(planPath, 'utf-8'), before2);
+});
+
+test('CLI --auto 在轨（无逾期、今天有接触）→ noop on-track 不写任何文件', () => {
+  const dir = cliTheme();
+  const planPath = path.join(dir, 'plan.json');
+  const onTrack = {
+    deadline: '2027-05-22',
+    units: [
+      { id: 'A', title: 'a', order: 1, status: 'done', doneDate: localDate(-1) },
+      { id: 'B', title: 'b', order: 2, plannedDate: localDate(10), status: 'planned' },
+    ],
+  };
+  writeFileSync(planPath, JSON.stringify(onTrack, null, 2) + '\n');
+  const progressPath = path.join(dir, 'progress.json');
+  writeFileSync(progressPath, JSON.stringify({ version: 1, answers: { Q1: { submittedAt: Date.now() } } }) + '\n');
+  const before = readFileSync(planPath, 'utf-8');
+  const out = JSON.parse(execFileSync('node', [CLI,
+    '--theme', dir, '--auto',
+    '--days-per-unit', '2', '--activity', '1',
+    '--progress', progressPath, '--json'], { encoding: 'utf-8' }));
+  assert.equal(out.status, 'noop');
+  assert.equal(out.reason, 'on-track');
+  assert.equal(readFileSync(planPath, 'utf-8'), before);
+});
+
+test('CLI --dry-run：落后夹具只出建议不写回（可否决执行面：学习者点头后去掉 flag 才落盘）', () => {
+  const dir = cliTheme();
+  const planPath = path.join(dir, 'plan.json');
+  const original = JSON.stringify(behindPlan(), null, 2) + '\n';
+  writeFileSync(planPath, original);
+  const progressPath = path.join(dir, 'progress.json');
+  writeFileSync(progressPath, JSON.stringify({ version: 1, answers: {} }) + '\n');
+  const out = JSON.parse(execFileSync('node', [CLI,
+    '--theme', dir, '--auto', '--dry-run',
+    '--days-per-unit', '2', '--activity', '1',
+    '--progress', progressPath, '--json'], { encoding: 'utf-8' }));
+  assert.equal(out.status, 'suggested');
+  assert.equal(out.reschedule.dryRun, true);
+  assert.equal(out.reschedule.reason, 'behind');
+  assert.equal(out.output, null);
+  assert.equal(readFileSync(planPath, 'utf-8'), original);   // 主题 plan.json 原样未动
+});
+
+test('CLI --auto 与 --reason 互斥 → exit 1；--reason 坏值 → exit 1', () => {
+  const dir = cliTheme();
+  writeFileSync(path.join(dir, 'plan.json'), JSON.stringify(behindPlan(), null, 2) + '\n');
+  for (const [args, re] of [
+    [['--auto', '--reason', 'behind'], /互斥/],
+    [['--reason', 'whim'], /不在 behind\|gap\|manual/],
+  ]) {
+    let code = 0; let stderr = '';
+    try {
+      execFileSync('node', [CLI, '--theme', dir, '--days-per-unit', '2', '--activity', '1', ...args], { encoding: 'utf-8', stdio: ['ignore', 'ignore', 'pipe'] });
+    } catch (e) { code = e.status; stderr = e.stderr; }
+    assert.equal(code, 1, `应 exit 1：${stderr}`);
+    assert.match(stderr, re);
+  }
+});

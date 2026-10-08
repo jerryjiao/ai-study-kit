@@ -1,5 +1,7 @@
 // Home.planPanel.test.ts — 首页「学习计划」面板 DOM 门控冒烟（#92，spec #89 第 3 条）
-// + 首页闯关重构结构冒烟（v0.25 票②，spec #110）。
+// + 首页闯关重构结构冒烟（v0.25 票②，spec #110）
+// + 债务红字退场与已重排钩子行（v0.27 #125：behind 不再出「落后 N 天」、新鲜审计出
+//   「已重排：下一站 X，日期 Y」；逐值判据在 src/lib/plan.test.ts 的 deriveRescheduleView）。
 //
 // 验收面：
 //   - 空 plan（无 plan.json 的 sync 回退 {units:[]}，dev-intro 形态）→ 面板零 DOM
@@ -8,6 +10,8 @@
 //   - 票②结构：大类卡直接显示「已答 x/总数」（0 进度下 0/N）；「进度管理」折叠区
 //     已删（重置四件迁设置弹层）；圆环为纯装饰（aria-hidden，无 progressbar 语义
 //     ——空 plan 用例的 not.contain('progressbar') 因此保持成立）。
+//   - #125：behind 夹具（U-02 该 09-08 完成，晚于此日的今天恒判 behind）有目标日
+//     也不出「days behind」红字（key 已删零模板）；新鲜审计 → Rescheduled 行出现。
 //
 // 判据数字的逐值断言在 src/lib/plan.test.ts（纯函数，本地正午定「今天」）与
 // src/lib/topicOrder.test.ts 的 deriveTopicLevels（闯关三态）；本文件只测 Home 的
@@ -60,6 +64,8 @@ describe('Home 计划面板 DOM 门控', () => {
 
   it('有 plan → 面板全要素渲染：标题/进度条/完成 X/Y/剩余清单（含在学/搁置 chip）/断档', () => {
     mock.plan.units = PLAN_WITH.units;
+    mock.plan.deadline = PLAN_WITH.deadline;
+    mock.plan.rescheduled = undefined;
     const html = renderHome();
     expect(html).toContain('Study plan');            // 标题
     expect(html).toContain('progressbar');           // 进度条（role）
@@ -69,7 +75,38 @@ describe('Home 计划面板 DOM 门控', () => {
     expect(html).toContain('In progress');           // 在学 chip（U-02）
     expect(html).toContain('Paused');                // 搁置 chip（U-04）
     expect(html).toContain('No study contact yet');  // 断档降级文案（空进度 → no-contact）
-    // 落后/富余/外推数字随「今天」漂移，这里不断言（逐值在 plan.test.ts 本地正午锚定）
+    // 富余/外推数字随「今天」漂移，这里不断言（逐值在 plan.test.ts 本地正午锚定）
+  });
+
+  it('#125 债务红字退场：behind（U-02 该 09-08 完成、有目标日）不再出「落后 N 天」红字', () => {
+    mock.plan.units = PLAN_WITH.units;               // 任何晚于 2026-09-08 的今天都判 behind
+    mock.plan.deadline = PLAN_WITH.deadline;
+    mock.plan.rescheduled = undefined;
+    const html = renderHome();
+    // home.planBehind key 已删（五语模板物理不存在，组件零引用）；en 渲染下双重确认
+    expect(html).not.toContain('days behind');
+    expect(html).not.toContain('behind');            // 首页无落后日程推荐理由（那是全景的），
+                                                     // 全 not 即红字彻底退场
+  });
+
+  it('#125 已重排钩子行：新鲜审计（今天）→ 节奏行出「Rescheduled: next up」，陈旧（> 7 天）不出', () => {
+    mock.plan.units = [
+      { id: 'U-02', title: '进阶操作', order: 2, plannedDate: '2099-06-01', status: 'in-progress' },
+      { id: 'U-01', title: '基础概念', order: 1, plannedDate: '2026-09-01', status: 'done', doneDate: '2026-09-02' },
+    ];
+    mock.plan.deadline = undefined;
+    mock.plan.rescheduled = [
+      { at: Date.now(), reason: 'behind', triggerDays: 5, start: '2099-06-01', scheduledEnd: '2099-06-01' },
+    ];
+    const fresh = renderHome();
+    expect(fresh).toContain('Rescheduled: next up'); // 钩子宣告（en）
+    expect(fresh).toContain('进阶操作');              // 下一站单元（plannedDate 最小的剩余单元）
+    expect(fresh).toContain('2099-06-01');            // 下一站日期
+
+    mock.plan.rescheduled = [
+      { at: new Date(2000, 0, 1, 12).getTime(), reason: 'manual', triggerDays: null, start: '2000-01-01', scheduledEnd: '2000-01-01' },
+    ];
+    expect(renderHome()).not.toContain('Rescheduled: next up');   // 陈旧审计静默（可追溯归文件）
   });
 });
 

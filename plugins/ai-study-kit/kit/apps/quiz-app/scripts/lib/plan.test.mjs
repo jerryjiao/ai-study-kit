@@ -78,7 +78,7 @@ test('空计划回退幂等：目录已无计划时重复 sync 不改内容', ()
 // ════════════════════════════════════════════════════════════════════
 import {
   deriveCoverage, deriveCalendarDiff, deriveProjection, deriveGap, derivePlanReport,
-  deriveShiftAdvice, REGRESSION_GAP_DAYS,
+  deriveShiftAdvice, deriveRescheduleView, RESCHEDULE_FRESH_DAYS, REGRESSION_GAP_DAYS,
 } from './plan.mjs';
 
 /** 本地正午时间戳（h 可覆盖，同一天内任意小时不影响自然日判定）。 */
@@ -471,4 +471,36 @@ test('脏数据容忍：units 里的非对象条目跳过不崩（readPlan 只�
   assert.equal(deriveCoverage(dirty).current.id, 'U-02');
   assert.equal(deriveCalendarDiff(dirty, NOW).state, 'behind');   // U-02 plannedDate 09-08 逾期
   assert.equal(deriveProjection(dirty, NOW).reason, 'no-recent-completions');
+});
+
+// ── 6. 重排视图（#125 债务红字退场的宣告面；与 src/lib/plan.test.ts 同判据）──────
+test('重排视图：今天重排 → available，下一站 = 今天起的第一个日程点；与 TS 侧同判据', () => {
+  const plan = {
+    units: [
+      { id: 'U-01', title: '基础', order: 1, plannedDate: '2026-09-01', status: 'done', doneDate: '2026-09-02' },
+      { id: 'U-02', title: '进阶', order: 2, plannedDate: '2026-09-30', status: 'in-progress' },
+      { id: 'U-03', title: '综合', order: 3, plannedDate: '2026-10-05', status: 'planned' },
+    ],
+    rescheduled: [{ at: NOW, reason: 'behind', triggerDays: 20, start: '2026-09-28', scheduledEnd: '2026-10-05' }],
+  };
+  const v = deriveRescheduleView(plan, NOW);
+  assert.equal(v.available, true);
+  assert.equal(v.reason, 'behind');
+  assert.deepEqual(v.nextUnit, { id: 'U-02', title: '进阶', plannedDate: '2026-09-30' });
+  // 今天起的第一个日程点优先：U-03（10-05）也未来但 U-02（09-30）更早；两者都 ≥ 今天
+});
+
+test('重排视图：新鲜窗口 RESCHEDULE_FRESH_DAYS=7（6 天前新鲜 / 8 天前静默）；坏审计按无重排', () => {
+  assert.equal(RESCHEDULE_FRESH_DAYS, 7);
+  const plan = (at) => ({
+    units: [{ id: 'U-02', title: '进阶', order: 2, plannedDate: '2026-09-30', status: 'planned' }],
+    rescheduled: [{ at, reason: 'manual', triggerDays: null, start: '2026-09-20', scheduledEnd: '2026-09-30' }],
+  });
+  assert.notEqual(deriveRescheduleView(plan(NOON(2026, 9, 22)), NOW), null);  // 6 天前：仍新鲜
+  assert.equal(deriveRescheduleView(plan(NOON(2026, 9, 20)), NOW), null);     // 8 天前：陈旧静默
+  assert.equal(deriveRescheduleView(plan(NaN), NOW), null);                   // 坏审计（at 非数）
+  assert.equal(deriveRescheduleView({ units: [] }, NOW), null);               // 无审计
+  // 全部完成后无剩余日程（残留旧审计）→ 没有下一站就没有宣告
+  const allDone = { units: [{ id: 'U-01', title: 'a', order: 1, plannedDate: '2026-09-01', status: 'done', doneDate: '2026-09-02' }], rescheduled: [{ at: NOW, reason: 'behind', triggerDays: 2, start: '2026-09-28', scheduledEnd: '2026-09-28' }] };
+  assert.equal(deriveRescheduleView(allDone, NOW), null);
 });

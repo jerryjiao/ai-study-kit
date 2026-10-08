@@ -42,7 +42,7 @@ export const ja: Record<TKey, string> = {
   'home.planDeadlineToday': '締め切りは今日です',
   'home.planDeadlineOver': '締め切りから {n} 日過ぎました',
   'home.planPace': 'ペース',
-  'home.planBehind': '{n} 日遅れ',
+  'home.planRescheduled': '組み直し済み：次は「{unit}」（{date}）',
   'home.planSlack': '{n} 日の余裕',
   'home.planDueToday': '次のユニットは今日が期限',
   'home.planCleared': '予定分はすべて完了',
@@ -57,15 +57,17 @@ export const ja: Record<TKey, string> = {
   // 今日の学習バッジ（#123 マイクロブロック）：4 チャネル（解答/カード/コース/口頭）の
   // いずれかに今日の接触があれば点灯——3 問のマイクロブロック 1 回でもカウントします
   'home.todayTouched': '今日もう学習済み',
-  // ブランク明けの帰還カード（#120, spec #118 T1）：ウォームアップ + 計画シフトの提案
+  // ブランク明けの帰還カード（#120, spec #118 T1）：ウォームアップ + 組み直し可能な提案
+  // （#125：実行可能な組み直しへ昇格——実行はコーチ側ジェネレーター、web は道筋を示す
+  // だけ。確認後に書き戻す = 学習者が拒否できる）
   'home.welcomeBack': 'おかえりなさい',
   'home.warmupCta': 'ウォームアップ：{name}',
   'home.warmupCtaPlain': '1 問ウォームアップ',
   'home.warmupHintSchedule': 'スケジュールに遅れた論点——1 問で手感を取り戻します',
   'home.warmupHintWeak': 'いちばん弱い論点——1 問で手感を取り戻します',
   'home.warmupHintNext': '次のステーション——1 問で手感を取り戻します',
-  'home.shiftAdviceDeadline': '実測ペース（直近 {window} 日で約 {pace} 日/ユニット）では、残り {n} ユニットに約 {days} 日かかります——計画を {shift} 日後ろにずらすことをおすすめします',
-  'home.shiftAdviceNoDeadline': '実測ペース（直近 {window} 日で約 {pace} 日/ユニット）では、残り {n} ユニットに約 {days} 日かかります——残りスケジュールより {shift} 日多くかかるため、全体を後ろにずらすのも選択肢です',
+  'home.shiftAdviceDeadline': '実測ペース（直近 {window} 日で約 {pace} 日/ユニット）では、残り {n} ユニットに約 {days} 日かかります——組み直せます：次回コーチとのセッションで確認し、スケジュールを {shift} 日後ろにずらせます',
+  'home.shiftAdviceNoDeadline': '実測ペース（直近 {window} 日で約 {pace} 日/ユニット）では、残り {n} ユニットに約 {days} 日かかります——組み直せます：次回コーチとのセッションで確認し、スケジュールを {shift} 日後ろにずらせます',
   'home.planRemaining': '残り {n} ユニット',
   'home.planStatusInProgress': '学習中',
   'home.planStatusPaused': '保留',

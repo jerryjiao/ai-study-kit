@@ -41,7 +41,7 @@ export const es: Record<TKey, string> = {
   'home.planDeadlineToday': 'La fecha límite es hoy',
   'home.planDeadlineOver': 'La fecha límite pasó hace {n} días',
   'home.planPace': 'Ritmo',
-  'home.planBehind': '{n} días de retraso',
+  'home.planRescheduled': 'Reprogramado: próxima unidad «{unit}», {date}',
   'home.planSlack': '{n} días de margen',
   'home.planDueToday': 'La próxima unidad vence hoy',
   'home.planCleared': 'Unidades programadas completadas',
@@ -56,15 +56,17 @@ export const es: Record<TKey, string> = {
   // Insignia de contacto de hoy (#123 microbloque): se enciende si hoy hay contacto en cualquiera
   // de los cuatro canales (respuestas/tarjetas/cursos/oral) — incluso un microbloque de 3 preguntas cuenta
   'home.todayTouched': 'Hoy ya estudiaste',
-  // Tarjeta de bienvenida tras una pausa (#120, spec #118 T1): calentamiento + consejo de plan
+  // Tarjeta de bienvenida tras una pausa (#120, spec #118 T1): calentamiento + consejo
+  // de reprogramación (#125: elevado a reprogramación ejecutable — la ejecuta el generador del
+  // coach, la web solo señala el camino; se escribe tras confirmar = el aprendiz puede vetarlo)
   'home.welcomeBack': 'Bienvenido de nuevo',
   'home.warmupCta': 'Calentamiento: {name}',
   'home.warmupCtaPlain': 'Calienta con una pregunta',
   'home.warmupHintSchedule': 'Una estación que el calendario dejó atrás: una pregunta para retomar el ritmo',
   'home.warmupHintWeak': 'Tu punto más débil: una pregunta para retomar el ritmo',
   'home.warmupHintNext': 'Tu próxima estación: una pregunta para retomar el ritmo',
-  'home.shiftAdviceDeadline': 'Con tu ritmo medido (≈{pace} días/unidad en {window} días), las {n} unidades restantes necesitan ~{days} días — conviene desplazar el plan {shift} días',
-  'home.shiftAdviceNoDeadline': 'Con tu ritmo medido (≈{pace} días/unidad en {window} días), las {n} unidades restantes necesitan ~{days} días — {shift} días más que el calendario restante; podrías desplazarlo',
+  'home.shiftAdviceDeadline': 'Con tu ritmo medido (≈{pace} días/unidad en {window} días), las {n} unidades restantes necesitan ~{days} días — se puede reprogramar: confírmalo con tu coach en la próxima sesión para desplazar el calendario {shift} días',
+  'home.shiftAdviceNoDeadline': 'Con tu ritmo medido (≈{pace} días/unidad en {window} días), las {n} unidades restantes necesitan ~{days} días — se puede reprogramar: confírmalo con tu coach en la próxima sesión para desplazar el calendario {shift} días',
   'home.planRemaining': 'Quedan {n} unidades',
   'home.planStatusInProgress': 'En curso',
   'home.planStatusPaused': 'En pausa',

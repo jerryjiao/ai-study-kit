@@ -12,10 +12,14 @@
  *      口述 = 主题包流水 ∪ progress.oralAttempts 并流——微块完成当天 gap=0；
  *      与本主题题/卡 id 集求交做多主题隔离）
  *   5. 断档回归动作（#120，spec #118 T1）：断档 ≥ 3 天（REGRESSION_GAP_DAYS）才出——
- *      热身一题（下一站考点挑题，mastery 四态选站）+ 计划后移建议现算（实测速率外推
- *      vs deadline/剩余日程，只建议不执行；数据不足诚实降级）。热身不依赖 plan——
- *      无计划主题（dev-intro 等）的 noop 输出同样带 regression.warmup（与 web 首页
+ *      热身一题（下一站考点挑题，mastery 四态选站）+ 后移建议现算（实测速率外推
+ *      vs deadline/剩余日程；v0.27 #125 起升级为**可执行重排**——同一入口 plan-generate，
+ *      report.reschedule 字段给触发判定与命令，教练场景确认后写回 = 可否决）。热身不依赖
+ *      plan——无计划主题（dev-intro 等）的 noop 输出同样带 regression.warmup（与 web 首页
  *      回归卡同一套动作：无计划只少后移建议行，shift 恒 null）。
+ *   6. 重排视图（#125 债务红字退场的宣告面）：最新重排审计新鲜（≤ 7 天）→ reschedule.view
+ *      给「已重排：下一站 X，日期 Y」（web 首页/全景钩子行同判据 deriveRescheduleView）；
+ *      审计历史全留 plan.json（可追溯），本报告只读最新一条。
  *
  * 用法：
  *   node apps/quiz-app/scripts/plan-report.mjs                    # 默认 dev-intro，人类可读
@@ -36,7 +40,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
-import { readPlan, derivePlanReport, deriveGap, deriveShiftAdvice, REGRESSION_GAP_DAYS } from './lib/plan.mjs';
+import { readPlan, derivePlanReport, deriveGap, deriveShiftAdvice, deriveRescheduleView, REGRESSION_GAP_DAYS } from './lib/plan.mjs';
+import { shouldReschedule } from './lib/plan-generate.mjs';
 import { epNameMap, epDayMap, masteryByExamPoint } from './lib/mastery.mjs';
 import { readOralAttempts, groupOralAttempts, oralMastery, mergeOralAttempts, oralAttemptsFromProgress } from './lib/oral.mjs';
 import { warmupStation, pickWarmupQuestion, warmupPlannedFrom, nextHookFromStation } from './lib/warmup.mjs';
@@ -166,6 +171,7 @@ if (!PLAN_PRESENT) {
       warmup: regressionWarmupNoPlan,
       shift: null,
     },
+    reschedule: { needed: false, reason: 'no-plan', triggerDays: null, view: null, command: null }, // 无计划无日程可挪
     next: nextNoPlan,
   };
   if (AS_JSON) console.log(JSON.stringify(noop, null, 2));
@@ -211,6 +217,22 @@ const report = {
   status: 'ok',
   plan: { present: true, deadline: plan.deadline ?? null, units: plan.units.length },
   ...signals,
+  reschedule: {
+    // 自动重排触发判定（#125，判据单源 lib/plan-generate.mjs shouldReschedule）：
+    // needed=true 时教练提议重排（学习者确认后 agent 跑 plan-generate 写回 = 可否决；
+    // 或 --auto 明示自动）——#120 的「后移建议」由此升级为可执行重排（同一执行入口）。
+    ...shouldReschedule({
+      plan, progress, now,
+      questionIds: questions.map((q) => q.id),
+      cardIds: flashcards.map((f) => f.id),
+      theme: THEME,
+      oralAttempts: oralAttemptsMerged,
+    }),
+    // 最新重排的宣告面（新鲜审计才有；web 首页/全景「已重排：下一站 X，日期 Y」同判据）
+    view: deriveRescheduleView(plan, now),
+    // 可执行入口（agent 代跑的工具链命令；--dry-run 先建议，学习者点头后去掉才写回）
+    command: `node apps/quiz-app/scripts/plan-generate.mjs --theme ${JSON.stringify(THEME)} --auto`,
+  },
 };
 
 // ── 断档回归动作（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS 才组装 ──
@@ -250,7 +272,9 @@ if (AS_JSON) {
   if (!calendarDiff.available) {
     say(`📅 节奏·日历：不可对照——${calendarDiff.note}`);
   } else if (calendarDiff.state === 'behind') {
-    say(`📅 节奏·日历：落后 ${-calendarDiff.diffDays} 天（今天该到 ${calendarDiff.shouldAt.id} ${calendarDiff.shouldAt.title}，实际完成到 ${calendarDiff.actualAt ? calendarDiff.actualAt.id : '（尚无完成单元）'}）`);
+    // 对账事实照报（这是诊断报告不是 UI）；修复动作指路重排——#125 债务红字退场后
+    // 「落后」不在 web 陈列累积，在这里也只作为触发重排的依据出现。
+    say(`📅 节奏·日历：落后 ${-calendarDiff.diffDays} 天（今天该到 ${calendarDiff.shouldAt.id} ${calendarDiff.shouldAt.title}，实际完成到 ${calendarDiff.actualAt ? calendarDiff.actualAt.id : '（尚无完成单元）'}）→ 可自动重排（plan-generate --auto 挪到今天起）`);
     say(`   逾期：${calendarDiff.overdue.map((o) => `${o.id} 拖 ${o.daysOverdue} 天`).join('、')}`);
   } else if (calendarDiff.state === 'cleared') {
     say(`📅 节奏·日历：日程已清空（${calendarDiff.note}）`);
@@ -277,7 +301,7 @@ if (AS_JSON) {
   } else {
     say(`⏸️ 断档：无接触记录（进度文件无本主题的答题/闪卡/课学完时间戳）`);
   }
-  // 5. 断档回归动作（#120）：达阈值才出——热身一题 + 计划后移建议（只建议不执行）
+  // 5. 断档回归动作（#120，#125 升级）：达阈值才出——热身一题 + 可重排建议（执行入口 reschedule.command）
   if (report.regression.active) {
     say(`🔁 断档回归（≥ ${REGRESSION_GAP_DAYS} 天）：`);
     const w = report.regression.warmup;
@@ -291,11 +315,23 @@ if (AS_JSON) {
     if (sh && sh.available) {
       const pace = sh.daysPerUnit ? `约 ${sh.daysPerUnit.toFixed(1)} 天/单元` : '速率可算';
       const vs = sh.deadline ? `vs deadline ${sh.deadline}` : `vs 剩余日程尽头 ${sh.scheduledEnd}`;
-      say(`   计划建议后移 ${sh.shiftDays} 天：近 ${sh.windowDays} 天实测 ${pace}，剩余 ${sh.remaining} 单元约需 ${sh.estimatedDays} 天（${vs}）`);
+      // #125：后移建议升级为可执行重排——同一入口 plan-generate（agent 代跑），
+      // 教练场景先 --dry-run 出建议、学习者确认后写回（可否决），或 --auto 明示自动。
+      say(`   可重排（后移 ${sh.shiftDays} 天）：近 ${sh.windowDays} 天实测 ${pace}，剩余 ${sh.remaining} 单元约需 ${sh.estimatedDays} 天（${vs}）——跑 plan-generate --reason gap 写回，挪到今天起的实际节奏`);
     } else if (sh) {
       const whyMap = { 'no-rate': '速率无数据（近窗零完成），不硬算', 'no-target': '无 deadline 且剩余单元无日程，无对照日', 'on-track': '按实测速率仍在轨，无需后移' };
       say(`   计划后移建议：不可算——${whyMap[sh.reason] ?? sh.reason}`);
     }
+  }
+  // 5.5 重排视图（#125 债务红字退场的宣告面）：最新审计新鲜（≤ 7 天）才出——
+  //     与 web 首页/全景「已重排：下一站 X，日期 Y」钩子行同判据（deriveRescheduleView）。
+  if (report.reschedule.view) {
+    const v = report.reschedule.view;
+    const WHY = { behind: '落后触发', gap: '断档回归触发', manual: '学习者点名' };
+    say(`🔄 已重排：下一站「${v.nextUnit.title}」，日期 ${v.nextUnit.plannedDate}（${WHY[v.reason] ?? v.reason} · ${new Date(v.at).toISOString().slice(0, 10)}）`);
+  } else if (report.reschedule.needed) {
+    const WHY = { behind: '存在逾期单元', gap: '断档回归且后移建议可算' };
+    say(`🔄 重排建议：${WHY[report.reschedule.reason] ?? report.reschedule.reason}——确认后跑 plan-generate --auto（或 --dry-run 先看建议）`);
   }
   // 6. 下站预告（#124 会话收尾开环预告）：与断档无关恒出——教练收尾读本行产预告句
   //    （钩子式：只说下次可以做什么，零催办零欠账字样）；判据与下一站推荐同源。

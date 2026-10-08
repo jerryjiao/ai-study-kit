@@ -53,8 +53,12 @@
  *  5. 断档回归·计划后移建议 deriveShiftAdvice（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS
  *     进入回归场景后，「按你的实测速率计划建议后移 X 天」的现算——X = 速率外推所需天数 −
  *     日程对照日剩余天数（deadline 优先，无 deadline 取剩余有日程单元的最大 plannedDate）。
- *     只建议不执行（执行面 = 计划生成器 plan-generate，v0.27 #121：学习者说「重排计划」
- *     才跑，判据单源 lib/plan-generate.mjs）；速率无数据/无对照日/已在轨诚实降级。
+ *     建议即执行入口（v0.27 #125：执行面 = 计划生成器 plan-generate --reason gap / --auto，
+ *     与自动重排同一入口——教练场景确认后写回 = 可否决，判据单源 lib/plan-generate.mjs）；
+ *     速率无数据/无对照日/已在轨诚实降级。
+ *  6. 重排视图 deriveRescheduleView（#125，债务红字退场的宣告面）：最新一条重排审计
+ *     （plan.rescheduled）新鲜（≤ RESCHEDULE_FRESH_DAYS 天）→ 「已重排：下一站 X，
+ *     日期 Y」的判据源——UI 的 behind 红字退场后由它接管节奏行的宣告（详见函数 docstring）。
  *
  *  时区口径：now 是 ms 时间戳，自然日按**本地时区**解释（srs.ts 的 toDateString 同先例）；
  *  测试用本地正午构造时间戳保证跨时区确定。⚠️ 前端复算（TS 移植，首页计划面板/全景页，
@@ -289,7 +293,7 @@ export function deriveGap(progress, now, opts = {}) {
  *  建议后移天数 = 实测速率外推所需天数 − 日程对照日剩余天数（deadline 优先，无 deadline
  *  取剩余有日程单元的最大 plannedDate）。断档天数不另加：速率窗口含断档期，已被如实拉低。
  *  诚实降级：速率无数据 / 无对照日 / 已在轨 → available=false + reason，绝不硬算。
- *  v0.26 只建议不执行（重排写回归 v0.27 自动重排票）。 */
+ *  v0.27 #125：执行面落地——与自动重排同一入口 plan-generate（--reason gap 写回带审计）。 */
 export const REGRESSION_GAP_DAYS = 3;
 
 export function deriveShiftAdvice(plan, now, gap, projection) {
@@ -342,6 +346,35 @@ export function deriveShiftAdvice(plan, now, gap, projection) {
     remaining: proj.remaining,
     estimatedDays: proj.estimatedDays,
     shiftDays,
+  };
+}
+
+/** 6. 重排视图 deriveRescheduleView（#125，债务红字退场的宣告面）：读最新一条重排审计
+ *  （plan.rescheduled，生成器写回的**审计事实**——不是对账派生值），新鲜（距今天 ≤
+ *  RESCHEDULE_FRESH_DAYS 自然日）才出——「已重排：下一站 X，日期 Y」钩子行的判据源。
+ *  下一站 = 剩余（非 done）单元里 plannedDate 最小者（重排后第一个该到的日程点；
+ *  平日期按 order 破平，与 deriveCalendarDiff 的 byDate 同款）。无剩余有日程单元（如
+ *  全部完成后残留的旧审计）→ null（没有下一站就没有宣告）。坏审计（at 非数）按无重排，
+ *  陈旧审计不出（文件里还在，UI 静默——可追溯性归 plan.json，呈现归新鲜度）。 */
+export const RESCHEDULE_FRESH_DAYS = 7;
+
+export function deriveRescheduleView(plan, now) {
+  const audits = (Array.isArray(plan?.rescheduled) ? plan.rescheduled : []).filter((r) => r && typeof r === 'object');
+  const last = audits[audits.length - 1];
+  if (!last || typeof last.at !== 'number' || !Number.isFinite(last.at)) return null;
+  const ageDays = diffCalendarDays(toLocalDateStr(last.at), toLocalDateStr(now));
+  if (ageDays === null || ageDays > RESCHEDULE_FRESH_DAYS) return null;
+  const today = toLocalDateStr(now);
+  const dated = sortedByOrder(plan?.units)
+    .filter((u) => u.status !== 'done' && typeof u.plannedDate === 'string' && parseLocalDate(u.plannedDate))
+    .sort((a, b) => (a.plannedDate < b.plannedDate ? -1 : a.plannedDate > b.plannedDate ? 1 : orderOf(a) - orderOf(b)));
+  const next = dated.find((u) => u.plannedDate >= today) ?? dated[0] ?? null;   // 优先今天起的第一个日程点
+  if (!next) return null;
+  return {
+    available: true,
+    reason: ['behind', 'gap', 'manual'].includes(last.reason) ? last.reason : 'manual',
+    at: last.at,
+    nextUnit: { id: next.id, title: next.title, plannedDate: next.plannedDate },
   };
 }
 

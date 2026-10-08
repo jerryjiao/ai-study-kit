@@ -127,7 +127,7 @@ cat <项目>/kit/kit-version.json 2>/dev/null || echo "version=unknown"
 
 **前置**：应用能跑（没起就 `pnpm dev`，让用户开 `:5173`）。
 
-**⭐ 断档回归场景（#120，断档 ≥ 3 天）**：快照出现「🔁 断档回归 · 先热身再续站」行时（有计划无计划主题都会出——无 plan.json 主题 noop 也带 `regression.warmup`），本流程从**热身一题**开局（不是直接进步骤 1）——报出 `regression.warmup` 的题号与考点（「先热身：EP-02 分支 · GIT-005，一题找回手感」），学习者答完这题热身即完成，再按下面步骤 1-5 正常续站。带 `regression.shift.available=true` 时顺带报后移建议（**只建议不执行**，挪不挪日期学习者拍板；无计划主题 `shift` 恒 null，无此段）；无 deadline 主题建议用中性语气（零催办）。
+**⭐ 断档回归场景（#120，断档 ≥ 3 天）**：快照出现「🔁 断档回归 · 先热身再续站」行时（有计划无计划主题都会出——无 plan.json 主题 noop 也带 `regression.warmup`），本流程从**热身一题**开局（不是直接进步骤 1）——报出 `regression.warmup` 的题号与考点（「先热身：EP-02 分支 · GIT-005，一题找回手感」），学习者答完这题热身即完成，再按下面步骤 1-5 正常续站。带 `regression.shift.available=true` 时顺带报**可重排**建议（#125 升级为可执行重排：执行入口与自动重排同一——`reschedule.command`，教练场景 `--dry-run` 出建议、学习者点头后写回 = 可否决，或 `--auto` 明示自动；无计划主题 `shift` 恒 null，无此段）；无 deadline 主题建议用中性语气（零催办）。
 
 **步骤**（按快照数据依次执行，向用户报每步做什么）：
 
