@@ -10,6 +10,9 @@
  *      （数据不足时诚实降级不硬算，输出 reason 而非编造数字）
  *   4. 断档天数：距最后一次学习接触（answers/srs/课学完三通道取最大，
  *      与本主题题/卡 id 集求交做多主题隔离）
+ *   5. 断档回归动作（#120，spec #118 T1）：断档 ≥ 3 天（REGRESSION_GAP_DAYS）才出——
+ *      热身一题（下一站考点挑题，mastery 四态选站）+ 计划后移建议现算（实测速率外推
+ *      vs deadline/剩余日程，只建议不执行；数据不足诚实降级）
  *
  * 用法：
  *   node apps/quiz-app/scripts/plan-report.mjs                    # 默认 dev-intro，人类可读
@@ -28,7 +31,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveThemeDir } from './lib/theme-path.mjs';
-import { readPlan, derivePlanReport } from './lib/plan.mjs';
+import { readPlan, derivePlanReport, deriveShiftAdvice, REGRESSION_GAP_DAYS } from './lib/plan.mjs';
+import { epNameMap, epDayMap, masteryByExamPoint } from './lib/mastery.mjs';
+import { readOralAttempts, groupOralAttempts, oralMastery } from './lib/oral.mjs';
+import { warmupStation, pickWarmupQuestion } from './lib/warmup.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -115,6 +121,35 @@ const report = {
   ...signals,
 };
 
+// ── 断档回归动作（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS 才组装 ──
+// 热身选站吃考点四态（mastery 同判据，含口述通道——流水现读现算比 web build 快照还新鲜）；
+// 后移建议 deriveShiftAdvice 现算（只建议不执行，重排归 v0.27）。低于阈值 → active:false，
+// warmup/shift 全 null——消费端（skill 快照）按 active 分流，不达阈值零新输出。
+const regressionActive = signals.gap.available && (signals.gap.daysSinceLastContact ?? 0) >= REGRESSION_GAP_DAYS;
+let regressionWarmup = null;
+if (regressionActive) {
+  const missionPath = join(THEME_DIR, 'MISSION.md');
+  const missionText = existsSync(missionPath) ? readFileSync(missionPath, 'utf-8') : '';
+  const epNames = missionText ? epNameMap(missionText) : {};
+  const epDays = missionText ? epDayMap(missionText) : {};
+  const answers = (progress && progress.answers) || {};
+  const srs = (progress && progress.srs) || {};
+  const oralAttempts = readOralAttempts(THEME_DIR);
+  const oralGroups = groupOralAttempts(oralAttempts, { epNames });
+  const oralStatusByEp = new Map();
+  for (const [ep, attempts] of oralGroups.byEp) oralStatusByEp.set(ep, oralMastery(attempts).status);
+  const { points } = masteryByExamPoint({ questions, answers, epNames, flashcards, srs, oralByEp: oralStatusByEp });
+  const station = warmupStation({ points, epDays, calendarDiff: signals.calendarDiff, deadline: signals.projection.deadline });
+  regressionWarmup = pickWarmupQuestion(questions, progress, station);
+}
+report.regression = {
+  active: regressionActive,
+  threshold: REGRESSION_GAP_DAYS,
+  gapDays: signals.gap.daysSinceLastContact ?? null,
+  warmup: regressionWarmup,
+  shift: regressionActive ? deriveShiftAdvice(plan, now, signals.gap, signals.projection) : null,
+};
+
 // ── 输出 ──────────────────────────────────────────────────
 if (AS_JSON) {
   console.log(JSON.stringify(report, null, 2));
@@ -162,5 +197,25 @@ if (AS_JSON) {
     say(`⏸️ 断档：距上次学习接触 ${gap.daysSinceLastContact} 天（来源 ${gap.source} · ${new Date(gap.lastContactAt).toISOString()}）`);
   } else {
     say(`⏸️ 断档：无接触记录（进度文件无本主题的答题/闪卡/课学完时间戳）`);
+  }
+  // 5. 断档回归动作（#120）：达阈值才出——热身一题 + 计划后移建议（只建议不执行）
+  if (report.regression.active) {
+    say(`🔁 断档回归（≥ ${REGRESSION_GAP_DAYS} 天）：`);
+    const w = report.regression.warmup;
+    if (w) {
+      const why = w.reason === 'schedule' ? '落后日程' : w.reason === 'weak' ? '薄弱考点' : w.reason === 'structural' ? '结构序' : '回退';
+      say(`   热身一题：${w.questionId}${w.name ? `（${w.ep} ${w.name}）` : w.ep ? `（${w.ep}）` : ''} · 选站依据 ${why}`);
+    } else {
+      say('   热身一题：无可挑题（题库无计划内题）');
+    }
+    const sh = report.regression.shift;
+    if (sh && sh.available) {
+      const pace = sh.daysPerUnit ? `约 ${sh.daysPerUnit.toFixed(1)} 天/单元` : '速率可算';
+      const vs = sh.deadline ? `vs deadline ${sh.deadline}` : `vs 剩余日程尽头 ${sh.scheduledEnd}`;
+      say(`   计划建议后移 ${sh.shiftDays} 天：近 ${sh.windowDays} 天实测 ${pace}，剩余 ${sh.remaining} 单元约需 ${sh.estimatedDays} 天（${vs}）`);
+    } else if (sh) {
+      const whyMap = { 'no-rate': '速率无数据（近窗零完成），不硬算', 'no-target': '无 deadline 且剩余单元无日程，无对照日', 'on-track': '按实测速率仍在轨，无需后移' };
+      say(`   计划后移建议：不可算——${whyMap[sh.reason] ?? sh.reason}`);
+    }
   }
 }

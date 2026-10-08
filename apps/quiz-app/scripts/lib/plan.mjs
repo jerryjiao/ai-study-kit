@@ -47,6 +47,11 @@
  *     撤销只回退完成度状态（coursesRead 边界另按墓碑的当前状态口径），不抹掉接触历史
  *     （#98 裁决 2026-09-28）。无任何时间戳 → no-contact 降级（不是 0 天）。
  *
+ *  5. 断档回归·计划后移建议 deriveShiftAdvice（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS
+ *     进入回归场景后，「按你的实测速率计划建议后移 X 天」的现算——X = 速率外推所需天数 −
+ *     日程对照日剩余天数（deadline 优先，无 deadline 取剩余有日程单元的最大 plannedDate）。
+ *     只建议不执行（写回/重排归 v0.27 自动重排票）；速率无数据/无对照日/已在轨诚实降级。
+ *
  *  时区口径：now 是 ms 时间戳，自然日按**本地时区**解释（srs.ts 的 toDateString 同先例）；
  *  测试用本地正午构造时间戳保证跨时区确定。⚠️ 前端复算（TS 移植，首页计划面板/全景页，
  *  spec #89 第 3/4 条）落地后，本文件判据与 src/lib/plan.ts 必须同步改（mastery.ts 先例）。
@@ -260,6 +265,67 @@ export function deriveGap(progress, now, opts = {}) {
     daysSinceLastContact: diffCalendarDays(toLocalDateStr(best.at), toLocalDateStr(now)),
     lastContactAt: best.at,
     source: best.source,
+  };
+}
+
+/** 5. 断档回归·计划后移建议（#120 / spec #118 T1；判据与 src/lib/plan.ts 双实现同步——
+ *  改判据两边一起改，两边测试都要过）。断档 ≥ REGRESSION_GAP_DAYS 才算回归场景；
+ *  建议后移天数 = 实测速率外推所需天数 − 日程对照日剩余天数（deadline 优先，无 deadline
+ *  取剩余有日程单元的最大 plannedDate）。断档天数不另加：速率窗口含断档期，已被如实拉低。
+ *  诚实降级：速率无数据 / 无对照日 / 已在轨 → available=false + reason，绝不硬算。
+ *  v0.26 只建议不执行（重排写回归 v0.27 自动重排票）。 */
+export const REGRESSION_GAP_DAYS = 3;
+
+export function deriveShiftAdvice(plan, now, gap, projection) {
+  const proj = projection ?? deriveProjection(plan, now);
+  const base = {
+    gapDays: gap.daysSinceLastContact,
+    windowDays: proj.windowDays,
+    ratePerDay: null,
+    daysPerUnit: null,
+    remaining: null,
+    estimatedDays: null,
+    shiftDays: null,
+    deadline: proj.deadline,
+    scheduledEnd: null,
+  };
+  if (!gap.available) {
+    return { ...base, available: false, reason: 'no-contact' };
+  }
+  const gapDays = gap.daysSinceLastContact ?? 0;
+  if (gapDays < REGRESSION_GAP_DAYS) {
+    return { ...base, available: false, reason: 'below-threshold' };
+  }
+  if (!proj.available) {
+    // no-units 到不了消费端（无计划主题不算后移）；no-recent-completions 常见于长断档
+    return { ...base, available: false, reason: 'no-rate' };
+  }
+  let target = proj.deadline;
+  if (!target) {
+    const today = toLocalDateStr(now);
+    for (const u of safeUnits(plan?.units)) {
+      if (u.status === 'done') continue;
+      const d = u.plannedDate;
+      if (typeof d === 'string' && parseLocalDate(d) && (!target || d > target)) target = d;
+    }
+    if (target) base.scheduledEnd = target;
+    else return { ...base, available: false, reason: 'no-target' };
+  }
+  const today = toLocalDateStr(now);
+  const spanDays = diffCalendarDays(today, target);
+  const shiftDays = (proj.estimatedDays ?? 0) - (spanDays ?? 0);
+  if (shiftDays <= 0) {
+    return { ...base, available: false, reason: 'on-track' };
+  }
+  return {
+    ...base,
+    available: true,
+    reason: null,
+    ratePerDay: proj.ratePerDay,
+    daysPerUnit: proj.ratePerDay > 0 ? 1 / proj.ratePerDay : null,
+    remaining: proj.remaining,
+    estimatedDays: proj.estimatedDays,
+    shiftDays,
   };
 }
 

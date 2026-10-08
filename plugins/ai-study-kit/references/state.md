@@ -150,6 +150,11 @@ node apps/quiz-app/scripts/plan-report.mjs --theme "$THEME" --progress "$CP" --j
   - **覆盖**：`coverage.done/total`；当前单元 `coverage.current` 取 `<id> <title>`（`current` 为 null = 全完成或只剩搁置，如实报）。
   - **节奏·日历对照**：`calendarDiff.diffDays` + `state`——`behind` 报「落后 N 天」（N = −diffDays，锚逾期单元的最大 plannedDate；逐单元拖龄在 `overdue[].daysOverdue`，追问再展开）、`slack` 报「富余 N 天」、`due-today` 报「下一单元今天到期」、`cleared` 报「日程已清空」；`available=false`（计划里没有任何可解析的 `plannedDate`）→ 该段省略，不硬凑。
   - **断档**：`gap.daysSinceLastContact`（距最后一次学习接触的自然日数，answers/srs/课学完三通道取最大，按本主题题/卡 id 集隔离）；`available=false` → 报「无接触记录」，**不是 0 天**。
+  - **断档回归动作（#120，断档 ≥ `regression.threshold`（3 天）才触发）**：`regression.active=true` 时快照在「计划」行后追加**回归动作行**，动作固定「先热身再续站」（与 web 首页回归卡同一套动作）——
+    - **热身一题**：`regression.warmup`（`questionId` + `ep`/`name` + 选站依据 `reason`：schedule=落后日程 / weak=薄弱 / structural=结构序 / fallback=回退）。推荐语带题号与考点名（「先热身：EP-02 分支 · GIT-005，一题找回手感」），学习者答完这题即完成热身；`warmup=null`（题库无计划内题）如实报「无可挑题」。
+    - **计划后移建议**：`regression.shift`——`available=true` 报「按实测速率（近 `windowDays` 天约 `daysPerUnit` 天/单元），剩余 `remaining` 单元约需 `estimatedDays` 天，计划建议后移 `shiftDays` 天」；**只建议不执行**（要不要挪日期由学习者拍板，自动重排归 v0.27）；`reason=no-rate`（长断档常见：近窗零完成）静默省略该段，`no-target`（无对照日）同理——绝不编数字。
+    - 无 deadline 主题的建议用中性语气（「比剩余日程多 N 天，可考虑整体后移」），不出「落后」类催办字样（零催办原则，同上）。
+    - `regression.active=false`（断档 < 3 天的正常间隔）时**回归动作行整行省略**——输出与没有该功能前零变化。
   - **deadline**：`plan.deadline`（可选；未设就不报这一段）。
   - **单元状态概览**：`coverage.byStatus` 四态计数——快照行不逐个列，用户追问剩余单元时用 `coverage.remaining` 展开（含 in-progress 与 paused：搁置了也是没完成）。
 - **与「陪练」行考期的口径区分**：本行的 deadline 是**学习计划期限**（plan.json）；「陪练」行的「距考期」是 **MISSION.md frontmatter deadline**——两个源两个行，不互替不合并（F11 冲刺的硬前置始终是后者）。

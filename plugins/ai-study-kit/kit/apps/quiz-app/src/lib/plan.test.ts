@@ -7,6 +7,7 @@ import type { PlanFile, PlanUnit, Progress } from '../types';
 import {
   toLocalDateStr, parseLocalDate, diffCalendarDays,
   deriveCoverage, deriveCalendarDiff, deriveProjection, deriveGap, derivePlanReport, planUnitsByDay,
+  deriveShiftAdvice, REGRESSION_GAP_DAYS, type PlanGap,
 } from './plan';
 
 /** 本地正午时间戳（h 可覆盖，同一天内任意小时不影响自然日判定）。 */
@@ -316,6 +317,74 @@ describe('planUnitsByDay', () => {
     expect(planUnitsByDay(dirty).get('D1')).toHaveLength(1);
     expect(planUnitsByDay(planOf([])).size).toBe(0);
     expect(planUnitsByDay(null).size).toBe(0);
+  });
+});
+
+
+// ── 5. 断档回归·计划后移建议（#120 / spec #118 T1）───────
+describe('deriveShiftAdvice（断档回归后的后移建议现算）', () => {
+  const gapOf = (days: number | null): PlanGap =>
+    days === null
+      ? { available: false, reason: 'no-contact', daysSinceLastContact: null, lastContactAt: null, source: null }
+      : { available: true, reason: null, daysSinceLastContact: days, lastContactAt: NOW - days * 86400000, source: 'answers' };
+  // 速率可算夹具：近窗（09-15~09-28）3 个 doneDate 事件，剩 3 单元 → rate 3/14，
+  // estimatedDays = ceil(3 ÷ (3/14)) = 14；今天 09-28。
+  const PLAN_RATE = planOf([
+    u({ id: 'U-01', title: 'a', order: 1, status: 'done', doneDate: '2026-09-20' }),
+    u({ id: 'U-02', title: 'b', order: 2, status: 'done', doneDate: '2026-09-25' }),
+    u({ id: 'U-03', title: 'c', order: 3, status: 'done', doneDate: '2026-09-20' }),
+    u({ id: 'U-04', title: 'd', order: 4, status: 'in-progress' }),
+    u({ id: 'U-05', title: 'e', order: 5, status: 'planned' }),
+    u({ id: 'U-06', title: 'f', order: 6, status: 'paused' }),
+  ], '2026-10-05');
+
+  it('断档阈值 REGRESSION_GAP_DAYS = 3：1-2 天正常间隔不出建议，≥3 天才进回归场景', () => {
+    expect(REGRESSION_GAP_DAYS).toBe(3);
+    expect(deriveShiftAdvice(PLAN_RATE, NOW, gapOf(2)).reason).toBe('below-threshold');
+    expect(deriveShiftAdvice(PLAN_RATE, NOW, gapOf(3)).reason).not.toBe('below-threshold');
+  });
+  it('无接触 / 速率无数据（长断档常见：近窗零完成）诚实降级', () => {
+    expect(deriveShiftAdvice(PLAN_RATE, NOW, gapOf(null)).reason).toBe('no-contact');
+    // PLAN4 唯一 done 的 doneDate 09-02 在窗外 → projection 不可算 → no-rate
+    expect(deriveShiftAdvice(PLAN4, NOW, gapOf(5)).reason).toBe('no-rate');
+  });
+  it('有 deadline：shift = 实测所需 14 天 − 距 deadline 7 天 = 7，依据数字齐', () => {
+    const a = deriveShiftAdvice(PLAN_RATE, NOW, gapOf(5));
+    expect(a.available).toBe(true);
+    expect(a.shiftDays).toBe(7);
+    expect(a.remaining).toBe(3);
+    expect(a.estimatedDays).toBe(14);
+    expect(a.ratePerDay).toBeCloseTo(3 / 14, 10);
+    expect(a.daysPerUnit).toBeCloseTo(14 / 3, 10);
+    expect(a.deadline).toBe('2026-10-05');
+    expect(a.scheduledEnd).toBeNull();
+  });
+  it('实测速率仍在轨（deadline 远）→ on-track 不建议', () => {
+    const far = { ...PLAN_RATE, deadline: '2026-10-20' };
+    expect(deriveShiftAdvice(far, NOW, gapOf(5)).reason).toBe('on-track');
+  });
+  it('无 deadline：对照剩余日程尽头（最大 plannedDate），shift 照算 + scheduledEnd 披露', () => {
+    const noDl = planOf([
+      ...PLAN_RATE.units!.slice(0, 3),
+      u({ id: 'U-04', title: 'd', order: 4, status: 'in-progress', plannedDate: '2026-10-02' }),
+      u({ id: 'U-05', title: 'e', order: 5, status: 'planned', plannedDate: '2026-10-04' }),
+      u({ id: 'U-06', title: 'f', order: 6, status: 'paused' }),          // 无日程不参与尽头
+    ]);
+    const a = deriveShiftAdvice(noDl, NOW, gapOf(4));
+    expect(a.available).toBe(true);
+    expect(a.scheduledEnd).toBe('2026-10-04');            // 尽头 = 最大可解析 plannedDate
+    expect(a.shiftDays).toBe(8);                           // 14 − (10-04 − 09-28 = 6)
+    expect(a.deadline).toBeNull();
+  });
+  it('无 deadline 且剩余单元全无日程 → no-target 不硬算', () => {
+    const noDates = planOf([...PLAN_RATE.units!.slice(0, 3), u({ id: 'U-04', title: 'd', order: 4, status: 'planned' })]);
+    expect(deriveShiftAdvice(noDates, NOW, gapOf(5)).reason).toBe('no-target');
+  });
+  it('外传 projection 尊重调用方现算结果（不重算）', () => {
+    const proj = deriveProjection(PLAN_RATE, NOW);
+    const again = deriveShiftAdvice(PLAN_RATE, NOW, gapOf(3), proj);
+    expect(again.available).toBe(true);
+    expect(again.shiftDays).toBe(7);
   });
 });
 

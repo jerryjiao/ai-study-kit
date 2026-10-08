@@ -78,6 +78,7 @@ test('空计划回退幂等：目录已无计划时重复 sync 不改内容', ()
 // ════════════════════════════════════════════════════════════════════
 import {
   deriveCoverage, deriveCalendarDiff, deriveProjection, deriveGap, derivePlanReport,
+  deriveShiftAdvice, REGRESSION_GAP_DAYS,
 } from './plan.mjs';
 
 /** 本地正午时间戳（h 可覆盖，同一天内任意小时不影响自然日判定）。 */
@@ -303,6 +304,51 @@ test('速率外推：速率撑不到 deadline → 缺口为负（deficit）。�
   assert.equal(p.estimatedDoneDate, '2027-02-15');
   assert.equal(p.slackDays, -76);
   assert.equal(p.state, 'deficit');
+});
+
+
+// ── 断档回归·计划后移建议（#120 / spec #118 T1；与 src/lib/plan.test.ts 双实现同判据）──
+test('断档回归阈值：REGRESSION_GAP_DAYS = 3；1-2 天正常间隔不出建议', () => {
+  assert.equal(REGRESSION_GAP_DAYS, 3);
+  const gap2 = { available: true, reason: null, daysSinceLastContact: 2, lastContactAt: NOW, source: 'answers' };
+  assert.equal(deriveShiftAdvice(PLAN_PROJ, NOW, gap2).reason, 'below-threshold');
+});
+
+test('后移建议降级：无接触 no-contact / 近窗零完成 no-rate（长断档常见）', () => {
+  const gap5 = { available: true, reason: null, daysSinceLastContact: 5, lastContactAt: NOW, source: 'answers' };
+  assert.equal(deriveShiftAdvice(PLAN_PROJ, NOW, { available: false, reason: 'no-contact', daysSinceLastContact: null, lastContactAt: null, source: null }).reason, 'no-contact');
+  // PLAN4 唯一 done 的 doneDate 09-02 在窗外 → 投影不可算（读端 fixture 同款场景）
+  assert.equal(deriveShiftAdvice(PLAN4, NOW, gap5).reason, 'no-rate');
+});
+
+test('后移建议：有 deadline 现算（复算：2 完成/14 天 → 剩 2 需 14 天；deadline 10-15 距今 17 天 → 富余 3 → on-track）', () => {
+  const gap5 = { available: true, reason: null, daysSinceLastContact: 5, lastContactAt: NOW, source: 'answers' };
+  const a = deriveShiftAdvice(PLAN_PROJ, NOW, gap5);
+  assert.equal(a.reason, 'on-track'); // 实测 14 天 < 距 deadline 17 天，仍在轨不建议
+  // deadline 挪近 5 天（10-10，距今 12 天）→ shift = 14 − 12 = 2
+  const near = { ...PLAN_PROJ, deadline: '2026-10-10' };
+  const b = deriveShiftAdvice(near, NOW, gap5);
+  assert.equal(b.available, true);
+  assert.equal(b.shiftDays, 2);
+  assert.equal(b.remaining, 2);
+  assert.equal(b.estimatedDays, 14);
+  assert.equal(b.daysPerUnit, 7); // 1/rate = 14/2
+});
+
+test('后移建议：无 deadline 对照剩余日程尽头（最大 plannedDate）；全无日程 → no-target', () => {
+  const gap4 = { available: true, reason: null, daysSinceLastContact: 4, lastContactAt: NOW, source: 'answers' };
+  const noDl = { units: [
+    ...PLAN_PROJ.units.slice(0, 2),
+    { id: 'U-03', title: 'c', order: 3, status: 'planned', plannedDate: '2026-10-02' },
+    { id: 'U-04', title: 'd', order: 4, status: 'planned', plannedDate: '2026-10-04' },
+  ] };
+  const a = deriveShiftAdvice(noDl, NOW, gap4);
+  assert.equal(a.available, true);
+  assert.equal(a.scheduledEnd, '2026-10-04');
+  assert.equal(a.shiftDays, 8); // 14 − (10-04 − 09-28 = 6)
+  assert.equal(a.deadline, null);
+  const noDates = { units: [...PLAN_PROJ.units] }; // 剩余单元全无 plannedDate
+  assert.equal(deriveShiftAdvice(noDates, NOW, gap4).reason, 'no-target');
 });
 
 // ── 断档天数 ───────────────────────────────────────────

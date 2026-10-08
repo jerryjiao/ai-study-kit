@@ -20,7 +20,7 @@ import {
   type PanoramaGraphEdge,
   type TopicSection,
 } from '../lib/panorama';
-import { nextStation, type NextStationResult } from '../lib/nextStation';
+import { nextStation, derivePlanGapInput, type NextStationResult } from '../lib/nextStation';
 import { deriveEpTrace, type TraceEvent } from '../lib/panoramaTrace';
 import { isFlashGraduated, type MasteryStatus } from '../lib/mastery';
 import { deriveCalendarDiff, deriveCoverage, deriveProjection, diffCalendarDays, type PlanCalendarDiff, type PlanProjection } from '../lib/plan';
@@ -193,27 +193,21 @@ export function Panorama() {
   const edges = coverage.graph?.edges ?? null;
 
   // 下一站推荐（票⑥）：输入 = 排布表序四态 + knowflow 前置映射 + 计划缺口（仅有目标日）。
-  // 落后日程映射链：逾期单元（plannedDate < 今天且未完成）的 day → examDays 同 day 的
-  // 非掌握考点，按最逾期 day 优先、同 day 排布表序；无目标日 planGap=null（零催办原则）。
+  // 落后日程映射链（derivePlanGapInput，首页回归卡 #120 共用同一组装函数）：逾期单元的
+  // day → examDays 同 day 的非掌握考点，最逾期 day 优先、同 day 排布表序；
+  // 无目标日 planGap=null（零催办原则）。
   const schedulePoints = useMemo(() => flattenScheduleOrder(panorama.groups), [panorama.groups]);
   const planGap = useMemo(() => {
     if (!planView) return null;
-    const deadline = planView.projection.deadline;
-    if (!deadline) return null;
-    const cd = planView.calendarDiff;
-    const examDays = themeData.examDays ?? {};
-    const overdueDays: string[] = [];
-    for (const u of cd.overdue) {
-      const d = (u as { day?: unknown }).day;
-      if (typeof d === 'string' && d !== '' && !overdueDays.includes(d)) overdueDays.push(d);
-    }
-    const overdueEps: string[] = [];
-    for (const d of overdueDays) {
-      for (const p of schedulePoints) {
-        if (p.status !== 'mastered' && examDays[p.ep] === d) overdueEps.push(p.ep);
-      }
-    }
-    return { deadline, overdueEps, daysOverdue: Math.max(0, -(cd.diffDays ?? 0)) };
+    return derivePlanGapInput(
+      {
+        deadline: planView.projection.deadline,
+        overdue: planView.calendarDiff.overdue,
+        diffDays: planView.calendarDiff.diffDays,
+      },
+      schedulePoints,
+      themeData.examDays ?? {},
+    );
   }, [planView, schedulePoints]);
   const station = useMemo(
     () => nextStation({ points: schedulePoints, edges, planGap }),

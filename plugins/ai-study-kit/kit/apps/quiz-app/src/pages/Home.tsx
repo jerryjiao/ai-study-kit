@@ -9,11 +9,14 @@ import {
   Boxes,
   Play,
   CalendarDays,
+  Flame,
+  CalendarClock,
 } from 'lucide-react';
 import { questions } from '../data/questions';
 import { flashcards } from '../data/flashcards';
 import { plan } from '../data/plan';
 import themeMeta from '../data/theme.json';
+import { coverage } from '../data/coverage';
 import { computeStats, wrongIds, readCount, isAnswerDeleted } from '../lib/progress';
 import { useProgress } from '../hooks/useProgress';
 import { StatBadge } from '../components/StatBadge';
@@ -28,7 +31,13 @@ import {
   type SubLevel,
 } from '../lib/topicOrder';
 import { themeConfig, iconFor } from '../lib/themeConfig';
-import { derivePlanReport, diffCalendarDays, type PlanReport } from '../lib/plan';
+import {
+  derivePlanReport, deriveGap, deriveShiftAdvice, diffCalendarDays,
+  REGRESSION_GAP_DAYS, type PlanReport, type PlanGap,
+} from '../lib/plan';
+import { buildPanorama, flattenScheduleOrder } from '../lib/panorama';
+import { nextStation, derivePlanGapInput } from '../lib/nextStation';
+import { pickWarmupQuestion, type WarmupPick } from '../lib/warmup';
 import { useI18n } from '../i18n';
 
 /** 低进度阈值（%）：低于此值圆环用浅一档绿（--st-green-low，不惩罚），0% 走灰字。
@@ -135,6 +144,47 @@ export function Home() {
   // 剩余清单里 unit.topic 的题集直达：只对本主题真实存在的 topic 建 Link（脏 topic id 降级纯展示）
   const planTopicIds = useMemo(() => new Set(questions.map((q) => q.topic || '')), []);
 
+  // 断档回归（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS 出回归卡——「先热身再续站」。
+  // gap 独立于计划面板算（无 plan 主题回归时也要热身，只少后移建议行）；有 plan 时与
+  // planReport.gap 同输入同值（纯函数幂等）。热身选站复用全景「下一站」判据（buildPanorama
+  // 四态 + nextStation 三轨），保证首页热身考点与全景推荐卡同一站——仅在回归时才算，非常驻开销。
+  const themeData = themeMeta as { theme: string; examPoints?: Record<string, string>; examDays?: Record<string, string> };
+  const gap = useMemo<PlanGap>(
+    () => deriveGap(progress, Date.now(), {
+      questionIds: themeQuestionIds,
+      cardIds: flashcards.map((f) => f.id),
+      theme: themeData.theme,
+    }),
+    [progress, themeQuestionIds],
+  );
+  const regression = useMemo(() => {
+    if (!gap.available || (gap.daysSinceLastContact ?? 0) < REGRESSION_GAP_DAYS) return null;
+    const pano = buildPanorama(
+      questions, progress.answers, themeData.examPoints ?? {},
+      flashcards, progress.srs ?? {}, coverage, themeData.examDays ?? {},
+    );
+    const schedulePoints = flattenScheduleOrder(pano.groups);
+    // 计划缺口仅有目标日才有（零催办原则，与全景页同一组装函数）
+    const src = planReport
+      ? { deadline: planReport.projection.deadline, overdue: planReport.calendarDiff.overdue, diffDays: planReport.calendarDiff.diffDays }
+      : null;
+    const planGapInput = src ? derivePlanGapInput(src, schedulePoints, themeData.examDays ?? {}) : null;
+    const station = nextStation({ points: schedulePoints, edges: coverage.graph?.edges ?? null, planGap: planGapInput });
+    const warmup = pickWarmupQuestion(questions, progress, station.primary);
+    const shift = planReport ? deriveShiftAdvice(plan, Date.now(), gap, planReport.projection) : null;
+    return { warmup, shift };
+  }, [gap, progress, planReport]);
+  // 热身直达链接：优先 ?ep= 考点直达（Practice 同参支持）；无考点题回退该题的题集（topic+subtopic）
+  const warmupLink = useMemo(() => {
+    const w = regression?.warmup;
+    if (!w) return null;
+    if (w.ep) return `/practice/all?ep=${encodeURIComponent(w.ep)}`;
+    const q = questions.find((x) => x.id === w.questionId);
+    if (!q) return null;
+    const sub = q.subtopic ? `&subtopic=${encodeURIComponent(q.subtopic)}` : '';
+    return `/practice/all?topic=${encodeURIComponent(q.topic || '')}${sub}`;
+  }, [regression]);
+
   // 展开状态：默认展开当前在学主题（闯关步进直接可见），其余大类点开才展开。
   const [expanded, setExpanded] = useState<Set<string>>(
     () => (lastTopic ? new Set([lastTopic.topic]) : new Set()),
@@ -170,6 +220,13 @@ export function Home() {
         <StatBadge label={t('home.statWrong')} value={wrongCount} color="red" icon={ListChecks} />
         <StatBadge label={t('home.statRead')} value={`${pct(readNum)}%`} color="gold" icon={BookOpen} />
       </div>
+
+      {/* 断档回归卡（#120，spec #118 T1）：断档 ≥ 阈值第一眼可见（统计仪表正下方）——
+          「先热身再续站」：热身一题直达（不依赖 plan）+ 有计划时的后移建议（现算，只建议不执行）。
+          未达阈值 / 无可挑题 → 整块不渲染，首页与没有该功能前零变化 */}
+      {regression?.warmup && warmupLink && (
+        <RegressionPanel gapDays={gap.daysSinceLastContact ?? 0} warmup={regression.warmup} link={warmupLink} shift={regression.shift} />
+      )}
 
       {/* 学习计划面板（#92）：有 plan.json 的主题第一眼可见（统计仪表正下方）；
           无计划主题 planReport=null 整块不渲染（dev-intro 首页零变化） */}
@@ -331,6 +388,66 @@ export function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+/** 断档回归卡（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS 的回归场景引导——
+ *  不再只陈述「距上次学习 N 天」，给「先热身再续站」动作：
+ *  ① 热身一题：下一站考点挑一题直达（?ep= Practice 考点直达，完成即计入进度），
+ *     低门槛重启；② 有计划时的「计划建议后移 X 天」现算建议（只建议不执行，执行归
+ *     v0.27 自动重排）——无 deadline 场景走中性语气（零催办原则：不出「落后」类字样），
+ *     速率/对照日数据不足时建议行静默降级（绝不编数字）。
+ *  选站与全景「下一站」推荐同判据（nextStation 三轨：落后日程插队 > 补弱 > 结构轨）。 */
+function RegressionPanel({ gapDays, warmup, link, shift }: {
+  gapDays: number;
+  warmup: WarmupPick;
+  link: string;
+  shift: ReturnType<typeof deriveShiftAdvice> | null;
+}) {
+  const { t } = useI18n();
+  const epName = (warmup.ep
+    && (themeMeta as { examPoints?: Record<string, string> }).examPoints?.[warmup.ep])
+    || warmup.ep;
+  const hintKey =
+    warmup.reason === 'schedule' ? 'home.warmupHintSchedule'
+    : warmup.reason === 'weak' ? 'home.warmupHintWeak'
+    : 'home.warmupHintNext';
+  // 后移建议：available 才渲染（no-rate/no-target/on-track 均静默——回归卡不堆降级文案，
+  // 计划面板的速率行已有「不硬算」交代）；无 plan 主题 shift=null 同样只有热身。
+  let shiftLine: string | null = null;
+  if (shift?.available) {
+    const pace = shift.daysPerUnit !== null ? shift.daysPerUnit.toFixed(1) : '';
+    shiftLine = shift.deadline
+      ? t('home.shiftAdviceDeadline', { window: shift.windowDays, pace, n: shift.remaining ?? 0, days: shift.estimatedDays ?? 0, shift: shift.shiftDays ?? 0 })
+      : t('home.shiftAdviceNoDeadline', { window: shift.windowDays, pace, n: shift.remaining ?? 0, days: shift.estimatedDays ?? 0, shift: shift.shiftDays ?? 0 });
+  }
+  return (
+    <section className="rounded-xl border-2 border-st-gold-border bg-st-gold-soft/70 overflow-hidden">
+      <header className="px-4 py-2.5 border-b border-st-gold-border/60 flex items-center gap-2.5">
+        <Flame className="h-4 w-4 text-st-gold-ink shrink-0" strokeWidth={2} />
+        <h2 className="text-sm font-bold text-st-gold-ink shrink-0">{t('home.welcomeBack')}</h2>
+        <span className="ml-auto text-xs text-st-gold-ink/80 tabular-nums shrink-0">
+          {t('home.planGap', { n: gapDays })}
+        </span>
+      </header>
+      <div className="px-4 py-3 flex flex-col gap-2.5">
+        <div className="flex items-center gap-3.5">
+          <Button3D variant="green" size="md" to={link} className="shrink-0">
+            <Play className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+            <span className="truncate">
+              {epName ? t('home.warmupCta', { name: epName }) : t('home.warmupCtaPlain')}
+            </span>
+          </Button3D>
+          <p className="text-xs text-text-secondary">{t(hintKey)}</p>
+        </div>
+        {shiftLine && (
+          <p className="flex items-baseline gap-2 text-xs tabular-nums text-text-secondary">
+            <CalendarClock className="h-3.5 w-3.5 shrink-0 self-center text-text-muted" strokeWidth={2} aria-hidden />
+            {shiftLine}
+          </p>
+        )}
+      </div>
+    </section>
   );
 }
 

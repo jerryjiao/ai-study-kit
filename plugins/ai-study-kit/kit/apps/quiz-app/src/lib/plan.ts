@@ -6,7 +6,7 @@
 //
 // 只移植派生层（纯函数，无 IO）：readPlan/syncPlan（文件系统契约）留在脚本侧——
 // web 消费的数据入口是构建期 sync 产物 src/data/plan.ts（无/损坏计划回退 {units:[]}，
-// import 恒可解析）。四组信号现算、不写回（派生值写回 = 双源漂移，ADR-0009 已拒）：
+// import 恒可解析）。五组信号现算、不写回（派生值写回 = 双源漂移，ADR-0009 已拒）：
 //
 //   1. 覆盖 deriveCoverage      done/total、当前单元（in-progress 优先，无则第一个
 //                              planned；只剩 done/paused → null）、剩余清单（全部非 done，
@@ -21,6 +21,9 @@
 //   4. 断档天数 deriveGap       距最后一次学习接触的自然日差，answers/srs/课学完三通道
 //                              取最大；调用方传本主题题/卡 id 集求交做多主题隔离
 //                              （读端过滤红线，见 AGENTS.md）。无接触 → 降级不是 0 天。
+//   5. 断档回归·后移建议 deriveShiftAdvice（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS
+//                              进入回归场景后现算「计划建议后移 X 天」（速率外推所需天数 −
+//                              日程对照日剩余天数）；只建议不执行，写回归 v0.27。
 //
 // 时区口径：now 是 ms 时间戳，自然日按**本地时区**解释（srs.ts 的 toDateString 同先例）。
 import type { PlanFile, PlanUnit, PlanUnitStatus, Progress } from '../types';
@@ -308,6 +311,98 @@ export function deriveGap(
     daysSinceLastContact: diffCalendarDays(toLocalDateStr(found.at), toLocalDateStr(now)),
     lastContactAt: found.at,
     source: found.source,
+  };
+}
+
+// ── 5. 断档回归·计划后移建议（#120 / spec #118 T1）────────
+
+/** 断档回归阈值（自然日）：距上次学习接触 ≥ 3 天才算「断档后回来」。
+ *  1-2 天是健康间隔节奏（如周末歇两天周一回），不出回归引导；3 天起才给
+ *  「先热身再续站」动作（dogfood 复盘案例为断档 5 天，spec #118）。 */
+export const REGRESSION_GAP_DAYS = 3;
+
+export interface PlanShiftAdvice {
+  available: boolean;
+  /** 不可算的原因（available=false 时给；UI 据此静默降级——回归建议绝不编数字）。 */
+  reason: 'no-contact' | 'below-threshold' | 'no-rate' | 'no-target' | 'on-track' | null;
+  /** 触发时的断档天数（no-contact → null）。 */
+  gapDays: number | null;
+  windowDays: number;
+  ratePerDay: number | null;
+  /** 实测每单元天数（1/rate，依据句用「X 天/站」比「0.4 站/天」贴学习者语言）。 */
+  daysPerUnit: number | null;
+  remaining: number | null;
+  estimatedDays: number | null;
+  /** 建议后移的自然日数（available=true 时恒 > 0）。 */
+  shiftDays: number | null;
+  /** 对照的目标日：deadline 优先，无 deadline = 剩余有日程单元的最大 plannedDate。 */
+  deadline: string | null;
+  /** 无 deadline 时的日程尽头（剩余非 done 单元的最大可解析 plannedDate；有 deadline → null）。 */
+  scheduledEnd: string | null;
+}
+
+/** 断档回归后的「计划建议后移 X 天」现算（#120；v0.26 只建议不执行，重排归 v0.27）。
+ *  口径：按近 WINDOW 天（默认 14）实测速率完成剩余单元需 estimatedDays 天，与日程
+ *  对照日（deadline ?? 剩余日程尽头）之差 > 0 才建议后移。断档天数本身不另加——
+ *  窗口含断档期，速率已被如实拉低（「按你的实测速率」的合理解读）。
+ *  诚实降级与 deriveProjection 同哲学：速率无数据（断档 ≥ 窗口长时常见）/ 无对照日
+ *  / 已在轨 → available=false + reason，绝不硬算。 */
+export function deriveShiftAdvice(
+  plan: PlanFile | null | undefined,
+  now: number,
+  gap: PlanGap,
+  projection?: PlanProjection,
+): PlanShiftAdvice {
+  const proj = projection ?? deriveProjection(plan, now);
+  const base = {
+    gapDays: gap.daysSinceLastContact,
+    windowDays: proj.windowDays,
+    ratePerDay: null as number | null,
+    daysPerUnit: null as number | null,
+    remaining: null as number | null,
+    estimatedDays: null as number | null,
+    shiftDays: null as number | null,
+    deadline: proj.deadline,
+    scheduledEnd: null as string | null,
+  };
+  if (!gap.available) {
+    return { ...base, available: false, reason: 'no-contact' };
+  }
+  const gapDays = gap.daysSinceLastContact ?? 0;
+  if (gapDays < REGRESSION_GAP_DAYS) {
+    return { ...base, available: false, reason: 'below-threshold' };
+  }
+  if (!proj.available) {
+    // no-units 到不了消费端（无计划主题不算后移）；no-recent-completions 常见于长断档
+    return { ...base, available: false, reason: 'no-rate' };
+  }
+  // 对照日：deadline 优先；无 deadline → 剩余（非 done）有日程单元的最大 plannedDate
+  let target = proj.deadline;
+  if (!target) {
+    const today = toLocalDateStr(now);
+    for (const u of safeUnits(plan?.units)) {
+      if (statusOf(u) === 'done') continue;
+      const d = u.plannedDate;
+      if (typeof d === 'string' && parseLocalDate(d) && (!target || d > target)) target = d;
+    }
+    if (target) base.scheduledEnd = target;
+    else return { ...base, available: false, reason: 'no-target' };
+  }
+  const today = toLocalDateStr(now);
+  const spanDays = diffCalendarDays(today, target);
+  const shiftDays = (proj.estimatedDays ?? 0) - (spanDays ?? 0);
+  if (shiftDays <= 0) {
+    return { ...base, available: false, reason: 'on-track' };
+  }
+  return {
+    ...base,
+    available: true,
+    reason: null,
+    ratePerDay: proj.ratePerDay,
+    daysPerUnit: proj.ratePerDay && proj.ratePerDay > 0 ? 1 / proj.ratePerDay : null,
+    remaining: proj.remaining,
+    estimatedDays: proj.estimatedDays,
+    shiftDays,
   };
 }
 

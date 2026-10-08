@@ -29,6 +29,41 @@ export interface PlanGapInput {
   daysOverdue: number;
 }
 
+/** derivePlanGapInput 的宽松输入（Panorama 页计划摘要行与 Home 回归卡共用形状）。
+ *  calendarDiff/overdue 来自 src/lib/plan 的派生结果（PlanCalendarDiff 或其视图子集）。 */
+export interface PlanGapSource {
+  /** 可解析的目标日（null = 无目标日 → 整个缺口不存在，零催办原则）。 */
+  deadline: string | null;
+  /** 日历对照的逾期单元清单（cd.overdue，每条带 day/plannedDate）。 */
+  overdue: { day?: unknown; plannedDate?: unknown }[];
+  /** 日历对照 diffDays（负 = 落后；锚逾期单元）。 */
+  diffDays: number | null;
+}
+
+/** 组装 PlanGapInput（纯函数，全景页 #93 摘要行与首页回归卡 #120 共用）：逾期单元的
+ *  day → examDays 同 day 的非掌握考点（最逾期 day 优先、同 day 排布表序），落后天数取
+ *  日历对照锚点。无目标日 → null（落后日程轨根本不存在）；无逾期 → overdueEps 空数组
+ *  （轨存在但取不到件，推荐自然落到补弱/结构轨）。 */
+export function derivePlanGapInput(
+  src: PlanGapSource,
+  schedulePoints: ReadonlyArray<{ ep: string; status: string }>,
+  examDays: Record<string, string>,
+): PlanGapInput | null {
+  if (!src.deadline) return null;
+  const overdueDays: string[] = [];
+  for (const u of src.overdue) {
+    const d = u.day;
+    if (typeof d === 'string' && d !== '' && !overdueDays.includes(d)) overdueDays.push(d);
+  }
+  const overdueEps: string[] = [];
+  for (const d of overdueDays) {
+    for (const p of schedulePoints) {
+      if (p.status !== 'mastered' && examDays[p.ep] === d) overdueEps.push(p.ep);
+    }
+  }
+  return { deadline: src.deadline, overdueEps, daysOverdue: Math.max(0, -(src.diffDays ?? 0)) };
+}
+
 /** 理由类型：补弱 / 前置解锁 / 落后日程（落后日程仅当有目标日才可能出现）。 */
 export type StationReason = 'weak' | 'unlocked' | 'behindSchedule';
 
