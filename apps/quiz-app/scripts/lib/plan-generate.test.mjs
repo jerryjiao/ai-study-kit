@@ -420,7 +420,10 @@ test('CLI 交错判据无数据（MISSION 缺失）→ exit 1；零 done 历史�
 
 import { shouldReschedule } from './plan-generate.mjs';
 
-/** 落后夹具：A 逾期（plannedDate 09-01 < 今天 10-08）、B 未来；2 个 done 落 14 天窗给速率。 */
+/** 落后夹具（**纯函数段专用**，日期冻结、配注入的冻结 NOW=2026-10-08：09-01→10-08=37 恒
+ *  成立）：A 逾期（plannedDate 09-01）、B 未来；2 个 done 落 14 天窗给速率。
+ *  ⚠️ CLI 端到端段（now=Date.now() 真实墙钟）禁用本夹具——triggerDays 会随今天漂移，
+ *  那边用相对墙钟版 behindPlanCli()。 */
 const behindPlan = (extra = {}) => ({
   deadline: '2026-12-31',
   units: [
@@ -512,10 +515,26 @@ test('generatePlanSchedule 审计写回：rescheduled 追加不覆盖（历史�
 
 // ── 6. CLI 自动重排端到端（--auto / --dry-run / --reason；#125 验收：写回、可追溯、可否决）──────
 
+/** CLI 段专用的落后夹具（相对真实墙钟版）：CLI 子进程的 now = Date.now()（plan-generate.mjs），
+ *  本段纪律（上方 :290）「日期一律相对真实墙钟现算，测试不依赖固定『今天』」——冻结版
+ *  behindPlan()（09-01 硬编码，配纯函数段注入的冻结 NOW）在这里会把 triggerDays 钉死在
+ *  「今天恰为 2026-10-08」的 37 上，明天起变 38 断言必红。本夹具：A 逾期 localDate(-37) →
+ *  triggerDays 恒 37；B 未来 localDate(40) → 恒不逾期（behind 锚「逾期单元的最大
+ *  plannedDate」，B 逾期会改锚）；deadline localDate(80) → 排期恒 feasible；done 用相对
+ *  doneDate（速率已显式传 --days-per-unit，done 只服务 actualAt 形态）。 */
+const behindPlanCli = () => ({
+  deadline: localDate(80),
+  units: [
+    { id: 'D-1', title: 'done1', order: 1, plannedDate: localDate(-8), status: 'done', doneDate: localDate(-7) },
+    { id: 'A', title: '逾期单元', order: 3, plannedDate: localDate(-37), status: 'planned' },
+    { id: 'B', title: '未来单元', order: 4, plannedDate: localDate(40), status: 'planned' },
+  ],
+});
+
 test('CLI --auto：落后夹具 → 判 behind 写回 plan.json + 审计可追溯 + 逾期消除；同日再跑 → noop 幂等', () => {
   const dir = cliTheme();
   const planPath = path.join(dir, 'plan.json');
-  writeFileSync(planPath, JSON.stringify(behindPlan(), null, 2) + '\n');
+  writeFileSync(planPath, JSON.stringify(behindPlanCli(), null, 2) + '\n');
   const progressPath = path.join(dir, 'progress.json');
   writeFileSync(progressPath, JSON.stringify({ version: 1, answers: {} }) + '\n');
   // 第一跑：--auto 判定 behind → 写回（显式速率 2 天/单元、活跃率 1，数学确定）
@@ -532,7 +551,8 @@ test('CLI --auto：落后夹具 → 判 behind 写回 plan.json + 审计可追�
   for (const unit of after.units.filter((x) => x.status !== 'done')) {
     assert.ok(unit.plannedDate >= today, `${unit.id} 的新日程 ${unit.plannedDate} 应 ≥ 今天 ${today}`);
   }
-  // 审计可追溯：reason/triggerDays/start/scheduledEnd 落位
+  // 审计可追溯：reason/triggerDays/start/scheduledEnd 落位（triggerDays 恒 37——
+  // 夹具相对墙钟 localDate(-37) 与 CLI 的 Date.now() 同源同天现算，跨天稳定）
   assert.equal(after.rescheduled.length, 1);
   assert.equal(after.rescheduled[0].reason, 'behind');
   assert.equal(after.rescheduled[0].triggerDays, 37);
@@ -574,7 +594,7 @@ test('CLI --auto 在轨（无逾期、今天有接触）→ noop on-track 不写
 test('CLI --dry-run：落后夹具只出建议不写回（可否决执行面：学习者点头后去掉 flag 才落盘）', () => {
   const dir = cliTheme();
   const planPath = path.join(dir, 'plan.json');
-  const original = JSON.stringify(behindPlan(), null, 2) + '\n';
+  const original = JSON.stringify(behindPlanCli(), null, 2) + '\n';
   writeFileSync(planPath, original);
   const progressPath = path.join(dir, 'progress.json');
   writeFileSync(progressPath, JSON.stringify({ version: 1, answers: {} }) + '\n');
@@ -591,7 +611,7 @@ test('CLI --dry-run：落后夹具只出建议不写回（可否决执行面：�
 
 test('CLI --auto 与 --reason 互斥 → exit 1；--reason 坏值 → exit 1', () => {
   const dir = cliTheme();
-  writeFileSync(path.join(dir, 'plan.json'), JSON.stringify(behindPlan(), null, 2) + '\n');
+  writeFileSync(path.join(dir, 'plan.json'), JSON.stringify(behindPlanCli(), null, 2) + '\n');
   for (const [args, re] of [
     [['--auto', '--reason', 'behind'], /互斥/],
     [['--reason', 'whim'], /不在 behind\|gap\|manual/],
