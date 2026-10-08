@@ -284,7 +284,8 @@ describe('deriveGap', () => {
     expect(g.daysSinceLastContact).toBe(3);         // 09-25 → 09-28；OTHER/FC-9/other 主题全被滤掉
   });
   // ── 口述触达通道（v0.26 #123 微块轻启动）─────────────────
-  const oral = (o: Record<string, unknown>[]): Progress['oralAttempts'] => o as Progress['oralAttempts'];
+  const oral = (o: Record<string, unknown>[]): Progress['oralAttempts'] =>
+    o as unknown as Progress['oralAttempts'];
   it('微块场景：今天只有一笔口述回流 → gap=0、source=oral（「今天已触达」的判据输入）', () => {
     const g = deriveGap(prog({
       oralAttempts: oral([{ target: 'EP-03 chmod', correct: true, at: NOON(2026, 9, 28, 21), source: 'recall', theme: 't' }]),
