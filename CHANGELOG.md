@@ -6,14 +6,21 @@
 
 ## [Unreleased]
 
+（暂无——下一版攒票中。）
+
+## [0.27.0] — 2026-10-08
+
+主题：**自适应排期器——排期由实测速率生成、落后自动重排、债务红字退场（spec #118，两票 #121/#125）。** 接 v0.26「看见+轻」：看见之后，计划本身不再制造债务——复盘实证手写理想排期（假设 ≤1 天/站 vs 实测 2.6 天/站）从第一天起就不可完成，红字债滚到整周停摆才被察觉。本版把计划的生成与修复交给实测速率。
+
 ### Added
 
+- **计划生成器（#121）**：排期不再手写理想速率——`plan-generate` CLI 按实测速率从剩余站生成 plan.json（速率与对账刀速率外推同源；活跃率折减；硬算/概念可交错排布——不再「概念前置、硬算后置」）；对外部主题包只读实跑验证：37 站 × 2.6 天/站 ÷ 54% 活跃率 ≈ 178 天纯学程，与复盘速率算术对上；缺数据明确报错不猜；skill 流程收录（学习者说「重排计划」时教练代跑，工具链命令不派发给学习者）。
 - **自动重排 + 债务红字退场（#125，spec #118）**：计划落后/断档不再累积「落后 N 天」红字债——排期器就地修复并宣告。执行面（与 #121 计划生成器同一入口 `plan-generate`）新增三件：①**触发判据** `shouldReschedule`（判据单源 `scripts/lib/plan-generate.mjs`）：behind=存在逾期单元（不看 deadline——修复动作不是催办文案）/ gap=断档 ≥3 天且 #120 后移建议可算；在轨或今天已重排 → 不触发（幂等闸门）。②**CLI 三口**：`--auto`（明示自动：先判触发，needed 才排、noop exit 0 不写文件）、`--reason behind|gap|manual`（审计触发原因，与 `--auto` 互斥）、`--dry-run`（只出建议不写回——**重排建议可被学习者否决**的执行面：教练场景先 dry-run 报数学，学习者点头后去掉 flag 才落盘）。③**重排审计** `plan.rescheduled[]`（`PlanReschedule`：`at` 真实时间戳 + `reason` + `triggerDays` + `start`/`scheduledEnd`）：每次写回**追加**（历史全留 = 可追溯，永不改写旧条目）——这是 #125 对「agent 写 plan 只许改 status/doneDate」契约的**放宽边界**（contracts.md 契约三口径同步：审计是重排发生的审计事实，不是对账派生值，不违反「派生值永不写入」）。消费端：`plan-report --json` 新增 `reschedule` 字段（`needed`/`reason`/`view`/`command`——#120 的「后移建议」由此升级为可执行重排，同一入口）；web 侧 `deriveRescheduleView`（`src/lib/plan.ts` + `scripts/lib/plan.mjs` 双实现同步，新鲜窗口 7 天）出「已重排：下一站 X，日期 Y」钩子行。
 - **首页/全景债务红字退场（#125 验收①）**：`home.planBehind`（「落后 N 天」）key 五语删除、组件引用清零——behind（有目标日也）不再陈列累积落后天数，修复走重排、修好由「已重排」钩子行接管（零催办从无目标日扩展到全场景；速率外推的 deficit 缺口行是速率对照不是债务催办，保留）。全景计划摘要行的完成 X/Y 与节奏文案拆开渲染（behind 时完成数仍在、节奏段隐藏）。断档回归卡的 shift 建议行升级为「可重排」口径（`home.shiftAdvice*` 五语改写：确认后整体后移 N 天，执行找教练）。
 
 ### 升级与存量影响
 
-- **新文件/新契约**：`plan.json` 新增可选 `rescheduled` 审计数组（`PlanReschedule`，types.ts 单源）——旧 plan.json 无此字段照常工作（读端宽容：无审计 = 无「已重排」行，behind 静默）。`plan-generate` 写回件从此恒带一条审计；`plan-report --json` 新增 `reschedule` 字段。
+- **新文件/新契约**：工具链新增 `plan-generate` CLI（按实测速率生成/重排 plan.json，判据单源 `scripts/lib/plan-generate.mjs`）；`plan.json` 新增可选 `rescheduled` 审计数组（`PlanReschedule`，types.ts 单源）——旧 plan.json 无此字段照常工作（读端宽容：无审计 = 无「已重排」行，behind 静默）。`plan-generate` 写回件从此恒带一条审计；`plan-report --json` 新增 `reschedule` 字段。
 - **老项目缺了会怎样**：零影响、零动作。`rescheduled` 缺省 = 从未重排（`deriveRescheduleView` 返回 null、`shouldReschedule` 无幂等闸门照常判触发）；删掉的 `home.planBehind` key 无消费方（编译期 `Record<TKey,string>` 锚定兜底）。
 - **怎么补**：插件用户 marketplace refresh（skill 文档契约三/state.md/F10 口径随版本走）；答题站 UI 随下次 build。
 - **是否破坏性**：非破坏。plan.json 向后兼容（新字段可选）；`plan-report` 只加字段不改旧字段语义；`plan-generate` 输出加审计不改 `plannedDate` 数学（#121 的 37×2.6÷0.54=178 天算术不变）。
