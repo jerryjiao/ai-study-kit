@@ -24,7 +24,9 @@
 //                              多主题隔离（读端过滤红线，见 AGENTS.md）。无接触 → 降级不是 0 天。
 //   5. 断档回归·后移建议 deriveShiftAdvice（#120，spec #118 T1）：断档 ≥ REGRESSION_GAP_DAYS
 //                              进入回归场景后现算「计划建议后移 X 天」（速率外推所需天数 −
-//                              日程对照日剩余天数）；只建议不执行，写回归 v0.27。
+//                              日程对照日剩余天数）；只建议不执行——执行面是脚本侧计划
+//                              生成器 plan-generate（v0.27 #121，学习者说「重排计划」才跑、
+//                              agent 代跑写回主题 plan.json；web 侧无此入口，纯工具链路径）。
 //
 // 时区口径：now 是 ms 时间戳，自然日按**本地时区**解释（srs.ts 的 toDateString 同先例）。
 import type { OralAttempt, PlanFile, PlanUnit, PlanUnitStatus, Progress } from '../types';
@@ -357,7 +359,8 @@ export interface PlanShiftAdvice {
   scheduledEnd: string | null;
 }
 
-/** 断档回归后的「计划建议后移 X 天」现算（#120；v0.26 只建议不执行，重排归 v0.27）。
+/** 断档回归后的「计划建议后移 X 天」现算（#120；本层只建议不执行——执行面是脚本侧
+ *  计划生成器 plan-generate，v0.27 #121，判据单源 scripts/lib/plan-generate.mjs）。
  *  口径：按近 WINDOW 天（默认 14）实测速率完成剩余单元需 estimatedDays 天，与日程
  *  对照日（deadline ?? 剩余日程尽头）之差 > 0 才建议后移。断档天数本身不另加——
  *  窗口含断档期，速率已被如实拉低（「按你的实测速率」的合理解读）。

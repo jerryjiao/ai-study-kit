@@ -96,22 +96,29 @@ status: in-progress    # in-progress | done
 
 plan.json（带日程的学习计划）是**主题数据**：住 `examples/<theme>/`（含外部主题包路径），**agent 直改主题文件、运行期不另存**——不进 progress、不写第二副本。字段定义单源在仓库 `apps/quiz-app/src/types.ts` 的 `PlanFile`/`PlanUnit`（状态四态 `planned | in-progress | done | paused`），分层决策见仓库 ADR-0009——此处只定**怎么维护**，不抄 schema。它是 kit 第一个被学习流程改写的主题数据文件（题库/闪卡/课都是人写机器读），唯一维护方是 F10 陪练；state.md §3 的快照「计划」行只读消费。
 
-**三个维护动作（触发在 F10，改动只碰两个字段）**：
+**四个维护动作（触发在 F10，前三个只碰两个字段；重排走生成器）**：
 
 | 动作 | 触发 | 改动 |
 |---|---|---|
 | 开站 | 本站开始学某计划单元 | 该 unit `status: "in-progress"`（`planned`/`paused` 均可翻入——暂停后复学也是开站） |
 | 收站 | 单元学完（本站考点全过且该单元内容至此讲完） | 该 unit `status: "done"` + 补 `doneDate` |
 | 搁置 | 用户明确暂停某单元（「这个先放放」） | 该 unit `status: "paused"` |
+| 重排（v0.27 #121） | 学习者明确说「重排计划 / 按实际速度重新排」 | 剩余单元的 `plannedDate` 按实测速率重写（交错模式另重排剩余 `order`）；done 单元、`deadline`/`day`/`topic`/`title` 不动 |
 
 **写入口径**：
 
 - **无 plan.json（或文件损坏）→ 三个动作整体跳过**：noop 不是故障，也**不替用户发明计划**——要不要排计划、粒度切多大（考点/站/章）是内容决策，kit 只在计划已存在时维护它。
 - **读-改-写**：写前重读文件全文 → 只改目标 unit 的 `status`（收站另补 `doneDate`）→ 整文件写回，与口头流水（契约二）同款并发纪律。
-- **只许改 `status` 与 `doneDate` 两个字段**：`plannedDate`/`deadline`/`order`/`title`/`day`/`topic` 是用户的内容决策（排程、粒度、映射），agent 不改——要调日程是用户的事。
+- **只许改 `status` 与 `doneDate` 两个字段**：`plannedDate`/`deadline`/`order`/`title`/`day`/`topic` 是用户的内容决策（排程、粒度、映射），agent 不改——要调日程是用户的事。**唯一例外是重排**（上一行表格第四动作）：学习者明确说「重排计划」时，agent 代跑**计划生成器**（工具链命令，可跑不可派给学习者手敲）按实测速率重写剩余单元的 `plannedDate`——排期从「用户手写」变「用户委托生成」，委托本身是用户的决策：
+  ```bash
+  node apps/quiz-app/scripts/plan-generate.mjs --theme "$THEME" --days-per-unit <实测> --activity <活跃率> [--margin 0.25] --interleave
+  ```
+  - **实测速率 `--days-per-unit` 与活跃率 `--activity` 优先用学习者认可的实测值显式传**（复盘/对账口径）；缺省时生成器从 done 历史（14 天窗 → 全历史跨度）与进度接触日派生并在输出报来源；**零 done 历史且无显式速率 → 报错不猜**（没有实测速率就没有排期）。
+  - **数学与写回范围**：剩余 N × X 天/单元 ÷ 活跃率 → 日历天数，逐单元落 `plannedDate`；`--interleave` 硬算/概念交错（掌握=重 / 理解·了解=轻，轻先行，另重排剩余 `order`）；done 单元逐字段原样、`day`/`topic`/`title` 不动。判据单源仓库 `apps/quiz-app/scripts/lib/plan-generate.mjs`。
+  - **先预览后写回**：先 `--out` 到主题外（如 `/tmp`）出预览件，把公式行与富余/缺口报给学习者，点头后去掉 `--out` 重跑写回（读-改-写同款并发纪律）。**排不进考期 → 生成器报错附全算术**，如实转达（缩量/降余量/提活跃率学习者拍板），绝不静默压缩速率。
 - **`doneDate` = 写入当天的真实日历日**（`YYYY-MM-DD`，本地时区；实现上取系统当日，如 shell `date +%F`）。与 progress.json 的 `submittedAt` 真 `Date.now()` 同款红线：**禁固定值、禁未来日期、禁编造**。已 `done` 的单元不重写 `doneDate`（首次完成日是真源）。
 - **幂等且单向**：目标状态已达成则跳过（开站遇 `in-progress`、收站遇 `done` 均为 no-op）；`done` 是终态不回翻（不翻 `paused`、也不翻回 `in-progress`——复习性重学照常开站教学，只是不动单元状态）——完成是事实，撤销/重开是用户手改文件的事，教练不做。
 - **搁置只在用户明确说时做**：逾期、断档、落后 N 天都不自动 `paused`——那是节奏事实（`behind`），搁置是用户决策；派生层也不因 `paused` 豁免日程（ADR-0009）。
 - **单元 ↔ 站不强求一一对应**（单元粒度主题自定）：按 `unit.topic`（与题库 topic 同名）、`unit.day`（与 MISSION 排布表 day 同命名空间）或用户点名对号；对不上的单元不动，不硬凑映射。
-- **派生值永不写入**：落后天数、预计完成日、覆盖计数全部现算（`plan-report`，state.md §3），plan.json 只存原始数据——写回 = 双源漂移（ADR-0009 已拒）。
+- **派生值永不写入**：落后天数、预计完成日、覆盖计数全部现算（`plan-report`，state.md §3），plan.json 只存原始数据——写回 = 双源漂移（ADR-0009 已拒）。重排写的 `plannedDate` 不属此列：它是学习者委托生成的排期本身（输入决策落地），不是对账派生值。
 - **产物时滞属预期**：站点 `src/data/plan.json` 是 sync 产物，主题文件改完要等下次 sync/build 才上 UI；`plan-report --theme` 直读主题文件，立即生效。
