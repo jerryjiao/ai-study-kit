@@ -12,7 +12,7 @@ ai-study-kit 的工具链很全（陪练教学 / 答题站 / 课程 / 闪卡 / �
 
 ## Step 1 · 探测状态（永远先做；全程只读，≤1 分钟）
 
-按 [`../references/state.md`](../references/state.md) 的探测协议采集十一个字段，拼成「学习状态快照」：
+按 [`../references/state.md`](../references/state.md) 的探测协议采集下表各字段，拼成「学习状态快照」：
 
 | 字段 | 回答的问题 |
 |------|-----------|
