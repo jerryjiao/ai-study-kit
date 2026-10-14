@@ -120,7 +120,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" 
 - **知识图信号（v0.14，同一份 `--json` 的 `graph` 字段）**：传 `--graph <graph.json 路径>`（或环境变量 `KNOWFLOW_GRAPH_JSON`）时，报告装载 knowflow 知识图并给出 `graph.nodes`（节点四态 + 口头统计）与映射计数；配合 `--write-projection` 产出只读投影文件供图着色（flows.md F12）。**前置关系**：`graph.weakPrereqs` 是每个弱考点的前置链（`[{kind:'ep'|'node', id, name, mastery}]`，mastery 非 mastered 即「前置还弱」）；`graph.weakOrdered` 是尊重前置顺序的推荐序（前置先学）——推荐与陪练开场点名时用它取代裸 `weakRanked` 顺序，理由从「刷 EP-12」具体到「前置概念 EP-01 还弱，先补它」。无图 / 无映射 → `graph.loaded = false`，静默降级为纯考点口径（无前置字段），不是故障。
 - 输出消费：`summary.weak` 与 `weakRanked`（弱点排序：未毕业多者先）进快照「弱考点」行；`points[].profile` 带 grill 串讲记下的错因（来自 `study/records/profile.json`，学习者私有不上站，目录语义见 §7）——推荐时点名引用，让理由从「错题多」变成「EP-03 连错 2 次，错因：权限位组合不熟」。`points[].flashOpenIds` 列出该考点未毕业的闪卡（推荐刷闪卡时点名）；判据与 web 首页「考点掌握度」面板同口径。
 - **口述错因台账（#132，同一份 `--json` 的 `misconceptions` 字段）**：`study/records/misconceptions.json`（学习者私有可选；条目与写入口径见 [`contracts.md`](contracts.md) 契约二「口述错因台账」）存在且有本主题条目时输出：顶层 `misconceptions`（total / open·corrected·recurred 计数 / byEp / byNode / `unlocated` 未定位桶）+ `points[].misconceptions`（口述来源错因，与 `points[].profile` 的题 id 来源按 EP 双源合流）。状态由后续口述流水派生（最近一次后续口述答对 = corrected、同根因再现 = recurred），不改写旧条目。**快照「弱考点」行点名时台账错因与档案错因同引**——observed 事实与 diagnosis 推断分开引述（「EP-03 上次把 4 说成读权限，判断根因：权限位与八进制对应记反」），接续纠偏不必从头解释同一误区。无台账 / 坏台账 / 条目全属他主题 → 字段静默缺席、探测照旧，输出与没有该功能前零变化；台账不进掌握判据（v1.2 语义不变）。
-- **隔期复测候选（#133，同一份 `--json` 的 `retest` 字段）**：从台账 open 条目 + 口述流水纯派生（判据单源 `apps/quiz-app/scripts/lib/retest.mjs` `deriveRetest`，决议 #129 三条件：open + 口头四态非 mastered + 当天该目标无口述——多通道同目标去重；无固定间隔，时机 = 下一次会话）。`retest.pick` = 本会话唯一复测目标（多目标取四态最弱一个，其余 `candidates` 留教练内部视角、不向学习者陈列）；候选带出题依据（open 条目 observed/diagnosis，最新在前——沿 diagnosis 出同根因变体，缺省回退 observed）。消费方：F10「隔期复测」节（显式复习请求「考考我 / 复测上次错的」）；零闪卡可用（不依赖 srsDue）。有台账但无候选 → `pick:null` + `excluded` 计数（全 corrected / 当天已答 / 已 mastered——如实说没有待复测目标）；无台账 → 字段静默缺席（与 `misconceptions` 同闸，输出与功能前零变化）。复测结果走既有口述流水与实时回流（不新增通道、不新增 source 枚举），不进掌握判据。
+- **隔期复测候选（#133，同一份 `--json` 的 `retest` 字段）**：从台账 open 条目 + 口述流水纯派生（判据单源 `apps/quiz-app/scripts/lib/retest.mjs` `deriveRetest`，决议 #129 三条件：open + 口头四态非 mastered + 当天该目标无口述——多通道同目标去重；无固定间隔，时机 = 下一次会话）。`retest.pick` = 本会话唯一复测目标（多目标取四态最弱一个，其余 `candidates` 留教练内部视角、不向学习者陈列）；候选带出题依据（open 条目 observed/diagnosis，最新在前——沿 diagnosis 出同根因变体，缺省回退 observed）。消费方：F10 第 0 步第 3 条抽背位（#134 起自动并入——与 srsDue 到期卡同池合计 ≤3 题，编排优先级见 F10 第 0 步）与 F10「隔期复测」节（显式复习请求「考考我 / 复测上次错的」的话术与结果闭环细则）；零闪卡可用（不依赖 srsDue）。**快照「隔期复测」行（#134）**：`retest.pick` 非 null → 快照在「弱考点」行后追加一行——`隔期复测: <EP-XX 名字>（上次说错：<observed 摘要>｜判断根因：<diagnosis 摘要>）· 口头 问 N 对 M <weak/进行中> · 今天还没考过`；`pick:null`（有台账但全 corrected / 当天已答 / 已 mastered）→ 该行省略，学习者显式请求复习时才按 `excluded` 计数如实说「没有待复测的目标」；无台账 / 坏台账 → 字段与该行双双缺席（输出与功能前零变化）。复测结果走既有口述流水与实时回流（不新增通道、不新增 source 枚举），不进掌握判据。
 
 **考点全景（「报进度」，v0.13）**：进度统计之外的第二条派生——每考点三信号，按排布表 day 分组：
 
@@ -223,7 +223,7 @@ grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有�
 **考期（deadline）**：读 MISSION.md frontmatter `deadline: YYYY-MM-DD`——
 
 - **缺失**：快照第 8 行追加 `⚠ deadline 未配置`。原则是不静默跳过、也不反复唠叨：F11 考前冲刺以 deadline 为硬前置，入口处会当场拦下引导补（见 flows.md F11 第 1 步），快照的 ⚠ 就是为那一刻准备的。
-- **有值**：算倒计时并在快照体现为 `距考期 <N> 天`（N = 今天到 deadline 的整天数；N ≤ 7 即推荐算法第 6 条的 F11 触发档）；已过期的报 `考期已过 N 天`，同样只报事实。
+- **有值**：算倒计时并在快照体现为 `距考期 <N> 天`（N = 今天到 deadline 的整天数；N ≤ 7 即推荐算法第 7 条的 F11 触发档）；已过期的报 `考期已过 N 天`，同样只报事实。
 
 **旧布局兼容**：探测遇根级 `learning-records/` → 按本节同样的判定规则照读照报（进不进行中、待办数、模式都照算），并在快照或报告追加一句提示：`检测到旧目录 learning-records/，可一次性迁入 study/records/（F10 兼容识别，迁移自愿）`。只提示不代迁，一次会话提一遍即可。
 

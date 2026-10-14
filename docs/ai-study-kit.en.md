@@ -42,7 +42,7 @@ Every invocation runs the same three steps:
 2. **Report + recommend** — one snapshot table + one recommended action with a reason + a numbered menu.
 3. **Execute with you** — once you pick, it follows that flow's playbook in `skills/ask-coach/references/` step by step, then checks the "done" criteria.
 
-Without an explicit intent, the recommendation takes the first hit in order: environment checks (version drift) sit ahead of the study entries — align the feature layer first; your data is never at risk. The study-side head runs "flashcards → sprint → resume tutoring": reviews are debt that accrues daily, the sprint is the harvest window within a week of the exam, and tutoring can resume anytime. The full 11-condition list with the per-row rationale is in the "recommendation algorithm" section of `skills/ask-coach/SKILL.md`.
+Without an explicit intent, the recommendation takes the first hit in order: environment checks (version drift) sit ahead of the study entries — align the feature layer first; your data is never at risk. The study-side head runs "flashcards → spaced retest → sprint → resume tutoring": reviews are debt that accrues daily (due flashcards refresh memory; the spaced retest re-verifies what you got wrong last time — folded into the tutoring opening slot at a tiny budget), the sprint is the harvest window within a week of the exam, and tutoring can resume anytime. The full 13-condition list with the per-row rationale is in the "recommendation algorithm" section of `skills/ask-coach/SKILL.md`.
 
 ## The thirteen flows
 

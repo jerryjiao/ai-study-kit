@@ -11,7 +11,8 @@ disable-model-invocation: true
 1. **先探测**（只读）：按 [`../../references/state.md`](../../references/state.md) 跑 Step 1，重点看 §7 陪练站（有没有进行中的站）与主题目录。
 2. **进流程**：按 [`../ask-coach/references/flows/F10.md`](../ask-coach/references/flows/F10.md) 执行——
    - 有进行中站 → **续站**（报站名 + 待办数，**用户点头才开跑**）；
-   - 没有 → 从 **F10 第 0 步开场纪律**进：报「今天最该练 + 为什么」→ 开新站。
+   - 没有 → 从 **F10 第 0 步开场纪律**进：报「今天最该练 + 为什么」→ 开新站；
+   - 开场照第 0 步编排优先级（#129）：**认领预告 > 抽背/复测同池（合计 ≤3 题）> 弱考点 > 新学**——快照「隔期复测」行（`retest.pick`）非空时，隔期复测就在同池位带实测证据自动带出（上次错因 + 口头四态 + 今天还没考过）；学习者跳过就跳过，零催办。
 3. **怎么教**：三段式/考法/判定标准以 [`../ask-coach/references/coach.md`](../ask-coach/references/coach.md) 为准（先读再用）。
 
 不是陪练的活（刷题 → 答题站、错题串讲 → /study-recap、体检 → /study-doctor、其他 → /ask-coach 路由），说一句该去哪。
