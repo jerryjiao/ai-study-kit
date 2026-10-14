@@ -31,6 +31,12 @@
  * 旧条目。无台账 / 坏台账 / 条目全属他主题 → 字段静默缺席，输出与功能前零变化；台账是
  * 证据源不是判据输入，不进 masteryByExamPoint（v1.2 掌握判据语义不变）。
  *
+ * 隔期复测候选（#133，spec #131 / 决议 #129）：--json 的 retest 字段输出复测候选——从台账
+ * open 条目 + 口述流水纯派生（lib/retest.mjs deriveRetest 三条件：open + 口头四态非
+ * mastered + 当天该目标无口述；多目标每会话取四态最弱 1 个 = retest.pick）。零闪卡可用
+ * （不依赖 srsDue）；无台账 → 字段静默缺席（与 misconceptions 同闸）。复测是证据消费不是
+ * 判据输入；出题与答对/答错后续口径单源 flows/F10.md「隔期复测」节（skill 侧）。
+ *
  * 进度来源：--progress 指定的文件，默认 apps/quiz-app/progress.json（本地文件口径；
  * 要看线上进度先 `curl -sf $SERVER/api/progress -o /tmp/p.json` 再传进来，与 skill state.md 同模式）。
  * 文件不存在 = 空进度（全部 untouched），不是故障。
@@ -51,6 +57,7 @@ import { buildPanorama } from './lib/panorama.mjs';
 import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
 import { readOralAttempts, oralAttemptsFromProgress, mergeOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath, graphNodeIndex } from './lib/oral.mjs';
 import { readMisconceptions, deriveMisconceptionStatuses, misconceptionView } from './lib/misconceptions.mjs';
+import { deriveRetest } from './lib/retest.mjs';
 import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor, buildPrereqSignals, orderEpsByPrereqs } from './lib/graph-bridge.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -243,6 +250,21 @@ if (misconceptionsRaw.length) {
   }));
 }
 
+// 隔期复测候选（#133，spec #131 / 决议 #129）：台账 open 条目 + 口述流水纯派生——三条件
+// （open + 口头四态非 mastered + 当天该目标无口述）+ 弱项排序，每会话 1 目标（retest.pick，
+// 多通道同目标当天去重）。零闪卡可用（不依赖 srsDue）；与 misconceptions 同闸：无台账 →
+// 字段静默缺席。复测是证据消费不是判据输入，不进 masteryByExamPoint；出题与答对/答错
+// 后续口径单源 skill 侧 flows/F10.md「隔期复测」节。now 一律真实 Date.now()（注入面只在隔离夹具）。
+let retestSignal = null;
+if (misconceptionsRaw.length) {
+  retestSignal = deriveRetest({
+    entries: misconceptionsRaw,
+    attempts: oralAttempts,
+    resolveOpts: { epNames, graphMap, graphNodes: graphNodes ?? undefined },
+    now: Date.now(),
+  });
+}
+
 const joinProfile = (p) => {
   if (!profile || !Array.isArray(profile.examPoints)) return undefined;
   const hit = profile.examPoints.find((e) =>
@@ -285,6 +307,8 @@ const report = {
   graph: { ...graphSignal, projection: projectionResult },
   // 口述错因台账消费视图（#132）：无台账时键整体缺席（静默降级，输出与功能前零变化）
   ...(misconceptionsSignal ? { misconceptions: misconceptionsSignal } : {}),
+  // 隔期复测候选（#133）：与 misconceptions 同闸——无台账时键整体缺席（复测通道静默不出现）
+  ...(retestSignal ? { retest: retestSignal } : {}),
 };
 
 // ── 输出 ──────────────────────────────────────────────────
@@ -328,6 +352,15 @@ if (AS_JSON) {
     for (const m of misconceptionsSignal.unlocated) {
       console.log(`    ${tag[m.status]}  ${m.name}：说过「${m.observed.text}」${m.diagnosis ? `——判断根因：${m.diagnosis.text}` : ''}（${m.observed.source}）`);
     }
+  }
+  if (retestSignal && retestSignal.pick) {
+    // 复测候选（#133）：每会话 1 目标（pick）——observed 事实与 diagnosis 推断分开引述（教练解释「为何选它」的依据面）
+    const p = retestSignal.pick;
+    const where = p.ep ? `${p.ep} ${p.name}` : p.node ? `${p.name}（图节点）` : `${p.name}（未定位）`;
+    const m0 = p.misconceptions[0];
+    console.log('');
+    console.log(`  🔁 复测候选：${where}（口头 ${p.oral.status} · 问 ${p.oral.asked} 对 ${p.oral.correct} · 未清错因 ${p.openCount} 条）`);
+    console.log(`     依据：说过「${m0.observed.text}」${m0.diagnosis ? `——判断根因：${m0.diagnosis.text}` : '（无诊断，按观察出变体）'}——沿根因出变体再验，答对即清`);
   }
   if (graphSignal.loaded) {
     const prereqNote = graphSignal.prereqEdges !== undefined ? ` · 前置边 ${graphSignal.prereqEdges}` : '';

@@ -174,11 +174,32 @@ export function appendMisconceptions(existingText, entry) {
   return { text: JSON.stringify(entries, null, 2) + '\n', appended: true, deduped: false, total: entries.length };
 }
 
+/**
+ * 目标引用 → 身份键（口述流水侧）：EP 前缀 / 映射反查 / 裸名命中的口述与台账条目落在同一键上。
+ * 与 misconceptionIdentity 同一套（ep → node → 名字）——状态派生与复测入选（lib/retest.mjs）共用，
+ * 保证「同一目标」的台账条目与口述流水天然对齐。
+ */
+export function oralIdentityKey(target, resolveOpts = {}) {
+  const r = resolveOralTarget(target, resolveOpts);
+  return r.ep ? `ep:${r.ep}` : r.node ? `node:${r.node}` : `name:${norm(r.name)}`;
+}
+
 /** 条目身份键：只认写时落盘的解析结果（ep → node → 名字），消费端不重新解析——裸名稳定留「未定位」。 */
-function entryIdentity(entry) {
+export function misconceptionIdentity(entry) {
   if (entry.ep) return `ep:${entry.ep}`;
   if (entry.node) return `node:${entry.node}`;
   return `name:${norm(entry.name ?? entry.target)}`;
+}
+
+/** 口述流水按身份键分组（状态派生与复测入选共用的同一套键）。 */
+export function groupAttemptsByIdentity(attempts = [], resolveOpts = {}) {
+  const map = new Map();
+  for (const a of attempts) {
+    const key = oralIdentityKey(a.target, resolveOpts);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(a);
+  }
+  return map;
 }
 
 /** 根因键：diagnosis.text 规范化（复发时写入口径要求一字不差沿用原文），缺省回退 observed.text。 */
@@ -197,14 +218,8 @@ function rootCauseKey(entry) {
  * @returns {Array<object>} 条目浅拷贝 + 派生 status
  */
 export function deriveMisconceptionStatuses(entries = [], attempts = [], resolveOpts = {}) {
-  const attemptsByIdentity = new Map();
-  for (const a of attempts) {
-    const r = resolveOralTarget(a.target, resolveOpts);
-    const key = r.ep ? `ep:${r.ep}` : r.node ? `node:${r.node}` : `name:${norm(r.name)}`;
-    if (!attemptsByIdentity.has(key)) attemptsByIdentity.set(key, []);
-    attemptsByIdentity.get(key).push(a);
-  }
-  const identities = entries.map((e) => entryIdentity(e));
+  const attemptsByIdentity = groupAttemptsByIdentity(attempts, resolveOpts);
+  const identities = entries.map((e) => misconceptionIdentity(e));
   return entries.map((e, i) => {
     const key = identities[i];
     const at = e.observed.at;

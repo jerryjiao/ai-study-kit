@@ -56,6 +56,10 @@ _Avoid_: 手写总数当真源（双记必漂移）、把明细流水写进 mark
 `study/records/misconceptions.json`——聊天陪练中**已判明的口述错误与诊断**的跨会话私有记忆（#132，spec #131 复习闭环；归档决议 #128）：条目 = observed（学习者实际说错什么，事实）+ diagnosis（教练推断的根因，可缺省）**分立不混写**，归属解析复用 `resolveOralTarget` 随条目落盘（裸名 `via=null` 永不强归 EP，消费端按名字聚合标「未定位」）；append-only——status 落盘恒 open，corrected（同 target 后续口述最近一次答对）/ recurred（同根因再现：追加新条目、diagnosis 一字不差沿用原文以使接续可判定）由消费端派生，永不回填旧条目。微块不开站也写它（跨会话记忆例外，同 `next-hook.json`）。消费：`mastery-report --json` 的 `misconceptions` 字段 + `points[].misconceptions`（与 `points[].profile` 的题 id 来源按 EP 双源合流）；**证据源不是判据输入**，不进 v1.2 掌握判据；无台账/坏台账 = 字段静默缺席零变化。纯函数单源 `apps/quiz-app/scripts/lib/misconceptions.mjs`，写入口径单源 contracts.md 契约二。
 _Avoid_: 把错因塞进 oral-attempts 流水字段（#128 已否）、从旧流水回填台账（事后倒推 = 编造既往错因）、observed 里混写教练推断（推断不是学习者承认的事实）、凭记录次数制造新成绩（同一笔观察去重）
 
+**隔期复测（spaced retest）**:
+学习者显式请求复习（「考考我 / 复测上次错的」）时的轻量再验证（#133，spec #131 复习闭环 2/4；规则决议 #129）：从口述错因台账 open 条目 + 口述流水**纯派生**复测目标——三条件（open + 口头四态非 mastered 双闸 + 当天该目标无口述【多通道同目标去重】）+ 弱项排序，每会话最多 **1 目标 × 1-2 题**。不设固定间隔（时机 = 下一次会话，间隔由自然回访节奏决定）、不依赖闪卡 srsDue（零闪卡可用）、不新增证据通道与 source 枚举（结果走既有口述流水与实时回流）。出题沿台账 diagnosis 出**同根因变体**（非原题重放，缺省回退 observed）；答对 → 消费端判 corrected 退场（历史错误不被永远说成当前错误）、答错 → 当场纠偏再验 1 题、同根因再现 → 台账复发接续写法。判据单源 `apps/quiz-app/scripts/lib/retest.mjs`；消费 `mastery-report --json` 的 `retest` 字段（无台账静默缺席）；编排与话术单源 F10「隔期复测」节。
+_Avoid_: 固定 3/7 天间隔与到期清单（#129 已否——三周未回也不堆叠）、把复测建议当成掌握度判据输入（证据消费不是判据）、把 case 判定改造成短口述成绩（#127：案例只读不排）
+
 **考点节点映射（graph map）**:
 knowflow 图节点 id ↔ 考点（EP-NN）的个人映射文件 `study/records/graph-map.json`，agent 辅助建立、学习者确认。未映射节点仍可经口头流水判掌握，只是不并入考点视图。映射是个人学习数据，同 records 隐私边界（不上站、不提交）。
 _Avoid_: 把 EP 写进 knowflow 页面 frontmatter（知识库渗学习元数据）、按标题模糊匹配（幻影对齐）

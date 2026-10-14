@@ -10,7 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -212,10 +212,90 @@ test('mastery-report --json：无台账 / 坏台账 → 字段静默缺席，输
       const report = JSON.parse(out);
       assert.equal('misconceptions' in report, false, `${label}：顶层字段缺席`);
       assert.ok(report.points.every((p) => !('misconceptions' in p)), `${label}：points 键缺席`);
+      // 隔期复测（#133）与 misconceptions 同闸：无可用台账证据 → retest 字段静默缺席，复测通道不出现
+      assert.equal('retest' in report, false, `${label}：retest 字段缺席`);
       // 掌握四态与功能前一致（跨侧夹具期望）
       assert.deepEqual(Object.fromEntries(report.points.map((p) => [p.ep, p.status])), expected, `${label}：判据零变化`);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  }
+});
+
+// ── 隔期复测候选（#133，spec #131 / 决议 #129）：报告消费面端到端 ──────────────
+//
+// 装配链路：readMisconceptions → deriveRetest（台账 open + 口述流水 + now=Date.now()）→
+// report.retest（pick + candidates + excluded）。断言面：零闪卡场景（flashcards 空、srs 空、
+// 答题空——入选不依赖 srsDue）、pick 带解释依据（observed 事实 / diagnosis 推断分开可引）、
+// 复测结果走既有口述回流并流（progress.oralAttempts 同四元组去重、他主题不串门）、答对后
+// 候选退场（corrected 派生 + 历史错误不再被当作待复测）、口述成绩不伪造成题库作答
+// （answers 驱动的四态全程 untouched）。夹具时间：昨日侧用注入过去时间（1970 起点恒非「今天」），
+// 会话 2 的复测作答用真实 Date.now()（当天口径由此真实）。
+
+test('mastery-report --json：复测候选派生 + 复测结果走口述回流并流去重 + 答对即退场（零闪卡全程）', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ask-mastery-'));
+  try {
+    // 两考点主题，零闪卡（flashcards 空）、零 srs、零答题——复测入选与 srsDue/题库进度无关
+    writeFileSync(join(dir, 'questions.json'), JSON.stringify([
+      { id: 'A1', examPoint: 'EP-01' }, { id: 'A2', examPoint: 'EP-01' },
+      { id: 'C1', examPoint: 'EP-03' }, { id: 'C2', examPoint: 'EP-03' },
+    ]));
+    writeFileSync(join(dir, 'flashcards.json'), JSON.stringify([]));
+    writeFileSync(join(dir, 'MISSION.md'), '# m\n\n| 考点id | 考点 | 深度 | 题型×题量 | day | 闪卡数 |\n|---|---|---|---|---|---|\n'
+      + '| EP-01 | 暂存区 | 掌握 | single×2 | D1 | 0 |\n| EP-03 | chmod | 掌握 | single×2 | D2 | 0 |\n');
+    mkdirSync(join(dir, 'study', 'records'), { recursive: true });
+    // 会话 1（注入过去时间 = 恒非今天）：EP-03 口述判错 + 台账落条（observed/diagnosis 分立）
+    writeFileSync(join(dir, 'study', 'records', 'oral-attempts.json'), JSON.stringify([
+      { target: 'EP-03 chmod', correct: false, at: 3000, source: 'recall' },
+    ]));
+    const theme = basename(dir);
+    writeFileSync(join(dir, 'study', 'records', 'misconceptions.json'), JSON.stringify([
+      misEntry({ theme, observed: { text: '把 4 说成读权限', at: 2000, source: 'recall' }, diagnosis: { text: '权限位与八进制对应记反', at: 2000 } }),
+    ]));
+    const progressPath = join(dir, 'progress.json');
+    writeFileSync(progressPath, JSON.stringify({
+      answers: {}, srs: {},
+      // 实时回流副本：同四元组（带 theme）+ 他主题条目——并流去重、不串门
+      oralAttempts: [
+        { theme, target: 'EP-03 chmod', correct: false, at: 3000, source: 'recall' },
+        { theme: 'other-theme', target: 'EP-03 chmod', correct: true, at: 99999, source: 'recall' },
+      ],
+    }));
+
+    // 会话 2 开场：显式复习意图 → 教练读 retest 字段
+    const before = JSON.parse(execFileSync(process.execPath, [REPORT, '--theme', dir, '--progress', progressPath, '--json'], { encoding: 'utf-8' }));
+    assert.equal(before.retest.pick.ep, 'EP-03', '零闪卡场景照常派生复测候选（不依赖 srsDue）');
+    assert.equal(before.retest.pick.oral.status, 'weak');
+    assert.equal(before.retest.pick.openCount, 1);
+    assert.equal(before.retest.pick.misconceptions[0].observed.text, '把 4 说成读权限', '解释依据：observed 事实可引');
+    assert.equal(before.retest.pick.misconceptions[0].diagnosis.text, '权限位与八进制对应记反', '出题依据：diagnosis 推断可引（与事实分开）');
+    // 回流并流去重：判错一笔只计一次（progress 副本同四元组），他主题条目不计
+    const ep03Oral = before.oral.targets.find((t) => t.target === 'EP-03');
+    assert.equal(ep03Oral.asked, 1);
+    // 口述成绩不伪造成题库作答：答题面零记录（answered 恒 0）；EP-03 的 weak 是口述负面证据照旧传导
+    assert.ok(before.points.every((p) => p.answered === 0));
+    assert.deepEqual(Object.fromEntries(before.points.map((p) => [p.ep, p.status])), { 'EP-01': 'untouched', 'EP-03': 'weak' });
+
+    // 会话 2 复测作答（真实 Date.now()）：沿 diagnosis 出变体 → 学习者答对 → 落包内流水 + 模拟 POST 回流
+    const at = Date.now();
+    const pkg = JSON.parse(readFileSync(join(dir, 'study', 'records', 'oral-attempts.json'), 'utf-8'));
+    pkg.push({ target: 'EP-03 chmod', correct: true, at, source: 'recall' });
+    writeFileSync(join(dir, 'study', 'records', 'oral-attempts.json'), JSON.stringify(pkg));
+    const prog = JSON.parse(readFileSync(progressPath, 'utf-8'));
+    prog.oralAttempts.push({ theme, target: 'EP-03 chmod', correct: true, at, source: 'recall' });
+    writeFileSync(progressPath, JSON.stringify(prog));
+
+    const after = JSON.parse(execFileSync(process.execPath, [REPORT, '--theme', dir, '--progress', progressPath, '--json'], { encoding: 'utf-8' }));
+    // 答对即退场：EP-03 不再是候选（corrected 派生——条目无 open，历史错误不被当作待复测）
+    assert.ok(after.retest.candidates.every((c) => c.ep !== 'EP-03'));
+    assert.equal(after.retest.excluded.notOpen, 1);
+    assert.equal(after.points.find((p) => p.ep === 'EP-03').misconceptions[0].status, 'corrected');
+    // 流水两笔各计一次（回流副本同四元组去重）；题库作答面仍零记录（口述不伪造成题库作答）
+    assert.equal(after.oral.targets.find((t) => t.target === 'EP-03').asked, 2);
+    assert.ok(after.points.every((p) => p.answered === 0));
+    // EP-03 口述判对后负面证据解除（口述通道语义照旧——复测结果就是普通口述流水，非 weak）
+    assert.notEqual(after.points.find((p) => p.ep === 'EP-03').status, 'weak');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
 });
