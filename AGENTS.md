@@ -74,7 +74,7 @@ ai-study-kit/
 │   ├── install-skill.sh       # skill 安装器（skills/ 全部 → ~/.agents/skills/，多 skill）
 │   ├── sync-plugin.mjs        # skills/（多 skill）→ plugins/ai-study-kit + 市集清单（含 kit-version.json 写入，ADR-0006）
 │   ├── render_ascii_slide.py  # ASCII → PNG 渲染（给示例画图用）
-│   └── drill/                 # F13 升级演练（存量项目夹具生成 + 断言器 + REPORT.md 留档，spec #55 行为级验收面）
+│   └── drill/                 # F13 升级演练（存量项目夹具生成 + 断言器 + REPORT.md 留档，spec #55 行为级验收面）+ 复习闭环行为级演练 #132-#135（错因接续/隔期复测/开场编排/存量升级×跨会话，spec #131）
 ├── README.md                  # 项目主页（五语：中文基准 + README.en/es/ru/ja.md 译本，顶部切换栏互链）
 ├── CHANGELOG.md               # 版本日志
 ├── LICENSE                    # MIT

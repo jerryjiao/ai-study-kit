@@ -332,7 +332,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
    test ! -d <项目>/kit/kit && echo "no-nesting=ok"
    ```
 
-4. **对照快照补缺失的新文件模板**（只补缺失，不覆盖已有）：diff 用户项目与插件快照的文件清单，缺的**代码/配置文件**从快照拷入。主题包侧（kit 外）缺的可选契约文件按模板补——`theme-config.json` 缺可不补（无配置回退是正常态；要定制呈现层，插件用户按常用字段写——显示名 `topicLabels`、分组顺序 `topicOrder`、子主题 `subtopics`、课→题集直达 `lessonTopics`，示例照快照内 `examples/dev-intro/theme-config.json`；字段全表在仓库 `docs/theming.md`，贡献者参考）；**冲刺包打印版**（`study/sprint/print.html`）是 F11 的随包产物，旧冲刺包没有属正常——下次 F11 产包自动带上，要给旧包补就重跑一次 F11。**v0.14 新数据文件（`study/records/oral-attempts.json`、`graph-map.json`）不补**——沿用「首用时自建、只读不建」惯例，没用到的新功能不添升级步骤。
+4. **对照快照补缺失的新文件模板**（只补缺失，不覆盖已有）：diff 用户项目与插件快照的文件清单，缺的**代码/配置文件**从快照拷入。主题包侧（kit 外）缺的可选契约文件按模板补——`theme-config.json` 缺可不补（无配置回退是正常态；要定制呈现层，插件用户按常用字段写——显示名 `topicLabels`、分组顺序 `topicOrder`、子主题 `subtopics`、课→题集直达 `lessonTopics`，示例照快照内 `examples/dev-intro/theme-config.json`；字段全表在仓库 `docs/theming.md`，贡献者参考）；**冲刺包打印版**（`study/sprint/print.html`）是 F11 的随包产物，旧冲刺包没有属正常——下次 F11 产包自动带上，要给旧包补就重跑一次 F11。**v0.14 新数据文件（`study/records/oral-attempts.json`、`graph-map.json`）不补**——沿用「首用时自建、只读不建」惯例，没用到的新功能不添升级步骤。**跨会话私有记忆文件（`misconceptions.json` 错因台账、`next-hook.json` 下站预告）同样不补，且错因台账不预建也不回填**（#135：升级只对齐能力面——台账在学习者下次口述判错且识别出具体误区时自然落第一笔，从旧流水倒推生成错因 = 编造既往成绩；只读探测一律不建文件，升级前后 `mastery-report --json` 无台账则 `misconceptions`/`retest` 字段静默缺席，学习主路径零变化）。
 
 5. **契约缺口逐项引导（只点名 + 给补法，绝不代写内容——内容主权在学习者）**：
 
@@ -341,6 +341,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
    | MISSION.md 无「## 考点排布表」 | 四对齐校验回退 dev-intro 关键词模式并 ⚠；考点名映射为空 | 按 F2 第 2 步补表（考点/深度/题型×题量/day/闪卡数） |
    | 题库缺 `examPoint`/`day` 标记 | `mastery-report` 考点全部 untouched、首页掌握度面板无考点 | 照排布表给 `questions.json` 的题补 `examPoint`（EP-NN）与 `day`，改题保留旧 id |
    | 闪卡缺 `examPoint` 映射 | 掌握度退**纯题维度**（闪卡通道不参与判据）——升级前用户感知不到，此处点名 | 给 `flashcards.json` 的卡补 `examPoint` 字段映射到对应考点 |
+   | 口述错因台账大量「未定位」（`mastery-report --json` 的 `misconceptions.unlocated` 偏多；`misconceptions=none` 是**正常态不是缺口**——无台账不进此行，学习主路径零变化） | 台账条目落盘时解析不到 EP/节点（多为判错发生在排布表/图映射补齐之前） | 补排布表或图映射（同上两行补法）。**已落盘条目不回填改写**（append-only：落盘归属只认写时解析——裸名永不强归 EP；补齐后新条目正确定位，旧「未定位」条目照实呈现） |
 
    每项引用实测数据说明「补了恢复什么」（如 `mastery-report --json` 显示 0/45 题带考点标记 → 补齐后掌握度/全景/弱考点推荐才活），逐项问用户「现在补还是稍后」；不补的照实记着，第 6 步体检里如实报「已知悉未补」。
 
@@ -399,12 +400,15 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
    const fc = JSON.parse(fs.readFileSync(`${D}/flashcards.json`, "utf-8"));
    console.log(`questionsTagged=${qs.filter((q) => q.examPoint).length}/${qs.length} flashcardsMapped=${fc.filter((c) => c.examPoint).length}/${fc.length}`);
    '
+   # ③ 复习闭环契约（#135，只读）：口述错因台账有无与条数（state.md §7 同款命令，只读不建）
+   grep -c '"status"' "$D/study/records/misconceptions.json" 2>/dev/null || echo "misconceptions=none"
    ```
 
    - 漂移三态：两处版本相等 = 已对齐；用户项目版本旧 = 落后 N 版（N 优先用 `<插件根>/CHANGELOG.md` 数——随插件分发，本期起新增；取不到时降级为只报两处版本号、不数 N）→ 补法走 F13；无版本文件 = 版本未知按最老 → 同样 F13。
    - **本体信号同款（第三处）**：插件快照旧于最新发布 = 本体落后（快照 v<x> → 最新 v<y>）→ 先刷新插件本体（它挡在 F13 前面，Route A/B 见 F13 第 1 步）；相等 = 本体最新；`latest=unknown` / 解析失败 = 注一句「最新版探测失败」，本地两态照报——软失败，不进红项。
    - **实例信号（v0.24.0 起，更新闭环的验收环）**：health 的 `version` 回答「**这个在跑的实例**是什么版」（与本体信号「最新发到什么版」两码事，不可互替——state.md §8「部署实例」；**禁止比 JS bundle 哈希**）。在线实例 version ≠ 项目/快照版本 = 部署的还是旧构建、或升级后没重启服务（version 启动时读一次，重启才反映）；`instance=offline` 只注一句「实例离线」，不进红项。升级/更新前后各 curl 一次对版本号（F13 第 1、6 步）——升级后重跑体检，实例版本应 = 目标版本。
    - 契约缺口判定：`table=missing` 或 0 = 排布表缺失；`questionsTagged` 低于全量 = 掌握度/全景的考点维度失明；`flashcardsMapped=0`（或排布表声明有卡考点却无映射）= 掌握度退纯题维度。补法都在 F13 第 5 步的表里——只报事实，不虚报也不代修。
+   - **错因台账判定（#135，只报事实）**：`misconceptions=none` = 台账未建——**正常态，不进缺口、不催建**：错因记忆与隔期复测通道随之静默缺席，学习主路径零变化；补齐方式不是手工建文件，而是「照常陪练——学习者下次口述判错且识别出具体误区时台账自然首建」（写入口径 contracts.md 契约二），**不从旧口述流水回填**（事后倒推 = 编造既往错因）。有条目则如实报条数（`N 条`），`mastery-report --json` 的 `misconceptions.unlocated` 偏多时点名排布表/图映射缺口（补法同上，已落盘条目不回填改写）。
    - 已对齐 + 无缺口的项目：两项报 ✅，不输出多余噪音。
 
 4. **按模板输出报告**（数字全部来自实测）：
@@ -424,7 +428,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --graph "$GRAPH" 
      sync 新鲜度 … ✅ / ❌（重跑 pnpm build——常连带解掉假红）
    版本与契约（ADR-0006；只报事实与补法）：
      版本漂移 … ✅ 已对齐（v<x>）/ ⚠ 落后 N 版（v<旧> → v<新>，走 F13）/ ⚠ 版本未知（无 kit-version.json，按最老，走 F13）/ 仓库本体（✅ 与 origin/main 同步 / ⚠ 落后 N 提交，agent 代跑 git pull + 重建 / 落后探测失败注一句）· 本体 ✅ 已最新（v<x>）/ ⚠ 落后（快照 v<x> → 最新 v<y>，先刷新插件——F13 第 1 步分叉）/ 最新版探测失败（注一句，本地两态照报）· 实例 v<x> ✅ 与本地一致 / ⚠ v<x> ≠ 本地 v<y>（旧构建未重启，重启后复 curl）/ 实例离线（注一句）
-     契约完整性 … ✅ 无缺口 / ⚠ <排布表缺失 · 题缺考点标记 N/M · 卡缺映射 N/M>（补法见 F13 第 5 步）
+     契约完整性 … ✅ 无缺口 / ⚠ <排布表缺失 · 题缺考点标记 N/M · 卡缺映射 N/M>（补法见 F13 第 5 步）· 错因台账：<未建（正常态——首判错自建，不回填）｜N 条，未定位 M 条（补法见 F13 第 5 步）>
    建议修复顺序：<只列红项，按下面的固定优先级>
    ```
 
