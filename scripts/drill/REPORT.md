@@ -87,3 +87,36 @@ node scripts/drill/check-upgrade.mjs /tmp/ask-drill/project --scenario=stalled
 #   → 复探通过，按 F13 完整升级后：
 node scripts/drill/check-upgrade.mjs /tmp/ask-drill/project
 ```
+
+---
+
+# 口述错因跨会话接续演练留档（#132 / spec #131 行为级验收面）
+
+> 2026-10-14 首跑。验收切分按 #130 决议：数据面由确定性夹具保（`apps/quiz-app/scripts/lib/misconceptions.test.mjs` 台账纯函数 14 项 + `mastery-report.test.mjs` 报告端到端新增 2 项——双源 join / 主题隔离 / 未定位桶 / 状态派生 / 无台账零变化），行为面由本演练保。演练脚本可重复跑，时间戳全部真实 `Date.now()`（红线），两会话 = 两次独立命令序列（判错落条 → 跨会话读出 → 答对派生 corrected）。
+
+## 夹具
+
+- 生成命令：`node scripts/drill/misconception-drill.mjs`（默认目录 `/tmp/ask-drill-misconception`，外部主题包形态；每次重跑重建）。
+- 形态：三考点主题（EP-01 暂存区 / EP-03 chmod / EP-05 分支模型）+ profile.json（题 id 来源错因挂 EP-03，验证双源 join）+ 空答题进度；正式站记录 `01-perm.md` 照写「错的点」（旧通道不丢）；他主题同号 EP-03 条目预置（验证读端隔离）。
+
+## 带跑实录（15 项断言全绿，exit 0）
+
+| 会话 | 动作 | 实测结果 |
+|------|------|---------|
+| 1 · 正式站 | EP-03 chmod 口述判错（把 4 说成读权限）→ 台账落条（observed 事实 + diagnosis 推断分立、questionId=C1、via=ep） | ✅ 站记录「错的点」与台账并存，旧通道不丢 |
+| 1 · 微块 | 裸知识点「补零权限位」判错 → 台账落条 via=null | ✅ 未定位如实呈现；`study/records/` 仍只有 1 份站记录——微块不被迫建正式站 |
+| 1 · 边界 | 他主题同号 EP-03 条目预置 + 同一笔观察重复提交 | ✅ 读端过滤不串用；append 幂等去重、计数不虚增 |
+| 2 · 开场读出 | state.md §7 探测命令（`grep -c '"status"'`）+ §3 `mastery-report --json` | ✅ 探测报 3 条；报告 total=2（他主题被滤）；observed / diagnosis 分开可引（「你上次说过 X」与「我当时判断根因是 Y」不同句）；profile（题 id 来源）与台账（口述来源）同 EP-03 并存互不覆盖 |
+| 2 · 判据对拍 | 有台账 vs 临时移走台账重跑报告，四态逐考点对比 | ✅ 完全一致（`{"EP-01":"untouched","EP-03":"weak","EP-05":"untouched"}`——EP-03 weak 是口述判错通道的 v1.2 语义，与台账无关：台账是证据源不是判据输入） |
+| 2 · 接续闭环 | 学习者答对同目标口述（真实事件时间）→ 流水落判对条 → 重跑报告 | ✅ 台账条 open → corrected（消费端派生，不改写旧条目）；口述流水两笔，错因与成绩各走各的通道互不冒充 |
+| 边界 | sync-study LOCAL_ONLY 规则核对 | ✅ `study/records/` 不上站（台账私有边界随目录继承） |
+
+## 结论
+
+#132 验收达成：判错落条 → 跨会话经既有报告与开场路径读出同一根因 → 新作答进流水后状态派生 corrected，正式站与微块同规；observed/diagnosis 诚实分立；主题隔离、去重、真实时间戳、判据零变化全部实证。
+
+## 边界（如实声明）
+
+- 复测选择/限量/编排（#129 规则）不在本票——台账 `misconceptions` 字段已可消费，复测候选派生与 F10 抽背位并入由 #133/#134 接续。
+- 演练为脚本化两会话（非真人对话）；时间戳真实但两「会话」同日相邻——隔期天数不参与本票任何判据（#129 已决不设固定间隔）。
+- `POST /api/oral-attempts` 实时回流未在演练中起服务端（演练聚焦台账链路）；回流面已有既有行为测试覆盖，台账消费的是并流后的同一份流水。

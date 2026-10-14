@@ -6,7 +6,16 @@
 
 ## [Unreleased]
 
-（暂无——下一版攒票中。）
+### Added
+
+- **口述错因跨会话接续（#132，spec #131 复习闭环 1/4）**：聊天陪练中已判明的口述错误与诊断可跨会话消费——后续会话经既有报告与开场路径读出同一根因，针对性纠偏不必从头解释。新增最小私有台账 `study/records/misconceptions.json`（归档决议 #128：append-only；observed 记学习者实际说错什么【事实】/ diagnosis 记教练推断根因【推断，可缺省】分立不混写；归属复用 `resolveOralTarget` 随条目落盘、裸名永不强归 EP 按名字聚合标「未定位」；条目冗余 theme 读端过滤——同号 EP 不串用；status 落盘恒 open，corrected/recurred 由消费端按后续口述流水派生，同根因复发 = 追加新条目 + diagnosis 沿用原文接续，历史全留不改写）。正式站与微块同规（微块不开站，有依据的错因由台账直接承接）。消费面：`mastery-report --json` 新增 `misconceptions` 字段 + `points[].misconceptions`（与 `points[].profile` 的题 id 来源按 EP 双源 join）；探测 state.md §3/§7、写入口径 contracts.md 契约二「口述错因台账」、F10 站/微块编排同步；两会话演练留档 `scripts/drill/REPORT.md`。
+
+### 升级与存量影响
+
+- **新文件/新契约**：学习者私有新文件 `study/records/misconceptions.json`（可选，首用时自建——agent 按契约二协议直接维护，同 next-hook.json 跨会话记忆模式，不新增 CLI）；纯函数库 `apps/quiz-app/scripts/lib/misconceptions.mjs`（解析/构建/追加/状态派生，含拒未来时间戳与坏文件拒写守卫，14 项单测）。
+- **老项目缺了会怎样**：零影响、零动作。无台账 / 坏台账 / 条目全属他主题 → `mastery-report --json` 台账字段静默缺席，输出与功能前零变化（端到端断言）；坏台账读端当空台账静默降级、写端拒覆盖（不静默重置学习者数据）。
+- **怎么补**：插件用户 marketplace refresh（契约/探测/F10 口径随版本走）；台账在学习者下次口述答错且识别出具体错因时自然首建，不从旧口述流水回填（事后倒推 = 编造既往错因，诚实红线）。
+- **是否破坏性**：非破坏。profile.json 题 id 语义一字不动零迁移（双源 join 两个来源并存）；台账是证据源不是判据输入，不进 v1.2 掌握判据（端到端断言判据零变化）；口述对错不写成题库作答。
 
 ## [0.27.0] — 2026-10-08
 

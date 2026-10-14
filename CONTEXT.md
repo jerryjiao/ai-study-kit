@@ -52,6 +52,10 @@ _Avoid_: 把掌握度写进知识页（状态入库，两处真源打架）、�
 聊天陪练中每次口头问答的明细记录（考哪个知识点、对错、时间戳），存 `study/records/oral-attempts.json`，学习者私有不上站；v0.26（#122）起教练写包同时把同一笔作答实时回流答题站 `progress.oralAttempts`（POST `/api/oral-attempts`，条目带 theme 归属）——web 掌握度/全景即时消费，两路并流四元组去重仍是同一笔。无题知识点（图节点）的掌握度信号源：近期加权正确率 + 置信度封顶（答 1 次封 0.5、2 次封 0.8，防一次蒙对），范式照搬 DeepTutor `compute_mastery`，确定性零 LLM。契约二「口头题计数」从它派生，不再手写总数。
 _Avoid_: 手写总数当真源（双记必漂移）、把明细流水写进 markdown 表格、两路各编时间戳（同笔作答并流会被计两次）
 
+**口述错因台账（misconceptions ledger）**:
+`study/records/misconceptions.json`——聊天陪练中**已判明的口述错误与诊断**的跨会话私有记忆（#132，spec #131 复习闭环；归档决议 #128）：条目 = observed（学习者实际说错什么，事实）+ diagnosis（教练推断的根因，可缺省）**分立不混写**，归属解析复用 `resolveOralTarget` 随条目落盘（裸名 `via=null` 永不强归 EP，消费端按名字聚合标「未定位」）；append-only——status 落盘恒 open，corrected（同 target 后续口述最近一次答对）/ recurred（同根因再现：追加新条目、diagnosis 一字不差沿用原文以使接续可判定）由消费端派生，永不回填旧条目。微块不开站也写它（跨会话记忆例外，同 `next-hook.json`）。消费：`mastery-report --json` 的 `misconceptions` 字段 + `points[].misconceptions`（与 `points[].profile` 的题 id 来源按 EP 双源合流）；**证据源不是判据输入**，不进 v1.2 掌握判据；无台账/坏台账 = 字段静默缺席零变化。纯函数单源 `apps/quiz-app/scripts/lib/misconceptions.mjs`，写入口径单源 contracts.md 契约二。
+_Avoid_: 把错因塞进 oral-attempts 流水字段（#128 已否）、从旧流水回填台账（事后倒推 = 编造既往错因）、observed 里混写教练推断（推断不是学习者承认的事实）、凭记录次数制造新成绩（同一笔观察去重）
+
 **考点节点映射（graph map）**:
 knowflow 图节点 id ↔ 考点（EP-NN）的个人映射文件 `study/records/graph-map.json`，agent 辅助建立、学习者确认。未映射节点仍可经口头流水判掌握，只是不并入考点视图。映射是个人学习数据，同 records 隐私边界（不上站、不提交）。
 _Avoid_: 把 EP 写进 knowflow 页面 frontmatter（知识库渗学习元数据）、按标题模糊匹配（幻影对齐）

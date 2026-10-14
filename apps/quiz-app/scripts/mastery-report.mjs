@@ -24,6 +24,13 @@
  * 与题库通道在 masteryByExamPoint 内合流；口径与 TS 侧 src/lib/mastery.ts 一致（跨侧夹具
  * 断言见 src/lib/mastery.test.ts）。
  *
+ * 口述错因台账（#132，spec #131 / 决议 #128）：--json 的 misconceptions 字段输出台账消费
+ * 视图（study/records/misconceptions.json，学习者私有可选）——双源错因 join 的口述侧：
+ * points[].misconceptions（口述来源）与 points[].profile（题库题 id 来源）按 EP 合流并列；
+ * 状态 open/corrected/recurred 由后续口述流水派生（deriveMisconceptionStatuses），不改写
+ * 旧条目。无台账 / 坏台账 / 条目全属他主题 → 字段静默缺席，输出与功能前零变化；台账是
+ * 证据源不是判据输入，不进 masteryByExamPoint（v1.2 掌握判据语义不变）。
+ *
  * 进度来源：--progress 指定的文件，默认 apps/quiz-app/progress.json（本地文件口径；
  * 要看线上进度先 `curl -sf $SERVER/api/progress -o /tmp/p.json` 再传进来，与 skill state.md 同模式）。
  * 文件不存在 = 空进度（全部 untouched），不是故障。
@@ -43,6 +50,7 @@ import { epNameMap, epDayMap, masteryByExamPoint, rankWeakness } from './lib/mas
 import { buildPanorama } from './lib/panorama.mjs';
 import { readSessionRecords, lessonsReadState } from './lib/coverage.mjs';
 import { readOralAttempts, oralAttemptsFromProgress, mergeOralAttempts, groupOralAttempts, oralMastery, rankOralWeakness, oralAttemptsPath, graphNodeIndex } from './lib/oral.mjs';
+import { readMisconceptions, deriveMisconceptionStatuses, misconceptionView } from './lib/misconceptions.mjs';
 import { loadGraphMap, loadKnowledgeGraph, buildProjection, projectionPathFor, buildPrereqSignals, orderEpsByPrereqs } from './lib/graph-bridge.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -221,6 +229,20 @@ if (graph) {
   }
 }
 
+// 口述错因台账（#132，spec #131 / 决议 #128）：study/records/misconceptions.json（学习者
+// 私有，可选）——聊天陪练中已判明的口述错误与诊断的跨会话记忆。消费视图 = 双源错因 join 的
+// 口述侧：profile（题库题 id 来源）∪ 台账（口述来源）按 EP 合流，points[].misconceptions 与
+// points[].profile 并列。状态（open/corrected/recurred）由后续口述流水派生，不改写旧条目。
+// 台账是证据源不是判据输入：不进 masteryByExamPoint，v1.2 掌握判据零变化。
+// 无台账 / 坏台账 / 全部条目属他主题 → 空台账：全部字段静默缺席，输出与功能前零变化。
+const misconceptionsRaw = readMisconceptions(THEME_DIR, THEME);
+let misconceptionsSignal = null;
+if (misconceptionsRaw.length) {
+  misconceptionsSignal = misconceptionView(deriveMisconceptionStatuses(misconceptionsRaw, oralAttempts, {
+    epNames, graphMap, graphNodes: graphNodes ?? undefined,
+  }));
+}
+
 const joinProfile = (p) => {
   if (!profile || !Array.isArray(profile.examPoints)) return undefined;
   const hit = profile.examPoints.find((e) =>
@@ -243,7 +265,12 @@ const report = {
     untouched: byStatus('untouched'),
     untrackedQuestions: untracked,
   },
-  points: points.map((p) => ({ ...p, profile: joinProfile(p) })),
+  points: points.map((p) => ({
+    ...p,
+    profile: joinProfile(p),
+    // 台账口述错因（双源 join 的口述侧；无台账时键缺席——输出与功能前零变化）
+    ...(misconceptionsSignal ? { misconceptions: misconceptionsSignal.byEp[p.ep] || [] } : {}),
+  })),
   weakRanked: weak.map((p) => p.ep),
   globalPatterns: (profile && profile.globalPatterns) || [],
   oral: {
@@ -256,6 +283,8 @@ const report = {
     weakRanked: oralWeak.map((t) => t.target),
   },
   graph: { ...graphSignal, projection: projectionResult },
+  // 口述错因台账消费视图（#132）：无台账时键整体缺席（静默降级，输出与功能前零变化）
+  ...(misconceptionsSignal ? { misconceptions: misconceptionsSignal } : {}),
 };
 
 // ── 输出 ──────────────────────────────────────────────────
@@ -274,6 +303,11 @@ if (AS_JSON) {
     if (p.profile && p.profile.wrongReasons.length) {
       console.log(`        档案错因：${p.profile.wrongReasons.join('；')}${p.profile.advice ? `（建议：${p.profile.advice}）` : ''}`);
     }
+    // 台账口述错因（双源 join 的口述侧；observed=事实 / diagnosis=推断，如实分开引述）
+    for (const m of p.misconceptions || []) {
+      const tag = m.status === 'open' ? '未清' : m.status === 'corrected' ? '已纠正' : '复发';
+      console.log(`        台账错因（${tag}）：说过「${m.observed.text}」${m.diagnosis ? `——判断根因：${m.diagnosis.text}` : ''}（${m.observed.source}）`);
+    }
   }
   if (oralTargets.length) {
     console.log('');
@@ -284,6 +318,15 @@ if (AS_JSON) {
     }
     if (oralWeak.length) {
       console.log(`  👉 口头弱项：${oralWeak.slice(0, 3).map((t) => (t.kind === 'ep' ? `${t.ep} ${t.name}` : t.name)).join('、')}`);
+    }
+  }
+  if (misconceptionsSignal && misconceptionsSignal.unlocated.length) {
+    // 未定位桶：裸名（via=null）条目不归任何 EP，按名字聚合如实呈现（不猜归属）
+    const tag = { open: '未清', corrected: '已纠正', recurred: '复发' };
+    console.log('');
+    console.log(`  📒 口述错因台账 · 未定位 ${misconceptionsSignal.unlocated.length} 条（目标不在排布表/图，按名字聚合）：`);
+    for (const m of misconceptionsSignal.unlocated) {
+      console.log(`    ${tag[m.status]}  ${m.name}：说过「${m.observed.text}」${m.diagnosis ? `——判断根因：${m.diagnosis.text}` : ''}（${m.observed.source}）`);
     }
   }
   if (graphSignal.loaded) {

@@ -88,7 +88,31 @@ status: in-progress    # in-progress | done
 - **判据源 `plan-report --json` 的 `next` 字段**（与下一站推荐同判据、与题站会话总结页预告行同口径），不自估考点；`leftAt` 写入时的真实 `Date.now()`（与口头流水 `at` 同款红线：禁固定值、禁未来时间戳）。
 - **单条覆写**：每次收尾整体重写（一次最多一个待认领预告）；无可推考点（全掌握）→ 删文件，不留过期钩子。写前重读、整文件写回（与口头流水同款并发纪律）。
 - **开场认领前对全景**：预告考点已掌握（预告期间拿下了）→ 跳过不认领——预告过期不是欠账，不提「还欠着一个」。
-- **学习者私有**：随 `study/records/` 不上站不提交（与 oral-attempts.json / profile.json 同目录语义）。微块不开站不建记录，但这一个文件例外——它是跨会话的记忆，不是站档案。
+- **学习者私有**：随 `study/records/` 不上站不提交（与 oral-attempts.json / profile.json 同目录语义）。微块不开站不建记录，但这个文件与口述错因台账两个文件例外——它们是跨会话的记忆，不是站档案。
+
+**口述错因台账（`study/records/misconceptions.json`，#132 口述错因跨会话接续）**：聊天陪练中已判明的口述错误与诊断的跨会话私有记忆——教练当场写，后续会话经 `mastery-report --json` 的 `misconceptions` 字段与探测（state.md §3/§7）读出，用于针对性纠偏。正式站与微块同规（微块不开站不建记录，本文件例外）。条目：
+
+```json
+{
+  "theme": "dev-intro",
+  "target": "EP-03 chmod",
+  "ep": "EP-03", "node": null, "name": "chmod", "via": "ep",
+  "observed": { "text": "把 4 说成读权限", "at": 1789000000000, "source": "recall" },
+  "diagnosis": { "text": "权限位与八进制对应记反", "at": 1789000000000 },
+  "questionId": "GIT-005",
+  "status": "open"
+}
+```
+
+- **什么时候写**：学习者口述答错（站内考步 / 复述 / 微块口述）且教练识别出**具体**误区时追加一条——不是每错必写：泛泛的「不熟」没有行动价值，写有依据的错因。答对不写台账（正确作答走口述流水即可）。
+- **observed / diagnosis 分立，缺一即缺不混写**：`observed` 只记事实（学习者实际说了什么错 + 真实事件时间 + `source` 三值同口述流水）；`diagnosis` 只记教练推断的根因。后续引用时如实区分「你上次说过 X」（observed 事实）与「我当时判断根因是 Y」（diagnosis 推断），**不把推断写成学习者已承认的事实**。`diagnosis` 与 `questionId` 可缺省。
+- **归属解析随条目落盘**：`target` 一律过既有 `resolveOralTarget`（EP 前缀 → 图节点映射反查 → 图节点直引 → 裸名回退，单源口述流水同一套），解析结果（ep/node/name/via）写进条目；**裸名（`via=null`）永不强行归 EP**——消费端按名字聚合、标「未定位」如实呈现，不猜归属。构建与追加守卫在 `apps/quiz-app/scripts/lib/misconceptions.mjs`（`buildMisconceptionEntry` 拒未来时间戳 / 拒 diagnosis 半缺 / 拒 source 出枚举；`appendMisconceptions` 对完全同一笔观察去重不追加、对坏文件拒写回）。
+- **append-only，永不改写旧条目**：写前重读全文 → 追加 → 整文件写回（与口述流水同款并发纪律）；时间戳一律真实 `Date.now()`（同款红线：禁固定值 / 未来值）。**status 落盘恒为 `open`**——`corrected`/`recurred` 是消费端派生态（`deriveMisconceptionStatuses`：同 target 后续口述最近一次答对 = corrected；同根因再现 = recurred），永不回填旧条目，历史全留可追溯。
+- **复发写法（接续可判定）**：判断为既有错因复发时，新条目的 diagnosis **一字不差沿用原条目原文**——消费端按「同 target + 同根因键（diagnosis 原文，缺省回退 observed 原文）」接续原条目计 recurred；不同措辞 = 独立新错因各自走生命周期（同 EP 多种错因多条并存，互不覆盖）。
+- **主题隔离与私有边界**：文件住主题包 `study/records/`（不上站不提交），条目再冗余 `theme`（读端按主题过滤——两个主题的同号 EP-03 不串用）。
+- **与 profile.json 的分工**：profile（grill 串讲产、按题 id 关联）一字不动、零迁移；本台账承接**无题 id 的口述错因**（含微块——微块错了没有站记录的场景由台账直接承接）。消费视图双源 join：`mastery-report --json` 的 `points[].misconceptions`（口述来源）与 `points[].profile`（题 id 来源）按 EP 合流并列。
+- **不写什么**：不存聊天全文（只记错因与状态）；不把口述对错写成题库作答；不从旧口述流水回填台账（事后倒推 = 编造既往错因）；旧站记录「错的点」照写照读，不转台账（md 站记录与台账并存不合并）。
+- **消费端**：`mastery-report --json` 顶层 `misconceptions`（total / open·corrected·recurred 计数 / byEp / byNode / unlocated）+ `points[].misconceptions`；无台账 / 坏台账 / 条目全属他主题 = 字段静默缺席，输出与没有该功能前零变化。台账是**证据源不是判据输入**——不进 v1.2 掌握判据，不制造题库成绩。
 
 **旧格式兼容（只报事实，不要求补格式）**：无 frontmatter 的旧记录，按文件名带 `-in-progress` 后缀、或正文含「待办」节，识别为进行中站，照常续；无「口头题计数」节的旧记录照常解析，计数缺省为空。
 

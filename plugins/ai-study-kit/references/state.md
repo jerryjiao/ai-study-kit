@@ -119,6 +119,7 @@ node apps/quiz-app/scripts/mastery-report.mjs --theme "$THEME" --progress "$CP" 
 - **口头四态与口头弱项（v0.14，同一份 `--json` 的 `oral` 字段）**：口头答题流水（`study/records/oral-attempts.json` 唯一真源 ∪ `progress.oralAttempts` 实时回流副本（v0.26，#122——教练写包同时 POST `/api/oral-attempts`，报告自动并流、四元组去重不重复计数；`oral.fromProgress` 报进度侧贡献条数））里的每个口头目标——排布表全部考点 ∪ 流水里的裸知识点（聊天新学、无题的概念）——判纯口头四态（近 5 次加权正确率 + 置信度封顶 1 次 0.5 / 2 次 0.8；无流水目标 = 未开始）。输出消费：`oral.weakRanked` 与 `oral.targets[].status` 进快照「弱考点」行的口头弱项——推荐时点名（「拥塞控制口头问 2 对 2、加权 0.8 还没到掌握线，再抽两轮」）。口头弱与题库弱**负面优先**：任一弱即弱；题没刷过时口头最多算「进行中」——推荐先补题。
 - **知识图信号（v0.14，同一份 `--json` 的 `graph` 字段）**：传 `--graph <graph.json 路径>`（或环境变量 `KNOWFLOW_GRAPH_JSON`）时，报告装载 knowflow 知识图并给出 `graph.nodes`（节点四态 + 口头统计）与映射计数；配合 `--write-projection` 产出只读投影文件供图着色（flows.md F12）。**前置关系**：`graph.weakPrereqs` 是每个弱考点的前置链（`[{kind:'ep'|'node', id, name, mastery}]`，mastery 非 mastered 即「前置还弱」）；`graph.weakOrdered` 是尊重前置顺序的推荐序（前置先学）——推荐与陪练开场点名时用它取代裸 `weakRanked` 顺序，理由从「刷 EP-12」具体到「前置概念 EP-01 还弱，先补它」。无图 / 无映射 → `graph.loaded = false`，静默降级为纯考点口径（无前置字段），不是故障。
 - 输出消费：`summary.weak` 与 `weakRanked`（弱点排序：未毕业多者先）进快照「弱考点」行；`points[].profile` 带 grill 串讲记下的错因（来自 `study/records/profile.json`，学习者私有不上站，目录语义见 §7）——推荐时点名引用，让理由从「错题多」变成「EP-03 连错 2 次，错因：权限位组合不熟」。`points[].flashOpenIds` 列出该考点未毕业的闪卡（推荐刷闪卡时点名）；判据与 web 首页「考点掌握度」面板同口径。
+- **口述错因台账（#132，同一份 `--json` 的 `misconceptions` 字段）**：`study/records/misconceptions.json`（学习者私有可选；条目与写入口径见 [`contracts.md`](contracts.md) 契约二「口述错因台账」）存在且有本主题条目时输出：顶层 `misconceptions`（total / open·corrected·recurred 计数 / byEp / byNode / `unlocated` 未定位桶）+ `points[].misconceptions`（口述来源错因，与 `points[].profile` 的题 id 来源按 EP 双源合流）。状态由后续口述流水派生（最近一次后续口述答对 = corrected、同根因再现 = recurred），不改写旧条目。**快照「弱考点」行点名时台账错因与档案错因同引**——observed 事实与 diagnosis 推断分开引述（「EP-03 上次把 4 说成读权限，判断根因：权限位与八进制对应记反」），接续纠偏不必从头解释同一误区。无台账 / 坏台账 / 条目全属他主题 → 字段静默缺席、探测照旧，输出与没有该功能前零变化；台账不进掌握判据（v1.2 语义不变）。
 
 **考点全景（「报进度」，v0.13）**：进度统计之外的第二条派生——每考点三信号，按排布表 day 分组：
 
@@ -197,6 +198,7 @@ echo "study-lang=${STUDY_LANG:-zh}"                                         # �
 # D 同 §2/§3 的主题目录（外部主题包路径，或仓库内 examples/<name>）
 ls "$D/study/records/" 2>/dev/null | sort || echo "records=none"
 cat "$D/study/records/next-hook.json" 2>/dev/null || echo "next-hook=none"   # 未认领的下站预告（#124；格式见 contracts.md 契约二）
+grep -c '"status"' "$D/study/records/misconceptions.json" 2>/dev/null || echo "misconceptions=none"   # 口述错因台账条数（#132；observed/diagnosis 与写入口径见 contracts.md 契约二）
 test -d "$D/learning-records" && echo "legacy=learning-records"
 grep -m1 '^mode:' "$D/COACH.md" 2>/dev/null        # 教学模式；COACH.md 缺失=静默（F10 首跑自建），不进快照
 grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有就亮 ⚠
@@ -215,6 +217,7 @@ grep -m1 '^deadline:' "$D/MISSION.md" 2>/dev/null  # 考期 YYYY-MM-DD，没有�
 - `topic` 取记录 frontmatter，旧格式无 frontmatter 时用文件名 slug；`N` = 该记录「## 待办」清单里未勾选（`- [ ]`）的条数。
 - `mode` 取值顺序：记录 frontmatter `mode`（用户可能中途换过）→ COACH.md frontmatter `mode` → 报「未设」。
 - **未认领的下站预告（#124）**：`next-hook.json` 有内容 = 上次会话收尾留了预告（`{ep, name, minutes, leftAt}`，格式见 [`contracts.md`](contracts.md) 契约二「下站预告」）→ F10 第 0 步开场认领（「上次说好下次练 EP-XX，今天从它开始？」）。认领前对当前全景：该考点已掌握 → 跳过不认领（预告过期不是欠账）；`next-hook=none` → 什么都不说，零变化。
+- **口述错因台账（#132）**：`misconceptions.json` 有内容（探测行报条数）= 上次会话留下了口述错因记忆——快照「陪练」行带 `错因台账 N 条`；条目里是学习者实际说错什么（observed 事实）+ 教练判断的根因（diagnosis 推断）。派生态（未清 / 已纠正 / 复发）不在这里数——报数用 §3 `mastery-report --json` 的 `misconceptions` 字段（status 由后续口述流水现算）。`misconceptions=none` → 什么都不说，零变化。
 
 **考期（deadline）**：读 MISSION.md frontmatter `deadline: YYYY-MM-DD`——
 
