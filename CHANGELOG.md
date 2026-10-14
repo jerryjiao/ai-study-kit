@@ -6,6 +6,12 @@
 
 ## [Unreleased]
 
+（暂无——下一版攒票中。）
+
+## [0.28.0] — 2026-10-14
+
+主题：**聊天内复习闭环——错因记忆与隔期复测（spec #131，四票 #132-#135）。** 接 v0.26「看见+轻」与 v0.27 自适应排期器：进度可见、计划不再制造债务之后，剩下「这次学过」与「过几天仍然会」之间的缺口。本版让教练在后续会话接住上次的具体错因，并用少量有依据的问题重新验证——聊天学习路径的证据链（写→回流→消费）补上跨会话的一环。
+
 ### Added
 
 - **口述错因跨会话接续（#132，spec #131 复习闭环 1/4）**：聊天陪练中已判明的口述错误与诊断可跨会话消费——后续会话经既有报告与开场路径读出同一根因，针对性纠偏不必从头解释。新增最小私有台账 `study/records/misconceptions.json`（归档决议 #128：append-only；observed 记学习者实际说错什么【事实】/ diagnosis 记教练推断根因【推断，可缺省】分立不混写；归属复用 `resolveOralTarget` 随条目落盘、裸名永不强归 EP 按名字聚合标「未定位」；条目冗余 theme 读端过滤——同号 EP 不串用；status 落盘恒 open，corrected/recurred 由消费端按后续口述流水派生，同根因复发 = 追加新条目 + diagnosis 沿用原文接续，历史全留不改写）。正式站与微块同规（微块不开站，有依据的错因由台账直接承接）。消费面：`mastery-report --json` 新增 `misconceptions` 字段 + `points[].misconceptions`（与 `points[].profile` 的题 id 来源按 EP 双源 join）；探测 state.md §3/§7、写入口径 contracts.md 契约二「口述错因台账」、F10 站/微块编排同步；两会话演练留档 `scripts/drill/REPORT.md`。
