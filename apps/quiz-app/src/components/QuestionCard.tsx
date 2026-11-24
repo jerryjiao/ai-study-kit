@@ -110,7 +110,7 @@ export function QuestionCard({ q, index, initialSelected = [], initialRevealed =
       )}
 
       <OptionList options={q.options} type={q.type} selected={selected} revealed={revealed}
-        answer={q.answer} onToggle={toggle} disabled={revealed} justRevealed={justRevealed} />
+        answer={q.answer} onToggle={toggle} onSubmit={handleSubmit} disabled={revealed} justRevealed={justRevealed} />
 
       {!revealed ? (
         <Button3D

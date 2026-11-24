@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react';
 import { Check, X } from 'lucide-react';
 import type { QType } from '../types';
 import { useI18n } from '../i18n';
@@ -9,6 +10,7 @@ interface Props {
   revealed: boolean; // 是否已判分/已显示答案
   answer: string[]; // 正确答案
   onToggle: (letter: string) => void;
+  onSubmit: () => void;
   disabled?: boolean;
   /** 本次提交触发的揭晓（区别于翻回/刷新的既有揭晓）：驱动答对绿勾描边动效 */
   justRevealed?: boolean;
@@ -17,13 +19,31 @@ interface Props {
 /** 选项列表：字母前缀做成圆角徽章，触控区放大（p-3→px-4 py-3.5），选中/正误层次强化。
  *  揭晓态正误标记（v0.25 票③，原型 .opt.correct/.wrong）：正确项绿勾（答对瞬间描边画出）、
  *  错选项红叉——红绿即状态，不依赖颜色之外的提示。 */
-export function OptionList({ options, type, selected, revealed, answer, onToggle, disabled, justRevealed = false }: Props) {
+export function OptionList({ options, type, selected, revealed, answer, onToggle, onSubmit, disabled, justRevealed = false }: Props) {
   const { t } = useI18n();
   const multi = type === 'multi';
   const answerSet = new Set(answer);
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (!(event.target instanceof HTMLInputElement) || disabled || revealed || event.defaultPrevented ||
+        event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.nativeEvent.isComposing) return;
+
+    if (event.key === 'Enter' && selected.length > 0) {
+      event.preventDefault();
+      if (!event.repeat) onSubmit();
+    } else if (/^[1-9]$/.test(event.key)) {
+      const option = event.currentTarget.querySelectorAll('input')[Number(event.key) - 1];
+      if (!option) return;
+      event.preventDefault();
+      if (!event.repeat) {
+        option.focus();
+        option.click();
+      }
+    }
+  }
+
   return (
-    <div className="space-y-2.5">
-      {Object.entries(options).map(([letter, text]) => {
+    <div className="space-y-2.5" onKeyDown={handleKeyDown}>
+      {Object.entries(options).map(([letter, text], index) => {
         const isSel = selected.includes(letter);
         const isCorrect = answerSet.has(letter);
         let cls = 'border-border bg-bg-surface hover:border-border-strong hover:bg-bg-hover/50';
@@ -72,6 +92,7 @@ export function OptionList({ options, type, selected, revealed, answer, onToggle
             <input
               type={multi ? 'checkbox' : 'radio'}
               name="opt"
+              aria-keyshortcuts={!disabled && index < 9 ? String(index + 1) : undefined}
               className="sr-only"
               checked={isSel}
               disabled={disabled}
